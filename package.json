@@ -1,8 +1,8 @@
 {
-  "name": "kol-agent-project-dapp",
+  "name": "linkol_event_frontend",
   "version": "1.0.0",
-  "description": "Kol Agent Project Dapp",
-  "author": "Kol Agent",
+  "description": "Linkol Event Frontend",
+  "author": "Linkol Event",
   "type": "module",
   "private": true,
   "scripts": {
