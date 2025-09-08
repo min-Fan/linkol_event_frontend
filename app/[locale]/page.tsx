@@ -2,12 +2,17 @@
 
 import { useGetConst } from '@hooks/useGetConst';
 import { useEffect } from 'react';
-import PageLanding from './landing/page';
+import MarketEventsLayout from './market_events/layout';
+import MarketEventsPage from './market_events/page';
 export default function ProjectPage() {
   const { getConst } = useGetConst();
 
   useEffect(() => {
     getConst();
   }, []);
-  return <PageLanding />;
+  return (
+    <MarketEventsLayout>
+      <MarketEventsPage />
+    </MarketEventsLayout>
+  );
 }
