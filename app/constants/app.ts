@@ -12,6 +12,6 @@ export enum ORDER_PROGRESS {
 }
 
 export const CACHE_KEY = {
-  TOKEN: 'linkol_project_token',
-  KOL_TOKEN: 'linkol_kol_token',
+  TOKEN: 'linkol_event_token',
+  KOL_TOKEN: 'linkol_event_kol_token',
 };

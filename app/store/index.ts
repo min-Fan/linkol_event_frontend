@@ -30,7 +30,7 @@ const createSafeStorage = () => {
   // 客户端：使用 localForage
   try {
     return localForage.createInstance({
-      name: 'kol-project:redux',
+      name: 'linkol_event:redux',
     });
   } catch (error) {
     console.warn('LocalForage failed to initialize, falling back to localStorage:', error);
@@ -47,7 +47,7 @@ const createSafeStorage = () => {
 const persistConfig = {
   key: 'interface',
   storage: createSafeStorage(),
-  version: 1.6,
+  version: 0.1,
   throttle: 1000, // ms
   serialize: false,
   deserialize: false,
