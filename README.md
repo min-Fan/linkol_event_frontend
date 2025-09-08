@@ -1,3 +1,3 @@
-# kol-agent-project-dapp
+# linkol_event_frontend
 
-this is kol agent project dapp
+this is kol project event frontend
