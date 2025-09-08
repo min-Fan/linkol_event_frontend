@@ -67,9 +67,9 @@ export default async function LocaleLayout(props: { children: ReactNode; params:
           {JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'Organization',
-            name: 'Linkol AI',
-            url: 'https://www.linkol.fun',
-            logo: 'https://www.linkol.fun/favicon.ico',
+            name: 'Linkol Event',
+            url: 'https://www.app.linkol.fun',
+            logo: 'https://www.app.linkol.fun/favicon.ico',
           })}
         </Script>
       </head>
@@ -105,36 +105,36 @@ export async function generateMetadata({ params }: { params: Params }) {
   const { locale } = await params;
   const isZh = locale;
   return {
-    title: isZh == 'zh' ? 'LinKol AI' : 'LinKol AI',
-    description: isZh == 'zh' ? 'LinKol AI' : 'LinKol AI',
+    title: isZh == 'zh' ? 'LinKol Event' : 'LinKol Event',
+    description: isZh == 'zh' ? 'LinKol Event' : 'LinKol Event',
     icons: {
-      icon: 'https://www.linkol.fun/favicon.ico',
+      icon: 'https://www.app.linkol.fun/favicon.ico',
     },
     openGraph: {
-      title: 'LinKol AI',
-      description: 'https://www.linkol.fun',
-      url: `https://www.linkol.fun/${isZh ? 'zh' : 'en'}`,
+      title: 'LinKol Event',
+      description: 'https://www.app.linkol.fun',
+      url: `https://www.app.linkol.fun/${isZh ? 'zh' : 'en'}`,
       images: [
         {
-          url: 'https://www.linkol.fun/favicon.ico',
+          url: 'https://www.app.linkol.fun/favicon.ico',
           width: 1200,
           height: 630,
-          alt: 'LinKol AI',
+          alt: 'LinKol Event',
         },
       ],
     },
     twitter: {
       card: 'summary_large_image',
-      title: 'LinKol AI',
+      title: 'LinKol Event',
       description: 'https://x.com/linkol_ai',
-      images: ['https://www.linkol.fun/favicon.ico'],
+      images: ['https://www.app.linkol.fun/favicon.ico'],
     },
     robots: { index: true, follow: true },
     alternates: {
-      canonical: isZh == 'zh' ? 'https://www.linkol.fun/zh' : 'https://www.linkol.fun/en',
+      canonical: isZh == 'zh' ? 'https://www.app.linkol.fun/zh' : 'https://www.app.linkol.fun/en',
       languages: {
-        zh: 'https://www.linkol.fun/zh',
-        en: 'https://www.linkol.fun/en',
+        zh: 'https://www.app.linkol.fun/zh',
+        en: 'https://www.app.linkol.fun/en',
       },
     },
   };

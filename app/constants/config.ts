@@ -5,7 +5,7 @@ export const CONTRACT_ADDRESS: Record<
   '8453': {
     pay_member_token_address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
     KOLServiceAddress: '0xD562135D926763d4132a3E7d55a536850E03bcA9',
-    ActivityServiceAddress: '',
+    ActivityServiceAddress: '0xf3E45cF29c86b92cc7CC8Ef68773162B53CB5C78',
   },
   '32383': {
     pay_member_token_address: '0x736D175A2aCb2Bb3122298459F74aA0EfA586c2e',
