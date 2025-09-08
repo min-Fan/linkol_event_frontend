@@ -13,7 +13,7 @@ export { MenuSize };
 
 export default function UIProfile(props: { size?: MenuSize }) {
   const { size } = props;
-  const { isLogin } = useUserInfo();
+  const { isLogin, logoutWallet } = useUserInfo();
   const { isConnected } = useAccount();
   const pathname = usePathname();
   const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
@@ -21,6 +21,13 @@ export default function UIProfile(props: { size?: MenuSize }) {
   useEffect(() => {
     console.log('UIProfile size', size);
   }, [size]);
+
+  useEffect(() => {
+    if (!isConnected) {
+      logoutWallet();
+      return;
+    }
+  }, [isConnected]);
 
   // if ((pathname.includes('kol') || pathname.includes('market_events')) && !isLoggedIn) {
   //   return <CompXAuth />;

@@ -73,7 +73,7 @@ export default function DialogRaffleResult({
             // 中奖弹窗
             <div className="relative flex flex-col items-center justify-center space-y-4 overflow-hidden">
               <DotLottieReact
-                src="/lottie/celebrations.json"
+                src="/lottie/celebrations.lottie"
                 autoplay
                 loop
                 speed={1}

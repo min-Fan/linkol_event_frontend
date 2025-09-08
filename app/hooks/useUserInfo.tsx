@@ -130,6 +130,17 @@ export default function useUserInfo() {
     localStorage.removeItem(CACHE_KEY.KOL_TOKEN);
   };
 
+
+  const logoutWallet = () => {
+    dispatch({
+      type: AppEventType.UPDATE_USER_INFO,
+      payload: { isLogin: false, userId: '', username: '', email: '' },
+    });
+
+    document.cookie = `${CACHE_KEY.TOKEN}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+    localStorage.removeItem(CACHE_KEY.TOKEN);
+  };
+
   const updateEmail = (email: string) => {
     dispatch({ type: AppEventType.UPDATE_USER_INFO, payload: { email } });
     dispatchApp(updateTwitterFullProfile({ email }));
@@ -156,5 +167,6 @@ export default function useUserInfo() {
     login,
     logout,
     updateEmail,
+    logoutWallet,
   };
 }

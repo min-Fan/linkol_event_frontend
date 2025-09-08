@@ -1113,6 +1113,7 @@
     "today": "今日",
     "reward_percent_tip": "如果连续失败n次，下次一定会赢{symbol}。",
     "my_rank": "我的排名",
-    "congratulations_description": "您获得了一些{symbol}。您可以分享到X以获得1张更多的票。"
+    "congratulations_description": "您获得了一些{symbol}。您可以分享到X以获得1张更多的票。",
+    "participate": "参与"
   }
 }
