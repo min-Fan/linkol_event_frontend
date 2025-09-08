@@ -130,7 +130,7 @@ export default function RaffleRewardCard({
             {t('each_tweet_counts_raffle_entry')}
           </h3>
           <p className="sm:text-md text-primary/40 text-sm">
-            {t('reward_rate')}: <span className="">{rewardPercent}%</span>
+            {t('reward_rate')}: <span className="">{rewardPercent * 100}%</span>
           </p>
         </div>
       </div>
@@ -152,7 +152,7 @@ export default function RaffleRewardCard({
                 <div className="relative ml-auto flex items-center justify-center">
                   <RateBorderBg className="absolute top-0 left-0 h-full w-full" />
                   <span className="text-muted-foreground/40 flex items-center justify-center p-4 text-xs">
-                    {rewardPercent}%
+                    {rewardPercent * 100}%
                   </span>
                 </div>
               </TooltipTrigger>
