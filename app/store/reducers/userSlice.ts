@@ -3,6 +3,7 @@ import { DEFAULT_CHAIN } from 'app/constants/chains';
 import { Filter, IConfig, KOLInfo, QuickOrder } from './types';
 import { KolRankListItem, PromotionData } from 'app/@types/types';
 import { ReactNode } from 'react';
+import { IGetUserActivityRewardResponseData } from '@libs/request';
 // 定义用户状态接口
 export interface UserState {
   isLoggedIn: boolean;
@@ -50,13 +51,7 @@ export interface UserState {
   // 用户活动奖励数据，按 eventId 分组存储
   userActivityRewards: {
     [eventId: string]: {
-      data: {
-        available_reward: number;
-        total_reward: number;
-        total_receive_amount: number;
-        number: number;
-        percent: number;
-      } | null;
+      data: IGetUserActivityRewardResponseData | null;
       isLoading: boolean;
       lastUpdated: number;
     };
@@ -499,13 +494,7 @@ const userSlice = createSlice({
       state,
       action: PayloadAction<{
         eventId: string;
-        data: {
-          available_reward: number;
-          total_reward: number;
-          total_receive_amount: number;
-          number: number;
-          percent: number;
-        };
+        data: IGetUserActivityRewardResponseData;
       }>
     ) => {
       const { eventId, data } = action.payload;

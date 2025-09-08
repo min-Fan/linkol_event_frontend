@@ -45,6 +45,7 @@ import { Dices, Flashlight, Zap } from 'lucide-react';
 import RaffleRewardCard from './RaffleRewardCard';
 import PlatformRewardCard from './PlatformRewardCard';
 import TokenIcon from 'app/components/TokenIcon';
+import useUserActivityReward from '@hooks/useUserActivityReward';
 
 // 骨架屏组件
 function EventDetailSkeleton() {
@@ -163,6 +164,12 @@ export default function EventDetail({
     queryKey: ['receiveRewardButtonStatus', eventInfo?.id, isLoggedIn],
     queryFn: () => getReceiveRewardButtonStatus(eventInfo?.id),
     enabled: !!eventInfo?.id && isLoggedIn,
+  });
+
+  // 使用新的 hook 从 store 中获取用户活动奖励数据
+  const { todayJoin } = useUserActivityReward({
+    eventId: eventInfo?.id?.toString() || '',
+    enabled: !!eventInfo?.id,
   });
 
   // 创建一个包装的 onRefresh 函数，同时刷新按钮状态、排行榜数据、推文列表和参与者列表
@@ -410,6 +417,10 @@ export default function EventDetail({
               </div>
             </div>
             <div className="flex items-center gap-4">
+              <div className="text-muted-foreground/40 flex items-center gap-1">
+                <span className="md:text-md text-sm">{t('today')}</span>
+                <span className="sm:text-md text-sm">{todayJoin}/1</span>
+              </div>
               {eventInfo?.status === 'wait' && (
                 <Button variant="secondary" className="text-muted-foreground !rounded-xl">
                   {t('not_started')}

@@ -261,6 +261,11 @@
     "end_in": "结束倒计时",
     "btn_log_twitter": "使用推特登录",
     "twitter_auth_success": "推特授权成功",
+    "twitter_auth_success_title": "授权成功！",
+    "twitter_auth_success_description": "Twitter 账户已成功绑定，您现在可以使用所有功能了。",
+    "twitter_auth_failed_title": "授权失败",
+    "twitter_auth_failed_description": "Twitter 账户授权过程中出现了问题，请稍后重试。",
+    "btn_back_home": "返回首页",
     "my_task": "我的任务",
     "btn_next_step": "下一步",
     "field_required": "此字段必填: {field}",
@@ -1101,6 +1106,8 @@
     "generating_image": "生成图片中...",
     "generating_image_placeholder": "正在生成自定义图片...",
     "getting_data": "获取数据中...",
-    "kol_name_short": "KOL"
+    "kol_name_short": "KOL",
+    "my_points": "我的积分",
+    "today": "今日"
   }
 }

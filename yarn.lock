@@ -1949,6 +1949,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@lottiefiles/dotlottie-react@npm:^0.15.2":
+  version: 0.15.2
+  resolution: "@lottiefiles/dotlottie-react@npm:0.15.2"
+  dependencies:
+    "@lottiefiles/dotlottie-web": 0.50.2
+  peerDependencies:
+    react: ^17 || ^18 || ^19
+  checksum: 02c05e3f58c722d90d52ce3cd70fbb0b143ccc6c92af1825f37e15919c9a17b661009beb32e5b3c206f8a43fadae92b150ce7b74d9697b0055ad1f3b92d552bc
+  languageName: node
+  linkType: hard
+
+"@lottiefiles/dotlottie-web@npm:0.50.2":
+  version: 0.50.2
+  resolution: "@lottiefiles/dotlottie-web@npm:0.50.2"
+  checksum: daaa0f62c8cabc3eb0a974665137c8d4d35fe5bab03ff6f552251031d1257200744b400f51fbc50168eaefb36fb8641ef46fcc51a30aa516d092a181da37a5f2
+  languageName: node
+  linkType: hard
+
 "@metamask/eth-json-rpc-provider@npm:^1.0.0":
   version: 1.0.1
   resolution: "@metamask/eth-json-rpc-provider@npm:1.0.1"
@@ -9354,6 +9372,7 @@ __metadata:
     "@babel/runtime": ^7.27.0
     "@bprogress/next": ^3.2.12
     "@hookform/resolvers": ^5.0.1
+    "@lottiefiles/dotlottie-react": ^0.15.2
     "@next/eslint-plugin-next": ^15.3.1
     "@radix-ui/react-accordion": ^1.2.11
     "@radix-ui/react-alert-dialog": ^1.1.11

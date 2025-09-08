@@ -262,6 +262,11 @@
     "end_in": "End In",
     "btn_log_twitter": "Log in with Twitter",
     "twitter_auth_success": "Twitter authorization successful",
+    "twitter_auth_success_title": "Authorization Successful!",
+    "twitter_auth_success_description": "Your Twitter account has been successfully linked. You can now access all features.",
+    "twitter_auth_failed_title": "Authorization Failed",
+    "twitter_auth_failed_description": "There was an issue during the Twitter account authorization process. Please try again later.",
+    "btn_back_home": "Back to Home",
     "my_task": "My Task",
     "btn_next_step": "Next Step",
     "field_required": "This field is required: {field}",
@@ -1103,6 +1108,8 @@
     "generating_image": "Generating image...",
     "generating_image_placeholder": "Generating custom image...",
     "getting_data": "Getting data...",
-    "kol_name_short": "KOL"
+    "kol_name_short": "KOL",
+    "my_points": "My points",
+    "today": "Today"
   }
 }
