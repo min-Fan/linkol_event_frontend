@@ -161,7 +161,7 @@ const DialogClaimReward = memo(
         handleContractSuccess();
         // 刷新用户活动奖励数据和父组件数据
         refetchUserActivityReward();
-        
+
         console.error('Failed to create activity callback reward (silent):', error);
       }
     }, [claimData, signatureData]);

@@ -1863,12 +1863,12 @@ export const submitReward = (params: ISubmitRewardParams) => {
 };
 
 // AI聊天生成推文
-export const getAiChatTweet = (activeId: string) => {
+export const getAiChatTweet = (activeId: string, language: string) => {
   return kolRequest.post(`/kol/api/v3/chat/`, {
     messages: [
       {
         role: 'user',
-        content: '生成项目推文，active_id是：' + activeId,
+        content: '生成项目推文，active_id是：' + activeId + '，生成的语言使用：' + language,
       },
     ],
     language: 'en',
@@ -1957,6 +1957,34 @@ export interface IGetUserActivityRewardResponseData {
    * 总领取的金额
    */
   total_receive_amount: number;
+  /**
+   * 失败次数限制
+   */
+  fail_limit: number;
+  /**
+   * 失败次数
+   */
+  fail_times: number;
+  /**
+   * 等级
+   */
+  level: string;
+  /**
+   * 必须中奖次数限制
+   */
+  must_win_limit: number;
+  /**
+   * 积分
+   */
+  points: number;
+  /**
+   * 今日参与次数
+   */
+  today_join: number;
+  /**
+   * 必须中奖次数
+   */
+  used_must_win_times: number;
 }
 export const getUserActivityReward = (params: IGetUserActivityRewardParams) => {
   return kolRequest.get<IGetUserActivityRewardResponseData>(`/kol/api/v6/tickets/`, {
