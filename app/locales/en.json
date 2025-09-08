@@ -172,6 +172,7 @@
     "btn_view_details": "view details",
     "btn_msg_sign": "message sign",
     "btn_log_in": "log in",
+    "btn_log_sign": "Sign",
     "btn_log_out": "log out",
     "btn_sign_in": "sign in",
     "btn_sign_up": "sign up",
@@ -926,6 +927,7 @@
     "failed_to_post_tweet": "Failed to post tweet",
     "enter_tweet_content": "Enter tweet content",
     "click_regenerate_to_generate_tweet": "Click Regenerate to generate tweet content, or click Edit to input manually...",
+    "loading_data": "Generating...",
     "invite_other_creators": "Invite other creators",
     "share_link_invite_others": "Share link to invite others to join Market Events",
     "close": "Close",
@@ -1078,7 +1080,7 @@
     "raffle": "Raffle",
     "raffling": "Raffling",
     "raffle_failed": "Raffle failed",
-    "better_luck_next_time": "Better luck next time!",
+    "better_luck_next_time": "You earn 100 Points",
     "no_reward_this_time": "No reward this time",
     "keep_participating_for_more_chances": "Keep participating for more chances",
     "raffle_won_amount": "Congratulations! You won {amount} {symbol}",
@@ -1110,6 +1112,9 @@
     "getting_data": "Getting data...",
     "kol_name_short": "KOL",
     "my_points": "My points",
-    "today": "Today"
+    "today": "Today",
+    "reward_percent_tip": "If you fail to win {symbol} for n consecutive times, you will definitely win {symbol} the next time.",
+    "my_rank": "My Rank",
+    "congratulations_description": "Your got some {symbol}. Your can share on X to eran 1 more ticket"
   }
 }

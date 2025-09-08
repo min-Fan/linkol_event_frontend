@@ -947,7 +947,7 @@ export default function DialogPostTweetLink({
                             </div>
                           ) : (
                             <p className="text-muted-foreground">
-                              {t('click_regenerate_to_generate_tweet') ||
+                              {t('loading_data') ||
                                 'Click Regenerate to generate tweet content, or click Edit to input manually...'}
                             </p>
                           )}
