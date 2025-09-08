@@ -1,4 +1,4 @@
-const HOME = '/project';
+const HOME = '/';
 const DASHBOARD = '/dashboard';
 const PROJECT = '/dashboard/project';
 const MY_ORDERS = '/dashboard/my_orders';

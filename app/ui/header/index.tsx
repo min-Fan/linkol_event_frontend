@@ -68,7 +68,7 @@ export default function Header(props: { hasLogin?: boolean }) {
           <div className="block sm:hidden">
             <CompSidebar navigationItems={navigationItems} />
           </div>
-          <Link className="flex items-center gap-x-2" href={PagesRoute.MARKET_EVENTS}>
+          <Link className="flex items-center gap-x-2" href={PagesRoute.HOME}>
             {/* <Logo className="size-4" />
             <Linkol className="h-4 w-14" /> */}
             <LinkolLight className="!block !h-10 dark:!hidden" />

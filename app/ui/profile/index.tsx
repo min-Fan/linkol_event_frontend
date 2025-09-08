@@ -22,17 +22,17 @@ export default function UIProfile(props: { size?: MenuSize }) {
     console.log('UIProfile size', size);
   }, [size]);
 
-  if ((pathname.includes('kol') || pathname.includes('market_events')) && !isLoggedIn) {
-    return <CompXAuth />;
-  }
+  // if ((pathname.includes('kol') || pathname.includes('market_events')) && !isLoggedIn) {
+  //   return <CompXAuth />;
+  // }
 
-  if ((pathname.includes('kol') || pathname.includes('market_events')) && isLoggedIn) {
+  // if ((pathname.includes('kol') || pathname.includes('market_events')) && isLoggedIn) {
+  //   return <ComLogOutMenu size={size} />;
+  // }
+
+  if (isLoggedIn) {
     return <ComLogOutMenu size={size} />;
   }
 
-  if (isLogin && isConnected) {
-    return <ComLogOutMenu size={size} />;
-  }
-
-  return <ComLogInMenu />;
+  return <CompXAuth />;
 }
