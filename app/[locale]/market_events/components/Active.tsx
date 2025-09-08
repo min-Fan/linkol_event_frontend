@@ -1,4 +1,4 @@
-import { useFormatter, useLocale, useNow } from 'next-intl';
+import { useFormatter, useLocale, useNow, useTranslations } from 'next-intl';
 
 import PagesRoute from '@constants/routes';
 import { Link, useRouter } from '@libs/i18n/navigation';
@@ -13,6 +13,7 @@ export default function Active(props: { data: IActive }) {
   const { data } = props;
   const router = useRouter();
   const locale = useLocale();
+  const t = useTranslations('common');
   const now = useNow();
   const format = useFormatter();
   const payTokenInfo = useAppSelector((state) => state.userReducer?.pay_token_info);
@@ -73,7 +74,8 @@ export default function Active(props: { data: IActive }) {
               <span className="flex-1 truncate text-base">{data.project.name}</span>
             </dt>
             <dd className="text-primary text-md">
-              {locale === 'en' ? data.active_type.en_name : data.active_type.zh_name}
+              {t('participate')}
+              {/* {locale === 'en' ? data.active_type.en_name : data.active_type.zh_name} */}
             </dd>
           </dl>
         </div>
