@@ -129,6 +129,7 @@ import PostNull from './post-null.svg';
 import NullData from './null-data.svg';
 import HugeiconsFlash from './hugeicons_flash.svg';
 import TwitterX from './twitter-x.svg';
+import RateBorderBg from './rate-border-bg.svg';
 
 export {
   Share,
@@ -262,4 +263,5 @@ export {
   NullData,
   HugeiconsFlash,
   TwitterX,
+  RateBorderBg,
 };

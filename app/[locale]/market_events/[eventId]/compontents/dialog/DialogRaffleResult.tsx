@@ -13,7 +13,9 @@ import { useTranslations } from 'next-intl';
 import { useAppSelector } from '@store/hooks';
 import { cn } from '@shadcn/lib/utils';
 import { Gift } from 'lucide-react';
-
+import LoaderCircle from '@ui/loading/loader-circle';
+import TokenIcon from 'app/components/TokenIcon';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 interface DialogRaffleResultProps {
   isOpen: boolean;
   onClose: () => void;
@@ -21,12 +23,14 @@ interface DialogRaffleResultProps {
     is_win: boolean;
     receive_amount: number;
   } | null;
+  isLoading: boolean;
 }
 
 export default function DialogRaffleResult({
   isOpen,
   onClose,
   raffleResult,
+  isLoading = true,
 }: DialogRaffleResultProps) {
   const t = useTranslations('common');
   const payTokenInfo = useAppSelector((state) => state.userReducer?.pay_token_info);
@@ -58,24 +62,53 @@ export default function DialogRaffleResult({
             'bg-background space-y-4 rounded-t-xl rounded-b-xl p-6 sm:rounded-t-2xl sm:rounded-b-2xl'
           )}
         >
-          {raffleResult?.is_win ? (
+          {isLoading ? (
+            // 加载状态
+            <div className="flex flex-col items-center justify-center py-10">
+              <LoaderCircle text={`${t('raffling')}...`} />
+            </div>
+          ) : raffleResult?.is_win ? (
             // 中奖弹窗
-            <div className="flex flex-col items-center justify-center space-y-4">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full">
-                <Success className="h-full w-full text-white" />
+            <div className="relative flex flex-col items-center justify-center space-y-4 overflow-hidden">
+              <DotLottieReact
+                src="/lottie/celebrations.json"
+                autoplay
+                loop
+                speed={1}
+                className="pointer-events-none absolute inset-0 h-full w-full"
+                style={{ zIndex: 0 }}
+                onLoad={() => console.log('Lottie animation loaded')}
+                onError={(error) => console.error('Lottie animation error:', error)}
+              />
+              <div className="relative z-10 flex items-center justify-center pt-4">
+                <div className="relative z-10">
+                  <Success className="w-16" />
+                  <div className="absolute top-0 left-[-50%] z-[-1] h-[110%] w-[110%] rounded-full bg-[#D4F5D0] blur-xl" />
+                </div>
+                <div className="relative z-0 -ml-4 h-12 w-12">
+                  <TokenIcon type={payTokenInfo?.iconType as string} className="h-full w-full" />
+                  <div className="absolute top-0 left-[50%] z-[-1] h-[110%] w-[110%] rounded-full bg-[#BFFF00] blur-xl" />
+                </div>
               </div>
               <div className="text-center">
-                <p className="text-md font-semibold">{t('congratulations')}</p>
-                <p className="text-sm">
+                <p className="text-xl font-bold">
+                  {raffleResult?.receive_amount} {payTokenInfo?.symbol || ''}
+                </p>
+                {/* <p className="text-md font-semibold">{t('congratulations')}</p> */}
+                {/* <p className="text-sm">
                   {t('raffle_won_amount', {
-                    amount: raffleResult.receive_amount,
+                    amount: raffleResult?.receive_amount || 0,
                     symbol: payTokenInfo?.symbol || '',
                   })}
-                </p>
+                </p> */}
                 <p className="text-muted-foreground mt-2 text-sm">{t('go_to_claim_your_reward')}</p>
               </div>
               <div className="flex w-40">
-                <Button onClick={handleClose} className="!h-auto flex-1 !rounded-lg">
+                <Button
+                  onClick={handleClose}
+                  variant="secondary"
+                  className="!h-auto flex-1 !rounded-lg"
+                >
                   {t('done')}
                 </Button>
               </div>

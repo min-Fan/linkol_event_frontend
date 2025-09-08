@@ -10,11 +10,23 @@ import {
   getTwitterAuthUserInfoV2,
 } from '@libs/request';
 import { CACHE_KEY } from '@constants/app';
+import { useRouter } from '@libs/i18n/navigation';
+import PagesRoute from '@constants/routes';
+import { Fail, Success } from '@assets/svg';
+import { Button } from '@shadcn/components/ui/button';
+import { useTranslations } from 'next-intl';
 
 export default function TwitterPage() {
   const params = useSearchParams();
+  const router = useRouter();
+  const t = useTranslations('common');
 
-  const [staus, setStatus] = useState<LoginStatus>(LoginStatus.PENDING);
+  const [staus, setStatus] = useState<LoginStatus>(LoginStatus.SUCCESS);
+
+  // 返回根目录的处理函数
+  const handleGoHome = () => {
+    router.push(PagesRoute.HOME);
+  };
 
   const handleTwitterAuthCallback = async () => {
     try {
@@ -160,6 +172,48 @@ export default function TwitterPage() {
       {staus == LoginStatus.WAITING && (
         <div className="h-full w-full">
           <Loader></Loader>
+        </div>
+      )}
+
+      {staus == LoginStatus.SUCCESS && (
+        <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-green-50 to-emerald-50 p-8">
+          <div className="w-full max-w-md space-y-6 text-center">
+            {/* 成功图标 */}
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+              <Success className="h-full w-full" />
+            </div>
+
+            {/* 成功标题 */}
+            <h1 className="text-2xl font-bold text-gray-900">{t('twitter_auth_success_title')}</h1>
+
+            {/* 成功描述 */}
+            <p className="text-gray-600">{t('twitter_auth_success_description')}</p>
+
+            {/* 返回首页按钮 */}
+            <Button onClick={handleGoHome}>{t('btn_back_home')}</Button>
+          </div>
+        </div>
+      )}
+
+      {staus == LoginStatus.ERROR && (
+        <div className="flex h-full w-full flex-col items-center justify-center p-8">
+          <div className="w-full max-w-md space-y-6 text-center">
+            {/* 错误图标 */}
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+              <Fail className="h-full w-full" />
+            </div>
+
+            {/* 错误标题 */}
+            <h1 className="text-2xl font-bold text-gray-900">{t('twitter_auth_failed_title')}</h1>
+
+            {/* 错误描述 */}
+            <p className="text-gray-600">{t('twitter_auth_failed_description')}</p>
+
+            {/* 返回首页按钮 */}
+            <Button onClick={handleGoHome} variant="secondary">
+              {t('btn_back_home')}
+            </Button>
+          </div>
         </div>
       )}
     </div>

@@ -244,7 +244,7 @@ export default function Tweets() {
   }, [isSliderDragging]);
 
   return (
-    <div className="border-border bg-background box-border h-full flex flex-col space-y-4 rounded-3xl border p-4 sm:p-6">
+    <div className="border-border bg-background box-border flex h-full flex-col space-y-4 rounded-3xl border p-4 sm:p-6">
       <div className="item flex flex-col justify-between gap-3 sm:flex-row">
         <CompTweetLanguageTab
           defaultLanguage={TWEET_LANGUAGE.ALL}
@@ -265,7 +265,7 @@ export default function Tweets() {
       </div>
       {/* 底部时间控制滑块 - 只有在有数据且需要动画时才显示 */}
       {hasData && shouldAnimate && (
-        <div className="pt-4 mt-auto">
+        <div className="mt-auto pt-4">
           <div className="flex items-center gap-4">
             <div className="bg-muted-foreground/5 hover:bg-muted-foreground/10 flex items-center gap-2 rounded-lg p-2">
               <ChevronLeft className="size-4" />

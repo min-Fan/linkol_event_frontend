@@ -114,7 +114,11 @@ export default function EventInfo({
           </div>
           <div className="flex flex-wrap items-center gap-1">
             {eventInfo?.project?.category?.map((item) => (
-              <Badge className="sm:text-md rounded-full py-0 text-sm font-light sm:py-0" key={item}>
+              <Badge
+                variant="secondary"
+                className="sm:text-md rounded-full py-0 text-sm font-light sm:py-0"
+                key={item}
+              >
                 {item}
               </Badge>
             ))}

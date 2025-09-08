@@ -85,6 +85,13 @@ export function useUserActivityReward({ eventId, enabled = true }: UseUserActivi
     totalReceiveAmount: data?.total_receive_amount || 0,
     ticketNumber: data?.number || 0,
     rewardPercent: data?.percent || 0,
+    failLimit: data?.fail_limit || 0,
+    failTimes: data?.fail_times || 0,
+    level: data?.level || '',
+    mustWinLimit: data?.must_win_limit || 0,
+    points: data?.points || 0,
+    todayJoin: data?.today_join || 0,
+    usedMustWinTimes: data?.used_must_win_times || 0,
   };
 }
 
