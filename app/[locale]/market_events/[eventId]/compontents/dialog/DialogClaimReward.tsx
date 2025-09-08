@@ -117,7 +117,6 @@ const DialogClaimReward = memo(
       return userEmail && userEmail.includes('@') && userEmail.length > 3;
     };
 
-
     // 处理合约调用成功后的操作
     const handleContractSuccess = useCallback(async () => {
       setIsClaimSuccess(true);
