@@ -8,7 +8,7 @@ import {
   DialogClose,
   DialogDescription,
 } from '@shadcn/components/ui/dialog';
-import { Success, Fail } from '@assets/svg';
+import { Success, Fail, TwitterX } from '@assets/svg';
 import { useTranslations } from 'next-intl';
 import { useAppSelector } from '@store/hooks';
 import { cn } from '@shadcn/lib/utils';
@@ -16,6 +16,7 @@ import { Gift } from 'lucide-react';
 import LoaderCircle from '@ui/loading/loader-circle';
 import TokenIcon from 'app/components/TokenIcon';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import { useParams } from 'next/navigation';
 interface DialogRaffleResultProps {
   isOpen: boolean;
   onClose: () => void;
@@ -34,18 +35,19 @@ export default function DialogRaffleResult({
 }: DialogRaffleResultProps) {
   const t = useTranslations('common');
   const payTokenInfo = useAppSelector((state) => state.userReducer?.pay_token_info);
-
+  const { eventId } = useParams();
   const handleClose = () => {
     onClose();
   };
 
+  const handleShareOnX = () => {
+    const tweetText = `I just won ${raffleResult?.receive_amount} ${payTokenInfo?.symbol || ''} in the raffle! Check it out: ${window.location.origin}/market_events/${eventId}`;
+    window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(tweetText)}`, '_blank');
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogClose asChild>
-        <Button variant="outline" className="absolute top-4 right-4">
-          {/* <X className="h-5 w-5" /> */}
-        </Button>
-      </DialogClose>
+      <DialogClose asChild></DialogClose>
       <DialogContent
         className="border-border flex max-h-[90vh] w-96 max-w-full flex-col gap-0 overflow-hidden bg-transparent p-2 shadow-none sm:w-96 sm:max-w-full sm:p-0"
         nonClosable
@@ -94,22 +96,32 @@ export default function DialogRaffleResult({
                 <p className="text-xl font-bold">
                   {raffleResult?.receive_amount} {payTokenInfo?.symbol || ''}
                 </p>
-                {/* <p className="text-md font-semibold">{t('congratulations')}</p> */}
+                <p className="text-md font-semibold">{t('congratulations')}</p>
+                <p className="mt-2 text-sm">
+                  {t('congratulations_description', { symbol: payTokenInfo?.symbol || '' })}
+                </p>
                 {/* <p className="text-sm">
                   {t('raffle_won_amount', {
                     amount: raffleResult?.receive_amount || 0,
                     symbol: payTokenInfo?.symbol || '',
                   })}
                 </p> */}
-                <p className="text-muted-foreground mt-2 text-sm">{t('go_to_claim_your_reward')}</p>
+                {/* <p className="text-muted-foreground mt-2 text-sm">{t('go_to_claim_your_reward')}</p> */}
               </div>
-              <div className="flex w-40">
+              <div className="flex w-full gap-2">
                 <Button
                   onClick={handleClose}
                   variant="secondary"
                   className="!h-auto flex-1 !rounded-lg"
                 >
                   {t('done')}
+                </Button>
+                <Button
+                  onClick={handleShareOnX}
+                  className="!h-auto flex-1 !rounded-lg bg-black text-white"
+                >
+                  {t('share_on_x')}
+                  <TwitterX className="h-4 w-4" />
                 </Button>
               </div>
             </div>

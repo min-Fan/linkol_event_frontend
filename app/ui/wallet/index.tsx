@@ -43,9 +43,9 @@ export default function UIWallet(props: { className?: string; onSuccess?: () => 
         disabled={isPending}
         onClick={handleLogin}
       >
-        <span className="opacity-0">{t('btn_log_in')}</span>
+        <span className="opacity-0">{t('btn_log_sign')}</span>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-          {isPending ? <LoaderCircle className="animate-spin" /> : <span>{t('btn_log_in')}</span>}
+          {isPending ? <LoaderCircle className="animate-spin" /> : <span>{t('btn_log_sign')}</span>}
         </div>
       </Button>
     );
