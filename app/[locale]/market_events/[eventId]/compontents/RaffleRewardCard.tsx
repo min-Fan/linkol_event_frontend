@@ -146,7 +146,7 @@ export default function RaffleRewardCard({
             <span className="sm:text-md text-muted-foreground/80 text-sm">{t('my_tickets')}:</span>
             <span className="sm:text-md text-sm">{ticketNumber}</span>
           </div>
-          {!(usedMustWinTimes < mustWinLimit) && (
+          {usedMustWinTimes < mustWinLimit && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="relative ml-auto flex items-center justify-center">
