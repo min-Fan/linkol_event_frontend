@@ -132,6 +132,7 @@ export default function useUserInfo() {
 
   const updateEmail = (email: string) => {
     dispatch({ type: AppEventType.UPDATE_USER_INFO, payload: { email } });
+    dispatchApp(updateTwitterFullProfile({ email }));
   };
 
   useEffect(() => {

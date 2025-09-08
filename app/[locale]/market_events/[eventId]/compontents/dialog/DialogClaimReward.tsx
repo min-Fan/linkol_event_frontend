@@ -26,6 +26,7 @@ import useUserInfo from '@hooks/useUserInfo';
 import { DEFAULT_CHAIN } from '@constants/chains';
 import { formatBigNumber, parseToBigNumber, toContractAmount } from '@libs/utils/format-bignumber';
 import useUserActivityReward from '@hooks/useUserActivityReward';
+import UIDialogBindEmail from '@ui/dialog/BindEmail';
 
 interface DialogClaimRewardProps {
   isOpen: boolean;
@@ -42,6 +43,7 @@ const DialogClaimReward = memo(
     const [isClaimFailed, setIsClaimFailed] = useState(false);
     const [isWrongChain, setIsWrongChain] = useState(false);
     const [hasStartedClaim, setHasStartedClaim] = useState(false); // 跟踪是否已经开始领取流程
+    const [isBindEmailDialogOpen, setIsBindEmailDialogOpen] = useState(false); // 绑定邮箱弹窗状态
     const [claimedAmount, setClaimedAmount] = useState<number>(0); // 缓存领取时的奖励数量
     const hasProcessedSuccessRef = useRef(false); // 跟踪是否已经处理过成功状态
     const isRequestingSignatureRef = useRef(false); // 跟踪是否正在请求签名
@@ -55,9 +57,10 @@ const DialogClaimReward = memo(
     const { eventId } = useParams();
     const payTokenInfo = useAppSelector((state) => state.userReducer?.pay_token_info);
     const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
+    const twInfo = useAppSelector((state) => state.userReducer?.twitter_full_profile);
     const { address, chainId } = useAccount();
     const { switchChain } = useSwitchChain();
-    const { isPending, isConnected, isLogin, connect, login, logout } = useUserInfo();
+    const { isPending, isConnected, isLogin, connect, login, logout, email } = useUserInfo();
 
     // 使用新的 hook 从 store 中获取用户活动奖励数据
     const {
@@ -106,6 +109,12 @@ const DialogClaimReward = memo(
         console.error('切换链失败:', error);
         toast.error(t('switch_chain_failed'));
       }
+    };
+
+    // 检查邮箱是否已绑定
+    const isEmailBound = () => {
+      const userEmail = twInfo?.email || email || '';
+      return userEmail && userEmail.includes('@') && userEmail.length > 3;
     };
 
     // 处理合约调用成功后的操作
@@ -210,6 +219,7 @@ const DialogClaimReward = memo(
       setSignatureData(null);
       setHasStartedClaim(false); // 重置开始领取状态
       setClaimedAmount(0); // 重置缓存的奖励数量
+      setIsBindEmailDialogOpen(false); // 重置绑定邮箱弹窗状态
       hasProcessedSuccessRef.current = false; // 重置成功处理标记
       isRequestingSignatureRef.current = false; // 重置签名请求标记
       onClose();
@@ -299,7 +309,7 @@ const DialogClaimReward = memo(
       payTokenInfo?.decimals,
     ]);
 
-    // 自动开始领取流程
+    // 自动开始领取流程或显示绑定邮箱弹窗
     useEffect(() => {
       if (
         isOpen &&
@@ -311,7 +321,14 @@ const DialogClaimReward = memo(
         !isWrongChain &&
         isLogin // 只有在登录状态下才自动执行领取流程
       ) {
-        handleClaimReward();
+        // 检查邮箱是否已绑定
+        if (!isEmailBound()) {
+          // 如果没有绑定邮箱，打开绑定邮箱弹窗
+          setIsBindEmailDialogOpen(true);
+        } else {
+          // 如果已绑定邮箱，继续正常的领取流程
+          handleClaimReward();
+        }
       }
     }, [
       isOpen,
@@ -323,6 +340,8 @@ const DialogClaimReward = memo(
       isClaimFailed,
       isLogin,
       handleClaimReward,
+      twInfo?.email,
+      email,
     ]);
 
     return (
@@ -462,6 +481,29 @@ const DialogClaimReward = memo(
             )}
           </div>
         </DialogContent>
+
+        {/* 绑定邮箱弹窗 */}
+        {isBindEmailDialogOpen && (
+          <UIDialogBindEmail
+            open={isBindEmailDialogOpen}
+            onOpenChange={(open) => {
+              setIsBindEmailDialogOpen(open);
+              if (!open) {
+                // 如果邮箱绑定成功或取消，检查是否可以继续领取流程
+                if (isEmailBound() && address && !isWrongChain && isLogin) {
+                  handleClaimReward();
+                } else {
+                  // 如果没有成功绑定邮箱，关闭主弹窗
+                  handleClose();
+                }
+              }
+            }}
+            nonClosable={false}
+            kol={true}
+          >
+            <div />
+          </UIDialogBindEmail>
+        )}
       </Dialog>
     );
   },
