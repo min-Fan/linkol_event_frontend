@@ -1,0 +1,323 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+html {
+  font-size: 16px;
+}
+:root {
+  --radius: 0.5rem;
+  --background: #ffffff;
+  --foreground: #1a1a1a;
+  --card: #ffffff;
+  --card-foreground: #1a1a1a;
+  --popover: #ffffff;
+  --popover-foreground: #1a1a1a;
+  --primary: #007aff;
+  --primary-foreground: #f8fafc;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
+  --destructive: #ef4444;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #8b5cf6;
+
+  --chart-1: hsla(148, 87%, 53%, 1);
+  --chart-2: #3b82f6;
+  --chart-3: #6366f1;
+  --chart-4: #8b5cf6;
+  --chart-5: #a855f7;
+
+  --sidebar: #fefefe;
+  --sidebar-foreground: #1a1a1a;
+  --sidebar-primary: #007aff;
+  --sidebar-primary-foreground: #f8fafc;
+  --sidebar-accent: #f1f5f9;
+  --sidebar-accent-foreground: #0f172a;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: #8b5cf6;
+
+  --brand-value: #bfff00;
+}
+
+.dark {
+  --background: #0b0809;
+  --foreground: #f8fafc;
+  --card: #1e293b;
+  --card-foreground: #f8fafc;
+  --popover: #1e293b;
+  --popover-foreground: #f8fafc;
+  --primary: #007aff;
+  --primary-foreground: #1e1b4b;
+  --secondary: #334155;
+  --secondary-foreground: #f8fafc;
+  --muted: #334155;
+  --muted-foreground: #94a3b8;
+  --accent: #334155;
+  --accent-foreground: #f8fafc;
+  --destructive: #dc2626;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.15);
+  --ring: #7c3aed;
+
+  --chart-1: hsla(148, 87%, 53%, 1);
+  --chart-2: #3b82f6;
+  --chart-3: #6366f1;
+  --chart-4: #8b5cf6;
+  --chart-5: #a855f7;
+
+  --sidebar: #1e293b;
+  --sidebar-foreground: #f8fafc;
+  --sidebar-primary: #007aff;
+  --sidebar-primary-foreground: #1e1b4b;
+  --sidebar-ring: #7c3aed;
+
+  --brand-value: #bfff00;
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-brand-value: var(--brand-value);
+
+  --text-3xl: 28px;
+  --text-2xl: 24px;
+  --text-xl: 20px;
+  --text-lg: 18px;
+  --text-base: 16px;
+  --text-md: 14px;
+  --text-sm: 12px;
+  --text-xs: 10px;
+
+  --font-kyiv: 'KyivTypeSerif';
+}
+
+@layer base {
+  @layer base {
+    * {
+      @apply border-border;
+    }
+
+    html {
+      @apply min-h-dvh w-full;
+    }
+
+    body {
+      @apply bg-background text-foreground h-full w-full text-sm;
+    }
+
+    /* svg {
+      @apply h-5 w-5;
+    } */
+
+    button {
+      @apply cursor-pointer capitalize select-none;
+
+      &:disabled {
+        @apply cursor-not-allowed;
+      }
+    }
+
+    label {
+      @apply cursor-pointer select-none;
+    }
+
+    svg,
+    input,
+    button,
+    textarea {
+      box-shadow: none !important;
+      outline: none !important;
+
+      &:focus-visible {
+        box-shadow: none !important;
+      }
+    }
+
+    .scroll-area > div > div {
+      display: block !important;
+    }
+    div[data-radix-scroll-area-viewport] {
+      > div {
+        display: block !important;
+        width: 100% !important;
+        height: 100% !important;
+      }
+    }
+  }
+}
+
+@theme {
+  --breakpoint-3xl: 100rem;
+  --breakpoint-4xl: 120rem;
+}
+
+/* 定义动画关键帧 */
+@keyframes chat-icon-scale {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.08) rotate(45deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes float-right {
+  0% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(10px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/* 定义不同的动画持续时间 */
+.animate-chat-icon-scale {
+  animation: chat-icon-scale 3s ease-in-out infinite;
+}
+
+.animate-float-right {
+  animation: float-right 2s ease-in-out infinite;
+}
+
+/* 定义滚动动画 */
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll {
+  animation: scroll 10s linear infinite;
+  animation-play-state: running;
+}
+
+.animate-scroll:hover {
+  animation-play-state: paused;
+}
+
+/* 隐藏滚动条 */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes glow-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.5); /* 发散到原来的 2.5 倍 */
+    opacity: 0;
+  }
+}
+
+.animate-glow-ping {
+  animation: glow-ping 1s ease-out infinite;
+}
+
+/* 推特滑动动画 */
+@keyframes slide-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes slide-right {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-left {
+  animation: slide-left 25s linear infinite;
+  will-change: transform;
+}
+
+.animate-slide-right {
+  animation: slide-right 25s linear infinite;
+  will-change: transform;
+}
+
+/* 鼠标悬停时暂停动画 */
+.animate-slide-left:hover,
+.animate-slide-right:hover {
+  animation-play-state: paused;
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+  .animate-slide-left {
+    animation-duration: 15s;
+  }
+
+  .animate-slide-right {
+    animation-duration: 15s;
+  }
+}
+
+/* 拖动时的视觉反馈 */
+.dragging .animate-slide-left,
+.dragging .animate-slide-right {
+  transition:
+    animation-duration 0.3s ease,
+    animation-direction 0.3s ease;
+}

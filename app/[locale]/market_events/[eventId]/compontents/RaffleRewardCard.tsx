@@ -1,0 +1,173 @@
+'use client';
+
+import { Button } from '@shadcn/components/ui/button';
+import { useTranslations } from 'next-intl';
+import { IEventInfoResponseData, raffle } from '@libs/request';
+import { Dices, Gift, Hand, HandCoins, Loader2 } from 'lucide-react';
+import { useAppSelector } from '@store/hooks';
+import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
+import DialogRaffleResult from './dialog/DialogRaffleResult';
+import useUserActivityReward from '@hooks/useUserActivityReward';
+import { updateUserActivityReward } from '@store/reducers/userSlice';
+
+interface RaffleRewardCardProps {
+  eventInfo: IEventInfoResponseData;
+  onClaim?: () => void;
+  onRefreshUserReward?: (result: { is_win: boolean; receive_amount: number }) => void;
+}
+
+export default function RaffleRewardCard({
+  eventInfo,
+  onClaim,
+  onRefreshUserReward,
+}: RaffleRewardCardProps) {
+  const t = useTranslations('common');
+  const payTokenInfo = useAppSelector((state) => state.userReducer?.pay_token_info);
+  const [isRaffling, setIsRaffling] = useState(false);
+  const [isRaffleResultDialogOpen, setIsRaffleResultDialogOpen] = useState(false);
+  const [raffleResult, setRaffleResult] = useState<{
+    is_win: boolean;
+    receive_amount: number;
+  } | null>(null);
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
+  const [isCooldown, setIsCooldown] = useState(false);
+
+  // 使用新的 hook 从 store 中获取用户活动奖励数据
+  const {
+    data: userActivityReward,
+    isLoading: isUserActivityRewardLoading,
+    refetch: refetchUserActivityReward,
+    ticketNumber,
+    totalReceiveAmount,
+    rewardPercent,
+  } = useUserActivityReward({
+    eventId: eventInfo.id.toString(),
+    enabled: !!eventInfo.id,
+  });
+
+  // 冷却倒计时效果
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+
+    if (cooldownSeconds > 0) {
+      timer = setTimeout(() => {
+        setCooldownSeconds(cooldownSeconds - 1);
+      }, 1000);
+    } else if (isCooldown) {
+      setIsCooldown(false);
+    }
+
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [cooldownSeconds, isCooldown]);
+
+  const handleRaffle = async () => {
+    if (!eventInfo?.id || isRaffling || isCooldown) return;
+
+    try {
+      setIsRaffling(true);
+      const response: any = await raffle({ active_id: eventInfo.id.toString() });
+
+      if (response.code === 200) {
+        // 刷新用户活动奖励数据
+        await refetchUserActivityReward();
+
+        // 设置抽奖结果并打开对话框
+        setRaffleResult(response.data);
+        setIsRaffleResultDialogOpen(true);
+
+        // 调用父组件的回调（如果需要刷新其他数据）
+        // onRefreshUserReward?.(response.data);
+      } else {
+        toast.error(response.msg || t('raffle_failed'));
+      }
+    } catch (error) {
+      console.error('Raffle failed:', error);
+      toast.error(t('raffle_failed'));
+    } finally {
+      setIsRaffling(false);
+    }
+  };
+
+  // 处理抽奖结果对话框关闭
+  const handleRaffleResultDialogClose = () => {
+    setIsRaffleResultDialogOpen(false);
+    // 启动5秒冷却
+    setIsCooldown(true);
+    setCooldownSeconds(5);
+  };
+
+  return (
+    <div className="bg-primary/5 space-y-6 rounded-xl p-6 sm:rounded-3xl">
+      {/* Header with gift icon */}
+      <div className="flex flex-col items-center space-y-4 text-center">
+        <div className="flex items-center justify-center">
+          <Gift className="text-primary !h-8 !w-8 sm:!h-10 sm:!w-10" />
+        </div>
+
+        <div className="">
+          <h3 className="text-primary text-md font-semibold sm:text-base">
+            {t('each_tweet_counts_raffle_entry')}
+          </h3>
+          <p className="sm:text-md text-primary/40 text-sm">
+            {t('reward_rate')}: <span className="">{rewardPercent}%</span>
+          </p>
+        </div>
+      </div>
+
+      {/* Tickets and Rewards Info */}
+      <div className="space-y-2">
+        <div className="bg-background flex flex-wrap items-center justify-between gap-2 rounded-xl p-2 pl-2 sm:rounded-3xl sm:pl-4">
+          <div className="flex items-center gap-1">
+            <span className="sm:text-md text-muted-foreground/80 text-sm">{t('my_tickets')}:</span>
+            <span className="sm:text-md text-sm">{ticketNumber}</span>
+          </div>
+          <Button
+            onClick={handleRaffle}
+            disabled={isRaffling || isCooldown || ticketNumber === 0}
+            className="h-10 w-full rounded-md !px-2 text-sm disabled:cursor-not-allowed disabled:opacity-50 sm:!h-auto sm:w-auto sm:!rounded-full sm:!px-4 sm:!text-base"
+          >
+            {isRaffling ? (
+              <Loader2 className="!h-4 !w-4 animate-spin sm:!h-6 sm:!w-6" />
+            ) : (
+              <Dices className="!h-4 !w-4 sm:!h-6 sm:!w-6" />
+            )}
+            {isRaffling
+              ? t('raffling')
+              : isCooldown
+                ? `${t('raffle')} (${cooldownSeconds}s)`
+                : t('raffle')}
+          </Button>
+        </div>
+
+        <div className="bg-background flex flex-wrap items-center justify-between gap-2 rounded-xl p-2 pl-2 sm:rounded-3xl sm:pl-4">
+          <div className="flex items-center gap-1">
+            <span className="sm:text-md text-muted-foreground/80 text-sm">
+              {t('available_rewards')}:
+            </span>
+            <span className="sm:text-md text-sm">
+              {totalReceiveAmount} {payTokenInfo?.symbol || ''}
+            </span>
+          </div>
+          <Button
+            onClick={onClaim}
+            disabled={totalReceiveAmount === 0}
+            className="h-9 w-full rounded-md bg-green-500 !px-2 text-sm hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-50 sm:!h-auto sm:w-auto sm:!rounded-full sm:!px-4 sm:!text-base"
+          >
+            <HandCoins className="!h-4 !w-4 sm:!h-6 sm:!w-6" />
+            {t('claim')}
+          </Button>
+        </div>
+      </div>
+
+      {/* 抽奖结果对话框 */}
+      <DialogRaffleResult
+        isOpen={isRaffleResultDialogOpen}
+        onClose={handleRaffleResultDialogClose}
+        raffleResult={raffleResult}
+      />
+    </div>
+  );
+}

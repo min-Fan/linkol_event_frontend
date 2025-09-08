@@ -1,0 +1,48 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "incremental": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "downlevelIteration": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "jsx": "preserve",
+    "baseUrl": ".",
+    "paths": {
+      "@shadcn/*": ["app/shadcn/*"],
+      "@shadcn-ui/*": ["app/shadcn/components/ui/*"],
+      "@constants/*": ["app/constants/*"],
+      "@actions/*": ["app/actions/*"],
+      "@assets/*": ["app/assets/*"],
+      "@hooks/*": ["app/hooks/*"],
+      "@libs/*": ["app/libs/*"],
+      "@ui/*": ["app/ui/*"],
+      "@widget/*": ["app/widget/*"],
+      "@store/*": ["app/store/*"],
+      "@db/*": ["app/db/*"]
+    },
+    "strictNullChecks": true
+  },
+  "include": [
+    "next-env.d.ts",
+    ".next/types/**/*.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "next.config.js",
+    "**/*.d.ts"
+  ],
+  "exclude": ["node_modules"]
+}
