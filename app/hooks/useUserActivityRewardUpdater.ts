@@ -58,6 +58,13 @@ export function useUserActivityRewardUpdater() {
         total_receive_amount: number;
         number: number;
         percent: number;
+        fail_limit: number;
+        fail_times: number;
+        level: string;
+        must_win_limit: number;
+        points: number;
+        today_join: number;
+        used_must_win_times: number;
       }
     ) => {
       dispatch(updateUserActivityReward({ eventId, data }));
