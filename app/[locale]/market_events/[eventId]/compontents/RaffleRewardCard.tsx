@@ -157,7 +157,7 @@ export default function RaffleRewardCard({
                 </div>
               </TooltipTrigger>
               <TooltipContent>
-                <div className="max-w-[150px] text-sm sm:max-w-none">
+                <div className="max-w-[150px] text-sm sm:max-w-[280px]">
                   {t('reward_percent_tip', { symbol: payTokenInfo?.symbol || '' })}
                 </div>
               </TooltipContent>
