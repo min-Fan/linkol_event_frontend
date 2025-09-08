@@ -3,14 +3,14 @@
 import { Button } from '@shadcn/components/ui/button';
 import { useTranslations } from 'next-intl';
 import { IEventInfoResponseData, raffle } from '@libs/request';
-import { Dices, Gift, Hand, HandCoins, Loader2 } from 'lucide-react';
+import { Dices, Gift, HandCoins, Loader2 } from 'lucide-react';
 import { useAppSelector } from '@store/hooks';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import DialogRaffleResult from './dialog/DialogRaffleResult';
 import useUserActivityReward from '@hooks/useUserActivityReward';
-import { updateUserActivityReward } from '@store/reducers/userSlice';
 import { RateBorderBg } from '@assets/svg';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@shadcn/components/ui/tooltip';
 
 interface RaffleRewardCardProps {
   eventInfo: IEventInfoResponseData;
@@ -33,7 +33,7 @@ export default function RaffleRewardCard({
   } | null>(null);
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
   const [isCooldown, setIsCooldown] = useState(false);
-  const raffleSeconds = 0;
+  const raffleSeconds = 5;
 
   // 使用新的 hook 从 store 中获取用户活动奖励数据
   const {
@@ -118,7 +118,7 @@ export default function RaffleRewardCard({
   };
 
   return (
-    <div className="bg-primary/5 space-y-6 rounded-xl p-6 sm:rounded-3xl">
+    <div className="bg-primary/5 relative space-y-6 overflow-hidden rounded-xl p-6 sm:rounded-3xl">
       {/* Header with gift icon */}
       <div className="flex flex-col items-center space-y-4 text-center">
         <div className="flex items-center justify-center">
@@ -134,6 +134,10 @@ export default function RaffleRewardCard({
           </p>
         </div>
       </div>
+      <div className="bg-destructive/20 absolute top-0 right-0 flex flex-col items-center justify-center rounded-bl-xl p-4 py-2 sm:rounded-bl-3xl">
+        <span className="text-destructive text-3xl font-bold">{level}</span>
+        <span className="text-muted-foreground/50 text-sm">{t('my_rank')}</span>
+      </div>
 
       {/* Tickets and Rewards Info */}
       <div className="space-y-2">
@@ -142,33 +146,39 @@ export default function RaffleRewardCard({
             <span className="sm:text-md text-muted-foreground/80 text-sm">{t('my_tickets')}:</span>
             <span className="sm:text-md text-sm">{ticketNumber}</span>
           </div>
-          <div className="flex items-center gap-2">
-            {usedMustWinTimes < mustWinLimit && (
-              <div className="relative flex items-center justify-center">
-                <RateBorderBg className="absolute top-0 left-0 h-full w-full" />
-                <span className="text-muted-foreground/40 flex items-center justify-center p-4 text-xs">
-                  {rewardPercent}%
-                </span>
-              </div>
+          {!(usedMustWinTimes < mustWinLimit) && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="relative ml-auto flex items-center justify-center">
+                  <RateBorderBg className="absolute top-0 left-0 h-full w-full" />
+                  <span className="text-muted-foreground/40 flex items-center justify-center p-4 text-xs">
+                    {rewardPercent}%
+                  </span>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className="max-w-[150px] text-sm sm:max-w-none">
+                  {t('reward_percent_tip', { symbol: payTokenInfo?.symbol || '' })}
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          )}
+          <Button
+            onClick={handleRaffle}
+            disabled={isRaffling || isCooldown || ticketNumber === 0}
+            className="h-10 w-full rounded-md bg-gradient-to-r from-[#D4F5D0] to-[#007AFF] !px-2 text-sm disabled:cursor-not-allowed disabled:opacity-50 sm:!h-auto sm:w-auto sm:!rounded-full sm:!px-4 sm:!text-base"
+          >
+            {isRaffling ? (
+              <Loader2 className="!h-4 !w-4 animate-spin sm:!h-6 sm:!w-6" />
+            ) : (
+              <Dices className="!h-4 !w-4 sm:!h-6 sm:!w-6" />
             )}
-
-            <Button
-              onClick={handleRaffle}
-              disabled={isRaffling || isCooldown || ticketNumber === 0}
-              className="h-10 w-full rounded-md bg-gradient-to-r from-[#D4F5D0] to-[#007AFF] !px-2 text-sm disabled:cursor-not-allowed disabled:opacity-50 sm:!h-auto sm:w-auto sm:!rounded-full sm:!px-4 sm:!text-base"
-            >
-              {isRaffling ? (
-                <Loader2 className="!h-4 !w-4 animate-spin sm:!h-6 sm:!w-6" />
-              ) : (
-                <Dices className="!h-4 !w-4 sm:!h-6 sm:!w-6" />
-              )}
-              {isRaffling
-                ? t('raffling')
-                : isCooldown
-                  ? `${t('raffle')} (${cooldownSeconds}s)`
-                  : t('raffle')}
-            </Button>
-          </div>
+            {isRaffling
+              ? t('raffling')
+              : isCooldown
+                ? `${t('raffle')} (${cooldownSeconds}s)`
+                : t('raffle')}
+          </Button>
         </div>
 
         <div className="bg-background flex flex-wrap items-center justify-between gap-2 rounded-xl p-2 pl-2 sm:rounded-3xl sm:pl-4">

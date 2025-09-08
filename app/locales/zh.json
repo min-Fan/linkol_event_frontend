@@ -171,6 +171,7 @@
     "btn_view_details": "查看详情",
     "btn_msg_sign": "消息签名",
     "btn_log_in": "登录",
+    "btn_log_sign": "签名",
     "btn_log_out": "退出",
     "btn_sign_in": "登录",
     "btn_sign_up": "注册",
@@ -924,6 +925,7 @@
     "failed_to_post_tweet": "发布推文失败",
     "enter_tweet_content": "输入推文内容",
     "click_regenerate_to_generate_tweet": "点击重新生成按钮生成推文内容，或点击编辑按钮手动输入...",
+    "loading_data": "生成中...",
     "invite_other_creators": "邀请其他创作者",
     "share_link_invite_others": "分享链接邀请其他人加入市场活动",
     "close": "关闭",
@@ -1076,7 +1078,7 @@
     "raffle": "抽奖",
     "raffling": "抽奖中",
     "raffle_failed": "抽奖失败",
-    "better_luck_next_time": "下次好运",
+    "better_luck_next_time": "您获得了100积分",
     "no_reward_this_time": "这次没有奖励",
     "keep_participating_for_more_chances": "继续参与获得更多机会",
     "raffle_won_amount": "恭喜！您抽中了 {amount} {symbol}",
@@ -1108,6 +1110,9 @@
     "getting_data": "获取数据中...",
     "kol_name_short": "KOL",
     "my_points": "我的积分",
-    "today": "今日"
+    "today": "今日",
+    "reward_percent_tip": "如果连续失败n次，下次一定会赢{symbol}。",
+    "my_rank": "我的排名",
+    "congratulations_description": "您获得了一些{symbol}。您可以分享到X以获得1张更多的票。"
   }
 }
