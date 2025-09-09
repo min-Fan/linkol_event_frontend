@@ -130,7 +130,6 @@ export default function useUserInfo() {
     localStorage.removeItem(CACHE_KEY.KOL_TOKEN);
   };
 
-
   const logoutWallet = () => {
     dispatch({
       type: AppEventType.UPDATE_USER_INFO,

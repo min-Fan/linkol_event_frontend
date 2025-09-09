@@ -20,7 +20,7 @@ export default function TweetRecord() {
   };
 
   return (
-    <div className="border-border bg-background box-border space-y-4 rounded-3xl border p-4 sm:p-6">
+    <div className="bg-background/20 box-border space-y-4 rounded-3xl p-4 backdrop-blur-sm sm:p-6">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <CompActiveTypeTab defaultType={type} onChangeAction={onChangeType} />
         {/* <CompActiveSearch onSearchAction={onSearch} /> */}

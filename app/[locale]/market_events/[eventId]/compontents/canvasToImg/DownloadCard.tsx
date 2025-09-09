@@ -43,7 +43,7 @@ const KolCard = ({ data, className }: { data: IGetPriceData; className?: string 
           </div>
 
           {/* 用户头像 */}
-          <div className="flex h-[200px] w-[200px] items-center justify-center overflow-hidden !rounded-md">
+          <div className="flex h-[200px] max-h-[200px] w-[200px] max-w-[200px] items-center justify-center overflow-hidden !rounded-md">
             <img
               id="user-avatar"
               src={data?.kol?.profile_image_url?.replace('_normal', '') || defaultAvatar.src}
@@ -108,7 +108,10 @@ const KolCard = ({ data, className }: { data: IGetPriceData; className?: string 
 const DownloadCard = forwardRef<HTMLDivElement, DownloadCardProps>(({ className, data }, ref) => {
   return (
     <div
-      className={cn('relative flex h-[600px] w-[600px] items-center justify-center', className)}
+      className={cn(
+        'relative flex h-[600px] max-h-[600px] w-[600px] max-w-[600px] items-center justify-center',
+        className
+      )}
       style={{
         backgroundImage: `url(${downloadCardBg.src})`,
         backgroundSize: 'cover',
@@ -121,7 +124,7 @@ const DownloadCard = forwardRef<HTMLDivElement, DownloadCardProps>(({ className,
         <KolCard data={data} className="z-10 w-[330px]" />
         {/* <div className="absolute inset-0 top-1/2 left-1/2 z-0 h-[96%] w-[96%] -translate-x-1/2 -translate-y-1/2 shadow-[0_0_130px_rgba(255,255,255,0.9)]"></div> */}
       </div>
-      <div className="absolute bottom-4 left-0 w-full text-center text-2xl font-bold text-black">
+      <div className="absolute bottom-4 left-0 w-full text-center text-2xl font-bold tracking-wide text-black">
         {getCurrentDomain()}
       </div>
     </div>

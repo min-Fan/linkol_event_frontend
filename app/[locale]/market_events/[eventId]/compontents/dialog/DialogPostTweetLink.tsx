@@ -14,7 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@shadcn/components/ui/dropdown-menu';
-import { Loader2, AlertCircle, Sparkles, Edit, ChevronDown, Check } from 'lucide-react';
+import { Loader2, AlertCircle, Edit, ChevronDown, Check } from 'lucide-react';
 import { Fail, Success, MoneyBag, Magic } from '@assets/svg';
 import { useParams } from 'next/navigation';
 import { Input } from '@shadcn/components/ui/input';
@@ -26,7 +26,6 @@ import {
   getAiChatTweet,
   sendActivityTweet,
   sendActivityTweetPlatform,
-  IGetPriceData,
   getPrice,
   uploadImage,
   LanguageCode,
@@ -46,7 +45,6 @@ import placeholderImage from '@assets/image/banner-loading.png';
 import DialogImagePreview from './DialogImagePreview';
 import DownloadCard from '../canvasToImg/DownloadCard';
 import html2canvas from 'html2canvas';
-import { useQuery } from '@tanstack/react-query';
 
 // 图片生成模板配置
 interface ImageTemplateConfig {
@@ -678,11 +676,7 @@ export default function DialogPostTweetLink({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogClose asChild>
-        <Button variant="outline" className="absolute top-4 right-4">
-          {/* <X className="h-5 w-5" /> */}
-        </Button>
-      </DialogClose>
+      <DialogClose asChild></DialogClose>
       <DialogContent
         className="border-border flex max-h-[90vh] w-96 max-w-full flex-col gap-0 overflow-hidden bg-transparent p-2 shadow-none sm:w-96 sm:max-w-full sm:p-0"
         nonClosable
@@ -864,13 +858,15 @@ export default function DialogPostTweetLink({
                           ) : (
                             <Magic className="text-primary h-5 w-5" />
                           )}
-                          {isGeneratingTweet
-                            ? t('generating')
-                            : isLoadingTemplateData
-                              ? t('getting_data')
-                              : isGeneratingImage
-                                ? t('generating_image')
-                                : t('regenerate')}
+                          <span className="w-12 truncate sm:w-auto">
+                            {isGeneratingTweet
+                              ? t('generating')
+                              : isLoadingTemplateData
+                                ? t('getting_data')
+                                : isGeneratingImage
+                                  ? t('generating_image')
+                                  : t('regenerate')}
+                          </span>
                         </Button>
                       </div>
                     </div>
@@ -947,8 +943,10 @@ export default function DialogPostTweetLink({
                             </div>
                           ) : (
                             <p className="text-muted-foreground">
-                              {t('loading_data') ||
-                                'Click Regenerate to generate tweet content, or click Edit to input manually...'}
+                              {isGeneratingTweet || isGeneratingImage || isLoadingTemplateData
+                                ? t('loading_data')
+                                : t('click_regenerate_to_generate_tweet') ||
+                                  'Click Regenerate to generate tweet content, or click Edit to input manually...'}
                             </p>
                           )}
                         </div>
@@ -966,24 +964,30 @@ export default function DialogPostTweetLink({
                         {isEditingTweet && (
                           <button
                             onClick={handleCancelEdit}
-                            className="cursor-pointer text-gray-500 hover:text-gray-700"
+                            className="text-muted-foreground/60 hover:text-muted-foreground/80 cursor-pointer"
                           >
                             {t('cancel')}
                           </button>
                         )}
                         <button
                           onClick={isEditingTweet ? handleSaveEdit : handleEditTweet}
-                          className="flex cursor-pointer items-center text-gray-500 hover:text-gray-700"
+                          disabled={isGeneratingTweet || isGeneratingImage || isLoadingTemplateData}
+                          className={cn(
+                            'flex cursor-pointer items-center',
+                            isGeneratingTweet || isGeneratingImage || isLoadingTemplateData
+                              ? 'text-muted-foreground/60 hover:text-muted-foreground/80 cursor-not-allowed'
+                              : 'text-primary'
+                          )}
                         >
                           {isEditingTweet ? (
                             <>
                               <span className="text-primary">{t('save')}</span>
                             </>
                           ) : (
-                            <>
+                            <div className="flex items-center">
                               <Edit className="mr-1 h-3 w-3" />
                               <span>{t('edit')}</span>
-                            </>
+                            </div>
                           )}
                         </button>
                       </div>

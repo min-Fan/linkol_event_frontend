@@ -69,7 +69,7 @@ export default async function LocaleLayout(props: { children: ReactNode; params:
             '@type': 'Organization',
             name: 'Linkol Event',
             url: 'https://www.app.linkol.fun',
-            logo: 'https://www.app.linkol.fun/favicon.ico',
+            logo: 'https://www.linkol.fun/favicon.ico',
           })}
         </Script>
       </head>
@@ -108,7 +108,7 @@ export async function generateMetadata({ params }: { params: Params }) {
     title: isZh == 'zh' ? 'LinKol Event' : 'LinKol Event',
     description: isZh == 'zh' ? 'LinKol Event' : 'LinKol Event',
     icons: {
-      icon: 'https://www.app.linkol.fun/favicon.ico',
+      icon: 'https://www.linkol.fun/favicon.ico',
     },
     openGraph: {
       title: 'LinKol Event',
@@ -116,7 +116,7 @@ export async function generateMetadata({ params }: { params: Params }) {
       url: `https://www.app.linkol.fun/${isZh ? 'zh' : 'en'}`,
       images: [
         {
-          url: 'https://www.app.linkol.fun/favicon.ico',
+          url: 'https://www.linkol.fun/favicon.ico',
           width: 1200,
           height: 630,
           alt: 'LinKol Event',
@@ -127,7 +127,7 @@ export async function generateMetadata({ params }: { params: Params }) {
       card: 'summary_large_image',
       title: 'LinKol Event',
       description: 'https://x.com/linkol_ai',
-      images: ['https://www.app.linkol.fun/favicon.ico'],
+      images: ['https://www.linkol.fun/favicon.ico'],
     },
     robots: { index: true, follow: true },
     alternates: {

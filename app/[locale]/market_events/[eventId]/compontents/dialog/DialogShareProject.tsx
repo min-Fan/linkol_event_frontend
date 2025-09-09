@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { Button } from '@shadcn/components/ui/button';
 import {
   Dialog,
@@ -11,8 +11,10 @@ import {
 import { CopyIcon, Share2 } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { TwIcon, Twitter, Twitter2, TwitterBlack } from '@assets/svg';
+import { Fail, Success, TwIcon, Twitter, Twitter2, TwitterBlack } from '@assets/svg';
 import { toast } from 'sonner';
+import { getTwitterShareCallback } from '@libs/request';
+import LoaderCircle from '@ui/loading/loader-circle';
 
 interface DialogShareProjectProps {
   isOpen: boolean;
@@ -23,31 +25,69 @@ export default function DialogShareProject({ isOpen, onClose }: DialogShareProje
   const t = useTranslations('common');
   const { eventId } = useParams();
 
+  // 分享相关状态
+  const [isShared, setIsShared] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [verifyResult, setVerifyResult] = useState<'success' | 'failed' | null>(null);
+
   // 构建分享链接
   const shareLink = `${window.location.origin}/market_events/${eventId}`;
 
   // 预编辑的推特文案
   const tweetText = `🚀 发现了一个超棒的项目！\n\n🔗 项目链接：${shareLink}\n\n#Web3 #区块链 #创新项目`;
 
+  const handleClose = useCallback(() => {
+    // 重置所有状态
+    setIsShared(false);
+    setIsVerifying(false);
+    setVerifyResult(null);
+    onClose();
+  }, [onClose]);
+
   // 跳转到推特发帖
-  const handleShareOnTwitter = () => {
+  const handleShareOnTwitter = useCallback(() => {
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
     window.open(twitterUrl, '_blank');
-    onClose();
-  };
+    // 分享后设置为已分享状态
+    setIsShared(true);
+  }, [tweetText]);
 
-  const handleCopyLink = () => {
+  const handleVerifyShare = useCallback(async () => {
+    if (!eventId) return;
+
+    try {
+      setIsVerifying(true);
+      const response = await getTwitterShareCallback({
+        active_id: eventId as string,
+      });
+
+      if (response.code === 200) {
+        const receivedTickets = response.data?.number;
+        if (receivedTickets === 1) {
+          setVerifyResult('success');
+          toast.success(t('share_success_extra_ticket'));
+        } else {
+          setVerifyResult('failed');
+        }
+      } else {
+        setVerifyResult('failed');
+      }
+    } catch (error) {
+      console.error('分享验证失败:', error);
+      setVerifyResult('failed');
+    } finally {
+      setIsVerifying(false);
+    }
+  }, [eventId, t]);
+
+  const handleCopyLink = useCallback(() => {
     navigator.clipboard.writeText(shareLink);
     toast.success(t('copied'));
-  };
+  }, [shareLink, t]);
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogClose asChild>
-        <Button variant="outline" className="absolute top-4 right-4">
-          {/* <X className="h-5 w-5" /> */}
-        </Button>
-      </DialogClose>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogClose asChild></DialogClose>
       <DialogContent
         className="border-border flex max-h-[90vh] w-96 max-w-full flex-col gap-0 overflow-hidden bg-transparent p-2 shadow-none sm:w-96 sm:max-w-full sm:p-0"
         nonClosable
@@ -66,32 +106,87 @@ export default function DialogShareProject({ isOpen, onClose }: DialogShareProje
 
         {/* Content */}
         <div className="bg-background space-y-4 rounded-b-xl p-6 sm:rounded-b-2xl">
-          {/* Project Link Field */}
-          <div className="border-border flex items-center gap-2 rounded-lg border px-3 py-2">
-            <span className="text-muted-foreground flex-1 text-sm">{shareLink}</span>
-            <CopyIcon
-              className="text-muted-foreground h-4 w-4 cursor-pointer"
-              onClick={handleCopyLink}
-            />
-          </div>
+          {isVerifying ? (
+            // 验证中状态 - 完全替换UI
+            <div className="flex flex-col items-center justify-center py-10">
+              <LoaderCircle text={`${t('verifying')}...`} />
+            </div>
+          ) : verifyResult === 'success' ? (
+            // 验证成功状态 - 完全替换UI
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full">
+                <Success className="w-16" />
+              </div>
+              <div className="text-center">
+                <p className="text-lg font-semibold">{t('share_verified_success')}</p>
+                <p className="text-muted-foreground text-sm">{t('extra_ticket_received')}</p>
+              </div>
+              <Button onClick={handleClose} className="!h-auto !rounded-lg px-8">
+                {t('done')}
+              </Button>
+            </div>
+          ) : verifyResult === 'failed' ? (
+            // 验证失败状态 - 完全替换UI
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full">
+                <Fail className="w-16" />
+              </div>
+              <div className="text-center">
+                <p className="text-lg font-semibold">{t('share_verification_failed')}</p>
+                <p className="text-muted-foreground text-sm">
+                  {t('share_verification_failed_desc')}
+                </p>
+              </div>
+              <div className="flex w-full gap-2">
+                <Button
+                  onClick={handleClose}
+                  variant="secondary"
+                  className="!h-auto flex-1 !rounded-lg"
+                >
+                  {t('done')}
+                </Button>
+                <Button
+                  onClick={() => {
+                    setVerifyResult(null);
+                    handleVerifyShare();
+                  }}
+                  className="!h-auto flex-1 !rounded-lg"
+                >
+                  {t('try_again')}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            // 默认状态 - 显示原有的分享UI
+            <>
+              {/* Project Link Field */}
+              <div className="border-border flex items-center gap-2 rounded-lg border px-3 py-2">
+                <span className="text-muted-foreground flex-1 text-sm">{shareLink}</span>
+                <CopyIcon
+                  className="text-muted-foreground h-4 w-4 cursor-pointer"
+                  onClick={handleCopyLink}
+                />
+              </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-3">
-            <Button
-              variant="secondary"
-              onClick={onClose}
-              className="border-border hover:bg-muted-foreground/10 !h-auto flex-1 !rounded-lg"
-            >
-              {t('done')}
-            </Button>
-            <Button
-              onClick={handleShareOnTwitter}
-              className="bg-primary hover:bg-primary/90 !h-auto flex-1 !rounded-lg text-white"
-            >
-              {t('share_on_x')}
-              <span className="text-xl text-white">𝕏</span>
-            </Button>
-          </div>
+              {/* Action Buttons */}
+              <div className="flex gap-3">
+                <Button
+                  variant="secondary"
+                  onClick={handleClose}
+                  className="border-border hover:bg-muted-foreground/10 !h-auto flex-1 !rounded-lg"
+                >
+                  {t('done')}
+                </Button>
+                <Button
+                  onClick={isShared ? handleVerifyShare : handleShareOnTwitter}
+                  className="bg-primary hover:bg-primary/90 !h-auto flex-1 !rounded-lg text-white"
+                >
+                  {isShared ? t('already_shared') : t('share_on_x')}
+                  <span className="text-xl text-white">𝕏</span>
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       </DialogContent>
     </Dialog>
