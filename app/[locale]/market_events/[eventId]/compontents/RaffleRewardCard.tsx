@@ -9,8 +9,8 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import DialogRaffleResult from './dialog/DialogRaffleResult';
 import useUserActivityReward from '@hooks/useUserActivityReward';
-import { RateBorderBg } from '@assets/svg';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@shadcn/components/ui/tooltip';
+import CircularProgress from '../../../../components/CircularProgress';
 
 interface RaffleRewardCardProps {
   eventInfo: IEventInfoResponseData;
@@ -149,11 +149,17 @@ export default function RaffleRewardCard({
           {usedMustWinTimes < mustWinLimit && (
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="relative ml-auto flex items-center justify-center">
-                  <RateBorderBg className="absolute top-0 left-0 h-full w-full" />
-                  <span className="text-muted-foreground/40 flex items-center justify-center p-4 text-xs">
-                    {rewardPercent * 100}%
-                  </span>
+                <div className="ml-auto flex items-center justify-center">
+                  <CircularProgress
+                    percentage={rewardPercent * 100}
+                    size={48}
+                    strokeWidth={5}
+                    className="text-primary"
+                  >
+                    <span className="text-muted-foreground/40 text-xs font-medium">
+                      {rewardPercent * 100}%
+                    </span>
+                  </CircularProgress>
                 </div>
               </TooltipTrigger>
               <TooltipContent>
