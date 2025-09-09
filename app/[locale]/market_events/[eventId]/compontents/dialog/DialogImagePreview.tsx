@@ -65,7 +65,7 @@ export default function DialogImagePreview({
         <DialogHeader className="absolute top-4 right-0 z-10">
           <DialogTitle></DialogTitle>
           <DialogDescription></DialogDescription>
-          <DialogClose asChild>
+          <DialogClose asChild className="absolute top-0 right-4">
             <Button
               variant="outline"
               size="icon"
@@ -77,7 +77,7 @@ export default function DialogImagePreview({
         </DialogHeader>
 
         <div
-          className="relative flex h-full min-h-[80vh] w-full items-center justify-center"
+          className="relative flex h-full w-full items-center justify-center"
           onKeyDown={handleKeyDown}
           tabIndex={0}
         >

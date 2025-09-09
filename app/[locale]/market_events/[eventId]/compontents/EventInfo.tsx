@@ -11,6 +11,7 @@ import { useTranslations } from 'next-intl';
 import DialogShareProject from './dialog/DialogShareProject';
 import DialogBrandValue from './dialog/DialogBrandValue';
 import { CommBarChart } from './CommBarChart';
+import { useAppSelector } from '@store/hooks';
 
 // 骨架屏组件
 function EventInfoSkeleton() {
@@ -83,6 +84,7 @@ export default function EventInfo({
   const t = useTranslations('common');
   const [openShareDialog, setOpenShareDialog] = useState(false);
   const [openBrandValueDialog, setOpenBrandValueDialog] = useState(false);
+  const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
 
   // 如果正在加载，显示骨架屏
   if (isLoading) {
@@ -92,10 +94,12 @@ export default function EventInfo({
   return (
     <div className="flex w-full flex-col gap-2 p-2 sm:gap-4 sm:p-4">
       <div className="relative flex items-center gap-2 sm:gap-4">
-        <Share
-          className="text-muted-foreground hover:text-primary absolute top-0 right-0 h-3 w-3 cursor-pointer transition-colors sm:h-4 sm:w-4"
-          onClick={() => setOpenShareDialog(true)}
-        />
+        {isLoggedIn && (
+          <Share
+            className="text-muted-foreground hover:text-primary absolute top-0 right-0 h-3 w-3 cursor-pointer transition-colors sm:h-4 sm:w-4"
+            onClick={() => setOpenShareDialog(true)}
+          />
+        )}
         <div className="bg-muted-foreground/10 h-10 w-10 min-w-10 overflow-hidden rounded-lg sm:h-17 sm:w-17 sm:min-w-17">
           <img
             src={eventInfo?.project.logo || ''}

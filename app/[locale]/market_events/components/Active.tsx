@@ -21,10 +21,10 @@ export default function Active(props: { data: IActive }) {
   return (
     <Link
       href={`${PagesRoute.MARKET_EVENTS}/${data?.id}`}
-      className="border-primary/15 hover:border-primary/25 bg-background flex cursor-pointer flex-col overflow-hidden rounded-2xl border-2"
+      className="shadow-primary/10 hover:shadow-primary/20 flex cursor-pointer flex-col overflow-hidden rounded-2xl border-none shadow-sm hover:shadow-lg"
     >
       <img className="h-36 w-full object-cover" src={data.cover_img} alt={data.title} />
-      <div className="flex flex-1 flex-col justify-between gap-y-4 p-6">
+      <div className="bg-background flex flex-1 flex-col justify-between gap-y-4 p-6">
         <div className="space-y-4">
           <dl className="flex items-center justify-between gap-x-3 text-base font-medium">
             <dt className="truncate">{data.title}</dt>

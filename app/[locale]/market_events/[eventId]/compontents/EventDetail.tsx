@@ -436,6 +436,7 @@ export default function EventDetail({
                   <Button
                     className="h-10 !rounded-2xl !px-4 font-light sm:!h-12"
                     onClick={() => setIsPostTweetLinkOpen(true)}
+                    disabled={todayJoin === 1}
                   >
                     <TwitterX className="!h-5 !w-5 text-white" />
                     <span className="text-md sm:text-base">{t('post_a_tweet')}</span>

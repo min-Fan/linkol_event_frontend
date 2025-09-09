@@ -15,11 +15,14 @@ import PagesRoute from '@constants/routes';
 import { Fail, Success } from '@assets/svg';
 import { Button } from '@shadcn/components/ui/button';
 import { useTranslations } from 'next-intl';
+import { useAppDispatch } from '@store/hooks';
+import { updateIsLoggedIn, updateTwitterFullProfile } from '@store/reducers/userSlice';
 
 export default function TwitterPage() {
   const params = useSearchParams();
   const router = useRouter();
   const t = useTranslations('common');
+  const dispatch = useAppDispatch();
 
   const [staus, setStatus] = useState<LoginStatus>(LoginStatus.SUCCESS);
 
@@ -76,6 +79,8 @@ export default function TwitterPage() {
       const { token } = loginInfo;
       document.cookie = `${CACHE_KEY.KOL_TOKEN}=${token}; path=/;`;
       localStorage.setItem(CACHE_KEY.KOL_TOKEN, token);
+      dispatch(updateIsLoggedIn(true));
+      dispatch(updateTwitterFullProfile({ ...userInfo, ...loginInfo }));
       setStatus(LoginStatus.SUCCESS);
       postEvent(ChannelEventType.LOGIN_STATUS, {
         status: LoginStatus.SUCCESS,

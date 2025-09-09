@@ -346,11 +346,7 @@ const DialogClaimReward = memo(
 
     return (
       <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogClose asChild>
-          <Button variant="outline" className="absolute top-4 right-4">
-            {/* <X className="h-5 w-5" /> */}
-          </Button>
-        </DialogClose>
+        <DialogClose asChild></DialogClose>
         <DialogContent
           className="border-border flex max-h-[90vh] w-96 max-w-full flex-col gap-0 overflow-hidden bg-transparent p-2 shadow-none sm:w-96 sm:max-w-full sm:p-0"
           nonClosable

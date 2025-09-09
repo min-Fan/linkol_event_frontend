@@ -14,6 +14,7 @@ import { Button } from '@shadcn-ui/button';
 
 import { LOCALES } from '@constants/app';
 import { Link } from '@libs/i18n/navigation';
+import { useEffect, useState } from 'react';
 
 const LanguageItem = (props: {
   lng: string;
@@ -37,6 +38,18 @@ export default function UILanguage() {
   let pathname = usePathname();
   const search = useSearchParams();
 
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY;
+      setScrolled(scrollPosition > 100);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   for (const lng of LOCALES) {
     const key = `/${lng}`;
 
@@ -48,8 +61,12 @@ export default function UILanguage() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button className="size-6 md:size-8" variant="ghost" size="icon">
-          <Languages className="text-muted-foreground size-4" />
+        <Button
+          className={`size-6 md:size-8 ${scrolled ? 'text-muted-foreground' : 'text-background'}`}
+          variant="ghost"
+          size="icon"
+        >
+          <Languages className="size-4" />
           <span className="sr-only">Toggle language</span>
         </Button>
       </DropdownMenuTrigger>

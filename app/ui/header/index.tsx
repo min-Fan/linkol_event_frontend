@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { Logo, Linkol, LinkolPrimary, LinkolLight, LinkolDark } from '@assets/svg';
 import PagesRoute from '@constants/routes';
 import { Link } from '@libs/i18n/navigation';
@@ -60,14 +61,29 @@ export const navigationItems: NavigationItem[] = [
 
 export default function Header(props: { hasLogin?: boolean }) {
   const { hasLogin = true } = props;
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY;
+      setScrolled(scrollPosition > 100);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <header className="border-border bg-background/80 sticky top-0 z-50 box-border w-full border-b backdrop-blur-sm">
+    <header
+      className={`fixed top-0 z-50 box-border w-full transition-colors duration-300 ${
+        scrolled ? 'bg-background/80 shadow-sm backdrop-blur-sm' : 'bg-transparent'
+      }`}
+    >
       <section className="mx-auto box-border flex h-14 items-center justify-between gap-x-8 px-4 sm:h-16 sm:px-10">
         <div className="flex items-center gap-x-0 sm:gap-x-4">
-          <div className="block sm:hidden">
+          {/* <div className="block sm:hidden">
             <CompSidebar navigationItems={navigationItems} />
-          </div>
+          </div> */}
           <Link className="flex items-center gap-x-2" href={PagesRoute.HOME}>
             {/* <Logo className="size-4" />
             <Linkol className="h-4 w-14" /> */}

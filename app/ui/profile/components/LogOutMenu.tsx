@@ -47,7 +47,7 @@ export default function LogOutMenu(props: { size?: MenuSize }) {
     <DropdownMenu>
       {size === MenuSize.DEFAULT && (
         <DropdownMenuTrigger asChild>
-          <Button className="w-full px-2" variant="secondary">
+          <Button className="hover:bg-secondary/80 w-full px-2" variant="secondary">
             <div className="flex w-full items-center space-x-2 text-left">
               <img
                 src={twInfo.profile_image_url}

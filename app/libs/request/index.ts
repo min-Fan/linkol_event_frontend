@@ -2067,3 +2067,20 @@ export interface Kol {
 export const getPrice = async (params: IGetPriceParams) => {
   return request.get<IGetPriceData>(ENDPOINT_URL.GET_PRICE, { ...params });
 };
+
+// 推特分享回调
+export interface IGetTwitterShareCallbackParams {
+  /**
+   * 推特ID
+   */
+  active_id: string;
+}
+export interface IGetTwitterShareCallbackData {
+  /**
+   * 获取到的抽奖资格
+   */
+  number: number;
+}
+export const getTwitterShareCallback = (params: IGetTwitterShareCallbackParams) => {
+  return kolRequest.get<IGetTwitterShareCallbackData>('/kol/api/v6/share/callback/', { ...params });
+};
