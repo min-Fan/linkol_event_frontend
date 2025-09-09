@@ -33,7 +33,7 @@ export default function RaffleRewardCard({
   } | null>(null);
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
   const [isCooldown, setIsCooldown] = useState(false);
-  const raffleSeconds = 5;
+  const raffleSeconds = 0;
 
   // 使用新的 hook 从 store 中获取用户活动奖励数据
   const {
@@ -151,13 +151,13 @@ export default function RaffleRewardCard({
               <TooltipTrigger asChild>
                 <div className="ml-auto flex items-center justify-center">
                   <CircularProgress
-                    percentage={rewardPercent * 100}
+                    percentage={Number((rewardPercent * 100).toFixed(1))}
                     size={48}
                     strokeWidth={5}
                     className="text-primary"
                   >
                     <span className="text-muted-foreground/40 text-xs font-medium">
-                      {rewardPercent * 100}%
+                      {Number((rewardPercent * 100).toFixed(1))}%
                     </span>
                   </CircularProgress>
                 </div>

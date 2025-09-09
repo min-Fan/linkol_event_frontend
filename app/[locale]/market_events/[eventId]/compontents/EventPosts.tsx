@@ -106,7 +106,7 @@ const PostItem = ({ post }: { post: IGetActivityPostsResponseDataItem }) => {
                   <span className="text-md line-clamp-1 truncate sm:text-base">
                     {post.name || 'Unknown User'}
                   </span>
-                  {!post.is_verified && <Verified className="size-4 min-w-4" />}
+                  {post.is_verified && <Verified className="size-4 min-w-4" />}
                   <span className="ml-auto text-xs whitespace-nowrap sm:text-base">
                     {formatDate(post.tweet_created_at)}
                   </span>
