@@ -22,7 +22,7 @@ html {
   --muted-foreground: #64748b;
   --accent: #f1f5f9;
   --accent-foreground: #0f172a;
-  --destructive: #FF543E;
+  --destructive: #ff543e;
   --border: #e2e8f0;
   --input: #e2e8f0;
   --ring: #8b5cf6;
@@ -60,7 +60,7 @@ html {
   --muted-foreground: #94a3b8;
   --accent: #334155;
   --accent-foreground: #f8fafc;
-  --destructive: #FF543E;
+  --destructive: #ff543e;
   --border: rgba(255, 255, 255, 0.1);
   --input: rgba(255, 255, 255, 0.15);
   --ring: #7c3aed;

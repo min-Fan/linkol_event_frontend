@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 
 import { RankFirst, RankSecond, RankThird } from '@assets/svg';
 import { formatNumberKMB } from '@libs/utils';
-import { useLeadboard } from '@hooks/marketEvents';
+import { useBanner, useLeadboard } from '@hooks/marketEvents';
 import { Skeleton } from '@shadcn/components/ui/skeleton';
 import {
   Table,
@@ -114,7 +114,7 @@ export default function Leadboard() {
                   alt={item.screen_name}
                   className="h-6 w-6 rounded-full object-cover"
                 />
-                <dl className="flex flex-1 flex-col overflow-hidden">
+                <dl className="flex max-w-[100px] flex-1 flex-col overflow-hidden">
                   <span className="text-md truncate font-medium">{item.name}</span>
                   {/* <span
                     className="cursor-pointer truncate text-sm"
@@ -125,7 +125,7 @@ export default function Leadboard() {
                 </dl>
               </TableCell>
               <TableCell className="text-md text-right font-medium">
-                {formatNumberKMB(item.followers_count)}
+                {formatNumberKMB(item.followers)}
               </TableCell>
               {/* <TableCell className="text-right text-md font-medium">
                 {formatNumberKMB(item.brand_value)}

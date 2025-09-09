@@ -1122,6 +1122,9 @@
     "reward_percent_tip": "If you fail to win {symbol} for n consecutive times, you will definitely win {symbol} the next time.",
     "my_rank": "My Rank",
     "congratulations_description": "Your got some {symbol}. Your can share on X to eran 1 more ticket",
-    "participate": "Participate"
+    "participate": "Participate",
+    "post_to_earn": "Post to Earn",
+    "boost_personal_brand": "Boost your personal brand with Tweet and unlock greater rewards!",
+    "all_events": "All Events"
   }
 }

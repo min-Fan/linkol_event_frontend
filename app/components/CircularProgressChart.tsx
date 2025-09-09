@@ -21,14 +21,14 @@ export default function CircularProgressChart({
 }: CircularProgressChartProps) {
   // 确保百分比在0-100之间
   const normalizedPercentage = Math.max(0, Math.min(100, percentage));
-  
+
   // 计算角度 - 完整圆圈是360度
   const endAngle = (normalizedPercentage / 100) * 360;
-  
+
   // 计算半径
   const outerRadius = size / 2 - 2;
   const innerRadius = outerRadius - strokeWidth;
-  
+
   // 生成唯一的渐变ID
   const gradientId = `progress-gradient-${Math.random().toString(36).substr(2, 9)}`;
 
@@ -47,8 +47,8 @@ export default function CircularProgressChart({
 
   return (
     <div className={`relative inline-flex items-center justify-center ${className}`}>
-      <ChartContainer 
-        config={chartConfig} 
+      <ChartContainer
+        config={chartConfig}
         className="aspect-square"
         style={{ width: size, height: size }}
       >
@@ -62,11 +62,11 @@ export default function CircularProgressChart({
           height={size}
         >
           <defs>
-            <linearGradient 
-              id={gradientId} 
-              x1="0%" 
-              y1="0%" 
-              x2="100%" 
+            <linearGradient
+              id={gradientId}
+              x1="0%"
+              y1="0%"
+              x2="100%"
               y2="100%"
               gradientUnits="objectBoundingBox"
             >
@@ -91,8 +91,8 @@ export default function CircularProgressChart({
             className="first:fill-white last:fill-white"
             polarRadius={[outerRadius, innerRadius]}
           />
-          <RadialBar 
-            dataKey="progress" 
+          <RadialBar
+            dataKey="progress"
             background={{ fill: '#F2F8FF' }}
             cornerRadius={strokeWidth / 2}
             fill={`url(#${gradientId})`}
@@ -103,13 +103,13 @@ export default function CircularProgressChart({
                 content={({ viewBox }) => {
                   if (viewBox && 'cx' in viewBox && 'cy' in viewBox) {
                     return (
-                      <foreignObject 
-                        x={(viewBox.cx || 0) - 20} 
-                        y={(viewBox.cy || 0) - 10} 
-                        width="40" 
+                      <foreignObject
+                        x={(viewBox.cx || 0) - 20}
+                        y={(viewBox.cy || 0) - 10}
+                        width="40"
                         height="20"
                       >
-                        <div className="flex items-center justify-center w-full h-full">
+                        <div className="flex h-full w-full items-center justify-center">
                           {children}
                         </div>
                       </foreignObject>

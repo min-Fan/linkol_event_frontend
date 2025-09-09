@@ -7,7 +7,7 @@ import { IGetCampaignJoinListItem } from '@libs/request';
 const EndPoint = {
   BANNER: '/kol/api/v3/active/hot/',
   ACTIVES: '/kol/api/v3/index/actives/',
-  LEADBOARD: '/kol/api/v3/kol-search-history/',
+  LEADBOARD: '/kol/api/v1/kols/by/tags/',
   // LEADBOARD: '/kol/api/v3/active/all/voices/',
   TWEET_RECORD: '/kol/api/v3/active/all/tweets/',
 };
@@ -148,13 +148,17 @@ interface ILeadboardRecord {
   brand_value: number;
   increase_value: number;
   followers_count: number;
+  followers: number;
 }
 
 export const leadboardFetcher = async (url: string): Promise<ILeadboardRecord[]> => {
   try {
     const res = await request.get(url, {
       page: 1,
-      size: 15,
+      limit: 15,
+      kw: '',
+      order: 'desc',
+      is_verified: 1,
     });
 
     if (res.code !== 200) {
