@@ -18,6 +18,7 @@ import '@rainbow-me/rainbowkit/styles.css';
 import 'app/assets/font/index.css';
 import './globals.css';
 import Script from 'next/script';
+import { Analytics } from '@vercel/analytics/next';
 
 type Params = Promise<{ locale: string }>;
 
@@ -96,6 +97,7 @@ export default async function LocaleLayout(props: { children: ReactNode; params:
             </AppProvider>
           </ThemeProvider>
         </ReduxProvider>
+        <Analytics />
       </body>
     </html>
   );
