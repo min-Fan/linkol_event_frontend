@@ -75,7 +75,8 @@ export default function XAuth({
       if (res.data.url) {
         win.current = openCenteredPopup(res.data.url, '', 600, 600);
         if (win.current === null) {
-          toast.error(t('popup_was_blocked'));
+          // toast.error(t('popup_was_blocked'));
+          window.open(res.data.url);
         } else {
           checkAuthTimeOut();
           checkWinClose();
