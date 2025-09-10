@@ -12,12 +12,14 @@ import {
 } from '@shadcn-ui/dropdown-menu';
 import { Button } from '@shadcn-ui/button';
 import { useEffect, useState } from 'react';
+import { usePathname } from '@libs/i18n/navigation';
+import PagesRoute from '@constants/routes';
 
 export default function UITheme() {
   const t = useTranslations('common');
   const { theme, setTheme } = useTheme();
   const [scrolled, setScrolled] = useState(false);
-
+  const pathname = usePathname();
   const handleChangeTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
 
@@ -36,7 +38,7 @@ export default function UITheme() {
 
   return (
     <Button
-      className={`size-6 md:size-8 ${scrolled ? 'text-muted-foreground' : 'text-background'}`}
+      className={`size-6 md:size-8 ${pathname === PagesRoute.HOME && !scrolled ? 'text-white' : 'text-muted-foreground'}`}
       variant="ghost"
       size="icon"
       onClick={handleChangeTheme}

@@ -1,6 +1,5 @@
 'use client';
 
-import { usePathname, useSearchParams } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { Languages } from 'lucide-react';
 
@@ -13,8 +12,10 @@ import {
 import { Button } from '@shadcn-ui/button';
 
 import { LOCALES } from '@constants/app';
-import { Link } from '@libs/i18n/navigation';
+import { Link, usePathname } from '@libs/i18n/navigation';
 import { useEffect, useState } from 'react';
+import PagesRoute from '@constants/routes';
+import { useSearchParams } from 'next/navigation';
 
 const LanguageItem = (props: {
   lng: string;
@@ -62,7 +63,7 @@ export default function UILanguage() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          className={`size-6 md:size-8 ${scrolled ? 'text-muted-foreground' : 'text-background'}`}
+          className={`size-6 md:size-8 ${pathname === PagesRoute.HOME && !scrolled ? 'text-white' : 'text-muted-foreground'}`}
           variant="ghost"
           size="icon"
         >
