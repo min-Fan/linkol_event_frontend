@@ -67,21 +67,21 @@ export default function MarketEventsPage() {
     // enabled: !!eventId && isLogin && isLoggedIn,
   });
 
-  const {
-    data: eventInfoCreator,
-    isLoading: isEventInfoLoadingCreator,
-    refetch: refetchEventInfoCreator,
-  } = useQuery({
-    queryKey: ['eventInfoCreator', eventId, isLoggedIn, isLogin],
-    queryFn: getEventInfoCreator,
-    enabled: !!eventId && isLogin && isLoggedIn,
-  });
+  // const {
+  //   data: eventInfoCreator,
+  //   isLoading: isEventInfoLoadingCreator,
+  //   refetch: refetchEventInfoCreator,
+  // } = useQuery({
+  //   queryKey: ['eventInfoCreator', eventId, isLoggedIn, isLogin],
+  //   queryFn: getEventInfoCreator,
+  //   enabled: !!eventId && isLogin && isLoggedIn,
+  // });
 
   // 提供更新活动信息的方法
   const handleRefreshEventInfo = async () => {
     try {
       await refetchEventInfo();
-      await refetchEventInfoCreator();
+      // await refetchEventInfoCreator();
     } catch (error) {
       console.error('Failed to refresh event info:', error);
     }
@@ -91,10 +91,10 @@ export default function MarketEventsPage() {
     <div className="h-full w-full max-w-7xl p-0 sm:px-10 sm:py-6">
       {/* 网格布局容器 */}
       {isLoggedIn ? (
-        // 纵向布局模式 - 移动端一列，桌面端两列
-        <div className="grid w-full grid-cols-1 items-start gap-4 sm:grid-cols-[3fr_5fr]">
+        // 纵向布局模式 - 移动端一列，桌面端两列，使用响应式比例
+        <div className="grid w-full grid-cols-1 items-start gap-4 sm:grid-cols-2 lg:grid-cols-[3fr_5fr] xl:grid-cols-[3fr_5fr]">
           {/* 左列 - 移动端全宽，桌面端40% (3fr) */}
-          <div className="flex h-full flex-col gap-4">
+          <div className="flex h-full flex-col gap-4 sm:min-w-3/8">
             {/* 第一行第一个元素 */}
             <div className="border-border bg-background rounded-xl border">
               <EventInfo
@@ -111,7 +111,7 @@ export default function MarketEventsPage() {
           </div>
 
           {/* 右列 - 移动端全宽，桌面端60% (5fr) */}
-          <div className="flex h-full w-full min-w-0 flex-col gap-4">
+          <div className="flex h-full w-full min-w-0 flex-col gap-4 sm:min-w-5/8">
             {/* 第一行第二个元素 */}
             <div className="border-border bg-background rounded-xl border">
               <EventDetail
@@ -136,8 +136,8 @@ export default function MarketEventsPage() {
           </div>
         </div>
       ) : (
-        // 横向布局模式 - 移动端一列，桌面端两列
-        <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-[3fr_5fr]">
+        // 横向布局模式 - 移动端一列，桌面端两列，使用响应式比例
+        <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-[2fr_3fr] xl:grid-cols-[3fr_5fr]">
           {/* 第一行第一个元素 - 移动端全宽，桌面端40% (3fr) */}
           <div className="border-border bg-background rounded-xl border">
             <EventInfo

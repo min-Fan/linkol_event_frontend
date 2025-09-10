@@ -1123,6 +1123,8 @@
     "participate": "参与",
     "post_to_earn": "推文赚钱",
     "boost_personal_brand": "通过推文提升您的个人品牌价值并解锁更大的奖励！",
-    "all_events": "全部活动"
+    "all_events": "全部活动",
+    "one_tweet_one_entry": "每条推文 = 一次抽奖",
+    "win_up_to": "最多赢 <amount>amount</amount> 每次抽奖"
   }
 }
