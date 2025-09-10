@@ -96,24 +96,14 @@ export default function MarketEventsPage() {
           {/* 左列 - 移动端全宽，桌面端40% (3fr) */}
           <div className="flex h-full flex-col gap-4 sm:min-w-3/8">
             {/* 第一行第一个元素 */}
-            <div className="border-border bg-background rounded-xl border">
+            <div className="border-border bg-background hidden rounded-xl border sm:block">
               <EventInfo
                 eventInfo={eventInfo}
                 isLoading={isEventInfoLoading}
                 onRefresh={handleRefreshEventInfo}
               />
             </div>
-
-            {/* 第二行第一个元素 */}
-            <div className="border-border bg-background rounded-xl border">
-              <EventLeaderboard ref={leaderboardRef} />
-            </div>
-          </div>
-
-          {/* 右列 - 移动端全宽，桌面端60% (5fr) */}
-          <div className="flex h-full w-full min-w-0 flex-col gap-4 sm:min-w-5/8">
-            {/* 第一行第二个元素 */}
-            <div className="border-border bg-background rounded-xl border">
+            <div className="border-border bg-background block rounded-xl border sm:hidden">
               <EventDetail
                 eventInfo={eventInfo}
                 isLoading={isEventInfoLoading}
@@ -122,6 +112,36 @@ export default function MarketEventsPage() {
                 postsRef={postsRef}
                 participantRef={participantRef}
               />
+            </div>
+
+            {/* 第二行第一个元素 */}
+            <div className="border-border bg-background hidden rounded-xl border sm:block">
+              <EventLeaderboard ref={leaderboardRef} />
+            </div>
+            <div className="border-border bg-background block rounded-xl border sm:hidden">
+              <EventInfo
+                eventInfo={eventInfo}
+                isLoading={isEventInfoLoading}
+                onRefresh={handleRefreshEventInfo}
+              />
+            </div>
+          </div>
+
+          {/* 右列 - 移动端全宽，桌面端60% (5fr) */}
+          <div className="flex h-full w-full min-w-0 flex-col gap-4 sm:min-w-5/8">
+            {/* 第一行第二个元素 */}
+            <div className="border-border bg-background hidden rounded-xl border sm:block">
+              <EventDetail
+                eventInfo={eventInfo}
+                isLoading={isEventInfoLoading}
+                onRefresh={handleRefreshEventInfo}
+                leaderboardRef={leaderboardRef}
+                postsRef={postsRef}
+                participantRef={participantRef}
+              />
+            </div>
+            <div className="border-border bg-background block rounded-xl border sm:hidden">
+              <EventLeaderboard ref={leaderboardRef} />
             </div>
 
             {/* 第二行第二个元素 */}
