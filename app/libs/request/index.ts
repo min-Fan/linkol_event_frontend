@@ -1985,6 +1985,10 @@ export interface IGetUserActivityRewardResponseData {
    * 必须中奖次数
    */
   used_must_win_times: number;
+  /**
+   * 每日抽次参与时间
+   */
+  today_join_at: string;
 }
 export const getUserActivityReward = (params: IGetUserActivityRewardParams) => {
   return kolRequest.get<IGetUserActivityRewardResponseData>(`/kol/api/v6/tickets/`, {

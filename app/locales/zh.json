@@ -1125,6 +1125,21 @@
     "boost_personal_brand": "通过推文提升您的个人品牌价值并解锁更大的奖励！",
     "all_events": "全部活动",
     "one_tweet_one_entry": "每条推文 = 一次抽奖",
-    "win_up_to": "最多赢 <amount>amount</amount> 每次抽奖"
+    "win_up_to": "最多赢 <amount>amount</amount> 每次抽奖",
+    "points_number": "{number} 积分",
+    "congratulations_reward_sent": "恭喜！您的奖励已发送。",
+    "want_more_raffles?": "想要更多抽奖？",
+    "raffle_ticket_tasks": "抽奖券任务",
+    "raffle_tasks_description": "完成以下任务后，您将获得10张抽奖券！",
+    "raffle_task_follow_twitter": "1. 在Twitter上关注 @linkol_ai 获取更新。",
+    "raffle_task_join_telegram": "2. 加入 @linkol_tg Telegram社区。",
+    "follow_twitter": "关注 Twitter",
+    "join_telegram": "加入 Telegram",
+    "verify": "验证",
+    "raffle_tasks_completed": "抽奖任务已完成",
+    "raffle_tickets_received": "您已获得10张抽奖券！",
+    "raffle_tasks_verification_failed": "任务验证失败",
+    "raffle_tasks_verification_failed_desc": "请确保您已完成所有任务，然后重试。",
+    "want_more": "想要更多?"
   }
 }

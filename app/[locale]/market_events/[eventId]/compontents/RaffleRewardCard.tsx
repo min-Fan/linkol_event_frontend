@@ -11,6 +11,8 @@ import DialogRaffleResult from './dialog/DialogRaffleResult';
 import useUserActivityReward from '@hooks/useUserActivityReward';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@shadcn/components/ui/tooltip';
 import CircularProgress from '../../../../components/CircularProgress';
+import { cn } from '@shadcn/lib/utils';
+import DialogRaffleTicketTasks from './dialog/DialogRaffleTicketTasks';
 
 interface RaffleRewardCardProps {
   eventInfo: IEventInfoResponseData;
@@ -34,6 +36,7 @@ export default function RaffleRewardCard({
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
   const [isCooldown, setIsCooldown] = useState(false);
   const raffleSeconds = 0;
+  const [isRaffleTasksDialogOpen, setIsRaffleTasksDialogOpen] = useState(false);
 
   // 使用新的 hook 从 store 中获取用户活动奖励数据
   const {
@@ -52,6 +55,7 @@ export default function RaffleRewardCard({
     mustWinLimit,
     points,
     todayJoin,
+    todayJoinAt,
   } = useUserActivityReward({
     eventId: eventInfo.id.toString(),
     enabled: !!eventInfo.id,
@@ -117,6 +121,14 @@ export default function RaffleRewardCard({
     setCooldownSeconds(raffleSeconds);
   };
 
+  const handleRaffleTasks = () => {
+    setIsRaffleTasksDialogOpen(true);
+  };
+
+  const handleRaffleTasksDialogClose = () => {
+    setIsRaffleTasksDialogOpen(false);
+  };
+
   return (
     <div className="bg-primary/5 relative space-y-6 overflow-hidden rounded-xl p-6 sm:rounded-3xl">
       {/* Header with gift icon */}
@@ -136,7 +148,7 @@ export default function RaffleRewardCard({
             </p>
             <p className="sm:text-md text-primary/50 bg-primary/10 rounded-full px-4 py-1 text-sm">
               {t.rich('win_up_to', {
-                amount: (chunks) => <span className="text-primary font-bold">${10}</span>
+                amount: (chunks) => <span className="text-primary font-bold">${10}</span>,
               })}
             </p>
           </div>
@@ -153,6 +165,15 @@ export default function RaffleRewardCard({
           <div className="flex items-center gap-1">
             <span className="sm:text-md text-muted-foreground/80 text-sm">{t('my_tickets')}:</span>
             <span className="sm:text-md text-sm">{ticketNumber}</span>
+            <Button
+              onClick={handleRaffleTasks}
+              size="sm"
+              className={cn(
+                'bg-primary/5 border-primary/20 text-primary/50 !shadow-primary/10 hover:bg-primary/10 hover:text-primary !h-auto !rounded-full border px-2 !py-0.5 !shadow-xl ml-2'
+              )}
+            >
+              {t('want_more')}
+            </Button>
           </div>
           {usedMustWinTimes < mustWinLimit && (
             <Tooltip>
@@ -228,6 +249,12 @@ export default function RaffleRewardCard({
         isLoading={isRaffling}
         onClose={handleRaffleResultDialogClose}
         raffleResult={raffleResult}
+      />
+
+      {/* 抽奖任务对话框 */}
+      <DialogRaffleTicketTasks
+        isOpen={isRaffleTasksDialogOpen}
+        onClose={handleRaffleTasksDialogClose}
       />
     </div>
   );

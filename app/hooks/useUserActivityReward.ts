@@ -92,6 +92,7 @@ export function useUserActivityReward({ eventId, enabled = true }: UseUserActivi
     points: data?.points || 0,
     todayJoin: data?.today_join || 0,
     usedMustWinTimes: data?.used_must_win_times || 0,
+    todayJoinAt: data?.today_join_at || '',
   };
 }
 

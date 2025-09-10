@@ -20,6 +20,7 @@ import { useParams } from 'next/navigation';
 import { getTwitterShareCallback } from '@libs/request';
 import { toast } from 'sonner';
 import useUserActivityReward from '@hooks/useUserActivityReward';
+import DialogRaffleTicketTasks from './DialogRaffleTicketTasks';
 interface DialogRaffleResultProps {
   isOpen: boolean;
   onClose: () => void;
@@ -44,6 +45,9 @@ export default function DialogRaffleResult({
   const [isShared, setIsShared] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyResult, setVerifyResult] = useState<'success' | 'failed' | null>(null);
+  
+  // 新的 Raffle Ticket Tasks 弹窗状态
+  const [isRaffleTasksOpen, setIsRaffleTasksOpen] = useState(false);
   // 使用新的 hook 从 store 中获取用户活动奖励数据
   const {
     data: userActivityReward,
@@ -59,8 +63,18 @@ export default function DialogRaffleResult({
     setIsShared(false);
     setIsVerifying(false);
     setVerifyResult(null);
+    setIsRaffleTasksOpen(false);
     onClose();
   }, [onClose]);
+
+  const handleOpenRaffleTasks = useCallback(() => {
+    handleClose();
+    setIsRaffleTasksOpen(true);
+  }, [handleClose]);
+
+  const handleCloseRaffleTasks = useCallback(() => {
+    setIsRaffleTasksOpen(false);
+  }, []);
 
   const handleShareOnX = useCallback(() => {
     const tweetText = `I just won ${raffleResult?.receive_amount} ${payTokenInfo?.symbol || ''} in the raffle! Check it out: ${window.location.origin}/market_events/${eventId}`;
@@ -231,18 +245,20 @@ export default function DialogRaffleResult({
             </div>
           ) : (
             // 未中奖弹窗
-            <div className="flex flex-col items-center justify-center space-y-4">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full">
+            <div className="flex flex-col items-center justify-center space-y-4 pt-4">
+              <div className="relative z-10 flex h-20 w-20 items-center justify-center rounded-full">
                 <Gift className="text-primary h-10 w-10" />
+                <div className="bg-primary/20 absolute top-0 left-[-50%] z-[-1] h-[110%] w-[110%] rounded-full blur-xl" />
+                <div className="absolute top-0 left-[50%] z-[-1] h-[110%] w-[110%] rounded-full bg-[#BFFF00] blur-xl" />
               </div>
               <div className="text-center">
-                <p className="text-md font-semibold">{t('better_luck_next_time')}</p>
-                <p className="text-muted-foreground text-sm">{t('no_reward_this_time')}</p>
-                <p className="text-muted-foreground mt-2 text-sm">
-                  {t('keep_participating_for_more_chances')}
+                {/* <p className="text-md font-semibold">{t('better_luck_next_time')}</p> */}
+                <p className="text-xl font-bold">
+                  {t('points_number', { number: 100 })}
                 </p>
+                <p className="mt-2 text-sm sm:text-md">{t('congratulations_reward_sent')}</p>
               </div>
-              <div className="flex w-40">
+              <div className="flex w-full gap-2">
                 <Button
                   onClick={handleClose}
                   variant="secondary"
@@ -250,11 +266,23 @@ export default function DialogRaffleResult({
                 >
                   {t('got_it')}
                 </Button>
+                <Button
+                  onClick={handleOpenRaffleTasks}
+                  className="!h-auto flex-1 !rounded-lg"
+                >
+                  {t('want_more_raffles?')}
+                </Button>
               </div>
             </div>
           )}
         </div>
       </DialogContent>
+      
+      {/* Raffle Ticket Tasks Dialog */}
+      <DialogRaffleTicketTasks
+        isOpen={isRaffleTasksOpen}
+        onClose={handleCloseRaffleTasks}
+      />
     </Dialog>
   );
 }
