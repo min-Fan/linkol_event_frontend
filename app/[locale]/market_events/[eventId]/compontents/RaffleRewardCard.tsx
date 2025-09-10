@@ -180,7 +180,7 @@ export default function RaffleRewardCard({
           <Button
             onClick={handleRaffle}
             disabled={isRaffling || isCooldown || ticketNumber === 0}
-            className="h-10 w-full rounded-md bg-gradient-to-r from-[#D4F5D0] to-[#007AFF] !px-2 text-sm disabled:cursor-not-allowed disabled:opacity-50 sm:!h-auto sm:w-auto sm:!rounded-full sm:!px-4 sm:!text-base"
+            className="h-10 w-full rounded-md bg-gradient-to-r from-[#007AFF] from-0% via-[#D4F5D0] via-30% to-[#007AFF] to-80% bg-[length:200%_100%] bg-[position:100%_50%] !px-2 text-sm transition-[background-position] duration-200 ease-in-out hover:bg-[position:-60%_50%] disabled:cursor-not-allowed disabled:opacity-50 sm:!h-auto sm:w-auto sm:!rounded-full sm:!px-4 sm:!text-base"
           >
             {isRaffling ? (
               <Loader2 className="!h-4 !w-4 animate-spin sm:!h-6 sm:!w-6" />
@@ -207,7 +207,7 @@ export default function RaffleRewardCard({
           <Button
             onClick={onClaim}
             disabled={totalReceiveAmount === 0}
-            className="h-9 w-full rounded-md bg-gradient-to-r from-[#D4F5D0] to-[#01CF7F] !px-2 text-sm disabled:cursor-not-allowed disabled:opacity-50 sm:!h-auto sm:w-auto sm:!rounded-full sm:!px-4 sm:!text-base"
+            className="h-9 w-full rounded-md bg-gradient-to-r from-[#01CF7F] from-0% via-[#D4F5D0] via-30% to-[#01CF7F] to-80% bg-[length:200%_100%] bg-[position:100%_50%] !px-2 text-sm transition-[background-position] duration-200 ease-in-out hover:bg-[position:-60%_50%] disabled:cursor-not-allowed disabled:opacity-50 sm:!h-auto sm:w-auto sm:!rounded-full sm:!px-4 sm:!text-base"
           >
             <HandCoins className="!h-4 !w-4 sm:!h-6 sm:!w-6" />
             {t('claim')}
