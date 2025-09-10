@@ -45,7 +45,7 @@ export default function DialogRaffleResult({
   const [isShared, setIsShared] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyResult, setVerifyResult] = useState<'success' | 'failed' | null>(null);
-  
+
   // 新的 Raffle Ticket Tasks 弹窗状态
   const [isRaffleTasksOpen, setIsRaffleTasksOpen] = useState(false);
   // 使用新的 hook 从 store 中获取用户活动奖励数据
@@ -253,10 +253,8 @@ export default function DialogRaffleResult({
               </div>
               <div className="text-center">
                 {/* <p className="text-md font-semibold">{t('better_luck_next_time')}</p> */}
-                <p className="text-xl font-bold">
-                  {t('points_number', { number: 100 })}
-                </p>
-                <p className="mt-2 text-sm sm:text-md">{t('congratulations_reward_sent')}</p>
+                <p className="text-xl font-bold">{t('points_number', { number: 100 })}</p>
+                <p className="sm:text-md mt-2 text-sm">{t('congratulations_reward_sent')}</p>
               </div>
               <div className="flex w-full gap-2">
                 <Button
@@ -266,10 +264,7 @@ export default function DialogRaffleResult({
                 >
                   {t('got_it')}
                 </Button>
-                <Button
-                  onClick={handleOpenRaffleTasks}
-                  className="!h-auto flex-1 !rounded-lg"
-                >
+                <Button onClick={handleOpenRaffleTasks} className="!h-auto flex-1 !rounded-lg">
                   {t('want_more_raffles?')}
                 </Button>
               </div>
@@ -277,12 +272,9 @@ export default function DialogRaffleResult({
           )}
         </div>
       </DialogContent>
-      
+
       {/* Raffle Ticket Tasks Dialog */}
-      <DialogRaffleTicketTasks
-        isOpen={isRaffleTasksOpen}
-        onClose={handleCloseRaffleTasks}
-      />
+      <DialogRaffleTicketTasks isOpen={isRaffleTasksOpen} onClose={handleCloseRaffleTasks} />
     </Dialog>
   );
 }

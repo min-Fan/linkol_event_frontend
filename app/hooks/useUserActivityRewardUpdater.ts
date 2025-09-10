@@ -65,6 +65,7 @@ export function useUserActivityRewardUpdater() {
         points: number;
         today_join: number;
         used_must_win_times: number;
+        today_join_at: string;
       }
     ) => {
       dispatch(updateUserActivityReward({ eventId, data }));
