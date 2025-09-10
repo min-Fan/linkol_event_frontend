@@ -1125,6 +1125,8 @@
     "participate": "Participate",
     "post_to_earn": "Post to Earn",
     "boost_personal_brand": "Boost your personal brand with Tweet and unlock greater rewards!",
-    "all_events": "All Events"
+    "all_events": "All Events",
+    "one_tweet_one_entry": "One Tweet = One Entry",
+    "win_up_to": "Win up to <amount>amount</amount> per raffle"
   }
 }

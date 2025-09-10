@@ -19,6 +19,7 @@ import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { useParams } from 'next/navigation';
 import { getTwitterShareCallback } from '@libs/request';
 import { toast } from 'sonner';
+import useUserActivityReward from '@hooks/useUserActivityReward';
 interface DialogRaffleResultProps {
   isOpen: boolean;
   onClose: () => void;
@@ -43,6 +44,15 @@ export default function DialogRaffleResult({
   const [isShared, setIsShared] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyResult, setVerifyResult] = useState<'success' | 'failed' | null>(null);
+  // 使用新的 hook 从 store 中获取用户活动奖励数据
+  const {
+    data: userActivityReward,
+    isLoading: isUserActivityRewardLoading,
+    refetch: refetchUserActivityReward,
+  } = useUserActivityReward({
+    eventId: eventId as string,
+    enabled: !!eventId,
+  });
 
   const handleClose = useCallback(() => {
     // 重置所有状态
@@ -70,6 +80,7 @@ export default function DialogRaffleResult({
 
       if (response.code === 200) {
         const receivedTickets = response.data?.number;
+        refetchUserActivityReward();
         if (receivedTickets === 1) {
           setVerifyResult('success');
           toast.success(t('share_success_extra_ticket'));
