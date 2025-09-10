@@ -120,18 +120,26 @@ export default function RaffleRewardCard({
   return (
     <div className="bg-primary/5 relative space-y-6 overflow-hidden rounded-xl p-6 sm:rounded-3xl">
       {/* Header with gift icon */}
-      <div className="flex flex-col items-center space-y-4 text-center">
+      <div className="flex flex-col items-center space-y-2 text-center">
         <div className="flex items-center justify-center">
           <Gift className="text-primary !h-8 !w-8 sm:!h-10 sm:!w-10" />
         </div>
 
         <div className="">
-          <h3 className="text-primary text-md font-semibold sm:text-base">
-            {t('each_tweet_counts_raffle_entry')}
+          <h3 className="text-primary text-md mb-1 sm:text-base">
+            {/* {t('each_tweet_counts_raffle_entry')} */}
+            {t('one_tweet_one_entry')}
           </h3>
-          <p className="sm:text-md text-primary/40 text-sm">
-            {t('reward_rate')}: <span className="">{rewardPercent * 100}%</span>
-          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="sm:text-md text-primary/50 bg-primary/10 rounded-full px-10 py-1 text-sm">
+              {t('reward_rate')}: <span className="">{rewardPercent * 100}%</span>
+            </p>
+            <p className="sm:text-md text-primary/50 bg-primary/10 rounded-full px-4 py-1 text-sm">
+              {t.rich('win_up_to', {
+                amount: (chunks) => <span className="text-primary font-bold">${10}</span>
+              })}
+            </p>
+          </div>
         </div>
       </div>
       <div className="bg-destructive/20 absolute top-0 right-0 flex flex-col items-center justify-center rounded-bl-xl p-4 py-2 sm:rounded-bl-3xl">
