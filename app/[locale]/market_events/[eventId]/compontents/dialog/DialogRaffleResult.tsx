@@ -45,7 +45,6 @@ export default function DialogRaffleResult({
   const [isShared, setIsShared] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyResult, setVerifyResult] = useState<'success' | 'failed' | null>(null);
-
   // 新的 Raffle Ticket Tasks 弹窗状态
   const [isRaffleTasksOpen, setIsRaffleTasksOpen] = useState(false);
   // 使用新的 hook 从 store 中获取用户活动奖励数据
@@ -272,7 +271,6 @@ export default function DialogRaffleResult({
           )}
         </div>
       </DialogContent>
-
       {/* Raffle Ticket Tasks Dialog */}
       <DialogRaffleTicketTasks isOpen={isRaffleTasksOpen} onClose={handleCloseRaffleTasks} />
     </Dialog>
