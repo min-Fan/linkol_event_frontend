@@ -130,13 +130,13 @@ export default function RaffleRewardCard({
             {/* {t('each_tweet_counts_raffle_entry')} */}
             {t('one_tweet_one_entry')}
           </h3>
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="sm:text-md text-primary/50 bg-primary/10 rounded-full px-10 py-1 text-sm">
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <p className="sm:text-md text-primary/50 bg-primary/10 flex-1 rounded-full px-8 py-1 text-sm whitespace-nowrap">
               {t('reward_rate')}: <span className="">{rewardPercent * 100}%</span>
             </p>
-            <p className="sm:text-md text-primary/50 bg-primary/10 rounded-full px-4 py-1 text-sm">
+            <p className="sm:text-md text-primary/50 bg-primary/10 flex-1 rounded-full px-2 py-1 text-sm whitespace-nowrap">
               {t.rich('win_up_to', {
-                amount: (chunks) => <span className="text-primary font-bold">${10}</span>
+                amount: (chunks) => <span className="text-primary font-bold">${10}</span>,
               })}
             </p>
           </div>
