@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Logo, Linkol, LinkolPrimary, LinkolLight, LinkolDark } from '@assets/svg';
 import PagesRoute from '@constants/routes';
-import { Link } from '@libs/i18n/navigation';
+import { Link, usePathname } from '@libs/i18n/navigation';
 import Profile, { MenuSize } from '@ui/profile';
 import UILanguage from '@ui/language';
 import UITheme from '@ui/theme';
@@ -62,13 +62,12 @@ export const navigationItems: NavigationItem[] = [
 export default function Header(props: { hasLogin?: boolean }) {
   const { hasLogin = true } = props;
   const [scrolled, setScrolled] = useState(false);
-
+  const pathname = usePathname();
   useEffect(() => {
     const handleScroll = () => {
       const scrollPosition = window.scrollY;
       setScrolled(scrollPosition > 100);
     };
-
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -87,8 +86,14 @@ export default function Header(props: { hasLogin?: boolean }) {
           <Link className="flex items-center gap-x-2" href={PagesRoute.HOME}>
             {/* <Logo className="size-4" />
             <Linkol className="h-4 w-14" /> */}
-            <LinkolLight className="!block !h-10 dark:!hidden" />
-            <LinkolDark className="!hidden !h-10 dark:!block" />
+            {pathname === PagesRoute.HOME && !scrolled ? (
+              <LinkolDark className="!h-10" />
+            ) : (
+              <>
+                <LinkolDark className="!hidden !h-10 dark:!block" />
+                <LinkolLight className="!block !h-10 dark:!hidden" />
+              </>
+            )}
           </Link>
         </div>
         <div className="hidden w-full flex-1 sm:block">
