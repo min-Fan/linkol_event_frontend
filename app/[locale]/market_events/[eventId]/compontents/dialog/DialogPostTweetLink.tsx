@@ -472,6 +472,7 @@ export default function DialogPostTweetLink({
 
     // 验证推文内容长度
     if (!validateTweetContent(tweetContent)) {
+      toast.error(tweetContentError);
       return;
     }
 
@@ -479,18 +480,21 @@ export default function DialogPostTweetLink({
     if (eventInfo?.a_type === 'platform') {
       if (!email.trim()) {
         toast.error(t('error_email_required'));
+        setErrors({ email: t('error_email_required') });
         return;
       }
 
       // 验证邮箱格式
       if (!validateEmail(email)) {
         toast.error(t('invalid_email_format'));
+        setErrors({ email: t('invalid_email_format') });
         return;
       }
 
       // 验证 eventCode
       if (!eventCode.trim()) {
         toast.error(t('event_code_required'));
+        setErrors({ eventCode: t('event_code_required') });
         return;
       }
     }
@@ -553,6 +557,7 @@ export default function DialogPostTweetLink({
 
     // 验证表单
     if (!validateForm()) {
+      toast.error(errors.tweetUrl || errors.email || errors.eventCode);
       return;
     }
 
@@ -882,12 +887,6 @@ export default function DialogPostTweetLink({
                             }`}
                             placeholder={t('enter_tweet_content') || 'Enter tweet content...'}
                           />
-                          {tweetContentError && (
-                            <div className="mt-2 flex items-center gap-2 text-sm text-red-500">
-                              <AlertCircle className="h-4 w-4" />
-                              {tweetContentError}
-                            </div>
-                          )}
                         </div>
                       ) : (
                         <div className="min-h-[100px] text-sm text-gray-800">
@@ -949,6 +948,12 @@ export default function DialogPostTweetLink({
                                   'Click Regenerate to generate tweet content, or click Edit to input manually...'}
                             </p>
                           )}
+                        </div>
+                      )}
+                      {tweetContentError && (
+                        <div className="mt-2 flex items-center gap-2 text-sm text-red-500">
+                          <AlertCircle className="h-6 w-6" />
+                          {tweetContentError}
                         </div>
                       )}
                     </div>
