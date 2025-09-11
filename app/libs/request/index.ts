@@ -1989,6 +1989,10 @@ export interface IGetUserActivityRewardResponseData {
    * 每日抽次参与时间
    */
   today_join_at: string;
+  /**
+   * 是否已验证关注
+   */
+  is_verified_follow: boolean;
 }
 export const getUserActivityReward = (params: IGetUserActivityRewardParams) => {
   return kolRequest.get<IGetUserActivityRewardResponseData>(`/kol/api/v6/tickets/`, {

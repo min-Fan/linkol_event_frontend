@@ -93,6 +93,7 @@ export function useUserActivityReward({ eventId, enabled = true }: UseUserActivi
     todayJoin: data?.today_join || 0,
     usedMustWinTimes: data?.used_must_win_times || 0,
     todayJoinAt: data?.today_join_at || '',
+    isVerifiedFollow: data?.is_verified_follow || false,
   };
 }
 
