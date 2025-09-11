@@ -183,7 +183,7 @@ export default function DialogPostTweetLink({
   };
 
   // 使用用户活动奖励hook来获取和更新奖励数据
-  const { refetch: refetchUserActivityReward } = useUserActivityReward({
+  const { refetch: refetchUserActivityReward, todayJoin } = useUserActivityReward({
     eventId: eventId as string,
     enabled: !!eventId && isOpen,
   });
@@ -458,10 +458,14 @@ export default function DialogPostTweetLink({
           }
         }
 
-        // 添加当前用户的 screen_name 到数组开头（如果存在且不在数组中）
-        if (twitterFullProfile?.screen_name && !kolNames.includes(twitterFullProfile.screen_name)) {
-          kolNames.unshift(twitterFullProfile.screen_name);
+        // 根据 todayJoin 的值决定是否包含当前用户
+        if (todayJoin === 0) {
+          // 当 todayJoin === 0 时，添加当前用户的 screen_name 到数组开头（如果存在且不在数组中）
+          if (twitterFullProfile?.screen_name && !kolNames.includes(twitterFullProfile.screen_name)) {
+            kolNames.unshift(twitterFullProfile.screen_name);
+          }
         }
+        // 当 todayJoin > 0 时，只使用 KOL 名称，不包含当前用户
 
         setKolScreenNames(kolNames);
 

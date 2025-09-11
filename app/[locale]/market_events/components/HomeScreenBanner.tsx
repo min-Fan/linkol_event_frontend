@@ -43,7 +43,7 @@ export default function HomeScreenBanner() {
           {t('boost_personal_brand')}
         </p>
         <div className="mt-6 rounded-full shadow-[0_1px_40px_0_rgba(242,242,242,0.80)]">
-          <Link href={`${PagesRoute.MARKET_EVENTS}/${data?.id}`} title={t('join_campaign')}>
+          <Link href={`${PagesRoute.MARKET_EVENTS}/5`} title={t('join_campaign')}>
             <Button className="text-primary !h-11 gap-x-1 !rounded-full bg-white !px-6 !text-base font-medium">
               <span>{t('join_campaign')}</span>
               <ArrowRight className="size-5" />
