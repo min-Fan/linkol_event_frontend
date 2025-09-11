@@ -422,9 +422,9 @@ export default function EventDetail({
             </div>
             <div className="flex items-center gap-4">
               {todayJoin === 0 && (
-                <Button variant="secondary" className="text-muted-foreground !rounded-xl">
-                  {t('no_ticket')}
-                </Button>
+                <span className="text-muted-foreground sm:text-md text-sm">
+                  {t('today')} {todayJoin}
+                </span>
               )}
               {todayJoin > 0 && (
                 <div className="text-primary sm:text-md flex items-center gap-2 text-sm">

@@ -52,6 +52,7 @@ export default function DialogRaffleResult({
     data: userActivityReward,
     isLoading: isUserActivityRewardLoading,
     refetch: refetchUserActivityReward,
+    isVerifiedFollow,
   } = useUserActivityReward({
     eventId: eventId as string,
     enabled: !!eventId,
@@ -259,13 +260,15 @@ export default function DialogRaffleResult({
                 <Button
                   onClick={handleClose}
                   variant="secondary"
-                  className="!h-auto flex-1 !rounded-lg"
+                  className={cn('!h-auto flex-1 !rounded-lg')}
                 >
                   {t('got_it')}
                 </Button>
-                <Button onClick={handleOpenRaffleTasks} className="!h-auto flex-1 !rounded-lg">
-                  {t('want_more_raffles?')}
-                </Button>
+                {!isVerifiedFollow && (
+                  <Button onClick={handleOpenRaffleTasks} className="!h-auto flex-1 !rounded-lg">
+                    {t('want_more_raffles?')}
+                  </Button>
+                )}
               </div>
             </div>
           )}
