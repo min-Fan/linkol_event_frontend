@@ -422,14 +422,14 @@ export default function EventDetail({
             </div>
             <div className="flex items-center gap-4">
               {todayJoin === 0 && (
-                <Button variant="secondary" className="text-muted-foreground !rounded-xl">
-                  {t('no_ticket')}
-                </Button>
+                <span className="text-muted-foreground sm:text-md text-sm">
+                  {t('today')} {todayJoin}
+                </span>
               )}
               {todayJoin > 0 && (
-                <div className="text-primary flex items-center gap-2 text-sm sm:text-md">
+                <div className="text-primary sm:text-md flex items-center gap-2 text-sm">
                   <span>{t('till_next_post', { time: countdown.formatted })}</span>
-                  <BellRing className="sm:!h-6 sm:!w-6 !h-4 !w-4 min-w-4 min-h-4" />
+                  <BellRing className="!h-4 min-h-4 !w-4 min-w-4 sm:!h-6 sm:!w-6" />
                 </div>
               )}
               {eventInfo?.status === 'wait' && (

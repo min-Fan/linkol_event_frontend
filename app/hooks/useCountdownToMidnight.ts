@@ -14,21 +14,26 @@ export function useCountdownToMidnight(timeString?: string): CountdownTime {
   // 计算目标时间：当天的UTC 0点
   const targetTime = useMemo(() => {
     if (!timeString) return null;
-    
+
     try {
       // 解析输入的时间字符串
       const inputDate = new Date(timeString);
       if (isNaN(inputDate.getTime())) return null;
-      
+
       // 获取当天的UTC 0点
       const today = new Date();
-      const nextMidnight = new Date(Date.UTC(
-        today.getUTCFullYear(),
-        today.getUTCMonth(),
-        today.getUTCDate() + 1, // 下一天的0点
-        0, 0, 0, 0
-      ));
-      
+      const nextMidnight = new Date(
+        Date.UTC(
+          today.getUTCFullYear(),
+          today.getUTCMonth(),
+          today.getUTCDate() + 1, // 下一天的0点
+          0,
+          0,
+          0,
+          0
+        )
+      );
+
       return nextMidnight;
     } catch (error) {
       console.error('Error parsing time string:', error);
@@ -44,7 +49,7 @@ export function useCountdownToMidnight(timeString?: string): CountdownTime {
         minutes: 0,
         seconds: 0,
         totalSeconds: 0,
-        formatted: '00:00:00'
+        formatted: '00:00:00',
       };
     }
 
@@ -64,7 +69,7 @@ export function useCountdownToMidnight(timeString?: string): CountdownTime {
       minutes,
       seconds,
       totalSeconds,
-      formatted
+      formatted,
     };
   }, [currentTime, targetTime]);
 

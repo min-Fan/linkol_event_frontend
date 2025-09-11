@@ -56,6 +56,7 @@ export default function RaffleRewardCard({
     points,
     todayJoin,
     todayJoinAt,
+    isVerifiedFollow,
   } = useUserActivityReward({
     eventId: eventInfo.id.toString(),
     enabled: !!eventInfo.id,
@@ -165,15 +166,17 @@ export default function RaffleRewardCard({
           <div className="flex items-center gap-1">
             <span className="sm:text-md text-muted-foreground/80 text-sm">{t('my_tickets')}:</span>
             <span className="sm:text-md text-sm">{ticketNumber}</span>
-            <Button
-              onClick={handleRaffleTasks}
-              size="sm"
-              className={cn(
-                'bg-primary/5 border-primary/20 text-primary/50 !shadow-primary/10 hover:bg-primary/10 hover:text-primary ml-2 !h-auto !rounded-full border px-2 !py-0.5 !shadow-xl'
-              )}
-            >
-              {t('want_more')}
-            </Button>
+            {!isVerifiedFollow && (
+              <Button
+                onClick={handleRaffleTasks}
+                size="sm"
+                className={cn(
+                  'bg-primary/5 border-primary/20 text-primary/50 !shadow-primary/10 hover:bg-primary/10 hover:text-primary ml-2 !h-auto !rounded-full border px-2 !py-0.5 !shadow-xl'
+                )}
+              >
+                {t('want_more')}
+              </Button>
+            )}
           </div>
           {usedMustWinTimes < mustWinLimit && (
             <Tooltip>
