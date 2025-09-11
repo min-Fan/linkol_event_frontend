@@ -25,7 +25,7 @@ export default function Active(props: { data: IActive }) {
     >
       <img className="h-36 w-full object-cover" src={data.cover_img} alt={data.title} />
       <div className="bg-background flex flex-1 flex-col justify-between gap-y-4 p-6">
-        <div className="space-y-4">
+        <div className="space-y-3">
           <dl className="flex items-center justify-between gap-x-3 text-base font-medium">
             <dt className="truncate">{data.title}</dt>
             <dd className="bg-accent flex h-8 items-center gap-x-1 rounded-full px-2">
@@ -35,7 +35,7 @@ export default function Active(props: { data: IActive }) {
               )}
             </dd>
           </dl>
-          <p className="text-md line-clamp-4">{data.description}</p>
+          <p className="text-md text-muted-foreground/60 line-clamp-3">{data.description}</p>
         </div>
         <div className="space-y-4">
           <div className="flex items-center justify-between gap-x-2">

@@ -41,11 +41,12 @@ import DialogGuide from './dialog/DialogGuide';
 import { useTranslations } from 'next-intl';
 import PagesRoute from '@constants/routes';
 import { Link, useRouter } from '@libs/i18n/navigation';
-import { Dices, Flashlight, Zap } from 'lucide-react';
+import { BellRing, Dices, Flashlight, Zap } from 'lucide-react';
 import RaffleRewardCard from './RaffleRewardCard';
 import PlatformRewardCard from './PlatformRewardCard';
 import TokenIcon from 'app/components/TokenIcon';
 import useUserActivityReward from '@hooks/useUserActivityReward';
+import useCountdownToMidnight from '@hooks/useCountdownToMidnight';
 
 // 骨架屏组件
 function EventDetailSkeleton() {
@@ -167,10 +168,13 @@ export default function EventDetail({
   });
 
   // 使用新的 hook 从 store 中获取用户活动奖励数据
-  const { todayJoin } = useUserActivityReward({
+  const { todayJoin, todayJoinAt } = useUserActivityReward({
     eventId: eventInfo?.id?.toString() || '',
     enabled: !!eventInfo?.id,
   });
+
+  // 使用倒计时hook计算到UTC 0点的倒计时
+  const countdown = useCountdownToMidnight(new Date().toISOString());
 
   // 创建一个包装的 onRefresh 函数，同时刷新按钮状态、排行榜数据、推文列表和参与者列表
   const handleRefresh = useCallback(async () => {
@@ -417,10 +421,17 @@ export default function EventDetail({
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <div className="text-muted-foreground/40 flex items-center gap-1">
-                <span className="md:text-md text-sm">{t('today')}</span>
-                <span className="sm:text-md text-sm">{todayJoin}</span>
-              </div>
+              {todayJoin === 0 && (
+                <Button variant="secondary" className="text-muted-foreground !rounded-xl">
+                  {t('no_ticket')}
+                </Button>
+              )}
+              {todayJoin > 0 && (
+                <div className="text-primary flex items-center gap-2 text-sm sm:text-md">
+                  <span>{t('till_next_post', { time: countdown.formatted })}</span>
+                  <BellRing className="sm:!h-6 sm:!w-6 !h-4 !w-4 min-w-4 min-h-4" />
+                </div>
+              )}
               {eventInfo?.status === 'wait' && (
                 <Button variant="secondary" className="text-muted-foreground !rounded-xl">
                   {t('not_started')}

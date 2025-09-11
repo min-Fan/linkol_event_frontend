@@ -13,6 +13,9 @@ import { useTranslations } from 'next-intl';
 import { cn } from '@shadcn/lib/utils';
 import { ExternalLink } from 'lucide-react';
 import LoaderCircle from '@ui/loading/loader-circle';
+import { useParams } from 'next/navigation';
+import { checkIsFollowed } from '@libs/request';
+import useUserActivityReward from '@hooks/useUserActivityReward';
 
 interface DialogRaffleTicketTasksProps {
   isOpen: boolean;
@@ -21,14 +24,21 @@ interface DialogRaffleTicketTasksProps {
 
 export default function DialogRaffleTicketTasks({ isOpen, onClose }: DialogRaffleTicketTasksProps) {
   const t = useTranslations('common');
-
+  const { eventId } = useParams();
   // 任务完成状态
   const [twitterFollowed, setTwitterFollowed] = useState(false);
   const [telegramJoined, setTelegramJoined] = useState(false);
 
   // 验证相关状态
   const [isVerifying, setIsVerifying] = useState(false);
-  const [verifyResult, setVerifyResult] = useState<'success' | 'failed' | null>(null);
+  const [verifyResult, setVerifyResult] = useState<
+    'success' | 'already_received' | 'failed' | null
+  >(null);
+
+  const { refetch: refetchUserActivityReward } = useUserActivityReward({
+    eventId: eventId as string,
+    enabled: !!eventId,
+  });
 
   const handleClose = useCallback(() => {
     // 重置所有状态
@@ -52,7 +62,7 @@ export default function DialogRaffleTicketTasks({ isOpen, onClose }: DialogRaffl
   }, []);
 
   const handleVerifyTasks = useCallback(async () => {
-    if (!twitterFollowed || !telegramJoined) {
+    if (!twitterFollowed) {
       return;
     }
 
@@ -60,18 +70,21 @@ export default function DialogRaffleTicketTasks({ isOpen, onClose }: DialogRaffl
       setIsVerifying(true);
 
       // 模拟 API 请求
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // 模拟随机成功/失败结果
-      const isSuccess = Math.random() > 0.3; // 70% 成功率
-
-      if (isSuccess) {
-        setVerifyResult('success');
+      const response = await checkIsFollowed({
+        active_id: eventId as string,
+      });
+      if (response.code === 200 && response.data.is_followed) {
+        if (response.data.ticket === 1) {
+          refetchUserActivityReward();
+          setVerifyResult('success');
+        } else {
+          setVerifyResult('already_received');
+        }
       } else {
         setVerifyResult('failed');
       }
     } catch (error) {
-      console.error('任务验证失败:', error);
+      console.error('task verify error:', error);
       setVerifyResult('failed');
     } finally {
       setIsVerifying(false);
@@ -113,6 +126,26 @@ export default function DialogRaffleTicketTasks({ isOpen, onClose }: DialogRaffl
               <div className="text-center">
                 <p className="text-lg font-semibold">{t('raffle_tasks_completed')}</p>
                 <p className="text-muted-foreground text-sm">{t('raffle_tickets_received')}</p>
+              </div>
+              <Button
+                onClick={handleClose}
+                variant="secondary"
+                className="!h-auto w-40 !rounded-lg px-8"
+              >
+                {t('done')}
+              </Button>
+            </div>
+          ) : verifyResult === 'already_received' ? (
+            // 已经领取状态
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full">
+                <Success className="w-16" />
+              </div>
+              <div className="text-center">
+                <p className="text-lg font-semibold">{t('raffle_tasks_completed')}</p>
+                <p className="text-muted-foreground text-sm">
+                  {t('raffle_tickets_already_received')}
+                </p>
               </div>
               <Button
                 onClick={handleClose}
@@ -182,7 +215,7 @@ export default function DialogRaffleTicketTasks({ isOpen, onClose }: DialogRaffl
                 </div>
 
                 {/* Telegram Task */}
-                <div className="flex items-center gap-1">
+                {/* <div className="flex items-center gap-1">
                   <div className="">
                     <p className="text-md font-medium">{t('raffle_task_join_telegram')}</p>
                   </div>
@@ -197,7 +230,7 @@ export default function DialogRaffleTicketTasks({ isOpen, onClose }: DialogRaffl
                   >
                     {telegramJoined ? t('completed') : t('join_telegram')}
                   </Button>
-                </div>
+                </div> */}
               </div>
 
               {/* Action Buttons */}
@@ -211,11 +244,8 @@ export default function DialogRaffleTicketTasks({ isOpen, onClose }: DialogRaffl
                 </Button>
                 <Button
                   onClick={handleVerifyTasks}
-                  disabled={!twitterFollowed || !telegramJoined}
-                  className={cn(
-                    '!h-auto flex-1 !rounded-lg',
-                    (!twitterFollowed || !telegramJoined) && 'cursor-not-allowed opacity-50'
-                  )}
+                  disabled={!twitterFollowed}
+                  className={cn('!h-auto flex-1 !rounded-lg')}
                 >
                   {t('verify')}
                 </Button>
