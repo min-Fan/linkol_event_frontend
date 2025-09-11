@@ -419,7 +419,7 @@ export default function EventDetail({
             <div className="flex items-center gap-4">
               <div className="text-muted-foreground/40 flex items-center gap-1">
                 <span className="md:text-md text-sm">{t('today')}</span>
-                <span className="sm:text-md text-sm">{todayJoin}/1</span>
+                <span className="sm:text-md text-sm">{todayJoin}</span>
               </div>
               {eventInfo?.status === 'wait' && (
                 <Button variant="secondary" className="text-muted-foreground !rounded-xl">
