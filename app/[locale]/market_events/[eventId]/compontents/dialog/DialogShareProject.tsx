@@ -15,6 +15,7 @@ import { Fail, Success, TwIcon, Twitter, Twitter2, TwitterBlack } from '@assets/
 import { toast } from 'sonner';
 import { getTwitterShareCallback } from '@libs/request';
 import LoaderCircle from '@ui/loading/loader-circle';
+import useUserActivityReward from '@hooks/useUserActivityReward';
 
 interface DialogShareProjectProps {
   isOpen: boolean;
@@ -29,6 +30,11 @@ export default function DialogShareProject({ isOpen, onClose }: DialogShareProje
   const [isShared, setIsShared] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyResult, setVerifyResult] = useState<'success' | 'failed' | null>(null);
+
+  const { refetch: refetchUserActivityReward } = useUserActivityReward({
+    eventId: eventId as string,
+    enabled: !!eventId,
+  });
 
   // 构建分享链接
   const shareLink = `${window.location.origin}/market_events/${eventId}`;
@@ -64,6 +70,7 @@ export default function DialogShareProject({ isOpen, onClose }: DialogShareProje
       if (response.code === 200) {
         const receivedTickets = response.data?.number;
         if (receivedTickets === 1) {
+          refetchUserActivityReward();
           setVerifyResult('success');
           toast.success(t('share_success_extra_ticket'));
         } else {
