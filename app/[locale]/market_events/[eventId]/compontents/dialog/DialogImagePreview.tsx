@@ -72,7 +72,7 @@ export default function DialogImagePreview({
 
   const handleTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
-    
+
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > 50;
     const isRightSwipe = distance < -50;
@@ -89,9 +89,9 @@ export default function DialogImagePreview({
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isOpen) return;
-      
+
       console.log('Key pressed:', e.key, 'Current index:', currentIndex);
-      
+
       if (e.key === 'ArrowLeft') {
         e.preventDefault();
         setCurrentIndex((prev) => {
@@ -127,7 +127,7 @@ export default function DialogImagePreview({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
-        className="h-screen w-screen max-h-screen max-w-screen border-0 bg-black/90 p-0 shadow-none sm:max-h-[90vh] sm:max-w-[90vw] sm:bg-transparent"
+        className="h-screen max-h-screen w-screen max-w-screen border-0 bg-black/90 p-0 shadow-none sm:max-h-[90vh] sm:max-w-[90vw] sm:bg-transparent"
         nonClosable
       >
         <DialogHeader className="absolute top-2 right-0 z-10 sm:top-4">
@@ -153,7 +153,7 @@ export default function DialogImagePreview({
           onTouchEnd={handleTouchEnd}
         >
           {/* 主图片 */}
-          <div className="relative flex min-h-[200px] min-w-[200px] max-h-full max-w-full items-center justify-center sm:min-h-0 sm:min-w-0">
+          <div className="relative flex max-h-full min-h-[200px] max-w-full min-w-[200px] items-center justify-center sm:min-h-0 sm:min-w-0">
             <img
               key={`image-${currentIndex}`}
               src={currentImage}
