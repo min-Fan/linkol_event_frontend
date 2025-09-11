@@ -461,7 +461,10 @@ export default function DialogPostTweetLink({
         // 根据 todayJoin 的值决定是否包含当前用户
         if (todayJoin === 0) {
           // 当 todayJoin === 0 时，添加当前用户的 screen_name 到数组开头（如果存在且不在数组中）
-          if (twitterFullProfile?.screen_name && !kolNames.includes(twitterFullProfile.screen_name)) {
+          if (
+            twitterFullProfile?.screen_name &&
+            !kolNames.includes(twitterFullProfile.screen_name)
+          ) {
             kolNames.unshift(twitterFullProfile.screen_name);
           }
         }
