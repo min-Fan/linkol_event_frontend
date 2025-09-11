@@ -56,27 +56,31 @@ export default function UIDialogUnbindEmail(props: {
 
   const onSubmit = (params: IUnbindEmailFormValues) => {
     startTransition(async () => {
-      const { code } = params;
+      try {
+        const { code } = params;
 
-      const res = await unbindEmail(
-        {
-          email,
-          code,
-        },
-        props?.kol
-      );
+        const res = await unbindEmail(
+          {
+            email,
+            code,
+          },
+          props?.kol
+        );
 
-      if (res.code !== 200) {
+        if (res.code !== 200) {
+          toast.error(t('unbind_email_failed'));
+
+          return;
+        }
+
+        updateEmail('');
+
+        toast.success(t('unbind_email_success'));
+
+        setIsOpen(false);
+      } catch (error) {
         toast.error(t('unbind_email_failed'));
-
-        return;
       }
-
-      updateEmail('');
-
-      toast.success(t('unbind_email_success'));
-
-      setIsOpen(false);
     });
   };
 
