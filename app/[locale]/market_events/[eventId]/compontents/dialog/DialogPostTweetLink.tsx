@@ -201,12 +201,16 @@ export default function DialogPostTweetLink({
     }
   }, [eventInfo?.title, twitterFullProfile]);
 
-  // 弹窗打开时提前获取模板数据
+  // 弹窗打开时提前获取模板数据，当KOL列表变化时重新获取
   useEffect(() => {
-    if (isOpen && imageTemplate && !templateData && kolScreenNames.length > 0) {
+    if (isOpen && imageTemplate && kolScreenNames.length > 0) {
+      // 如果KOL列表发生变化，清空之前的模板数据并重新获取
+      if (templateData) {
+        setTemplateData(null);
+      }
       fetchTemplateData();
     }
-  }, [isOpen, imageTemplate, templateData, kolScreenNames]);
+  }, [isOpen, imageTemplate, kolScreenNames]);
 
   // 获取模板数据 - 支持多个KOL
   const fetchTemplateData = async () => {
@@ -249,8 +253,8 @@ export default function DialogPostTweetLink({
         // 立即重置pendingImageGeneration以防止重复调用
         setPendingImageGeneration(false);
 
-        // 等待一小段时间确保DOM已经更新
-        await new Promise((resolve) => setTimeout(resolve, 50));
+        // 等待DOM完全渲染完成
+        await waitForDOMReady();
 
         const imageUrls = await generateAndUploadImages();
         if (imageUrls.length > 0) {
@@ -320,6 +324,29 @@ export default function DialogPostTweetLink({
     }
   };
 
+  // 等待DOM完全渲染完成的函数
+  const waitForDOMReady = async (maxRetries = 10, retryDelay = 200) => {
+    for (let i = 0; i < maxRetries; i++) {
+      // 检查所有需要的模板元素是否已经渲染
+      const allElementsReady = templateData?.every((_, index) => {
+        const element = document.querySelector(`[data-template-index="${index}"]`) as HTMLElement;
+        return element && element.offsetHeight > 0 && element.offsetWidth > 0;
+      });
+
+      if (allElementsReady) {
+        // 额外等待一小段时间确保所有内容完全渲染
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        return true;
+      }
+
+      // 等待一段时间后重试
+      await new Promise((resolve) => setTimeout(resolve, retryDelay));
+    }
+
+    console.warn('DOM elements not ready after maximum retries');
+    return false;
+  };
+
   // 通用图片生成和上传函数 - 支持多张图片并发处理
   const generateAndUploadImages = async () => {
     if (!imageTemplate || !templateData || templateData.length === 0) {
@@ -334,8 +361,12 @@ export default function DialogPostTweetLink({
     try {
       setIsGeneratingImage(true);
 
-      // 等待一小段时间确保DOM更新
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      // 再次确认DOM元素已经准备好
+      const domReady = await waitForDOMReady(5, 100);
+      if (!domReady) {
+        console.error('DOM not ready for image generation');
+        return [];
+      }
 
       // 并发生成所有图片的canvas
       const canvasPromises = templateData.map(async (data, i) => {
@@ -347,10 +378,16 @@ export default function DialogPostTweetLink({
             return null;
           }
 
+          // 检查元素是否有实际尺寸
+          if (templateRef.offsetHeight === 0 || templateRef.offsetWidth === 0) {
+            console.warn(`Template element has no dimensions for index ${i}`);
+            return null;
+          }
+
           // 使用html2canvas将组件转换为canvas
           const canvas = await html2canvas(templateRef, {
             backgroundColor: null,
-            scale: 2,
+            scale: 1,
             useCORS: true,
             allowTaint: true,
           });
@@ -440,6 +477,13 @@ export default function DialogPostTweetLink({
 
     try {
       setIsGeneratingTweet(true);
+
+      // 清空之前的数据，准备重新生成
+      setTemplateData(null);
+      setTweetMedias([]);
+      setPendingImageGeneration(false);
+      setIsGeneratingImage(false);
+
       const res: any = await getAiChatTweet(eventId as string, selectedLanguage);
 
       if (res.code === 200 && res.data?.data?.content) {
