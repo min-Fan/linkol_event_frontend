@@ -65,27 +65,32 @@ export default function UIDialogBindEmail(props: {
 
   const onSubmit = (params: IBindEmailFormValues) => {
     startTransition(async () => {
-      const { email, code } = params;
+      try {
+        const { email, code } = params;
 
-      const res = await bindEmail(
-        {
-          email,
-          code,
-        },
-        props?.kol
-      );
+        const res = await bindEmail(
+          {
+            email,
+            code,
+          },
+          props?.kol
+        );
 
-      if (res.code !== 200) {
+        if (res.code !== 200) {
+          toast.error(t('bind_email_failed'));
+
+          return;
+        }
+
+        updateEmail(email);
+
+        toast.success(t('bind_email_success'));
+
+        setIsOpen(false);
+      } catch (error) {
+        console.error(error);
         toast.error(t('bind_email_failed'));
-
-        return;
       }
-
-      updateEmail(email);
-
-      toast.success(t('bind_email_success'));
-
-      setIsOpen(false);
     });
   };
 
