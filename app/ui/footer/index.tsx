@@ -38,7 +38,7 @@ export default function Footer() {
               </li> */}
               <li>
                 <Link
-                  href={PagesRoute.MARKET_EVENTS}
+                  href={PagesRoute.HOME}
                   className="hover:text-foreground hover:underline"
                 >
                   Market Events

@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useAppDispatch } from '@store/hooks';
 import { updateUserActivityReward, setUserActivityRewardLoading } from '@store/reducers/userSlice';
-import { getUserActivityReward } from '@libs/request';
+import { getUserActivityReward, IGetUserActivityRewardResponseData } from '@libs/request';
 
 /**
  * 提供全局更新用户活动奖励数据的功能
@@ -50,23 +50,7 @@ export function useUserActivityRewardUpdater() {
 
   // 手动设置某个 eventId 的奖励数据（用于本地更新）
   const setRewardData = useCallback(
-    (
-      eventId: string,
-      data: {
-        available_reward: number;
-        total_reward: number;
-        total_receive_amount: number;
-        number: number;
-        percent: number;
-        fail_limit: number;
-        fail_times: number;
-        level: string;
-        must_win_limit: number;
-        points: number;
-        today_join: number;
-        used_must_win_times: number;
-      }
-    ) => {
+    (eventId: string, data: IGetUserActivityRewardResponseData) => {
       dispatch(updateUserActivityReward({ eventId, data }));
     },
     [dispatch]

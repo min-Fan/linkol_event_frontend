@@ -57,7 +57,7 @@ export default function ActiveTypeTab(props: {
 
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <h1 className="text-xl font-bold text-white">{t('all_events')}</h1>
+      <h1 className="text-xl font-bold text-foreground">{t('all_events')}</h1>
       {/* <ActiveTypeTabItem
         type={ACTIVE_TYPE.ALL}
         currentType={type}
