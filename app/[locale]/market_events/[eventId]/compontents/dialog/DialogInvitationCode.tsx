@@ -16,6 +16,7 @@ import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { setInvitationCodeLoading, updateInvitationCode } from '@store/reducers/userSlice';
 import { toast } from 'sonner';
 import { CopyBtn, FluentShare, InviteIcon, TwIcon, TwitterBlack } from '@assets/svg';
+import { useUserActivityReward } from '@hooks/useUserActivityReward';
 
 interface DialogInvitationCodeProps {
   isOpen: boolean;
@@ -33,7 +34,7 @@ export default function DialogInvitationCode({
   const { eventId } = useParams();
   const [invitationCode, setInvitationCode] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
-
+  const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
   // 从store中获取邀请码状态
   const invitationCodeState = useAppSelector((state) =>
     eventId ? state.userReducer?.invitationCode[eventId as string] : null
@@ -41,6 +42,10 @@ export default function DialogInvitationCode({
 
   const currentUrl = window.location.origin + window.location.pathname;
   const shareUrl = `${currentUrl}?invite=${invitationCode}`;
+  const { refetch: refetchUserActivityReward } = useUserActivityReward({
+    eventId: eventInfo?.id?.toString() || '',
+    enabled: !!eventInfo?.id && isOpen && isLoggedIn,
+  });
 
   // 获取邀请码（支持静默模式）
   const fetchInvitationCode = async (silent = false) => {
@@ -140,6 +145,7 @@ export default function DialogInvitationCode({
   // 组件挂载时获取邀请码
   useEffect(() => {
     if (isOpen && eventInfo?.id) {
+      refetchUserActivityReward();
       // 如果store中已有邀请码，直接使用并静默更新
       if (invitationCodeState?.code) {
         setInvitationCode(invitationCodeState.code);
