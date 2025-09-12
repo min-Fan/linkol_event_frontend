@@ -562,7 +562,12 @@ const userSlice = createSlice({
     },
     updateInvitationCode: (
       state,
-      action: PayloadAction<{ eventId: string; code: string; invitedNum: number; ticketNum: number }>
+      action: PayloadAction<{
+        eventId: string;
+        code: string;
+        invitedNum: number;
+        ticketNum: number;
+      }>
     ) => {
       const { eventId, code, invitedNum, ticketNum } = action.payload;
       if (!state.invitationCode[eventId]) {

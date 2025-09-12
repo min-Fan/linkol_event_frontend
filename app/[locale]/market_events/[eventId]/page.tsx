@@ -91,13 +91,15 @@ export default function MarketEventsPage() {
         const code = response.data.invite_code;
         const invitedNum = response.data.invited_num;
         const ticketNum = response.data.ticket_num;
-        
-        dispatch(updateInvitationCode({ 
-          eventId: eventId as string, 
-          code,
-          invitedNum,
-          ticketNum
-        }));
+
+        dispatch(
+          updateInvitationCode({
+            eventId: eventId as string,
+            code,
+            invitedNum,
+            ticketNum,
+          })
+        );
       } else {
         console.error('get invitation code failed:', response.msg);
       }
@@ -248,7 +250,6 @@ export default function MarketEventsPage() {
     const inviteParam = searchParams.get('invite');
     if (inviteParam) {
       console.log('URL in the page contains invite code:', inviteParam);
-      
     }
   }, [searchParams]);
 
