@@ -39,6 +39,9 @@ export default function DialogInvitationCode({
     eventId ? state.userReducer?.invitationCode[eventId as string] : null
   );
 
+  const currentUrl = window.location.origin + window.location.pathname;
+  const shareUrl = `${currentUrl}?invite=${invitationCode}`;
+
   // 获取邀请码（支持静默模式）
   const fetchInvitationCode = async (silent = false) => {
     if (!eventInfo?.id) return;
@@ -109,10 +112,6 @@ export default function DialogInvitationCode({
   const handleShareToTwitter = () => {
     if (!invitationCode) return;
 
-    // 获取当前域名和路径，添加邀请码参数
-    const currentUrl = window.location.origin + window.location.pathname;
-    const shareUrl = `${currentUrl}?invite=${invitationCode}`;
-
     const text = `Join @linkol_ai and win amazing prizes! Use my invitation code: ${invitationCode} ${shareUrl}`;
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
     window.open(twitterUrl, '_blank');
@@ -121,10 +120,6 @@ export default function DialogInvitationCode({
   // 复制分享链接
   const handleShare = async () => {
     if (!invitationCode) return;
-
-    // 获取当前域名和路径，添加邀请码参数
-    const currentUrl = window.location.origin + window.location.pathname;
-    const shareUrl = `${currentUrl}?invite=${invitationCode}`;
 
     try {
       await navigator.clipboard.writeText(shareUrl);
@@ -195,8 +190,8 @@ export default function DialogInvitationCode({
                 </div>
               ) : (
                 <div className="bg-primary flex h-12 items-center justify-between rounded-lg px-4 pr-2 text-white">
-                  <span className="font-mono text-lg font-bold">{invitationCode}</span>
-                  <Button
+                  <span className="font-mono text-lg font-bold truncate max-w-full">{shareUrl}</span>
+                  {/* <Button
                     onClick={handleCopyCode}
                     size="sm"
                     variant="ghost"
@@ -204,7 +199,7 @@ export default function DialogInvitationCode({
                     disabled={!invitationCode}
                   >
                     <Copy className="h-6 w-6" />
-                  </Button>
+                  </Button> */}
                 </div>
               )}
 
