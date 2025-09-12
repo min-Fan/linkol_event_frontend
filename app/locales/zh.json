@@ -1142,6 +1142,20 @@
     "raffle_tasks_verification_failed": "任务验证失败",
     "raffle_tasks_verification_failed_desc": "请确保您已完成所有任务，然后重试。",
     "want_more": "想要更多?",
-    "till_next_post": "{time} 至下次推文更新"
+    "till_next_post": "{time} 至下次推文更新",
+    "invitation": "邀请",
+    "invitation_code": "邀请码",
+    "share_to_twitter": "分享到 Twitter",
+    "copy_invite_link": "复制链接",
+    "share_linkol_invite": "分享 Linkol 邀请",
+    "invite_kols_earn_tickets": "邀请 KOL 并获得抽奖券！",
+    "kols_invited": "已邀请 KOL",
+    "raffle_tickets": "抽奖券",
+    "how_linkol_invites_work": "Linkol 邀请如何工作：",
+    "share_invitation_code_twitter": "在 Twitter 上向 KOL 分享您的邀请码",
+    "they_join_using_code": "他们使用您的代码加入",
+    "earn_raffle_ticket_per_invitation": "每成功邀请 1 人获得 1 张抽奖券！",
+    "getting_invitation_code": "获取邀请码中...",
+    "get_invitation_code_failed": "获取邀请码失败"
   }
 }

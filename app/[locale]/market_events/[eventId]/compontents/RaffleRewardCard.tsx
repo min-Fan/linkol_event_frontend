@@ -13,6 +13,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@shadcn/components/ui/t
 import CircularProgress from '../../../../components/CircularProgress';
 import { cn } from '@shadcn/lib/utils';
 import DialogRaffleTicketTasks from './dialog/DialogRaffleTicketTasks';
+import DialogInvitationCode from './dialog/DialogInvitationCode';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import { InviteIcon } from '@assets/svg';
 
 interface RaffleRewardCardProps {
   eventInfo: IEventInfoResponseData;
@@ -37,6 +40,7 @@ export default function RaffleRewardCard({
   const [isCooldown, setIsCooldown] = useState(false);
   const raffleSeconds = 0;
   const [isRaffleTasksDialogOpen, setIsRaffleTasksDialogOpen] = useState(false);
+  const [isInvitationCodeDialogOpen, setIsInvitationCodeDialogOpen] = useState(false);
 
   // 使用新的 hook 从 store 中获取用户活动奖励数据
   const {
@@ -128,6 +132,14 @@ export default function RaffleRewardCard({
 
   const handleRaffleTasksDialogClose = () => {
     setIsRaffleTasksDialogOpen(false);
+  };
+
+  const handleInvitationCodeDialogOpen = () => {
+    setIsInvitationCodeDialogOpen(true);
+  };
+
+  const handleInvitationCodeDialogClose = () => {
+    setIsInvitationCodeDialogOpen(false);
   };
 
   return (
@@ -243,6 +255,23 @@ export default function RaffleRewardCard({
             <span className="sm:text-md text-muted-foreground/80 text-sm">{t('my_points')}:</span>
             <span className="sm:text-md text-sm">{points}</span>
           </div>
+          <Button
+            onClick={handleInvitationCodeDialogOpen}
+            className="relative h-9 w-full rounded-md bg-gradient-to-r from-[#f8fb22] from-0% via-[#bde726] via-30% to-[#e65c0d] to-80% bg-[length:200%_100%] bg-[position:100%_50%] !px-2 text-sm transition-[background-position] duration-200 ease-in-out disabled:cursor-not-allowed disabled:opacity-50 sm:!h-auto sm:w-auto sm:!rounded-full sm:!px-4 sm:!text-base"
+          >
+            <DotLottieReact
+              src="/lottie/fireworks-btn.lottie"
+              autoplay
+              loop
+              speed={1}
+              className="pointer-events-none absolute inset-0 h-full w-full"
+              style={{ zIndex: 0 }}
+              onLoad={() => console.log('Lottie animation loaded')}
+              onError={(error) => console.error('Lottie animation error:', error)}
+            />
+            <InviteIcon className="!h-4 !w-4 sm:!h-6 sm:!w-6" />
+            {t('invitation')}
+          </Button>
         </div>
       </div>
 
@@ -258,6 +287,13 @@ export default function RaffleRewardCard({
       <DialogRaffleTicketTasks
         isOpen={isRaffleTasksDialogOpen}
         onClose={handleRaffleTasksDialogClose}
+      />
+
+      {/* 邀请码对话框 */}
+      <DialogInvitationCode
+        isOpen={isInvitationCodeDialogOpen}
+        onClose={handleInvitationCodeDialogClose}
+        eventInfo={eventInfo}
       />
     </div>
   );

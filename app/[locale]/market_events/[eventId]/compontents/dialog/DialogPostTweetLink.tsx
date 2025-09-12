@@ -16,7 +16,7 @@ import {
 } from '@shadcn/components/ui/dropdown-menu';
 import { Loader2, AlertCircle, Edit, ChevronDown, Check } from 'lucide-react';
 import { Fail, Success, MoneyBag, Magic } from '@assets/svg';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { Input } from '@shadcn/components/ui/input';
 import { Textarea } from '@shadcn/components/ui/textarea';
 import {
@@ -137,6 +137,15 @@ export default function DialogPostTweetLink({
   const [imageTemplate, setImageTemplate] = useState<ImageTemplateConfig | null>(null);
   const [isWrongChain, setIsWrongChain] = useState(false);
   const { eventId } = useParams();
+  const searchParams = useSearchParams();
+
+  // 从URL参数中获取别人的邀请码
+  const urlInviteCode = searchParams.get('invite');
+
+  // 从store中获取自己的邀请码（用于邀请码弹窗显示）
+  const invitationCodeState = useAppSelector((state) =>
+    eventId ? state.userReducer?.invitationCode[eventId as string] : null
+  );
 
   // 新增状态
   const [isGenerateMode, setIsGenerateMode] = useState(true); // true: 生成推文模式, false: 提交链接模式
@@ -740,6 +749,7 @@ export default function DialogPostTweetLink({
           content: tweetContent.trim(),
           language: 'en', // 可以根据需要调整
           medias: tweetMedias, // 使用AI生成的媒体文件
+          ...(urlInviteCode && { invite_code: urlInviteCode }),
         });
       }
 
@@ -799,6 +809,7 @@ export default function DialogPostTweetLink({
         res = await postTweetLink({
           active_id: eventId as string,
           tweet_url: tweetUrl.trim(),
+          ...(urlInviteCode && { invite_code: urlInviteCode }),
         });
       }
 
