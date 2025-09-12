@@ -69,13 +69,12 @@ export default function DialogRaffleTicketTasks({ isOpen, onClose }: DialogRaffl
     try {
       setIsVerifying(true);
 
-      // 模拟 API 请求
       const response = await checkIsFollowed({
         active_id: eventId as string,
       });
       if (response.code === 200 && response.data.is_followed) {
+        refetchUserActivityReward();
         if (response.data.ticket === 1) {
-          refetchUserActivityReward();
           setVerifyResult('success');
         } else {
           setVerifyResult('already_received');
