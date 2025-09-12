@@ -102,6 +102,17 @@ export interface UserState {
   };
   // 兑换码状态
   redemptionCode: string;
+  // 图片缓存状态
+  imageCache: {
+    [eventId: string]: {
+      [screenName: string]: {
+        imageUrl: string;
+        templateData: any;
+        generatedAt: number;
+        expiresAt: number;
+      };
+    };
+  };
 }
 
 export const initialState: UserState = {
@@ -193,6 +204,8 @@ export const initialState: UserState = {
   },
   // 兑换码状态
   redemptionCode: '',
+  // 图片缓存状态
+  imageCache: {},
 };
 
 const userSlice = createSlice({
@@ -518,6 +531,51 @@ const userSlice = createSlice({
     clearRedemptionCode: (state) => {
       state.redemptionCode = '';
     },
+    // 图片缓存相关actions
+    setImageCache: (
+      state,
+      action: PayloadAction<{
+        eventId: string;
+        screenName: string;
+        imageUrl: string;
+        templateData: any;
+        expiresAt: number;
+      }>
+    ) => {
+      const { eventId, screenName, imageUrl, templateData, expiresAt } = action.payload;
+      
+      if (!state.imageCache[eventId]) {
+        state.imageCache[eventId] = {};
+      }
+      
+      state.imageCache[eventId][screenName] = {
+        imageUrl,
+        templateData,
+        generatedAt: Date.now(),
+        expiresAt,
+      };
+    },
+    clearImageCache: (state, action: PayloadAction<string>) => {
+      const eventId = action.payload;
+      delete state.imageCache[eventId];
+    },
+    clearAllImageCache: (state) => {
+      state.imageCache = {};
+    },
+    removeExpiredImageCache: (state) => {
+      const now = Date.now();
+      for (const eventId in state.imageCache) {
+        for (const screenName in state.imageCache[eventId]) {
+          if (state.imageCache[eventId][screenName].expiresAt < now) {
+            delete state.imageCache[eventId][screenName];
+          }
+        }
+        // 如果事件下没有缓存了，删除整个事件
+        if (Object.keys(state.imageCache[eventId]).length === 0) {
+          delete state.imageCache[eventId];
+        }
+      }
+    },
   },
 });
 
@@ -565,6 +623,10 @@ export const {
   clearAllUserActivityRewards,
   updateRedemptionCode,
   clearRedemptionCode,
+  setImageCache,
+  clearImageCache,
+  clearAllImageCache,
+  removeExpiredImageCache,
 } = userSlice.actions;
 
 export default userSlice.reducer;

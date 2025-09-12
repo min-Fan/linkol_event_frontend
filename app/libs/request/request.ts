@@ -64,12 +64,12 @@ class HttpRequest {
               // 未授权，跳转到登录页
               // 可以在这里添加跳转逻辑
               break;
-            case 404:
-              // 请求不存在
-              break;
-            case 501:
+            case 402:
               // token失效，退出登录状态
               logout();
+              break;
+            case 404:
+              // 请求不存在
               break;
             default:
           }
