@@ -1,5 +1,6 @@
 import { CACHE_KEY } from '@constants/app';
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { logout } from '@libs/utils/logout';
 
 // 定义接口响应数据的类型
 interface ResponseData<T = any> {
@@ -57,21 +58,22 @@ class HttpRequest {
       },
       (error) => {
         // 对响应错误做点什么
-        // if (error.response) {
-        //   switch (error.response.status) {
-        //     case 401:
-        //       // 未授权，跳转到登录页
-        //       // 可以在这里添加跳转逻辑
-        //       break;
-        //     case 403:
-        //       // 权限不足
-        //       break;
-        //     case 404:
-        //       // 请求不存在
-        //       break;
-        //     default:
-        //     }
-        //   }
+        if (error.response) {
+          switch (error.response.status) {
+            case 401:
+              // 未授权，跳转到登录页
+              // 可以在这里添加跳转逻辑
+              break;
+            case 404:
+              // 请求不存在
+              break;
+            case 501:
+              // token失效，退出登录状态
+              logout();
+              break;
+            default:
+          }
+        }
         console.error('Request Error:', error);
         return Promise.reject(error);
       }
