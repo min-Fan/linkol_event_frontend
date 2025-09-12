@@ -1141,6 +1141,20 @@
     "raffle_tasks_verification_failed": "Task verification failed",
     "raffle_tasks_verification_failed_desc": "Please make sure you have completed all tasks and try again.",
     "want_more": "Want more?",
-    "till_next_post": "{time} till next post"
+    "till_next_post": "{time} till next post",
+    "invitation": "Invitation",
+    "invitation_code": "Invitation Code",
+    "share_to_twitter": "Share to Twitter",
+    "copy_invite_link": "Copy Linkol",
+    "share_linkol_invite": "Share Linkol Invite",
+    "invite_kols_earn_tickets": "Invite KOLs and earn raffle tickets!",
+    "kols_invited": "KOLs Invited",
+    "raffle_tickets": "Raffle Tickets",
+    "how_linkol_invites_work": "How Linkol Invites Work:",
+    "share_invitation_code_twitter": "Share your invitation code with KOLs on Twitter",
+    "they_join_using_code": "They join using your code",
+    "earn_raffle_ticket_per_invitation": "You earn 1 raffle ticket per 1 successful invitation!",
+    "getting_invitation_code": "Getting invitation code...",
+    "get_invitation_code_failed": "Failed to get invitation code"
   }
 }

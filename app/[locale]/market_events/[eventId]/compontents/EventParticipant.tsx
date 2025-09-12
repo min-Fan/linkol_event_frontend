@@ -41,6 +41,7 @@ export default forwardRef<
   { eventInfo: IEventInfoResponseData; isLoading: boolean; onRefresh?: () => Promise<void> }
 >(function EventParticipant({ eventInfo, isLoading, onRefresh }, ref) {
   const t = useTranslations('common');
+  const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
   const payTokenInfo = useAppSelector((state) => state.userReducer?.pay_token_info);
   const locale = useLocale();
   const [rewardRules, setRewardRules] = useState<RewardRule[]>([]);
@@ -77,7 +78,7 @@ export default forwardRef<
   // 获取参与者列表
   const fetchParticipants = useCallback(
     async (page: number, isLoadMore = false) => {
-      if (!eventInfo?.id) return;
+      if (!eventInfo?.id || !isLoggedIn) return;
 
       try {
         if (isLoadMore) {
@@ -115,15 +116,15 @@ export default forwardRef<
         setIsInitialLoading(false);
       }
     },
-    [eventInfo?.id, pageSize]
+    [eventInfo?.id, pageSize, isLoggedIn]
   );
 
   // 初始加载
   useEffect(() => {
-    if (eventInfo?.id) {
+    if (eventInfo?.id && isLoggedIn) {
       fetchParticipants(1, false);
     }
-  }, [eventInfo?.id, fetchParticipants]);
+  }, [eventInfo?.id, fetchParticipants, isLoggedIn]);
 
   // 获取奖励规则
   useEffect(() => {

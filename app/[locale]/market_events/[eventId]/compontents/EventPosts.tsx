@@ -483,7 +483,7 @@ export default forwardRef<
         setLoading(false);
       }
     },
-    [getEventId, itemsPerPage]
+    [getEventId, itemsPerPage, isLoggedIn]
   );
 
   useEffect(() => {
@@ -491,7 +491,7 @@ export default forwardRef<
     if (eventInfo?.id) {
       fetchPosts(selectedLanguages, 1); // 重置到第一页
     }
-  }, [selectedLanguages, fetchPosts, eventInfo?.id]);
+  }, [selectedLanguages, fetchPosts, eventInfo?.id, isLoggedIn]);
 
   const handlePageChange = (page: number) => {
     if (page !== currentPage) {

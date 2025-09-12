@@ -8,16 +8,16 @@ export const useGetConst = () => {
 
   const getConst = async () => {
     try {
-      getPlatformWallet().then((res) => {
-        if (res.code === 200) {
-          dispatch(
-            updateConfig({
-              key: 'platform_receive_address',
-              value: res.data.platform_receive_address || '',
-            })
-          );
-        }
-      });
+      // getPlatformWallet().then((res) => {
+      //   if (res.code === 200) {
+      //     dispatch(
+      //       updateConfig({
+      //         key: 'platform_receive_address',
+      //         value: res.data.platform_receive_address || '',
+      //       })
+      //     );
+      //   }
+      // });
     } catch (error) {
       console.log(error);
     }

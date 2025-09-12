@@ -130,6 +130,8 @@ import NullData from './null-data.svg';
 import HugeiconsFlash from './hugeicons_flash.svg';
 import TwitterX from './twitter-x.svg';
 import RateBorderBg from './rate-border-bg.svg';
+import InviteIcon from './inviteicon.svg';
+import FluentShare from './fluent_share.svg';
 
 export {
   Share,
@@ -264,4 +266,6 @@ export {
   HugeiconsFlash,
   TwitterX,
   RateBorderBg,
+  InviteIcon,
+  FluentShare,
 };

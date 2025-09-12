@@ -154,7 +154,7 @@ export default function EventDetail({
   const { data: joinList, isLoading: isJoinListLoading } = useQuery({
     queryKey: ['joinList', eventInfo?.id],
     queryFn: () => getCampaignJoinList({ active_id: eventInfo?.id, page: 1, size: 10 }),
-    enabled: !!eventInfo?.id,
+    enabled: !!eventInfo?.id && isLoggedIn,
   });
 
   const {
@@ -170,7 +170,7 @@ export default function EventDetail({
   // 使用新的 hook 从 store 中获取用户活动奖励数据
   const { todayJoin, todayJoinAt } = useUserActivityReward({
     eventId: eventInfo?.id?.toString() || '',
-    enabled: !!eventInfo?.id,
+    enabled: !!eventInfo?.id && isLoggedIn,
   });
 
   // 使用倒计时hook计算到UTC 0点的倒计时
