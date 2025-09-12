@@ -1,15 +1,15 @@
 import { CACHE_KEY } from '@constants/app';
 import { store } from '@store/index';
-import { 
-  updateIsLoggedIn, 
-  clearQuickOrder, 
+import {
+  updateIsLoggedIn,
+  clearQuickOrder,
   updateTwitterFullProfile,
   clearSelectedKOLs,
   clearSelectedKOLInfo,
   clearPromotionData,
   clearChatMessages,
   clearAllUserActivityRewards,
-  clearRedemptionCode
+  clearRedemptionCode,
 } from '@store/reducers/userSlice';
 
 /**
@@ -20,11 +20,11 @@ export const logout = () => {
   // 清除cookie
   document.cookie = `${CACHE_KEY.TOKEN}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
   document.cookie = `${CACHE_KEY.KOL_TOKEN}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-  
+
   // 清除localStorage
   localStorage.removeItem(CACHE_KEY.TOKEN);
   localStorage.removeItem(CACHE_KEY.KOL_TOKEN);
-  
+
   // 清除store中的状态
   store.dispatch(updateIsLoggedIn(false));
   store.dispatch(clearQuickOrder());
@@ -35,7 +35,7 @@ export const logout = () => {
   store.dispatch(clearChatMessages());
   store.dispatch(clearAllUserActivityRewards());
   store.dispatch(clearRedemptionCode());
-  
+
   // 刷新页面以重置应用状态
   // if (typeof window !== 'undefined') {
   //   window.location.reload();

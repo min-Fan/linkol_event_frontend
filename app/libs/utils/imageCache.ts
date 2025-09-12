@@ -34,15 +34,15 @@ export class ImageCacheManager {
   public isCached(eventId: string, screenName: string): boolean {
     const key = this.getCacheKey(eventId, screenName);
     const item = this.cache.get(key);
-    
+
     if (!item) return false;
-    
+
     // 检查是否过期
     if (Date.now() > item.expiresAt) {
       this.cache.delete(key);
       return false;
     }
-    
+
     return true;
   }
 
@@ -50,28 +50,28 @@ export class ImageCacheManager {
   public getCachedImage(eventId: string, screenName: string): ImageCacheItem | null {
     const key = this.getCacheKey(eventId, screenName);
     const item = this.cache.get(key);
-    
+
     if (!item) return null;
-    
+
     // 检查是否过期
     if (Date.now() > item.expiresAt) {
       this.cache.delete(key);
       return null;
     }
-    
+
     return item;
   }
 
   // 缓存图片
   public setCachedImage(
-    eventId: string, 
-    screenName: string, 
-    imageUrl: string, 
+    eventId: string,
+    screenName: string,
+    imageUrl: string,
     templateData: any
   ): void {
     const key = this.getCacheKey(eventId, screenName);
     const now = Date.now();
-    
+
     this.cache.set(key, {
       eventId,
       screenName,
@@ -102,7 +102,7 @@ export class ImageCacheManager {
     for (const item of this.cache.values()) {
       eventIds.add(item.eventId);
     }
-    
+
     return {
       totalItems: this.cache.size,
       eventIds: Array.from(eventIds),
@@ -157,7 +157,7 @@ export class ImageGenerator {
           .map((screenName) => this.cacheManager.getCachedImage(eventId, screenName))
           .filter((item): item is ImageCacheItem => item !== null)
           .map((item) => item.imageUrl);
-        
+
         return { success: true, cachedImages };
       }
 
@@ -169,18 +169,17 @@ export class ImageGenerator {
 
       // 注意：实际的图片生成需要在组件中进行，因为需要DOM操作
       // 这里只返回需要生成图片的信息
-      return { 
-        success: true, 
-        cachedImages: [], 
-        error: 'Image generation needs to be done in component with DOM access' 
+      return {
+        success: true,
+        cachedImages: [],
+        error: 'Image generation needs to be done in component with DOM access',
       };
-
     } catch (error) {
       console.error('Failed to pre-generate images:', error);
-      return { 
-        success: false, 
-        cachedImages: [], 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+      return {
+        success: false,
+        cachedImages: [],
+        error: error instanceof Error ? error.message : 'Unknown error',
       };
     }
   }
@@ -217,8 +216,8 @@ export class ImageGenerator {
 
   // 获取KOL名称列表
   private async getKolScreenNames(
-    eventId: string, 
-    twitterFullProfile: any, 
+    eventId: string,
+    twitterFullProfile: any,
     language: LanguageCode
   ): Promise<string[]> {
     // 这里需要调用实际的API来获取KOL列表

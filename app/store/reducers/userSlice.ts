@@ -543,11 +543,11 @@ const userSlice = createSlice({
       }>
     ) => {
       const { eventId, screenName, imageUrl, templateData, expiresAt } = action.payload;
-      
+
       if (!state.imageCache[eventId]) {
         state.imageCache[eventId] = {};
       }
-      
+
       state.imageCache[eventId][screenName] = {
         imageUrl,
         templateData,
