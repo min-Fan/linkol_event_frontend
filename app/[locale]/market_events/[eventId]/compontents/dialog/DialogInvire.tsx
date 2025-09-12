@@ -42,7 +42,7 @@ export default function DialogInvire({ isOpen, onClose }: DialogInvireProps) {
         nonClosable
       >
         {/* Header */}
-        <DialogHeader className="bg-primary gap-0 rounded-t-xl p-2 text-center text-white sm:rounded-t-2xl sm:p-4">
+        <DialogHeader className="bg-primary gap-0 rounded-t-xl p-4 text-center text-white sm:rounded-t-2xl sm:p-4">
           <DialogTitle className="text-center text-base font-semibold text-white">
             {t('invite_other_creators')}
           </DialogTitle>

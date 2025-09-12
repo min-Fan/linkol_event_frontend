@@ -161,7 +161,7 @@ export default function DialogInvitationCode({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogClose asChild></DialogClose>
       <DialogContent
-        className="border-border flex max-h-[90vh] w-full max-w-full flex-col gap-0 overflow-hidden bg-transparent p-2 shadow-none sm:w-[450px] sm:max-w-full sm:p-0"
+        className="border-border flex max-h-[90vh] w-full max-w-full flex-col gap-0 overflow-hidden bg-transparent p-4 shadow-none sm:w-[450px] sm:max-w-full sm:p-0"
         nonClosable
       >
         {/* Header */}
@@ -252,19 +252,19 @@ export default function DialogInvitationCode({
             </h4>
             <div className="flex flex-col items-center justify-center gap-2 text-sm">
               <div className="flex items-start gap-2">
-                <span className="text-muted-foreground/80 text-md">
+                <span className="text-muted-foreground/80 text-md text-center">
                   {t('share_invitation_code_twitter')}
                 </span>
               </div>
               <ArrowDown className="text-muted-foreground/80 h-4 w-4" />
               <div className="flex items-start gap-2">
-                <span className="text-muted-foreground/80 text-md">
+                <span className="text-muted-foreground/80 text-md text-center">
                   {t('they_join_using_code')}
                 </span>
               </div>
               <ArrowDown className="text-muted-foreground/80 h-4 w-4" />
               <div className="flex items-start gap-2">
-                <span className="text-muted-foreground/80 text-md">
+                <span className="text-muted-foreground/80 text-md text-center"> 
                   {t('earn_raffle_ticket_per_invitation')}
                 </span>
               </div>

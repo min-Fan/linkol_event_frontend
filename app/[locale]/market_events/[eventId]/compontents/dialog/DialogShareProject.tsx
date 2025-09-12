@@ -96,7 +96,7 @@ export default function DialogShareProject({ isOpen, onClose }: DialogShareProje
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogClose asChild></DialogClose>
       <DialogContent
-        className="border-border flex max-h-[90vh] w-96 max-w-full flex-col gap-0 overflow-hidden bg-transparent p-2 shadow-none sm:w-96 sm:max-w-full sm:p-0"
+        className="border-border flex max-h-[90vh] w-96 max-w-full flex-col gap-0 overflow-hidden bg-transparent p-4 shadow-none sm:w-96 sm:max-w-full sm:p-0"
         nonClosable
       >
         {/* Header */}
