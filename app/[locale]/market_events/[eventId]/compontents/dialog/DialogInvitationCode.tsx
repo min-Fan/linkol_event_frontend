@@ -39,6 +39,9 @@ export default function DialogInvitationCode({
     eventId ? state.userReducer?.invitationCode[eventId as string] : null
   );
 
+  const currentUrl = window.location.origin + window.location.pathname;
+  const shareUrl = `${currentUrl}?invite=${invitationCode}`;
+
   // 获取邀请码（支持静默模式）
   const fetchInvitationCode = async (silent = false) => {
     if (!eventInfo?.id) return;
@@ -109,10 +112,6 @@ export default function DialogInvitationCode({
   const handleShareToTwitter = () => {
     if (!invitationCode) return;
 
-    // 获取当前域名和路径，添加邀请码参数
-    const currentUrl = window.location.origin + window.location.pathname;
-    const shareUrl = `${currentUrl}?invite=${invitationCode}`;
-
     const text = `Join @linkol_ai and win amazing prizes! Use my invitation code: ${invitationCode} ${shareUrl}`;
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
     window.open(twitterUrl, '_blank');
@@ -121,10 +120,6 @@ export default function DialogInvitationCode({
   // 复制分享链接
   const handleShare = async () => {
     if (!invitationCode) return;
-
-    // 获取当前域名和路径，添加邀请码参数
-    const currentUrl = window.location.origin + window.location.pathname;
-    const shareUrl = `${currentUrl}?invite=${invitationCode}`;
 
     try {
       await navigator.clipboard.writeText(shareUrl);
@@ -161,7 +156,7 @@ export default function DialogInvitationCode({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogClose asChild></DialogClose>
       <DialogContent
-        className="border-border flex max-h-[90vh] w-full max-w-full flex-col gap-0 overflow-hidden bg-transparent p-2 shadow-none sm:w-[450px] sm:max-w-full sm:p-0"
+        className="border-border flex max-h-[90vh] w-full max-w-full flex-col gap-0 overflow-hidden bg-transparent p-4 shadow-none sm:w-[450px] sm:max-w-full sm:p-0"
         nonClosable
       >
         {/* Header */}
@@ -195,8 +190,10 @@ export default function DialogInvitationCode({
                 </div>
               ) : (
                 <div className="bg-primary flex h-12 items-center justify-between rounded-lg px-4 pr-2 text-white">
-                  <span className="font-mono text-lg font-bold">{invitationCode}</span>
-                  <Button
+                  <span className="max-w-full truncate font-mono text-lg font-bold">
+                    {shareUrl}
+                  </span>
+                  {/* <Button
                     onClick={handleCopyCode}
                     size="sm"
                     variant="ghost"
@@ -204,7 +201,7 @@ export default function DialogInvitationCode({
                     disabled={!invitationCode}
                   >
                     <Copy className="h-6 w-6" />
-                  </Button>
+                  </Button> */}
                 </div>
               )}
 
@@ -252,19 +249,19 @@ export default function DialogInvitationCode({
             </h4>
             <div className="flex flex-col items-center justify-center gap-2 text-sm">
               <div className="flex items-start gap-2">
-                <span className="text-muted-foreground/80 text-md">
+                <span className="text-muted-foreground/80 text-md text-center">
                   {t('share_invitation_code_twitter')}
                 </span>
               </div>
               <ArrowDown className="text-muted-foreground/80 h-4 w-4" />
               <div className="flex items-start gap-2">
-                <span className="text-muted-foreground/80 text-md">
+                <span className="text-muted-foreground/80 text-md text-center">
                   {t('they_join_using_code')}
                 </span>
               </div>
               <ArrowDown className="text-muted-foreground/80 h-4 w-4" />
               <div className="flex items-start gap-2">
-                <span className="text-muted-foreground/80 text-md">
+                <span className="text-muted-foreground/80 text-md text-center">
                   {t('earn_raffle_ticket_per_invitation')}
                 </span>
               </div>

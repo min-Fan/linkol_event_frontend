@@ -24,7 +24,7 @@ export default function DialogBrandValue({ isOpen, onClose }: DialogBrandValuePr
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogClose asChild></DialogClose>
       <DialogContent
-        className="border-border flex max-h-[90vh] w-full max-w-full flex-col gap-0 overflow-hidden bg-transparent p-2 shadow-none sm:w-[500px] sm:max-w-full sm:p-0"
+        className="border-border flex max-h-[90vh] w-full max-w-full flex-col gap-0 overflow-hidden bg-transparent p-4 shadow-none sm:w-[500px] sm:max-w-full sm:p-0"
         nonClosable
       >
         {/* Header */}
