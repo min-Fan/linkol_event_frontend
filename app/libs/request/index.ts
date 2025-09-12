@@ -1571,6 +1571,10 @@ export interface IPostTweetLinkParams {
    * 推特链接
    */
   tweet_url: string;
+  /**
+   * 邀请码
+   */
+  invite_code?: string;
 }
 export const postTweetLink = (params: IPostTweetLinkParams) => {
   return kolRequest.post(`/kol/api/v6/submit/verify/`, params);
@@ -1893,6 +1897,10 @@ export interface ISendActivityTweetParams {
    * 图片数组
    */
   medias: string[];
+  /**
+   * 邀请码
+   */
+  invite_code?: string;
 }
 export const sendActivityTweet = (params: ISendActivityTweetParams) => {
   return kolRequest.post(`/kol/api/v6/post/tweet/`, {
@@ -2112,4 +2120,29 @@ export interface ICheckIsFollowedData {
 }
 export const checkIsFollowed = (params: ICheckIsFollowedParams) => {
   return kolRequest.post<ICheckIsFollowedData>('/kol/api/v6/following/check/', { ...params });
+};
+
+// 获取活动邀请码
+export interface IGetInvitationCodeParams {
+  /**
+   * 活动ID
+   */
+  active_id: string;
+}
+export interface IGetInvitationCodeData {
+  /**
+   * 邀请码
+   */
+  invite_code: string;
+  /**
+   * 邀请人数量
+   */
+  invited_num: number;
+  /**
+   * 抽奖券数量
+   */
+  ticket_num: number;
+}
+export const getInvitationCode = (params: IGetInvitationCodeParams) => {
+  return kolRequest.get<IGetInvitationCodeData>('/kol/api/v6/active/invite_code/', { ...params });
 };

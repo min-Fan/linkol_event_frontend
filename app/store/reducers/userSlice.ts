@@ -102,6 +102,16 @@ export interface UserState {
   };
   // 兑换码状态
   redemptionCode: string;
+  // 邀请码状态
+  invitationCode: {
+    [eventId: string]: {
+      code: string;
+      invitedNum: number;
+      ticketNum: number;
+      isLoading: boolean;
+      lastUpdated: number;
+    };
+  };
   // 图片缓存状态
   imageCache: {
     [eventId: string]: {
@@ -204,6 +214,8 @@ export const initialState: UserState = {
   },
   // 兑换码状态
   redemptionCode: '',
+  // 邀请码状态
+  invitationCode: {},
   // 图片缓存状态
   imageCache: {},
 };
@@ -531,6 +543,50 @@ const userSlice = createSlice({
     clearRedemptionCode: (state) => {
       state.redemptionCode = '';
     },
+    // 邀请码相关actions
+    setInvitationCodeLoading: (
+      state,
+      action: PayloadAction<{ eventId: string; isLoading: boolean }>
+    ) => {
+      const { eventId, isLoading } = action.payload;
+      if (!state.invitationCode[eventId]) {
+        state.invitationCode[eventId] = {
+          code: '',
+          invitedNum: 0,
+          ticketNum: 0,
+          isLoading: false,
+          lastUpdated: 0,
+        };
+      }
+      state.invitationCode[eventId].isLoading = isLoading;
+    },
+    updateInvitationCode: (
+      state,
+      action: PayloadAction<{ eventId: string; code: string; invitedNum: number; ticketNum: number }>
+    ) => {
+      const { eventId, code, invitedNum, ticketNum } = action.payload;
+      if (!state.invitationCode[eventId]) {
+        state.invitationCode[eventId] = {
+          code: '',
+          invitedNum: 0,
+          ticketNum: 0,
+          isLoading: false,
+          lastUpdated: 0,
+        };
+      }
+      state.invitationCode[eventId].code = code;
+      state.invitationCode[eventId].invitedNum = invitedNum;
+      state.invitationCode[eventId].ticketNum = ticketNum;
+      state.invitationCode[eventId].isLoading = false;
+      state.invitationCode[eventId].lastUpdated = Date.now();
+    },
+    clearInvitationCode: (state, action: PayloadAction<string>) => {
+      const eventId = action.payload;
+      delete state.invitationCode[eventId];
+    },
+    clearAllInvitationCodes: (state) => {
+      state.invitationCode = {};
+    },
     // 图片缓存相关actions
     setImageCache: (
       state,
@@ -543,11 +599,11 @@ const userSlice = createSlice({
       }>
     ) => {
       const { eventId, screenName, imageUrl, templateData, expiresAt } = action.payload;
-      
+
       if (!state.imageCache[eventId]) {
         state.imageCache[eventId] = {};
       }
-      
+
       state.imageCache[eventId][screenName] = {
         imageUrl,
         templateData,
@@ -623,6 +679,10 @@ export const {
   clearAllUserActivityRewards,
   updateRedemptionCode,
   clearRedemptionCode,
+  setInvitationCodeLoading,
+  updateInvitationCode,
+  clearInvitationCode,
+  clearAllInvitationCodes,
   setImageCache,
   clearImageCache,
   clearAllImageCache,

@@ -12,8 +12,9 @@ import {
   getActivityDetailFromDashboard,
   getActivityDetailLogin,
   getPrice,
+  getInvitationCode,
 } from '@libs/request';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import useUserInfo from '@hooks/useUserInfo';
 import UIWallet from '@ui/wallet';
@@ -21,7 +22,12 @@ import { useTranslations } from 'next-intl';
 import { MoneyBag } from '@assets/svg';
 import { useRef, useEffect, useState } from 'react';
 import { useAppDispatch } from '@store/hooks';
-import { setImageCache, removeExpiredImageCache } from '@store/reducers/userSlice';
+import {
+  setImageCache,
+  removeExpiredImageCache,
+  setInvitationCodeLoading,
+  updateInvitationCode,
+} from '@store/reducers/userSlice';
 import { imageGenerator } from '@libs/utils/imageCache';
 import { LanguageCode, uploadImage } from '@libs/request';
 import html2canvas from 'html2canvas';
@@ -31,6 +37,7 @@ export default function MarketEventsPage() {
   const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
   const { isLogin } = useUserInfo();
   const { eventId } = useParams();
+  const searchParams = useSearchParams();
   const t = useTranslations('common');
   const dispatch = useAppDispatch();
   const twitterFullProfile = useAppSelector((state) => state.userReducer?.twitter_full_profile);
@@ -69,6 +76,35 @@ export default function MarketEventsPage() {
       if (res.code === 200) {
         return res.data;
       }
+    }
+  };
+
+  // 获取邀请码
+  const fetchInvitationCode = async () => {
+    if (!eventId || !isLoggedIn) return;
+
+    try {
+      dispatch(setInvitationCodeLoading({ eventId: eventId as string, isLoading: true }));
+      const response: any = await getInvitationCode({ active_id: eventId as string });
+
+      if (response.code === 200) {
+        const code = response.data.invite_code;
+        const invitedNum = response.data.invited_num;
+        const ticketNum = response.data.ticket_num;
+        
+        dispatch(updateInvitationCode({ 
+          eventId: eventId as string, 
+          code,
+          invitedNum,
+          ticketNum
+        }));
+      } else {
+        console.error('get invitation code failed:', response.msg);
+      }
+    } catch (error) {
+      console.error('get invitation code failed:', error);
+    } finally {
+      dispatch(setInvitationCodeLoading({ eventId: eventId as string, isLoading: false }));
     }
   };
   const {
@@ -199,6 +235,22 @@ export default function MarketEventsPage() {
       setIsPreGenerating(false);
     }
   };
+
+  // 页面打开时获取自己的邀请码
+  useEffect(() => {
+    if (eventId && isLoggedIn) {
+      fetchInvitationCode();
+    }
+  }, [eventId, isLoggedIn]);
+
+  // 检测URL参数，URL上的invite是别人的邀请码
+  useEffect(() => {
+    const inviteParam = searchParams.get('invite');
+    if (inviteParam) {
+      console.log('URL in the page contains invite code:', inviteParam);
+      
+    }
+  }, [searchParams]);
 
   // 当活动信息加载完成且用户已登录时，预生成图片
   useEffect(() => {
