@@ -215,10 +215,10 @@ export const HeaderSection = ({
           <Button
             variant="outline"
             className={cn(
-              "flex items-center gap-1 !rounded-lg",
-              isMyTweetsMode 
-                ? "bg-muted-foreground/5 text-muted-foreground hover:bg-muted-foreground/10" 
-                : "bg-primary/5 text-primary hover:bg-primary/10"
+              'flex items-center gap-1 !rounded-lg',
+              isMyTweetsMode
+                ? 'bg-muted-foreground/5 text-muted-foreground hover:bg-muted-foreground/10'
+                : 'bg-primary/5 text-primary hover:bg-primary/10'
             )}
           >
             <span className="text-sm font-medium">{getDisplayText()}</span>
@@ -258,14 +258,14 @@ export const HeaderSection = ({
 
       {showMyTweetButton && isLoggedIn && (
         <div className="">
-          <Button 
-            variant="secondary" 
-            disabled={disabled} 
+          <Button
+            variant="secondary"
+            disabled={disabled}
             onClick={onMyTweetClick}
             className={cn(
-              isMyTweetsMode 
-                ? "bg-primary/5 text-primary hover:bg-primary/10" 
-                : "bg-muted-foreground/5 text-muted-foreground hover:bg-muted-foreground/10"
+              isMyTweetsMode
+                ? 'bg-primary/5 text-primary hover:bg-primary/10'
+                : 'bg-muted-foreground/5 text-muted-foreground hover:bg-muted-foreground/10'
             )}
           >
             My tweet
@@ -522,7 +522,7 @@ export default forwardRef<
   const handleLanguageChange = (language: string) => {
     // 当选择语言时，退出我的推文模式
     setIsMyTweetsMode(false);
-    
+
     setSelectedLanguages((prev) => {
       if (language === '') {
         // 如果选择"全部"，清空其他选择

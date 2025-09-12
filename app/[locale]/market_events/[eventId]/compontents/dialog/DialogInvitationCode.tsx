@@ -190,7 +190,9 @@ export default function DialogInvitationCode({
                 </div>
               ) : (
                 <div className="bg-primary flex h-12 items-center justify-between rounded-lg px-4 pr-2 text-white">
-                  <span className="font-mono text-lg font-bold truncate max-w-full">{shareUrl}</span>
+                  <span className="max-w-full truncate font-mono text-lg font-bold">
+                    {shareUrl}
+                  </span>
                   {/* <Button
                     onClick={handleCopyCode}
                     size="sm"
@@ -259,7 +261,7 @@ export default function DialogInvitationCode({
               </div>
               <ArrowDown className="text-muted-foreground/80 h-4 w-4" />
               <div className="flex items-start gap-2">
-                <span className="text-muted-foreground/80 text-md text-center"> 
+                <span className="text-muted-foreground/80 text-md text-center">
                   {t('earn_raffle_ticket_per_invitation')}
                 </span>
               </div>
