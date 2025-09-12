@@ -62,7 +62,7 @@ class HttpRequest {
           switch (error.response.status) {
             case 401:
               // 未授权，跳转到登录页
-              // 可以在这里添加跳转逻辑
+              logout();
               break;
             case 402:
               // token失效，退出登录状态
