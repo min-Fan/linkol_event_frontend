@@ -260,7 +260,7 @@ export default function RaffleRewardCard({
             onClick={handleInvitationCodeDialogOpen}
             className="!h-12 w-full min-w-24 px-4 sm:!w-auto"
           >
-            {t('invitation')}
+            <span className="sm:text-md text-sm">{t('invitation')}</span>
           </SpaceButton>
         </div>
       </div>
