@@ -564,6 +564,9 @@ export default function DialogPostTweetLink({
       setIsGeneratingTweet(true);
 
       // 清空之前的数据，准备重新生成
+      setTweetContent('');
+      setOriginalTweetContent('');
+      setTweetContentError('');
       setTemplateData(null);
       setTweetMedias([]);
       setPendingImageGeneration(false);
@@ -611,14 +614,23 @@ export default function DialogPostTweetLink({
             const allMedias = [cachedUserImage, ...generatedMedias];
             setTweetMedias(allMedias);
           } else {
-            // 如果没有缓存，标记待生成图片（useEffect会监听并自动生成）
-            setPendingImageGeneration(true);
+            // 如果没有缓存，需要重新获取模板数据并生成图片
+            const userTemplateData = await fetchUserTemplateData();
+            if (userTemplateData) {
+              setTemplateData(userTemplateData);
+              // 标记待生成图片（useEffect会监听并自动生成）
+              setPendingImageGeneration(true);
+            }
+            // 先设置AI生成的媒体，用户图片会在生成后添加
+            setTweetMedias(generatedMedias);
           }
+        } else {
+          // 当 todayJoin > 0 时，只使用接口返回的medias
+          setTweetMedias(generatedMedias);
         }
 
         setTweetContent(generatedContent);
         setOriginalTweetContent(generatedContent);
-        setTweetMedias(generatedMedias);
         setIsEditingTweet(false);
         // toast.success(t('tweet_generated_successfully'));
       }
@@ -666,11 +678,11 @@ export default function DialogPostTweetLink({
 
     if (hasChinese) {
       // 中文字符不能超过160
-      if (content.length > 160) {
+      if (content.length > 260) {
         setTweetContentError(
-          t('tweet_content_too_long_chinese', { max: 160, current: content.length })
+          t('tweet_content_too_long_chinese', { max: 260, current: content.length })
         );
-        toast.error(t('tweet_content_too_long_chinese', { max: 160, current: content.length }));
+        toast.error(t('tweet_content_too_long_chinese', { max: 260, current: content.length }));
         return false;
       }
     } else {

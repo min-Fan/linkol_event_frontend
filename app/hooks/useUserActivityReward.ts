@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import {
   setUserActivityRewardLoading,
@@ -6,6 +6,9 @@ import {
   clearUserActivityReward,
 } from '@store/reducers/userSlice';
 import { getUserActivityReward } from '@libs/request';
+
+// 全局请求状态跟踪，避免重复请求
+const requestStatus = new Map<string, boolean>();
 
 interface UseUserActivityRewardOptions {
   eventId: string;
@@ -15,6 +18,7 @@ interface UseUserActivityRewardOptions {
 export function useUserActivityReward({ eventId, enabled = true }: UseUserActivityRewardOptions) {
   const dispatch = useAppDispatch();
   const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
+  const hasRequestedRef = useRef(false);
 
   // 从 store 中获取对应 eventId 的数据
   const userActivityRewardState = useAppSelector(
@@ -28,7 +32,18 @@ export function useUserActivityReward({ eventId, enabled = true }: UseUserActivi
   const fetchUserActivityReward = useCallback(async () => {
     if (!eventId || !isLoggedIn) return;
 
+    const requestKey = `${eventId}-${isLoggedIn}`;
+    
+    // 如果已经有请求在进行中，直接返回
+    if (requestStatus.get(requestKey)) {
+      return;
+    }
+
     try {
+      // 标记请求状态
+      requestStatus.set(requestKey, true);
+      hasRequestedRef.current = true;
+      
       dispatch(setUserActivityRewardLoading({ eventId, isLoading: true }));
 
       const response = await getUserActivityReward({
@@ -47,22 +62,32 @@ export function useUserActivityReward({ eventId, enabled = true }: UseUserActivi
       console.error('Failed to fetch user activity reward:', error);
     } finally {
       dispatch(setUserActivityRewardLoading({ eventId, isLoading: false }));
+      // 清除请求状态
+      requestStatus.delete(requestKey);
     }
   }, [eventId, isLoggedIn, dispatch]);
 
   // 手动刷新数据
   const refetch = useCallback(() => {
+    // 清除请求状态，允许重新请求
+    const requestKey = `${eventId}-${isLoggedIn}`;
+    requestStatus.delete(requestKey);
+    hasRequestedRef.current = false;
     return fetchUserActivityReward();
-  }, [fetchUserActivityReward]);
+  }, [eventId, isLoggedIn, fetchUserActivityReward]);
 
   // 清除数据
   const clearData = useCallback(() => {
     dispatch(clearUserActivityReward(eventId));
-  }, [dispatch, eventId]);
+    // 清除请求状态
+    const requestKey = `${eventId}-${isLoggedIn}`;
+    requestStatus.delete(requestKey);
+    hasRequestedRef.current = false;
+  }, [dispatch, eventId, isLoggedIn]);
 
-  // 每次加载页面都获取最新数据
+  // 页面加载时只请求一次
   useEffect(() => {
-    if (enabled && eventId && isLoggedIn) {
+    if (enabled && eventId && isLoggedIn && !hasRequestedRef.current) {
       fetchUserActivityReward();
     }
   }, [enabled, eventId, isLoggedIn, fetchUserActivityReward]);
@@ -73,6 +98,11 @@ export function useUserActivityReward({ eventId, enabled = true }: UseUserActivi
       clearData();
     }
   }, [isLoggedIn, data, clearData]);
+
+  // 当 eventId 变化时，重置请求状态
+  useEffect(() => {
+    hasRequestedRef.current = false;
+  }, [eventId]);
 
   return {
     data,
