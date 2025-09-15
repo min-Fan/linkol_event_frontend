@@ -1155,6 +1155,7 @@
     "they_join_using_code": "They join using your code and post a tweet",
     "earn_raffle_ticket_per_invitation": "You earn 1 raffle ticket per 1 successful invitation!",
     "getting_invitation_code": "Getting invitation code...",
-    "get_invitation_code_failed": "Failed to get invitation code"
+    "get_invitation_code_failed": "Failed to get invitation code",
+    "tweet_content_too_long": "Tweet content too long, maximum {max} characters, current {current} characters"
   }
 }
