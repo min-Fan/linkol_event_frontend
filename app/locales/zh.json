@@ -1156,6 +1156,7 @@
     "they_join_using_code": "他们通过你的代码加入并发布一条推文",
     "earn_raffle_ticket_per_invitation": "每成功邀请 1 人获得 1 张抽奖券！",
     "getting_invitation_code": "获取邀请码中...",
-    "get_invitation_code_failed": "获取邀请码失败"
+    "get_invitation_code_failed": "获取邀请码失败",
+    "tweet_content_too_long": "推文内容过长，最多 {max} 个字符，当前 {current} 个字符"
   }
 }
