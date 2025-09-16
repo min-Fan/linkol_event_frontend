@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 export const MAX256 = ethers.MaxUint256;
 
@@ -160,4 +161,30 @@ export function formatBalance(balance: bigint, decimals: number, symbol: string 
 
   const result = parts.join('.');
   return symbol ? `${result} ${symbol}` : result;
+}
+
+export const formatSol = ({ balance, precision = 6 }: { balance: number, precision?: number }) => {
+  if (!balance) return 0;
+
+  const sol = balance / LAMPORTS_PER_SOL; // 1 SOL = 10^9 lamports
+
+  // // 判断小于最小阈值时，返回动态的格式
+  // if (sol < Math.pow(10, -precision)) {
+  //   return `<${(Math.pow(10, -precision)).toFixed(precision).replace(/\.?0+$/, '')}`; // 确保小数精度并去掉末尾的零
+  // }
+
+  return sol.toFixed(precision).replace(/\.?0+$/, ''); // 保留指定精度并去掉末尾的零
+}
+
+export const formatToken = (balance: number, decimals: number, precision: number = 6) => {
+  if (!balance) return 0;
+
+  const sol = balance / (10 ** decimals);
+
+  // 判断小于最小阈值时，返回动态的格式
+  if (sol < Math.pow(10, -precision)) {
+    return `<${(Math.pow(10, -precision)).toFixed(precision).replace(/\.?0+$/, '')}`; // 确保小数精度并去掉末尾的零
+  }
+
+  return sol.toFixed(precision).replace(/\.?0+$/, ''); // 保留指定精度并去掉末尾的零
 }

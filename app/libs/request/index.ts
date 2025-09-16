@@ -1242,6 +1242,8 @@ export interface IEventInfoResponseData {
    * 用户奖励
    */
   user_reward?: number;
+  chain_type?: string;
+  token_type?: string;
 }
 
 /**

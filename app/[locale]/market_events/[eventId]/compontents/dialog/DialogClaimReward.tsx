@@ -390,7 +390,7 @@ const DialogClaimReward = memo(
                     </Button>
                   </div>
                 )}
-                {!isWrongChain && (
+                {!isWrongChain && eventInfo?.chain_type === 'BASE' && (
                   <div className="flex w-40">
                     <UIWallet className="!h-auto flex-1 !rounded-lg" onSuccess={handleClose} />
                   </div>
