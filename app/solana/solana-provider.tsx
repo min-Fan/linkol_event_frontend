@@ -13,7 +13,7 @@ import { Connection } from '@solana/web3.js';
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { useCluster } from '../cluster/cluster-data-access';
 
-require('@solana/wallet-adapter-react-ui/styles.css');
+import '@solana/wallet-adapter-react-ui/styles.css';
 
 export const WalletButton = () => (
   <>

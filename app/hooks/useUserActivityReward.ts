@@ -33,7 +33,7 @@ export function useUserActivityReward({ eventId, enabled = true }: UseUserActivi
     if (!eventId || !isLoggedIn) return;
 
     const requestKey = `${eventId}-${isLoggedIn}`;
-    
+
     // 如果已经有请求在进行中，直接返回
     if (requestStatus.get(requestKey)) {
       return;
@@ -43,7 +43,7 @@ export function useUserActivityReward({ eventId, enabled = true }: UseUserActivi
       // 标记请求状态
       requestStatus.set(requestKey, true);
       hasRequestedRef.current = true;
-      
+
       dispatch(setUserActivityRewardLoading({ eventId, isLoading: true }));
 
       const response = await getUserActivityReward({

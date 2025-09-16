@@ -192,19 +192,14 @@ export const copy = async (text: string | undefined): Promise<boolean> => {
 };
 
 // 格式化地址显示：前4位 + ... + 后4位
-export const formatAddress = (
-  address: string = "",
-  pre = 4,
-  suf = 4
-): string => {
-  if (!address) return "";
+export const formatAddress = (address: string = '', pre = 4, suf = 4): string => {
+  if (!address) return '';
   if (address.length < 8) return address;
 
   const prefix = address.slice(0, pre);
   const suffix = address.slice(-suf);
   return `${prefix}...${suffix}`;
 };
-
 
 // 导出域名工具函数
 export { getCurrentDomain, getCurrentUrl, getCurrentProtocol } from './domain';

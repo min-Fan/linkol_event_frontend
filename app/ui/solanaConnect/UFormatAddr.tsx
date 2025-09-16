@@ -17,7 +17,6 @@ export default function UAddr({
   e?: number;
   className?: string;
 }) {
-
   const [copied, setCopied] = useState(false);
 
   const handleCopy = (e: React.MouseEvent<HTMLSpanElement>) => {
@@ -29,13 +28,13 @@ export default function UAddr({
   };
 
   return (
-    <UAddrStyled className={cn("flex items-center cursor-pointer", className)}>
+    <UAddrStyled className={cn('flex cursor-pointer items-center', className)}>
       {!copied ? (
-        <span className='text-sm' onClick={handleCopy}>{formatAddress(address, s, e)}</span>
-      ) : (
-        <span className='text-sm ml-2'>
-          Copied!
+        <span className="text-sm" onClick={handleCopy}>
+          {formatAddress(address, s, e)}
         </span>
+      ) : (
+        <span className="ml-2 text-sm">Copied!</span>
       )}
     </UAddrStyled>
   );
