@@ -4,9 +4,11 @@ import { Filter, IConfig, KOLInfo, QuickOrder } from './types';
 import { KolRankListItem, PromotionData } from 'app/@types/types';
 import { ReactNode } from 'react';
 import { IGetUserActivityRewardResponseData } from '@libs/request';
+import { PublicKey } from '@solana/web3.js';
 // 定义用户状态接口
 export interface UserState {
   isLoggedIn: boolean;
+  isLoginSolana: boolean;
   chainId: number;
   config: IConfig;
   filter: Filter;
@@ -15,6 +17,8 @@ export interface UserState {
   quickOrder: QuickOrder;
   promotionData: PromotionData;
   twitter_full_profile: any | null;
+  rpc: string;
+  account: PublicKey | null;
   pay_token_info: {
     symbol: string;
     decimals: number;
@@ -127,7 +131,10 @@ export interface UserState {
 
 export const initialState: UserState = {
   isLoggedIn: false,
+  isLoginSolana: false,
   chainId: DEFAULT_CHAIN.id,
+  rpc: process.env.NEXT_PUBLIC_SOLANA_RPC || '',
+  account: null,
   config: {
     platform_receive_address: '',
     tags: {
@@ -232,8 +239,17 @@ const userSlice = createSlice({
         state.isLoggedIn = false;
       }
     },
+    updateIsLoginSolana: (state, action: PayloadAction<boolean>) => {
+      state.isLoginSolana = action.payload;
+    },
     updateChain: (state, action: PayloadAction<number>) => {
       state.chainId = action.payload;
+    },
+    updateRpc: (state, action: PayloadAction<string>) => {
+      state.rpc = action.payload;
+    },
+    updateAccount: (state, action: PayloadAction<PublicKey | null>) => {
+      state.account = action.payload;
     },
     updateConfig: (state, action: PayloadAction<{ key: string; value: any }>) => {
       const { key, value } = action.payload;
@@ -645,7 +661,10 @@ export const {
   updateChatLoading,
   updateComparisonInfo,
   updateIsLoggedIn,
+  updateIsLoginSolana,
   updateChain,
+  updateRpc,
+  updateAccount,
   updateConfig,
   updateFilter,
   clearFilter,

@@ -9,7 +9,7 @@ import {
   DialogDescription,
 } from '@shadcn/components/ui/dialog';
 import { CopyIcon, Share2 } from 'lucide-react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Fail, Success, TwIcon, Twitter, Twitter2, TwitterBlack } from '@assets/svg';
 import { toast } from 'sonner';
@@ -25,7 +25,8 @@ interface DialogShareProjectProps {
 export default function DialogShareProject({ isOpen, onClose }: DialogShareProjectProps) {
   const t = useTranslations('common');
   const { eventId } = useParams();
-
+  const searchParams = useSearchParams();
+  const project = searchParams.get('project');
   // 分享相关状态
   const [isShared, setIsShared] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -37,7 +38,7 @@ export default function DialogShareProject({ isOpen, onClose }: DialogShareProje
   });
 
   // 构建分享链接
-  const shareLink = `${window.location.origin}/market_events/${eventId}`;
+  const shareLink = `${window.location.origin}/market_events/${eventId}?project=${project}`;
 
   // 预编辑的推特文案
   const tweetText = `🚀 发现了一个超棒的项目！\n\n🔗 项目链接：${shareLink}\n\n#Web3 #区块链 #创新项目`;
@@ -56,7 +57,7 @@ export default function DialogShareProject({ isOpen, onClose }: DialogShareProje
     window.open(twitterUrl, '_blank');
     // 分享后设置为已分享状态
     setIsShared(true);
-  }, [tweetText]);
+  }, [tweetText, project]);
 
   const handleVerifyShare = useCallback(async () => {
     if (!eventId) return;
@@ -168,7 +169,7 @@ export default function DialogShareProject({ isOpen, onClose }: DialogShareProje
             <>
               {/* Project Link Field */}
               <div className="border-border flex items-center gap-2 rounded-lg border px-3 py-2">
-                <span className="text-muted-foreground flex-1 text-sm">{shareLink}</span>
+                <span className="text-muted-foreground flex-1 text-sm truncate">{shareLink}</span>
                 <CopyIcon
                   className="text-muted-foreground h-4 w-4 cursor-pointer"
                   onClick={handleCopyLink}
