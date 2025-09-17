@@ -2,7 +2,7 @@
 import useLogout from './useLogin';
 import { WalletButton } from '../../solana/solana-provider';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { updateAccount, updateIsLoggedIn } from '../../store/reducers/userSlice';
+import { updateAccount, updateIsLoginSolana } from '../../store/reducers/userSlice';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey } from '@solana/web3.js';
 import bs58 from 'bs58';
@@ -11,18 +11,13 @@ import styled from 'styled-components';
 import nacl from 'tweetnacl';
 import NavWallet from './NavWallet';
 import { Button } from '@shadcn/components/ui/button';
-import useUserInfo from '@hooks/useUserInfo';
-import { useDispatch } from 'react-redux';
-import { AppEventType } from '@store/reducer';
 
 const ConnectStyled = styled.div`
   height: 40px;
 `;
 export default function Connect() {
   const { wallet, publicKey, signIn, signMessage, connected, connecting } = useWallet();
-  // const isLogin = useAppSelector((state) => state.userReducer?.isLoggedIn);
-  const { isLogin } = useUserInfo();
-  const dispatch = useDispatch();
+  const isLoginSolana = useAppSelector((state) => state.userReducer?.isLoginSolana);
   const dispatchApp = useAppDispatch();
   const { disConnect } = useLogout();
 
@@ -33,8 +28,11 @@ export default function Connect() {
     if (localAccount) {
       if (localAccount != publicKey.toString()) {
         disConnect();
+        dispatchApp(updateIsLoginSolana(false));
+        dispatchApp(updateAccount(null));
       } else {
         dispatchApp(updateAccount(publicKey));
+        dispatchApp(updateIsLoginSolana(true));
       }
       localStorage.setItem('SOLANA_ACCOUNT', publicKey.toString());
     }
@@ -92,10 +90,8 @@ export default function Connect() {
       console.log('isValid ==>', isValid);
 
       localStorage.setItem('SOLANA_ACCOUNT', publicKey.toString());
-      dispatch({
-        type: AppEventType.UPDATE_USER_INFO,
-        payload: { isLogin: true },
-      });
+      dispatchApp(updateIsLoginSolana(true));
+      dispatchApp(updateAccount(publicKey));
     } catch (error) {
       console.log('Signing error:', error);
     }
@@ -107,7 +103,7 @@ export default function Connect() {
         <>
           <WalletButton />
         </>
-      ) : connected && !isLogin ? (
+      ) : connected && !isLoginSolana ? (
         <Button className="h-[48px]" onClick={handleSignMessage}>
           Sign message
         </Button>

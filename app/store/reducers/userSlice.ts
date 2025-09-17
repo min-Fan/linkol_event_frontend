@@ -8,6 +8,7 @@ import { PublicKey } from '@solana/web3.js';
 // 定义用户状态接口
 export interface UserState {
   isLoggedIn: boolean;
+  isLoginSolana: boolean;
   chainId: number;
   config: IConfig;
   filter: Filter;
@@ -130,6 +131,7 @@ export interface UserState {
 
 export const initialState: UserState = {
   isLoggedIn: false,
+  isLoginSolana: false,
   chainId: DEFAULT_CHAIN.id,
   rpc: process.env.NEXT_PUBLIC_SOLANA_RPC || '',
   account: null,
@@ -236,6 +238,9 @@ const userSlice = createSlice({
       } else {
         state.isLoggedIn = false;
       }
+    },
+    updateIsLoginSolana: (state, action: PayloadAction<boolean>) => {
+      state.isLoginSolana = action.payload;
     },
     updateChain: (state, action: PayloadAction<number>) => {
       state.chainId = action.payload;
@@ -656,6 +661,7 @@ export const {
   updateChatLoading,
   updateComparisonInfo,
   updateIsLoggedIn,
+  updateIsLoginSolana,
   updateChain,
   updateRpc,
   updateAccount,
