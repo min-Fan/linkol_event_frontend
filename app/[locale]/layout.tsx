@@ -124,7 +124,7 @@ export async function generateMetadata({ params }: { params: Params }) {
       url: `https://www.app.linkol.fun/${isZh ? 'zh' : 'en'}`,
       images: [
         {
-          url: 'https://www.linkol.fun/linkol.png',
+          url: 'https://www.app.linkol.fun/linkol.png',
           width: 1200,
           height: 630,
           alt: 'LinKol Event',
@@ -135,7 +135,7 @@ export async function generateMetadata({ params }: { params: Params }) {
       card: 'summary_large_image',
       title: 'LinKol Event',
       description: 'https://x.com/linkol_ai',
-      images: ['https://www.linkol.fun/linkol.png'],
+      images: ['https://www.app.linkol.fun/linkol.png'],
     },
     robots: { index: true, follow: true },
     alternates: {
