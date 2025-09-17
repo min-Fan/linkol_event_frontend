@@ -1,6 +1,13 @@
 import { Button } from '@shadcn/components/ui/button';
 import { cn } from '@shadcn/lib/utils';
-import React, { useState, useEffect, useCallback, forwardRef, useImperativeHandle } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  forwardRef,
+  useImperativeHandle,
+  useRef,
+} from 'react';
 import { Skeleton } from '@shadcn/components/ui/skeleton';
 import { useAppSelector } from '@store/hooks';
 import { Like, Message, ReTwet, Share, Verified } from '@assets/svg';
@@ -23,7 +30,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@shadcn/components/ui/dropdown-menu';
-import { ChevronDown, Check, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronDown, Check, ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react';
 import Link from 'next/link';
 import PagesRoute from '@constants/routes';
 
@@ -54,6 +61,7 @@ const PostItemSkeleton = () => {
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-5/6" />
         <Skeleton className="h-4 w-4/5" />
+        <Skeleton className="h-4 w-3/5" />
       </div>
 
       <div className="border-border mt-auto w-full border-t"></div>
@@ -79,7 +87,13 @@ const PostItemSkeleton = () => {
   );
 };
 
-const PostItem = ({ post }: { post: IGetActivityPostsResponseDataItem }) => {
+const PostItem = ({
+  post,
+  isFirst = false,
+}: {
+  post: IGetActivityPostsResponseDataItem;
+  isFirst?: boolean;
+}) => {
   const formatDate = (dateString?: string) => {
     if (!dateString) return '';
     const date = new Date(dateString);
@@ -87,7 +101,12 @@ const PostItem = ({ post }: { post: IGetActivityPostsResponseDataItem }) => {
   };
 
   return (
-    <div className="bg-background border-primary/10 shadow-primary/5 hover:border-primary/20 flex h-full w-full flex-col gap-2 rounded-2xl border-2 p-2 shadow-sm transition-all hover:shadow-md sm:gap-4 sm:rounded-3xl sm:p-4">
+    <div
+      className={cn(
+        'border-primary/10 shadow-primary/5 hover:border-primary/20 flex h-full w-full flex-col gap-2 rounded-2xl border-2 p-2 shadow-sm hover:shadow-md sm:gap-4 sm:rounded-3xl sm:p-4',
+        isFirst && 'animate-shake'
+      )}
+    >
       <div className="flex w-full items-start justify-between">
         <div className="flex w-full flex-1 items-center gap-2">
           <div className="bg-muted-foreground/10 size-10 min-w-10 overflow-hidden rounded-full sm:size-12 sm:min-w-12">
@@ -314,11 +333,17 @@ const Pagination = ({
   totalPages,
   onPageChange,
   disabled = false,
+  isAutoMode = false,
+  onAutoModeToggle,
+  isMyTweetsMode = false,
 }: {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
   disabled?: boolean;
+  isAutoMode?: boolean;
+  onAutoModeToggle?: () => void;
+  isMyTweetsMode?: boolean;
 }) => {
   const canPrev = currentPage > 1;
   const canNext = currentPage < totalPages;
@@ -353,13 +378,32 @@ const Pagination = ({
 
   return (
     <div className="flex items-center justify-center gap-2 py-4">
+      {/* Auto模式按钮 */}
+      {!isMyTweetsMode && onAutoModeToggle && (
+        <Button
+          onClick={onAutoModeToggle}
+          variant="outline"
+          size="sm"
+          disabled={disabled}
+          className={cn(
+            'hover:bg-primary/10 hover:text-primary flex h-8 items-center gap-2 px-3',
+            isAutoMode
+              ? 'bg-primary/10 text-primary border-primary/20'
+              : 'bg-muted-foreground/5 text-muted-foreground hover:bg-muted-foreground/10'
+          )}
+        >
+          {isAutoMode ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+          <span className="text-sm">Auto</span>
+        </Button>
+      )}
+
       {/* 上一页按钮 */}
       <button
-        onClick={() => !disabled && canPrev && onPageChange(currentPage - 1)}
-        disabled={disabled || !canPrev}
+        onClick={() => !disabled && !isAutoMode && canPrev && onPageChange(currentPage - 1)}
+        disabled={disabled || isAutoMode || !canPrev}
         className={cn(
           'bg-muted-foreground/5 hover:bg-muted-foreground/10 text-muted-foreground/50 flex h-8 w-8 items-center justify-center rounded-sm backdrop-blur-sm transition-all',
-          canPrev && !disabled ? 'text-muted-foreground' : 'cursor-not-allowed'
+          canPrev && !disabled && !isAutoMode ? 'text-muted-foreground' : 'cursor-not-allowed'
         )}
       >
         <ChevronLeft className="h-4 w-4" />
@@ -374,14 +418,14 @@ const Pagination = ({
             </span>
           ) : (
             <button
-              onClick={() => !disabled && onPageChange(page as number)}
-              disabled={disabled}
+              onClick={() => !disabled && !isAutoMode && onPageChange(page as number)}
+              disabled={disabled || isAutoMode}
               className={cn(
                 'flex h-8 w-8 items-center justify-center rounded-sm text-sm transition-all',
                 page === currentPage
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-muted-foreground/5 hover:bg-muted-foreground/10 text-muted-foreground/50 hover:text-muted-foreground',
-                disabled && 'cursor-not-allowed'
+                (disabled || isAutoMode) && 'cursor-not-allowed'
               )}
             >
               {page}
@@ -392,11 +436,11 @@ const Pagination = ({
 
       {/* 下一页按钮 */}
       <button
-        onClick={() => !disabled && canNext && onPageChange(currentPage + 1)}
-        disabled={disabled || !canNext}
+        onClick={() => !disabled && !isAutoMode && canNext && onPageChange(currentPage + 1)}
+        disabled={disabled || isAutoMode || !canNext}
         className={cn(
           'bg-muted-foreground/5 hover:bg-muted-foreground/10 text-muted-foreground/50 flex h-8 w-8 items-center justify-center rounded-sm backdrop-blur-sm transition-all',
-          canNext && !disabled ? 'text-muted-foreground' : 'cursor-not-allowed'
+          canNext && !disabled && !isAutoMode ? 'text-muted-foreground' : 'cursor-not-allowed'
         )}
       >
         <ChevronRight className="h-4 w-4" />
@@ -426,7 +470,11 @@ export default forwardRef<
   const [totalPages, setTotalPages] = useState(0);
   const [total, setTotal] = useState(0);
   const [isMyTweetsMode, setIsMyTweetsMode] = useState(false); // 标记当前是否在查看我的推文
+  const [isAutoMode, setIsAutoMode] = useState(true); // auto模式，默认开启
+  const [showShake, setShowShake] = useState(false); // 控制首个推文的shake动画
+  const autoTimerRef = useRef<NodeJS.Timeout | null>(null); // auto模式定时器
   const itemsPerPage = isLoggedIn ? 8 : 9; // 每页显示的项目数量
+  const autoTime = 2000; // auto模式下每2秒切换页面
 
   // 获取活动ID，优先使用props传入的eventId
   const getEventId = useCallback(() => {
@@ -445,9 +493,12 @@ export default forwardRef<
   }, [eventInfo?.id]);
 
   const fetchPosts = useCallback(
-    async (languages: string[], page: number = 1) => {
+    async (languages: string[], page: number = 1, isAutoModeCall = false) => {
       try {
-        setLoading(true);
+        // auto模式下不显示loading状态
+        if (!isAutoModeCall) {
+          setLoading(true);
+        }
         setError(null);
         setIsMyTweetsMode(false); // 重置为普通模式
         const currentEventId = getEventId();
@@ -484,6 +535,13 @@ export default forwardRef<
           setTotal(responseData.total || 0);
           // 计算总页数
           setTotalPages(Math.ceil((responseData.total || 0) / itemsPerPage));
+
+          // auto模式下，显示首个推文的shake动画
+          if (isAutoModeCall && responseData.list && responseData.list.length > 0) {
+            setShowShake(true);
+            // 1.5秒后停止shake动画
+            setTimeout(() => setShowShake(false), 1500);
+          }
         } else {
           setPosts([]);
           setTotalPages(0);
@@ -496,11 +554,47 @@ export default forwardRef<
         setTotalPages(0);
         setTotal(0);
       } finally {
-        setLoading(false);
+        // auto模式下不设置loading为false
+        if (!isAutoModeCall) {
+          setLoading(false);
+        }
       }
     },
     [getEventId, itemsPerPage, isLoggedIn]
   );
+
+  // auto模式定时器逻辑
+  useEffect(() => {
+    if (isAutoMode && !isMyTweetsMode && totalPages > 1) {
+      // 清除之前的定时器
+      if (autoTimerRef.current) {
+        clearInterval(autoTimerRef.current);
+      }
+
+      // 设置新的定时器，每autoTime秒切换页面
+      autoTimerRef.current = setInterval(() => {
+        setCurrentPage((prevPage) => {
+          const nextPage = prevPage >= totalPages ? 1 : prevPage + 1;
+          fetchPosts(selectedLanguages, nextPage, true); // 使用auto模式调用
+          return nextPage;
+        });
+      }, autoTime);
+    } else {
+      // 清除定时器
+      if (autoTimerRef.current) {
+        clearInterval(autoTimerRef.current);
+        autoTimerRef.current = null;
+      }
+    }
+
+    // 清理函数
+    return () => {
+      if (autoTimerRef.current) {
+        clearInterval(autoTimerRef.current);
+        autoTimerRef.current = null;
+      }
+    };
+  }, [isAutoMode, isMyTweetsMode, totalPages, selectedLanguages, fetchPosts]);
 
   useEffect(() => {
     // 只有当eventInfo存在且有ID时才获取推文
@@ -520,8 +614,9 @@ export default forwardRef<
   };
 
   const handleLanguageChange = (language: string) => {
-    // 当选择语言时，退出我的推文模式
+    // 当选择语言时，退出我的推文模式并自动开启auto模式
     setIsMyTweetsMode(false);
+    setIsAutoMode(true); // 从我的推文切换回全部数据时自动开启auto模式
 
     setSelectedLanguages((prev) => {
       if (language === '') {
@@ -543,6 +638,10 @@ export default forwardRef<
     });
   };
 
+  const handleAutoModeToggle = () => {
+    setIsAutoMode((prev) => !prev);
+  };
+
   const handleRetry = () => {
     if (isMyTweetsMode) {
       handleMyTweetClick(currentPage);
@@ -556,6 +655,7 @@ export default forwardRef<
       setLoading(true);
       setError(null);
       setIsMyTweetsMode(true); // 设置为我的推文模式
+      setIsAutoMode(false); // 我的推文模式下关闭auto模式
       const currentEventId = getEventId();
 
       if (!currentEventId) {
@@ -623,6 +723,18 @@ export default forwardRef<
           isMyTweetsMode={isMyTweetsMode}
         />
         <LoadingState col={col} />
+        {/* 分页组件 */}
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            disabled={loading}
+            isAutoMode={isAutoMode}
+            onAutoModeToggle={handleAutoModeToggle}
+            isMyTweetsMode={isMyTweetsMode}
+          />
+        )}
       </div>
     );
   }
@@ -676,7 +788,7 @@ export default forwardRef<
             className={cn('grid grid-cols-1 gap-4 sm:grid-cols-2', col && `sm:grid-cols-${col}`)}
           >
             {posts.map((post, index) => (
-              <PostItem key={post.id || index} post={post} />
+              <PostItem key={post.id || index} post={post} isFirst={index === 0 && showShake} />
             ))}
           </div>
 
@@ -687,6 +799,9 @@ export default forwardRef<
               totalPages={totalPages}
               onPageChange={handlePageChange}
               disabled={loading}
+              isAutoMode={isAutoMode}
+              onAutoModeToggle={handleAutoModeToggle}
+              isMyTweetsMode={isMyTweetsMode}
             />
           )}
         </div>
