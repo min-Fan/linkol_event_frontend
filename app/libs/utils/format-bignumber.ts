@@ -163,6 +163,12 @@ export function formatBalance(balance: bigint, decimals: number, symbol: string 
   return symbol ? `${result} ${symbol}` : result;
 }
 
+/**
+ * 格式化SOL
+ * @param balance - SOL余额
+ * @param precision - 保留的小数位数
+ * @returns 格式化后的SOL字符串
+ */
 export const formatSol = ({ balance, precision = 6 }: { balance: number; precision?: number }) => {
   if (!balance) return 0;
 
@@ -176,6 +182,13 @@ export const formatSol = ({ balance, precision = 6 }: { balance: number; precisi
   return sol.toFixed(precision).replace(/\.?0+$/, ''); // 保留指定精度并去掉末尾的零
 };
 
+/**
+ * 格式化代币
+ * @param balance - 代币余额
+ * @param decimals - 代币的小数位数
+ * @param precision - 保留的小数位数
+ * @returns 格式化后的代币字符串
+ */
 export const formatToken = (balance: number, decimals: number, precision: number = 6) => {
   if (!balance) return 0;
 

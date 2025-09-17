@@ -11,11 +11,18 @@ import styled from 'styled-components';
 import nacl from 'tweetnacl';
 import NavWallet from './NavWallet';
 import { Button } from '@shadcn/components/ui/button';
+import { cn } from '@shadcn/lib/utils';
 
-const ConnectStyled = styled.div`
-  height: 40px;
-`;
-export default function Connect() {
+const ConnectStyled = styled.div``;
+export default function Connect({
+  className,
+  onSuccess,
+  onWalletModalOpen,
+}: {
+  className?: string;
+  onSuccess?: () => void;
+  onWalletModalOpen?: () => void;
+}) {
   const { wallet, publicKey, signIn, signMessage, connected, connecting } = useWallet();
   const isLoginSolana = useAppSelector((state) => state.userReducer?.isLoginSolana);
   const dispatchApp = useAppDispatch();
@@ -46,8 +53,8 @@ export default function Connect() {
 
   useEffect(() => {
     // 未登录自动弹出 signIn
-    // console.log('isLogin ==>', isLogin, connected);
-    // if (connected && !isLogin) {
+    // console.log('isLoginSolana ==>', isLoginSolana, connected);
+    // if (connected && !isLoginSolana) {
     //   handleSignMessage();
     // }
   }, [connecting, connected]);
@@ -98,13 +105,13 @@ export default function Connect() {
   }, [publicKey, signIn]);
 
   return (
-    <ConnectStyled>
+    <ConnectStyled className={cn(className)}>
       {!connected ? (
         <>
-          <WalletButton />
+          <WalletButton onSuccess={onSuccess} onWalletModalOpen={onWalletModalOpen} />
         </>
       ) : connected && !isLoginSolana ? (
-        <Button className="h-[48px]" onClick={handleSignMessage}>
+        <Button className={cn(className)} onClick={handleSignMessage}>
           Sign message
         </Button>
       ) : (

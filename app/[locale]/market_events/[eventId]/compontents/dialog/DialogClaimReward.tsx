@@ -20,13 +20,15 @@ import { getContractAddress } from '@constants/config';
 import Activityservice_abi from '@constants/abi/Activityservice_abi.json';
 import { cn } from '@shadcn/lib/utils';
 import { getExplorerLink } from '@constants/chains';
-import { getReceiveRewardSignature, getReceiveRewardCallback } from '@libs/request';
+import { getReceiveRewardSignature, getReceiveRewardCallback, getSolanaClaimReward } from '@libs/request';
 import UIWallet from '@ui/wallet';
 import useUserInfo from '@hooks/useUserInfo';
 import { DEFAULT_CHAIN } from '@constants/chains';
 import { formatBigNumber, parseToBigNumber, toContractAmount } from '@libs/utils/format-bignumber';
 import useUserActivityReward from '@hooks/useUserActivityReward';
 import UIDialogBindEmail from '@ui/dialog/BindEmail';
+import Connect from '@ui/solanaConnect/connect';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 interface DialogClaimRewardProps {
   isOpen: boolean;
@@ -58,9 +60,11 @@ const DialogClaimReward = memo(
     const payTokenInfo = useAppSelector((state) => state.userReducer?.pay_token_info);
     const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
     const twInfo = useAppSelector((state) => state.userReducer?.twitter_full_profile);
+    const isLoginSolana = useAppSelector((state) => state.userReducer?.isLoginSolana);
     const { address, chainId } = useAccount();
     const { switchChain } = useSwitchChain();
     const { isPending, isConnected, isLogin, connect, login, logout, email } = useUserInfo();
+    const { publicKey, signMessage } = useWallet();
 
     // 使用新的 hook 从 store 中获取用户活动奖励数据
     const {
@@ -309,25 +313,149 @@ const DialogClaimReward = memo(
       payTokenInfo?.decimals,
     ]);
 
+    const handleClaimRewardSolana = useCallback(async () => {
+      if (!isLoginSolana || !publicKey) {
+        toast.error(t('please_connect_wallet'));
+        return;
+      }
+
+      // 如果已经开始了领取流程或正在请求签名，避免重复执行
+      if (hasStartedClaim || isRequestingSignatureRef.current) {
+        return;
+      }
+
+      try {
+        setIsClaiming(true);
+        setHasStartedClaim(true); // 标记已经开始领取流程
+        isRequestingSignatureRef.current = true; // 标记正在请求签名
+
+        const availableRewards = totalReceiveAmount;
+        if (availableRewards === 0 && eventInfo?.a_type === 'normal') {
+          toast.error(t('no_rewards_to_claim'));
+          setIsClaiming(false);
+          setHasStartedClaim(false); // 重置状态以允许重试
+          isRequestingSignatureRef.current = false; // 重置签名请求标记
+          return;
+        }
+
+        // 缓存领取时的奖励数量，用于成功弹窗显示
+        setClaimedAmount(availableRewards);
+
+        // 1. 构建需要签名的消息：receive_amount,active_id,时间戳
+        const timestamp = Math.floor(Date.now() / 1000);
+        // 将 availableRewards 转换为正确的精度（乘以 10^6）
+        const amountWithPrecision = Math.floor(availableRewards * Math.pow(10, 6));
+        const messageToSign = `${amountWithPrecision},${eventId},${timestamp}`;
+        
+        // 2. 使用 Solana 钱包签名消息
+        if (!signMessage) {
+          toast.error(t('wallet_not_connected'));
+          setIsClaiming(false);
+          setIsClaimFailed(true);
+          setHasStartedClaim(false);
+          isRequestingSignatureRef.current = false;
+          return;
+        }
+        
+        const messageBytes = new TextEncoder().encode(messageToSign);
+        const signature = await signMessage(messageBytes);
+        
+        if (!signature) {
+          toast.error(t('signature_failed'));
+          setIsClaiming(false);
+          setIsClaimFailed(true);
+          setHasStartedClaim(false);
+          isRequestingSignatureRef.current = false;
+          return;
+        }
+
+        // 3. 将签名转换为 base64 字符串
+        const signatureString = Buffer.from(signature).toString('base64');
+
+        // 4. 调用领取接口提交签名
+        const claimRes: any = await getSolanaClaimReward({
+          receive_amount: amountWithPrecision,
+          active_id: eventId as string,
+          signature: signatureString,
+          solana_address: publicKey.toString(),
+        });
+
+        // 重置签名请求标记
+        isRequestingSignatureRef.current = false;
+
+        if (claimRes.code === 200) {
+          // 成功状态
+          setIsClaiming(false);
+          setIsClaimSuccess(true);
+          toast.success(
+            t.rich('reward_claimed_successfully', {
+              amount: (chunks) => <span className="text-primary">{availableRewards}</span>,
+            })
+          );
+          // 刷新用户活动奖励数据和父组件数据
+          await refetchUserActivityReward();
+          onRefresh?.();
+        } else {
+          // 失败状态
+          setIsClaiming(false);
+          setIsClaimFailed(true);
+          setHasStartedClaim(false);
+          toast.error(claimRes.msg || t('claim_failed'));
+        }
+
+      } catch (error) {
+        console.error('Failed to claim reward:', error);
+        toast.error(t('failed_to_claim_reward'));
+        setIsClaiming(false);
+        setIsClaimFailed(true);
+        setHasStartedClaim(false);
+        isRequestingSignatureRef.current = false;
+      }
+    }, [
+      isLoginSolana,
+      publicKey,
+      hasStartedClaim,
+      totalReceiveAmount,
+      eventInfo?.a_type,
+      t,
+      eventId,
+      signMessage,
+      refetchUserActivityReward,
+      onRefresh,
+    ]);
+
     // 自动开始领取流程或显示绑定邮箱弹窗
     useEffect(() => {
-      if (
-        isOpen &&
-        !isClaiming &&
-        !isClaimSuccess &&
-        !isClaimFailed &&
-        !hasStartedClaim && // 避免重复开始领取流程
-        address &&
-        !isWrongChain &&
-        isLogin // 只有在登录状态下才自动执行领取流程
-      ) {
-        // 检查邮箱是否已绑定
-        if (!isEmailBound()) {
-          // 如果没有绑定邮箱，打开绑定邮箱弹窗
-          setIsBindEmailDialogOpen(true);
-        } else {
-          // 如果已绑定邮箱，继续正常的领取流程
-          handleClaimReward();
+      if (eventInfo?.chain_type === 'BASE') {
+        if (
+          isOpen &&
+          !isClaiming &&
+          !isClaimSuccess &&
+          !isClaimFailed &&
+          !hasStartedClaim && // 避免重复开始领取流程
+          address &&
+          !isWrongChain &&
+          isLogin // 只有在登录状态下才自动执行领取流程
+        ) {
+          // 检查邮箱是否已绑定
+          if (!isEmailBound()) {
+            // 如果没有绑定邮箱，打开绑定邮箱弹窗
+            setIsBindEmailDialogOpen(true);
+          } else {
+            // 如果已绑定邮箱，继续正常的领取流程
+            handleClaimReward();
+          }
+        }
+      } else {
+        if (
+          isOpen &&
+          !isClaiming &&
+          !isClaimSuccess &&
+          !isClaimFailed &&
+          !hasStartedClaim && // 避免重复开始领取流程
+          isLoginSolana // 只有在登录状态下才自动执行领取流程
+        ) {
+          handleClaimRewardSolana();
         }
       }
     }, [
@@ -339,9 +467,12 @@ const DialogClaimReward = memo(
       isClaimSuccess,
       isClaimFailed,
       isLogin,
+      isLoginSolana,
       handleClaimReward,
+      handleClaimRewardSolana,
       twInfo?.email,
       email,
+      eventInfo?.chain_type,
     ]);
 
     return (
@@ -363,7 +494,9 @@ const DialogClaimReward = memo(
               'bg-background space-y-4 rounded-t-xl rounded-b-xl p-6 sm:rounded-t-2xl sm:rounded-b-2xl'
             )}
           >
-            {!isLogin || isWrongChain ? (
+            {(!isLogin && eventInfo?.chain_type === 'BASE') ||
+            isWrongChain ||
+            (!isLoginSolana && eventInfo?.chain_type === 'Solana') ? (
               // 未连接钱包状态
               <div className="flex flex-col items-center justify-center space-y-4">
                 <div className="bg-primary/10 flex h-20 w-20 items-center justify-center rounded-full">
@@ -377,7 +510,7 @@ const DialogClaimReward = memo(
                 </div>
 
                 {/* 错误链提示 */}
-                {isWrongChain && (
+                {isWrongChain && eventInfo?.chain_type === 'BASE' && (
                   <div className="flex w-full flex-col items-center justify-center rounded-md bg-yellow-100 p-4 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100">
                     <p className="text-sm">
                       {t('wrong_chain_message', { chainName: DEFAULT_CHAIN.name })}
@@ -393,6 +526,11 @@ const DialogClaimReward = memo(
                 {!isWrongChain && eventInfo?.chain_type === 'BASE' && (
                   <div className="flex w-40">
                     <UIWallet className="!h-auto flex-1 !rounded-lg" onSuccess={handleClose} />
+                  </div>
+                )}
+                {!isLoginSolana && eventInfo?.chain_type === 'Solana' && (
+                  <div className="flex">
+                    <Connect onSuccess={handleClose} onWalletModalOpen={handleClose} />
                   </div>
                 )}
               </div>
@@ -448,7 +586,9 @@ const DialogClaimReward = memo(
                     {t('close')}
                   </Button>
                   <Button
-                    onClick={handleClaimReward}
+                    onClick={
+                      eventInfo?.chain_type === 'BASE' ? handleClaimReward : handleClaimRewardSolana
+                    }
                     disabled={isWrongChain || isClaiming || isConfirming || isWritePending}
                     className="bg-primary hover:bg-primary/90 !h-auto flex-1 !rounded-lg text-white disabled:cursor-not-allowed disabled:opacity-50"
                   >
@@ -486,11 +626,19 @@ const DialogClaimReward = memo(
               setIsBindEmailDialogOpen(open);
               if (!open) {
                 // 如果邮箱绑定成功或取消，检查是否可以继续领取流程
-                if (isEmailBound() && address && !isWrongChain && isLogin) {
-                  handleClaimReward();
+                if (eventInfo?.chain_type === 'BASE') {
+                  if (isEmailBound() && address && !isWrongChain && isLogin) {
+                    handleClaimReward();
+                  } else {
+                    // 如果没有成功绑定邮箱，关闭主弹窗
+                    handleClose();
+                  }
                 } else {
-                  // 如果没有成功绑定邮箱，关闭主弹窗
-                  handleClose();
+                  if (isLoginSolana) {
+                    handleClaimRewardSolana();
+                  } else {
+                    handleClose();
+                  }
                 }
               }
             }}
