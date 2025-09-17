@@ -20,7 +20,11 @@ import { getContractAddress } from '@constants/config';
 import Activityservice_abi from '@constants/abi/Activityservice_abi.json';
 import { cn } from '@shadcn/lib/utils';
 import { getExplorerLink } from '@constants/chains';
-import { getReceiveRewardSignature, getReceiveRewardCallback, getSolanaClaimReward } from '@libs/request';
+import {
+  getReceiveRewardSignature,
+  getReceiveRewardCallback,
+  getSolanaClaimReward,
+} from '@libs/request';
 import UIWallet from '@ui/wallet';
 import useUserInfo from '@hooks/useUserInfo';
 import { DEFAULT_CHAIN } from '@constants/chains';
@@ -346,7 +350,7 @@ const DialogClaimReward = memo(
         // 将 availableRewards 转换为正确的精度（乘以 10^6）
         const amountWithPrecision = Math.floor(availableRewards * Math.pow(10, 6));
         const messageToSign = `${amountWithPrecision},${eventId},${timestamp}`;
-        
+
         // 2. 使用 Solana 钱包签名消息
         if (!signMessage) {
           toast.error(t('wallet_not_connected'));
@@ -356,10 +360,10 @@ const DialogClaimReward = memo(
           isRequestingSignatureRef.current = false;
           return;
         }
-        
+
         const messageBytes = new TextEncoder().encode(messageToSign);
         const signature = await signMessage(messageBytes);
-        
+
         if (!signature) {
           toast.error(t('signature_failed'));
           setIsClaiming(false);
@@ -402,7 +406,6 @@ const DialogClaimReward = memo(
           setHasStartedClaim(false);
           toast.error(claimRes.msg || t('claim_failed'));
         }
-
       } catch (error) {
         console.error('Failed to claim reward:', error);
         toast.error(t('failed_to_claim_reward'));
@@ -495,7 +498,7 @@ const DialogClaimReward = memo(
             )}
           >
             {(!isLogin && eventInfo?.chain_type === 'BASE') ||
-            isWrongChain ||
+            (isWrongChain && eventInfo?.chain_type === 'BASE') ||
             (!isLoginSolana && eventInfo?.chain_type === 'Solana') ? (
               // 未连接钱包状态
               <div className="flex flex-col items-center justify-center space-y-4">
