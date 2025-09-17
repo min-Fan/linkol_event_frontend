@@ -132,6 +132,7 @@ import TwitterX from './twitter-x.svg';
 import RateBorderBg from './rate-border-bg.svg';
 import InviteIcon from './inviteicon.svg';
 import FluentShare from './fluent_share.svg';
+import SolIcon from './sol-icon.svg';
 
 export {
   Share,
@@ -268,4 +269,5 @@ export {
   RateBorderBg,
   InviteIcon,
   FluentShare,
+  SolIcon,
 };

@@ -80,6 +80,7 @@ export const ENDPOINT_URL = {
   GET_REWARD_RULE: '/kol/api/v3/reward/rules/',
   CREATE_ACTIVITY_CALLBACK: '/kol/api/v3/active/create/pay/',
   CREATE_ACTIVITY_CALLBACK_REWARD: '/kol/api/v6/claim_reward/success/',
+  SOLANA_CLAIM_REWARD: '/kol/api/v6/solana/claim_reward/',
   UPDATE_ACTIVITY: '/kol/api/v3/actives/',
   GET_PRICE: '/kol/api/v4/price/',
 };
@@ -1242,6 +1243,8 @@ export interface IEventInfoResponseData {
    * 用户奖励
    */
   user_reward?: number;
+  chain_type?: string;
+  token_type?: string;
 }
 
 /**
@@ -2034,6 +2037,29 @@ export interface IGetReceiveRewardCallbackParams {
 }
 export const getReceiveRewardCallback = (params: IGetReceiveRewardCallbackParams) => {
   return kolRequest.post(`/kol/api/v6/claim_reward/success/`, params);
+};
+
+// Solana 领取奖励接口
+export interface IGetSolanaClaimRewardParams {
+  /**
+   * 领取金额
+   */
+  receive_amount: number;
+  /**
+   * 活动ID
+   */
+  active_id: string;
+  /**
+   * 签名
+   */
+  signature: string;
+  /**
+   * Solana 钱包地址
+   */
+  solana_address: string;
+}
+export const getSolanaClaimReward = (params: IGetSolanaClaimRewardParams) => {
+  return kolRequest.post(ENDPOINT_URL.SOLANA_CLAIM_REWARD, params);
 };
 
 // tg热门KOL

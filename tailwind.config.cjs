@@ -120,6 +120,14 @@ module.exports = {
             opacity: '0',
           },
         },
+        shake: {
+          '0%, 10%': { transform: 'translate(0, 0)', backgroundColor: 'transparent' },
+          '15%': { transform: 'translate(0, 10px)', backgroundColor: '#512da8' },
+          '20%': { transform: 'translate(-10px, 10px)', backgroundColor: 'red' },
+          '25%': { transform: 'translate(10px, -10px)', backgroundColor: 'blue' },
+          '30%': { transform: 'translate(-10px, -10px)', backgroundColor: 'yellow' },
+          '35%, 100%': { transform: 'translate(0, 0)', backgroundColor: 'transparent' },
+        },
       },
       animation: {
         'chat-icon-scale': 'chat-icon-scale 3s ease-in-out infinite',
@@ -131,6 +139,7 @@ module.exports = {
         scroll: 'scroll 4s ease-in-out infinite',
         breathingBorder: 'breathingBorder 3s ease-in-out infinite',
         'glow-ping': 'glow-ping 2s ease-in-out infinite',
+        shake: 'shake 1.5s ease-in-out infinite',
       },
     },
   },

@@ -14,7 +14,7 @@ import {
   getPrice,
   getInvitationCode,
 } from '@libs/request';
-import { useParams, useSearchParams } from 'next/navigation';
+import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import useUserInfo from '@hooks/useUserInfo';
 import UIWallet from '@ui/wallet';
@@ -38,6 +38,7 @@ export default function MarketEventsPage() {
   const { isLogin } = useUserInfo();
   const { eventId } = useParams();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const t = useTranslations('common');
   const dispatch = useAppDispatch();
   const twitterFullProfile = useAppSelector((state) => state.userReducer?.twitter_full_profile);
@@ -264,6 +265,22 @@ export default function MarketEventsPage() {
       return () => clearTimeout(timer);
     }
   }, [eventInfo?.id, isLoggedIn, twitterFullProfile?.screen_name]);
+
+  useEffect(() => {
+    // 当eventInfo数据加载完成且包含项目信息时，添加project参数到URL
+    if (eventInfo?.project?.name) {
+      const currentUrl = new URL(window.location.href);
+      const currentProject = currentUrl.searchParams.get('project');
+      // 将项目名称中的空格替换为下划线
+      const projectNameWithUnderscore = eventInfo.project.name.replace(/\s+/g, '_');
+
+      // 只有当project参数不存在或与当前项目名称不同时才更新URL
+      if (currentProject !== projectNameWithUnderscore) {
+        currentUrl.searchParams.set('project', projectNameWithUnderscore);
+        router.replace(currentUrl.pathname + currentUrl.search, { scroll: false });
+      }
+    }
+  }, [eventInfo, router]);
 
   return (
     <div className="h-full w-full max-w-7xl p-0 sm:px-10 sm:py-6">
