@@ -1,15 +1,11 @@
 import { Chain, base, baseSepolia } from 'wagmi/chains';
+import { getSupportedChains, getDefaultChain } from './config';
 
 // 扩展 Chain 类型以包含 iconUrl
 interface ExtendedChain extends Chain {
   iconUrl?: string; // 可选属性
   iconBackground?: string;
 }
-
-export const chains: { [key: string]: ExtendedChain } = {
-  base: base,
-  baseSepolia: baseSepolia,
-};
 
 export const chain: { [key: string]: ExtendedChain } = {
   '8453': base,
@@ -32,6 +28,7 @@ export const chain: { [key: string]: ExtendedChain } = {
     contracts: {},
   } as const satisfies ExtendedChain,
 };
+
 export const getChain = (chainId: number) => {
   return chain[chainId];
 };
@@ -53,11 +50,23 @@ export const getExplorerLink = (
   return `${baseUrl}/${path}/${data}`;
 };
 
+// 获取支持的链配置
+export const getSupportedChainsConfig = () => {
+  const supportedChains = getSupportedChains();
+  return supportedChains.map((chainInfo) => chain[chainInfo.chainId]).filter(Boolean);
+};
+
+// 获取默认链配置
+export const getDefaultChainConfig = () => {
+  const defaultChainInfo = getDefaultChain();
+  return chain[defaultChainInfo.chainId];
+};
+
 // 支持的链配置
-export const SUPPORTED_CHAINS = [chain[process.env.NEXT_PUBLIC_CHAIN_ID as string]] as const;
+export const SUPPORTED_CHAINS = getSupportedChainsConfig();
 
 // 获取支持的链ID数组
 export const SUPPORTED_CHAIN_IDS = SUPPORTED_CHAINS.map((chain) => chain.id);
 
 // 默认链
-export const DEFAULT_CHAIN = chain[process.env.NEXT_PUBLIC_CHAIN_ID as string];
+export const DEFAULT_CHAIN = getDefaultChainConfig();

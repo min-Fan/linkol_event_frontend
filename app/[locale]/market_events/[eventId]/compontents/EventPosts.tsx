@@ -460,7 +460,9 @@ export default forwardRef<
 >(function EventPosts({ eventInfo, isLoading, onRefresh, col }, ref) {
   const t = useTranslations('common');
   const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
-  const [selectedLanguages, setSelectedLanguages] = useState<LanguageCodeShort[]>([LanguageCodeShort.All]); // 支持多选，默认选择全部
+  const [selectedLanguages, setSelectedLanguages] = useState<LanguageCodeShort[]>([
+    LanguageCodeShort.All,
+  ]); // 支持多选，默认选择全部
   const [posts, setPosts] = useState<IGetActivityPostsResponseDataItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

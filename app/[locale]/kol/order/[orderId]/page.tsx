@@ -250,7 +250,7 @@ export default function KOLPage() {
 
       // 2. 调用合约
       writeContractPayForKol({
-        address: getContractAddress().KOLServiceAddress as `0x${string}`,
+        address: getContractAddress()?.KOLServiceAddress as `0x${string}`,
         abi: KOLService_abi,
         functionName: 'payForKol',
         args: [
@@ -299,7 +299,7 @@ export default function KOLPage() {
   const handlePaymentProcessed = async () => {
     const res: any = await brandinPaymentProcessed({
       kol: address as string,
-      token: payTokenInfo?.symbol as string,
+      token: '',
       amount: orderInfo?.amount.toString() as string,
       orderId: orderId as string,
     });
@@ -578,8 +578,7 @@ export default function KOLPage() {
                       ${orderInfo?.amount ? orderInfo.amount.toFixed(2) : 0}
                     </div>
                     <div className="flex flex-row items-center gap-x-0.5">
-                      <TokenIcon type={payTokenInfo?.iconType as string} className="size-4" />
-                      <span> {payTokenInfo?.symbol} (ERC20)</span>
+                      <TokenIcon type={''} className="size-4" />
                     </div>
                   </div>
                 )}

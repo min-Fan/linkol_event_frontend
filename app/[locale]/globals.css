@@ -288,29 +288,31 @@ html {
 }
 
 @keyframes shake {
-  0%, 10% { 
-    transform: translate(0, 0); 
-    background-color: transparent; 
+  0%,
+  10% {
+    transform: translate(0, 0);
+    background-color: transparent;
   }
-  15% { 
-    transform: translate(10px, 0px); 
-    background-color: #007aff; 
+  15% {
+    transform: translate(10px, 0px);
+    background-color: #007aff;
   }
-  20% { 
-    transform: translate(-10px, 10px); 
-    background-color: #007aff; 
+  20% {
+    transform: translate(-10px, 10px);
+    background-color: #007aff;
   }
-  25% { 
-    transform: translate(10px, -10px); 
-    background-color: yellow; 
+  25% {
+    transform: translate(10px, -10px);
+    background-color: yellow;
   }
-  30% { 
-    transform: translate(-10px, -10px); 
-    background-color: yellow; 
+  30% {
+    transform: translate(-10px, -10px);
+    background-color: yellow;
   }
-  35%, 100% { 
-    transform: translate(0, 0); 
-    background-color: transparent; 
+  35%,
+  100% {
+    transform: translate(0, 0);
+    background-color: transparent;
   }
 }
 

@@ -106,7 +106,7 @@ export default function UIDialogWithdraw(props: {
 
         // 2. 调用合约
         writeContractRedeem({
-          address: getContractAddress().KOLServiceAddress as `0x${string}`,
+          address: getContractAddress()?.KOLServiceAddress as `0x${string}`,
           abi: KOLService_abi,
           functionName: 'redeem',
           args: [
@@ -188,8 +188,7 @@ export default function UIDialogWithdraw(props: {
             <div className="bg-secondary flex items-center justify-between rounded-md p-3">
               <span>$ {amount}</span>
               <div className="flex items-center gap-x-0.5">
-                <TokenIcon type={payTokenInfo?.iconType as string} className="size-4" />
-                <span>{payTokenInfo?.symbol}(ERC20)</span>
+                <TokenIcon type={''} className="size-4" />
               </div>
             </div>
             <p className="text-muted-foreground">{t('withdraw_tips')}</p>

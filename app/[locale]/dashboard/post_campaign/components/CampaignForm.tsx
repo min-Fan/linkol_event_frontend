@@ -119,17 +119,17 @@ export default function CampaignForm() {
 
   // 代币相关的合约调用
   const { data: decimals, refetch: refetchDecimals } = useReadContract({
-    address: getContractAddress().pay_member_token_address as `0x${string}`,
+    address: getContractAddress()?.pay_member_token_address as `0x${string}`,
     abi: erc20Abi,
     functionName: 'decimals',
   });
   const { data: symbol, refetch: refetchSymbol } = useReadContract({
-    address: getContractAddress().pay_member_token_address as `0x${string}`,
+    address: getContractAddress()?.pay_member_token_address as `0x${string}`,
     abi: erc20Abi,
     functionName: 'symbol',
   });
   const { data: balance, refetch: refetchBalance } = useReadContract({
-    address: getContractAddress().pay_member_token_address as `0x${string}`,
+    address: getContractAddress()?.pay_member_token_address as `0x${string}`,
     abi: erc20Abi,
     functionName: 'balanceOf',
     args: [address as `0x${string}`],
@@ -137,10 +137,10 @@ export default function CampaignForm() {
 
   // 检查代币授权额度
   const { data: allowance, refetch: refetchAllowance } = useReadContract({
-    address: getContractAddress().pay_member_token_address as `0x${string}`,
+    address: getContractAddress()?.pay_member_token_address as `0x${string}`,
     abi: erc20Abi,
     functionName: 'allowance',
-    args: [address as `0x${string}`, getContractAddress().ActivityServiceAddress as `0x${string}`],
+    args: [address as `0x${string}`, getContractAddress()?.ActivityServiceAddress as `0x${string}`],
   });
 
   // 授权代币
@@ -355,10 +355,10 @@ export default function CampaignForm() {
 
     try {
       writeContractApprove({
-        address: getContractAddress().pay_member_token_address as `0x${string}`,
+        address: getContractAddress()?.pay_member_token_address as `0x${string}`,
         abi: erc20Abi,
         functionName: 'approve',
-        args: [getContractAddress().ActivityServiceAddress as `0x${string}`, ethers.MaxUint256],
+        args: [getContractAddress()?.ActivityServiceAddress as `0x${string}`, ethers.MaxUint256],
       });
     } catch (error) {
       console.error('授权错误:', error);
@@ -374,11 +374,11 @@ export default function CampaignForm() {
     try {
       const amountBigInt = toContractAmount(amount, Number(decimals));
       writeContractDeposit({
-        address: getContractAddress().ActivityServiceAddress as `0x${string}`,
+        address: getContractAddress()?.ActivityServiceAddress as `0x${string}`,
         abi: Activityservice_abi,
         functionName: 'deposit',
         args: [
-          getContractAddress().pay_member_token_address as `0x${string}`,
+          getContractAddress()?.pay_member_token_address as `0x${string}`,
           amountBigInt,
           activityId,
         ],

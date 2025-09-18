@@ -15,7 +15,7 @@ import { useLocale } from 'next-intl';
 const config = getDefaultConfig({
   appName: 'AgentChain app',
   projectId: '575083f997538bbe36e101019959af2e',
-  chains: SUPPORTED_CHAINS,
+  chains: SUPPORTED_CHAINS as any,
   ssr: false,
 });
 

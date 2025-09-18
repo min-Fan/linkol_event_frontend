@@ -94,9 +94,7 @@ export default function OrderListItem(props: {
         </TableCell>
         <TableCell>
           <div className="flex items-center justify-start">
-            <span>
-              {buyAgentOrder?.remain_amount} {payTokenInfo?.symbol}
-            </span>
+            <span>{buyAgentOrder?.remain_amount}</span>
           </div>
         </TableCell>
         <TableCell>

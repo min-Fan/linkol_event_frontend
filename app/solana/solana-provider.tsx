@@ -8,7 +8,11 @@ import {
   useWallet,
   WalletProvider,
 } from '@solana/wallet-adapter-react';
-import { WalletModalProvider, WalletMultiButton, useWalletModal } from '@solana/wallet-adapter-react-ui';
+import {
+  WalletModalProvider,
+  WalletMultiButton,
+  useWalletModal,
+} from '@solana/wallet-adapter-react-ui';
 import { Connection } from '@solana/web3.js';
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { useCluster } from '../cluster/cluster-data-access';
@@ -17,17 +21,23 @@ import WalletScrollFix from '../components/WalletScrollFix';
 import '@solana/wallet-adapter-react-ui/styles.css';
 import { Button } from '@shadcn/components/ui/button';
 
-export const WalletButton = ({ onSuccess, onWalletModalOpen }: { onSuccess?: () => void; onWalletModalOpen?: () => void }) => {
+export const WalletButton = ({
+  onSuccess,
+  onWalletModalOpen,
+}: {
+  onSuccess?: () => void;
+  onWalletModalOpen?: () => void;
+}) => {
   const { setVisible: setModalVisible } = useWalletModal();
   const { connect, connecting, connected } = useWallet();
-  
+
   // 监听钱包连接状态变化
   useEffect(() => {
     if (connected && onSuccess) {
       onSuccess();
     }
   }, [connected, onSuccess]);
-  
+
   const handleClick = () => {
     // 当用户点击钱包按钮时，先关闭领取弹窗
     onWalletModalOpen?.();
@@ -37,10 +47,7 @@ export const WalletButton = ({ onSuccess, onWalletModalOpen }: { onSuccess?: () 
 
   return (
     <>
-      <Button
-        onClick={handleClick}
-        disabled={connecting}
-      >
+      <Button onClick={handleClick} disabled={connecting}>
         {connecting ? 'Connecting...' : 'Connect Wallet'}
       </Button>
     </>

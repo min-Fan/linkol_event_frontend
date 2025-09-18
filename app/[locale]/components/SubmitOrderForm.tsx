@@ -114,17 +114,17 @@ export default function SubmitOrderForm() {
   }>({});
   const dispatch = useAppDispatch();
   const { data: decimals, refetch: refetchDecimals } = useReadContract({
-    address: getContractAddress().pay_member_token_address as `0x${string}`,
+    address: getContractAddress()?.pay_member_token_address as `0x${string}`,
     abi: erc20Abi,
     functionName: 'decimals',
   });
   const { data: symbol, refetch: refetchSymbol } = useReadContract({
-    address: getContractAddress().pay_member_token_address as `0x${string}`,
+    address: getContractAddress()?.pay_member_token_address as `0x${string}`,
     abi: erc20Abi,
     functionName: 'symbol',
   });
   const { data: balance, refetch: refetchBalance } = useReadContract({
-    address: getContractAddress().pay_member_token_address as `0x${string}`,
+    address: getContractAddress()?.pay_member_token_address as `0x${string}`,
     abi: erc20Abi,
     functionName: 'balanceOf',
     args: [address as `0x${string}`],
@@ -132,10 +132,10 @@ export default function SubmitOrderForm() {
 
   // 检查代币授权额度
   const { data: allowance, refetch: refetchAllowance } = useReadContract({
-    address: getContractAddress().pay_member_token_address as `0x${string}`,
+    address: getContractAddress()?.pay_member_token_address as `0x${string}`,
     abi: erc20Abi,
     functionName: 'allowance',
-    args: [address as `0x${string}`, getContractAddress().KOLServiceAddress as `0x${string}`],
+    args: [address as `0x${string}`, getContractAddress()?.KOLServiceAddress as `0x${string}`],
   });
 
   // 授权代币
@@ -586,10 +586,10 @@ export default function SubmitOrderForm() {
 
     try {
       writeContractApprove({
-        address: getContractAddress().pay_member_token_address as `0x${string}`,
+        address: getContractAddress()?.pay_member_token_address as `0x${string}`,
         abi: erc20Abi,
         functionName: 'approve',
-        args: [getContractAddress().KOLServiceAddress as `0x${string}`, ethers.MaxUint256],
+        args: [getContractAddress()?.KOLServiceAddress as `0x${string}`, ethers.MaxUint256],
       });
     } catch (error) {
       console.error('授权错误:', error);
@@ -605,11 +605,11 @@ export default function SubmitOrderForm() {
     try {
       const amountBigInt = toContractAmount(amount, Number(decimals));
       writeContractIssue({
-        address: getContractAddress().KOLServiceAddress as `0x${string}`,
+        address: getContractAddress()?.KOLServiceAddress as `0x${string}`,
         abi: KOLService_abi,
         functionName: 'issue',
         args: [
-          getContractAddress().pay_member_token_address as `0x${string}`,
+          getContractAddress()?.pay_member_token_address as `0x${string}`,
           amountBigInt,
           address as `0x${string}`, // projectAddress参数是自己的钱包地址
         ],

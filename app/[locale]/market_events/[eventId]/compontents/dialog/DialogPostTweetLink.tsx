@@ -51,6 +51,7 @@ import placeholderImage from '@assets/image/banner-loading.png';
 import DialogImagePreview from './DialogImagePreview';
 import DownloadCard from '../canvasToImg/DownloadCard';
 import html2canvas from 'html2canvas';
+import { useEventTokenInfo } from '@hooks/useEventTokenInfo';
 
 // 图片生成模板配置
 interface ImageTemplateConfig {
@@ -166,7 +167,7 @@ export default function DialogPostTweetLink({
   const [selectedLanguage, setSelectedLanguage] = useState<LanguageCode>(LanguageCode.Korea); // 语言选择状态
   const [kolScreenNames, setKolScreenNames] = useState<string[]>([]); // 存储从推文接口获取的KOL名称数组
   const downloadCardRef = useRef<HTMLDivElement>(null);
-  const payTokenInfo = useAppSelector((state) => state.userReducer?.pay_token_info);
+  const { symbol } = useEventTokenInfo(eventInfo);
 
   // 原有状态
   const [tweetUrl, setTweetUrl] = useState('');
@@ -976,7 +977,7 @@ export default function DialogPostTweetLink({
                   <div className="mt-3 flex items-center justify-center space-x-2">
                     <MoneyBag className="h-5 w-5 text-yellow-500" />
                     <span className="text-lg font-semibold text-green-600">
-                      +{rewardAmount} {payTokenInfo?.symbol || 'USDC'}
+                      +{rewardAmount} {symbol || 'USDC'}
                     </span>
                   </div>
                 )}

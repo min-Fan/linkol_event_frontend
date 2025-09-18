@@ -37,9 +37,7 @@ export default function OrderDetailsListItem({ item }: { item: OrderDetailItem }
         {item.kol.interaction_amount < 0.01 ? '<0.01' : item.kol.interaction_amount}
       </TableCell>
       <TableCell>{formatNumberKMB(item.kol.cpm)}/$</TableCell>
-      <TableCell>
-        {item.kol.price_yuan} {payTokenInfo?.symbol}/tweet
-      </TableCell>
+      <TableCell>{item.kol.price_yuan} /tweet</TableCell>
       <TableCell>{formatNumberKMB(item.kol.score)}</TableCell>
       <TableCell>
         <div className="flex flex-wrap gap-1">

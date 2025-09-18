@@ -33,11 +33,13 @@ import useUserActivityReward from '@hooks/useUserActivityReward';
 import UIDialogBindEmail from '@ui/dialog/BindEmail';
 import Connect from '@ui/solanaConnect/connect';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { useEventTokenInfo } from '@hooks/useEventTokenInfo';
+import { IEventInfoResponseData } from '@libs/request';
 
 interface DialogClaimRewardProps {
   isOpen: boolean;
   onClose: () => void;
-  eventInfo: any;
+  eventInfo: IEventInfoResponseData;
   onRefresh?: () => Promise<void>;
 }
 
@@ -61,7 +63,7 @@ const DialogClaimReward = memo(
       tokenAddress: string;
     } | null>(null);
     const { eventId } = useParams();
-    const payTokenInfo = useAppSelector((state) => state.userReducer?.pay_token_info);
+    const { symbol, decimals } = useEventTokenInfo(eventInfo);
     const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
     const twInfo = useAppSelector((state) => state.userReducer?.twitter_full_profile);
     const isLoginSolana = useAppSelector((state) => state.userReducer?.isLoginSolana);
@@ -262,9 +264,10 @@ const DialogClaimReward = memo(
         setClaimedAmount(availableRewards);
 
         // 1. 调用签名接口
+        const contractAddress = getContractAddress(eventInfo?.chain_type, eventInfo?.token_type);
         const signatureRes: any = await getReceiveRewardSignature({
-          tokenAddress: getContractAddress().pay_member_token_address as `0x${string}`,
-          // amount: toContractAmount(String(availableRewards), payTokenInfo?.decimals || 6).toString(),
+          tokenAddress: contractAddress?.pay_member_token_address as `0x${string}`,
+          // amount: toContractAmount(String(availableRewards), decimals || 6).toString(),
           activeId: eventId as string,
           receiver: address,
         });
@@ -289,7 +292,7 @@ const DialogClaimReward = memo(
 
         // 2. 调用合约方法
         claimByReward({
-          address: getContractAddress().ActivityServiceAddress as `0x${string}`,
+          address: contractAddress?.ActivityServiceAddress as `0x${string}`,
           abi: Activityservice_abi,
           functionName: 'claimByReward',
           args: [tokenAddress, amounts, rewardIds, timestamp, signature],
@@ -314,7 +317,7 @@ const DialogClaimReward = memo(
       eventId,
       onRefresh,
       claimByReward,
-      payTokenInfo?.decimals,
+      decimals,
     ]);
 
     const handleClaimRewardSolana = useCallback(async () => {
@@ -557,7 +560,7 @@ const DialogClaimReward = memo(
                   <p className="text-sm">
                     {t('reward_sent_to_wallet', {
                       amount: claimedAmount,
-                      symbol: payTokenInfo?.symbol || 'USDC',
+                      symbol: symbol || 'USDC',
                     })}
                   </p>
                 </div>
