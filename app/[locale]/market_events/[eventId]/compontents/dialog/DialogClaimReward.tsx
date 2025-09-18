@@ -380,8 +380,9 @@ const DialogClaimReward = memo(
         const claimRes: any = await getSolanaClaimReward({
           receive_amount: amountWithPrecision,
           active_id: eventId as string,
-          signature: signatureString,
+          solana_sign: signatureString,
           solana_address: publicKey.toString(),
+          timestamp: timestamp,
         });
 
         // 重置签名请求标记

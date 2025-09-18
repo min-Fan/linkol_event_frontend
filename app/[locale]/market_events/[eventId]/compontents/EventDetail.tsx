@@ -249,23 +249,32 @@ export default function EventDetail({
               <span className="text-md">Linkol</span>
             </Button>
           ) : ( */}
-          <>
-            {eventInfo?.status === 'wait' && (
+          {eventInfo?.active_type?.code === 'unverify' ? (
+            <>
               <Button className="cursor-default !rounded-xl !bg-orange-500/10 !text-orange-500">
-                {t('not_started')}
+                {t('unverified')}
               </Button>
-            )}
-            {eventInfo?.status === 'progress' && (
-              <Button className="cursor-default !rounded-xl !bg-green-500/10 !text-green-500">
-                {t('in_progress')}
-              </Button>
-            )}
-            {eventInfo?.status === 'ended' && (
-              <Button className="!bg-muted-foreground/10 !text-muted-foreground cursor-default !rounded-xl">
-                {t('ended')}
-              </Button>
-            )}
-          </>
+            </>
+          ) : (
+            <>
+              {eventInfo?.status === 'wait' && (
+                <Button className="cursor-default !rounded-xl !bg-orange-500/10 !text-orange-500">
+                  {t('not_started')}
+                </Button>
+              )}
+              {eventInfo?.status === 'progress' && (
+                <Button className="cursor-default !rounded-xl !bg-green-500/10 !text-green-500">
+                  {t('in_progress')}
+                </Button>
+              )}
+              {eventInfo?.status === 'ended' && (
+                <Button className="!bg-muted-foreground/10 !text-muted-foreground cursor-default !rounded-xl">
+                  {t('ended')}
+                </Button>
+              )}
+            </>
+          )}
+
           {/* )} */}
         </div>
         <div className="flex items-center gap-2">
