@@ -12,6 +12,7 @@ import { WalletModalProvider, WalletMultiButton, useWalletModal } from '@solana/
 import { Connection } from '@solana/web3.js';
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { useCluster } from '../cluster/cluster-data-access';
+import WalletScrollFix from '../components/WalletScrollFix';
 
 import '@solana/wallet-adapter-react-ui/styles.css';
 import { Button } from '@shadcn/components/ui/button';
@@ -56,7 +57,10 @@ export function SolanaProvider({ children }: { children: ReactNode }) {
   return (
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={[]} onError={onError} autoConnect={true}>
-        <WalletModalProvider>{children}</WalletModalProvider>
+        <WalletModalProvider>
+          <WalletScrollFix />
+          {children}
+        </WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>
   );

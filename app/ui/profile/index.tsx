@@ -8,15 +8,19 @@ import { useAppSelector } from '@store/hooks';
 import CompXAuth from './components/XAuth';
 import { useAccount } from 'wagmi';
 import { useEffect } from 'react';
+import { useWallet } from '@solana/wallet-adapter-react';
+import useLogoutSolana from '@ui/solanaConnect/useLoginSolana';
 
 export { MenuSize };
 
 export default function UIProfile(props: { size?: MenuSize }) {
   const { size } = props;
   const { isLogin, logoutWallet } = useUserInfo();
+  const { disConnectSolana } = useLogoutSolana();
   const { isConnected } = useAccount();
   const pathname = usePathname();
   const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
+  const { connected } = useWallet();
 
   useEffect(() => {
     console.log('UIProfile size', size);
@@ -25,9 +29,11 @@ export default function UIProfile(props: { size?: MenuSize }) {
   useEffect(() => {
     if (!isConnected) {
       logoutWallet();
-      return;
     }
-  }, [isConnected]);
+    if (!connected) {
+      disConnectSolana();
+    }
+  }, [isConnected, connected]);
 
   // if ((pathname.includes('kol') || pathname.includes('market_events')) && !isLoggedIn) {
   //   return <CompXAuth />;

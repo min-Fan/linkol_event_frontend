@@ -1,5 +1,5 @@
 'use client';
-import useLogout from './useLogin';
+import useLogoutSolana from './useLoginSolana';
 import { WalletButton } from '../../solana/solana-provider';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { updateAccount, updateIsLoginSolana } from '../../store/reducers/userSlice';
@@ -26,7 +26,7 @@ export default function Connect({
   const { wallet, publicKey, signIn, signMessage, connected, connecting } = useWallet();
   const isLoginSolana = useAppSelector((state) => state.userReducer?.isLoginSolana);
   const dispatchApp = useAppDispatch();
-  const { disConnect } = useLogout();
+  const { disConnectSolana } = useLogoutSolana();
 
   useEffect(() => {
     const localAccount = localStorage.getItem('SOLANA_ACCOUNT');
@@ -34,7 +34,7 @@ export default function Connect({
     console.log('localAccount ==>', localAccount, publicKey.toString());
     if (localAccount) {
       if (localAccount != publicKey.toString()) {
-        disConnect();
+        disConnectSolana();
         dispatchApp(updateIsLoginSolana(false));
         dispatchApp(updateAccount(null));
       } else {
@@ -47,7 +47,7 @@ export default function Connect({
 
   useEffect(() => {
     if (!wallet) {
-      disConnect();
+      disConnectSolana();
     }
   }, [wallet]);
 
