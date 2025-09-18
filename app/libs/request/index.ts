@@ -1649,7 +1649,7 @@ export interface IGetActivityPostsParams {
    * 语言
    * 国家名字对应的缩写，en英文，zh中文,不传表示获取全部
    */
-  language: LanguageCode | '';
+  language: LanguageCodeShort | '';
   /**
    * 活动ID
    */
@@ -1668,7 +1668,7 @@ export enum LanguageCode {
   English = 'English',
   Indonesian = 'Indonesian',
   Japanese = 'Japanese',
-  Korean = 'Korea',
+  Korea = 'Korea',
   Spanish = 'Spanish',
   French = 'French',
   German = 'German',
@@ -1678,6 +1678,23 @@ export enum LanguageCode {
   Vietnamese = 'Vietnamese',
   Thai = 'Thai',
   Malay = 'Malay',
+}
+export enum LanguageCodeShort {
+  All = '',
+  Chinese = 'zh',
+  English = 'en',
+  Korea = 'ko',
+  Indonesia = 'in',
+  Japanese = 'ja',
+  Spanish = 'es',
+  French = 'fr',
+  German = 'de',
+  Russian = 'ru',
+  Arabic = 'ar',
+  Portuguese = 'pt',
+  Vietnamese = 'vi',
+  Thai = 'th',
+  Malay = 'ms',
 }
 
 export interface IGetActivityPostsResponseData {

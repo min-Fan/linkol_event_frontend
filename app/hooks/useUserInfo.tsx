@@ -15,7 +15,7 @@ import {
   updateTwitterFullProfile,
 } from '@store/reducers/userSlice';
 import { DEFAULT_CHAIN } from '@constants/chains';
-import useLogout from '@ui/solanaConnect/useLogin';
+import useLogoutSolana from '@ui/solanaConnect/useLoginSolana';
 
 export default function useUserInfo() {
   const { address, isConnected } = useAccount();
@@ -30,8 +30,7 @@ export default function useUserInfo() {
   const [isPending, setIsPending] = useState<boolean>(false);
   const [nonce, setNonce] = useState<string>('');
   const dispatchApp = useAppDispatch();
-  const { disConnect } = useLogout();
-  const { disConnect: disConnectSolanaWallet } = useLogout();
+  const { disConnectSolana } = useLogoutSolana();
   const connect = () => {
     if (isConnected) {
       return;
@@ -125,7 +124,7 @@ export default function useUserInfo() {
     dispatchApp(clearQuickOrder());
     dispatchApp(updateTwitterFullProfile(null));
     dispatchApp(updateIsLoggedIn(false));
-    disConnectSolanaWallet();
+    disConnectSolana();
 
     document.cookie = `${CACHE_KEY.TOKEN}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
     localStorage.removeItem(CACHE_KEY.TOKEN);
@@ -141,7 +140,9 @@ export default function useUserInfo() {
 
     document.cookie = `${CACHE_KEY.TOKEN}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
     localStorage.removeItem(CACHE_KEY.TOKEN);
-    disConnectSolanaWallet();
+  };
+  const logoutSolana = () => {
+    disConnectSolana();
   };
 
   const updateEmail = (email: string) => {
@@ -171,5 +172,6 @@ export default function useUserInfo() {
     logout,
     updateEmail,
     logoutWallet,
+    logoutSolana,
   };
 }

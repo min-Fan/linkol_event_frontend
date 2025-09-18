@@ -33,9 +33,7 @@ export default function KOLPromotionListItem({ item }: { item: OrderDetailItem }
         <CompKOLInformation hasPartners={false} kol={item.kol as KolRankListItem} />
       </TableCell>
       <TableCell>{formatNumberKMB(item.kol.followers)}</TableCell>
-      <TableCell>
-        {item.kol.price_yuan} {payTokenInfo?.symbol}/tweet
-      </TableCell>
+      <TableCell>{item.kol.price_yuan} /tweet</TableCell>
       <TableCell>{item.kol.score}</TableCell>
       <TableCell>
         <div className="flex flex-wrap gap-1">

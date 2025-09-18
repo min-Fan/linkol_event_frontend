@@ -1,24 +1,195 @@
-export const CONTRACT_ADDRESS: Record<
-  string,
-  { pay_member_token_address: string; KOLServiceAddress: string; ActivityServiceAddress: string }
-> = {
-  '8453': {
-    pay_member_token_address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-    KOLServiceAddress: '0xD562135D926763d4132a3E7d55a536850E03bcA9',
-    ActivityServiceAddress: '0xf3E45cF29c86b92cc7CC8Ef68773162B53CB5C78',
+// 链类型定义
+export type ChainType = 'base' | 'solana';
+
+// Token类型定义
+export type TokenType = 'usdc' | 'usdt' | 'usd1' | string;
+
+// Token配置接口
+export interface TokenConfig {
+  symbol: string;
+  decimals: number;
+  iconType: string;
+  contractAddress?: string; // EVM链使用
+  mintAddress?: string; // Solana链使用
+}
+
+// 链配置接口
+export interface ChainConfig {
+  chainId: string;
+  name: string;
+  KOLServiceAddress?: string;
+  ActivityServiceAddress?: string;
+  tokens: Record<TokenType, TokenConfig>;
+  defaultToken: TokenType;
+}
+
+// 检测是否为开发环境
+const isDevelopment = process.env.NODE_ENV === 'development';
+
+// 开发环境配置
+const DEVELOPMENT_CONFIG: Record<ChainType, ChainConfig> = {
+  base: {
+    chainId: '84532', // Base Sepolia 测试网
+    name: 'Base Sepolia',
+    KOLServiceAddress: '0x68Fab9e02bD60a1F9EBDD5bb192eE2C59Fb16970', // 测试网地址
+    ActivityServiceAddress: '0xd1CF4991BA007f1743eD5F51CF73c42f18E304Bd', // 测试网地址
+    defaultToken: 'usdc',
+    tokens: {
+      usdc: {
+        symbol: 'USDC',
+        decimals: 6,
+        iconType: 'usdc',
+        contractAddress: '0x6909442C7572D06E28A9535AA99548d1279d1e44', // Base Sepolia USDC
+      },
+      usdt: {
+        symbol: 'USDT',
+        decimals: 6,
+        iconType: 'usdt',
+        contractAddress: '0x50c5725949A6F0c72E6C4a641F24749F6b268E73', // Base Sepolia USDT
+      },
+    },
   },
-  '32383': {
-    pay_member_token_address: '0x736D175A2aCb2Bb3122298459F74aA0EfA586c2e',
-    KOLServiceAddress: '0x3589bE56423585ae96c0E9Bc12AA142D31B721B2',
-    ActivityServiceAddress: '',
-  },
-  '84532': {
-    pay_member_token_address: '0x6909442C7572D06E28A9535AA99548d1279d1e44',
-    KOLServiceAddress: '0x68Fab9e02bD60a1F9EBDD5bb192eE2C59Fb16970',
-    ActivityServiceAddress: '0xd1CF4991BA007f1743eD5F51CF73c42f18E304Bd',
+  solana: {
+    chainId: 'solana',
+    name: 'Solana',
+    defaultToken: 'usd1',
+    tokens: {
+      usd1: {
+        symbol: 'USD1',
+        decimals: 6,
+        iconType: 'usd1',
+        mintAddress: 'USD1ttGY1N17NEEHLmELoaybftRBUSErhqYiQzvEmuB',
+      },
+      usdc: {
+        symbol: 'USDC',
+        decimals: 6,
+        iconType: 'usdc',
+        mintAddress: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+      },
+    },
   },
 };
 
-export const getContractAddress = () => {
-  return CONTRACT_ADDRESS[process.env.NEXT_PUBLIC_CHAIN_ID as string];
+// 生产环境配置
+const PRODUCTION_CONFIG: Record<ChainType, ChainConfig> = {
+  base: {
+    chainId: '8453', // Base 主网
+    name: 'Base',
+    KOLServiceAddress: '0xD562135D926763d4132a3E7d55a536850E03bcA9',
+    ActivityServiceAddress: '0xf3E45cF29c86b92cc7CC8Ef68773162B53CB5C78',
+    defaultToken: 'usdc',
+    tokens: {
+      usdc: {
+        symbol: 'USDC',
+        decimals: 6,
+        iconType: 'usdc',
+        contractAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+      },
+      usdt: {
+        symbol: 'USDT',
+        decimals: 6,
+        iconType: 'usdt',
+        contractAddress: '0x50c5725949A6F0c72E6C4a641F24749F6b268E73',
+      },
+    },
+  },
+  solana: {
+    chainId: 'solana',
+    name: 'Solana',
+    defaultToken: 'usd1',
+    tokens: {
+      usd1: {
+        symbol: 'USD1',
+        decimals: 6,
+        iconType: 'usd1',
+        mintAddress: 'USD1ttGY1N17NEEHLmELoaybftRBUSErhqYiQzvEmuB',
+      },
+    },
+  },
+};
+
+// 根据环境返回配置
+export const CHAIN_CONFIG: Record<ChainType, ChainConfig> = isDevelopment
+  ? DEVELOPMENT_CONFIG
+  : PRODUCTION_CONFIG;
+
+// 根据链类型获取配置
+export const getChainConfig = (chainType: ChainType) => {
+  return CHAIN_CONFIG[chainType.toLowerCase() as ChainType];
+};
+
+// 根据链类型和token类型获取token配置
+export const getTokenConfig = (chainType: string, tokenType?: string): TokenConfig => {
+  const normalizedChainType = chainType?.toLowerCase() as ChainType;
+  const normalizedTokenType = tokenType?.toLowerCase() as TokenType;
+
+  if (normalizedChainType && CHAIN_CONFIG[normalizedChainType]) {
+    const chainConfig = CHAIN_CONFIG[normalizedChainType];
+
+    // 如果指定了token类型且存在，返回该token配置
+    if (normalizedTokenType && chainConfig.tokens[normalizedTokenType]) {
+      return chainConfig.tokens[normalizedTokenType];
+    }
+
+    // 否则返回默认token配置
+    return chainConfig.tokens[chainConfig.defaultToken];
+  }
+
+  // 默认返回base链的默认token配置
+  return CHAIN_CONFIG.base.tokens[CHAIN_CONFIG.base.defaultToken];
+};
+
+// 根据活动链类型获取token信息（向后兼容）
+export const getTokenInfoByChainType = (chainType: string) => {
+  return getTokenConfig(chainType);
+};
+
+// 根据活动信息获取token配置
+export const getTokenConfigByEventInfo = (eventInfo?: {
+  chain_type?: string;
+  token_type?: string;
+}): TokenConfig => {
+  if (!eventInfo?.chain_type) {
+    return CHAIN_CONFIG.base.tokens[CHAIN_CONFIG.base.defaultToken];
+  }
+
+  return getTokenConfig(eventInfo.chain_type, eventInfo.token_type);
+};
+
+// 根据链类型和token类型获取合约地址
+export const getContractAddress = (chainType?: string, tokenType?: string) => {
+  const normalizedChainType = (chainType?.toLowerCase() as ChainType) || 'base';
+  const normalizedTokenType = tokenType?.toLowerCase() || 'usdc';
+
+  const chainConfig = CHAIN_CONFIG[normalizedChainType];
+  if (!chainConfig) {
+    return null;
+  }
+
+  const tokenConfig = chainConfig.tokens[normalizedTokenType as TokenType];
+  if (!tokenConfig) {
+    return null;
+  }
+
+  return {
+    pay_member_token_address: tokenConfig.contractAddress || '',
+    KOLServiceAddress: chainConfig.KOLServiceAddress || '',
+    ActivityServiceAddress: chainConfig.ActivityServiceAddress || '',
+  };
+};
+
+// 获取支持的链列表
+export const getSupportedChains = () => {
+  return Object.values(CHAIN_CONFIG).map((config) => ({
+    chainId: parseInt(config.chainId),
+    name: config.name,
+  }));
+};
+
+// 获取默认链
+export const getDefaultChain = () => {
+  return {
+    chainId: parseInt(CHAIN_CONFIG.base.chainId),
+    name: CHAIN_CONFIG.base.name,
+  };
 };

@@ -84,7 +84,7 @@ export default function CreateProductForm() {
   const [boundProject, setBoundProject] = useState<any>(null);
   const [isLoadingProject, setIsLoadingProject] = useState(false);
   const { data: decimals, refetch: refetchDecimals } = useReadContract({
-    address: getContractAddress().pay_member_token_address as `0x${string}`,
+    address: getContractAddress()?.pay_member_token_address as `0x${string}`,
     abi: erc20Abi,
     functionName: 'decimals',
   });

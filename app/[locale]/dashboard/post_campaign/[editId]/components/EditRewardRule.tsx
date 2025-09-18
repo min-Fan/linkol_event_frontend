@@ -482,7 +482,7 @@ export default function EditRewardRule({
                         />
                       </CardContent>
                     </Card>
-                    <span>{payTokenInfo?.symbol}</span>
+                    <span></span>
                   </div>
 
                   {!isReadOnly && (
@@ -621,7 +621,7 @@ export default function EditRewardRule({
                           />
                         </CardContent>
                       </Card>
-                      <span className="whitespace-nowrap">{payTokenInfo?.symbol}</span>
+                      <span className="whitespace-nowrap"></span>
                     </div>
 
                     {!isReadOnly && (

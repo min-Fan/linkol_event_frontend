@@ -47,6 +47,7 @@ import PlatformRewardCard from './PlatformRewardCard';
 import TokenIcon from 'app/components/TokenIcon';
 import useUserActivityReward from '@hooks/useUserActivityReward';
 import useCountdownToMidnight from '@hooks/useCountdownToMidnight';
+import { useEventTokenInfo } from '@hooks/useEventTokenInfo';
 
 // 骨架屏组件
 function EventDetailSkeleton() {
@@ -149,7 +150,7 @@ export default function EventDetail({
   const [isPostTweetLinkOpen, setIsPostTweetLinkOpen] = useState(false);
   const [isGuideDialogOpen, setIsGuideDialogOpen] = useState(false);
   const [isClaimRewardDialogOpen, setIsClaimRewardDialogOpen] = useState(false);
-  const payTokenInfo = useAppSelector((state) => state.userReducer?.pay_token_info);
+  const { tokenInfo: payTokenInfo, symbol, iconType } = useEventTokenInfo(eventInfo);
   const router = useRouter();
   const { data: joinList, isLoading: isJoinListLoading } = useQuery({
     queryKey: ['joinList', eventInfo?.id],
@@ -337,10 +338,8 @@ export default function EventDetail({
             <span className="text-muted-foreground sm:text-md text-sm">{t('reward_pool')}</span>
             <span className="sm:text-md flex items-center gap-1 text-sm font-semibold">
               {eventInfo?.reward_amount?.toLocaleString() || '-'}
-              {payTokenInfo?.iconType && (
-                <TokenIcon type={payTokenInfo?.iconType as string} className="size-5" />
-              )}
-              {payTokenInfo?.symbol || ''}
+              {iconType && <TokenIcon type={iconType} className="size-5" />}
+              {symbol || ''}
             </span>
           </div>
           <div className="bg-muted-foreground/5 flex w-full flex-wrap items-center justify-between gap-4 rounded-lg p-3 px-4 sm:w-auto sm:flex-1">

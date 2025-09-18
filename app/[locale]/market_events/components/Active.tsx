@@ -5,9 +5,10 @@ import { Link, useRouter } from '@libs/i18n/navigation';
 import { IActive } from '@hooks/marketEvents';
 import { useAppSelector } from '@store/hooks';
 import TokenIcon from 'app/components/TokenIcon';
-import { IGetCampaignJoinListItem } from '@libs/request';
+import { IEventInfoResponseData, IGetCampaignJoinListItem } from '@libs/request';
 import defaultAvatar from '@assets/image/avatar.png';
 import { formatNumberKMB } from '@libs/utils';
+import { useEventTokenInfo } from '@hooks/useEventTokenInfo';
 
 export default function Active(props: { data: IActive }) {
   const { data } = props;
@@ -16,7 +17,6 @@ export default function Active(props: { data: IActive }) {
   const t = useTranslations('common');
   const now = useNow();
   const format = useFormatter();
-  const payTokenInfo = useAppSelector((state) => state.userReducer?.pay_token_info);
 
   return (
     <Link
@@ -30,9 +30,7 @@ export default function Active(props: { data: IActive }) {
             <dt className="truncate">{data.title}</dt>
             <dd className="bg-accent flex h-8 items-center gap-x-1 rounded-full px-2">
               ${data.reward_amount}
-              {payTokenInfo?.iconType && (
-                <TokenIcon type={payTokenInfo?.iconType as string} className="size-5" />
-              )}
+              {/* {iconType && <TokenIcon type={iconType as string} className="size-5" />} */}
             </dd>
           </dl>
           <p className="text-md text-muted-foreground/60 line-clamp-3">{data.description}</p>

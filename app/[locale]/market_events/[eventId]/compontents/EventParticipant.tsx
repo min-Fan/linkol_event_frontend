@@ -161,7 +161,7 @@ export default forwardRef<
   // 格式化奖励金额
   const formatRewardAmount = (amount: number | undefined) => {
     if (!amount) return '-';
-    return `${amount.toLocaleString()} ${payTokenInfo?.symbol || ''}`;
+    return `${amount.toLocaleString()}`;
   };
 
   // 获取状态显示

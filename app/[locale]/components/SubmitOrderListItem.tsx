@@ -70,8 +70,7 @@ export default function SubmitOrderListItem({ kol }: { kol: KolRankListItem }) {
           <p className="text-muted-foreground">{kol.tags}</p>
           <div className="bg-border h-px"></div>
           <p className="text-muted-foreground text-center">
-            <strong className="text-primary text-xl font-semibold">{kol.price_yuan}</strong>{' '}
-            {payTokenInfo?.symbol}/Tweets
+            <strong className="text-primary text-xl font-semibold">{kol.price_yuan}</strong> /Tweets
           </p>
         </div>
       </CardContent>

@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useAppSelector } from '../../store/hooks';
 import UAddr from './UFormatAddr';
-import useLogout from './useLogin';
+import useLogoutSolana from './useLoginSolana';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,7 +33,7 @@ export default function NavWallet() {
   };
   const rpc = useAppSelector((state) => state.userReducer?.rpc);
 
-  const { disConnect } = useLogout();
+  const { disConnectSolana } = useLogoutSolana();
   useEffect(() => {
     getBalance();
   }, [publicKey, rpc]);
@@ -62,7 +62,7 @@ export default function NavWallet() {
           <DropdownMenuContent align="end">
             <DropdownMenuItem className="p-0">
               <div className="text-md w-full text-right">
-                <p className="rounded-xs p-1 hover:bg-white/10" onClick={() => disConnect()}>
+                <p className="rounded-xs p-1 hover:bg-white/10" onClick={() => disConnectSolana()}>
                   Disconnect
                 </p>
               </div>

@@ -72,11 +72,11 @@ export default function MessagesAnalytics() {
 
             <AnalyticsCard
               title="600 / 1000"
-              subTitle={payTokenInfo?.symbol || ''}
+              subTitle={''}
               current={600}
               total={1000}
               info={t('amount_already_spent')}
-              unit={payTokenInfo?.symbol || ''}
+              unit={''}
             />
           </div>
         </div>

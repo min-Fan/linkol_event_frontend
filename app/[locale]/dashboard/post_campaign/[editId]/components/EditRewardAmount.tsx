@@ -83,11 +83,11 @@ export default function EditRewardAmount({
             />
           </CardContent>
         </Card>
-        <span className="text-xl font-medium">{payTokenInfo?.symbol}</span>
+        <span className="text-xl font-medium"></span>
       </div>
       <p className="text-muted-foreground text-base font-medium">
         {t('post_campaign_total_campaign_payout', {
-          amount: amount ? `${amount} ${payTokenInfo?.symbol}` : `0 ${payTokenInfo?.symbol}`,
+          amount: amount ? `${amount}` : `0`,
         })}
       </p>
     </div>

@@ -45,14 +45,12 @@ export default function KOLPromotionPanel() {
               <dt className="capitalize">{t('payment_amount')}</dt>
               <dd>
                 <span className="font-semibold">{promotionData?.payment_amount || 0}</span>{' '}
-                {payTokenInfo?.symbol}
               </dd>
             </dl>
             <dl className="text-muted-foreground space-y-1">
               <dt className="capitalize">{t('spent')}</dt>
               <dd>
                 <span className="font-semibold">{promotionData?.consumption_amount || 0}</span>{' '}
-                {payTokenInfo?.symbol}
               </dd>
             </dl>
             <dl className="text-muted-foreground space-y-1">
@@ -70,7 +68,7 @@ export default function KOLPromotionPanel() {
                 </TooltipProvider>
               </dt>
               <dd>
-                <span className="text-primary font-semibold">{amount}</span> {payTokenInfo?.symbol}
+                <span className="text-primary font-semibold">{amount}</span>
               </dd>
             </dl>
           </div>

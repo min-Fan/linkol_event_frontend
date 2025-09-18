@@ -49,9 +49,7 @@ export default function SubmitOrderAmountSlider(props: {
           <li>|</li>
           <li>
             <span>{t('estimated_total')}: </span>
-            <strong>
-              {props.amount || 0} {payTokenInfo?.symbol}(ERC20)
-            </strong>
+            <strong>{props.amount || 0}</strong>
           </li>
         </ul>
       </div>
