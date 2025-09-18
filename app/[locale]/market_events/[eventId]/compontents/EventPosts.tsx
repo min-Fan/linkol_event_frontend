@@ -12,7 +12,6 @@ import { Skeleton } from '@shadcn/components/ui/skeleton';
 import { useAppSelector } from '@store/hooks';
 import { Like, Message, ReTwet, Share, Verified } from '@assets/svg';
 import {
-  LanguageCode,
   getActivityPosts,
   getActivityPostsMyRecord,
   IGetActivityPostsResponseData,
@@ -21,6 +20,7 @@ import {
   IGetActivityPostsParams,
   IGetActivityPostsMyRecordParams,
   IGetActivityPostsMyRecordResponseData,
+  LanguageCodeShort,
 } from '@libs/request';
 import { PostNull } from '@assets/svg';
 import { useTranslations } from 'next-intl';
@@ -208,16 +208,16 @@ export const HeaderSection = ({
   const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
 
   const languages = [
-    { code: '' as const, label: t('all') },
-    { code: LanguageCode.English, label: t('english') },
-    { code: LanguageCode.Chinese, label: t('chinese') },
-    { code: LanguageCode.Korean, label: t('korean') },
-    { code: LanguageCode.Japanese, label: t('japanese') },
+    { code: LanguageCodeShort.All, label: t('all') },
+    { code: LanguageCodeShort.English, label: t('english') },
+    { code: LanguageCodeShort.Chinese, label: t('chinese') },
+    { code: LanguageCodeShort.Korea, label: t('korean') },
+    { code: LanguageCodeShort.Japanese, label: t('japanese') },
   ];
 
   // 获取显示文本：如果选择了"全部"或没有选择，显示"全部"，否则显示选中的语言
   const getDisplayText = () => {
-    if (selectedLanguages.includes('') || selectedLanguages.length === 0) {
+    if (selectedLanguages.includes(LanguageCodeShort.All) || selectedLanguages.length === 0) {
       return t('all');
     }
     if (selectedLanguages.length === 1) {
@@ -460,7 +460,7 @@ export default forwardRef<
 >(function EventPosts({ eventInfo, isLoading, onRefresh, col }, ref) {
   const t = useTranslations('common');
   const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
-  const [selectedLanguages, setSelectedLanguages] = useState<string[]>(['']); // 支持多选，默认选择全部
+  const [selectedLanguages, setSelectedLanguages] = useState<LanguageCodeShort[]>([LanguageCodeShort.All]); // 支持多选，默认选择全部
   const [posts, setPosts] = useState<IGetActivityPostsResponseDataItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -493,7 +493,7 @@ export default forwardRef<
   }, [eventInfo?.id]);
 
   const fetchPosts = useCallback(
-    async (languages: string[], page: number = 1, isAutoModeCall = false) => {
+    async (languages: LanguageCodeShort[], page: number = 1, isAutoModeCall = false) => {
       try {
         // auto模式下不显示loading状态
         if (!isAutoModeCall) {
@@ -520,10 +520,10 @@ export default forwardRef<
         };
 
         // 处理语言参数
-        const hasAll = languages.includes('');
+        const hasAll = languages.includes(LanguageCodeShort.All);
         if (!hasAll && languages.length > 0) {
           // 后端API支持逗号分隔的多语言参数，尽管TypeScript类型定义可能不够准确
-          params.language = languages.join(',') as LanguageCode;
+          params.language = languages.join(',') as LanguageCodeShort;
         }
 
         const response = await getActivityPosts(params);
@@ -613,18 +613,18 @@ export default forwardRef<
     }
   };
 
-  const handleLanguageChange = (language: string) => {
+  const handleLanguageChange = (language: LanguageCodeShort) => {
     // 当选择语言时，退出我的推文模式并自动开启auto模式
     setIsMyTweetsMode(false);
     setIsAutoMode(true); // 从我的推文切换回全部数据时自动开启auto模式
 
     setSelectedLanguages((prev) => {
-      if (language === '') {
+      if (language === LanguageCodeShort.All) {
         // 如果选择"全部"，清空其他选择
-        return [''];
+        return [LanguageCodeShort.All];
       } else {
         // 如果选择具体语言
-        if (prev.includes('')) {
+        if (prev.includes(LanguageCodeShort.All)) {
           // 如果之前选择了"全部"，移除"全部"并添加当前语言
           return [language];
         } else if (prev.includes(language)) {
