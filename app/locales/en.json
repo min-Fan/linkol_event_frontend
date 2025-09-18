@@ -1158,6 +1158,7 @@
     "get_invitation_code_failed": "Failed to get invitation code",
     "tweet_content_too_long": "Tweet content too long, maximum {max} characters, current {current} characters",
     "wallet_not_connected": "Wallet not connected",
-    "signature_failed": "Signature failed"
+    "signature_failed": "Signature failed",
+    "unverified": "Unverified"
   }
 }

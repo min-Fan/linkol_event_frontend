@@ -80,7 +80,7 @@ export const ENDPOINT_URL = {
   GET_REWARD_RULE: '/kol/api/v3/reward/rules/',
   CREATE_ACTIVITY_CALLBACK: '/kol/api/v3/active/create/pay/',
   CREATE_ACTIVITY_CALLBACK_REWARD: '/kol/api/v6/claim_reward/success/',
-  SOLANA_CLAIM_REWARD: '/kol/api/v6/solana/claim_reward/',
+  SOLANA_CLAIM_REWARD: '/kol/api/v6/claim_reward/usd1/pay/',
   UPDATE_ACTIVITY: '/kol/api/v3/actives/',
   GET_PRICE: '/kol/api/v4/price/',
 };
@@ -1245,6 +1245,10 @@ export interface IEventInfoResponseData {
   user_reward?: number;
   chain_type?: string;
   token_type?: string;
+  /**
+   * 是否认证
+   */
+  is_verified?: boolean;
 }
 
 /**
@@ -1660,20 +1664,20 @@ export interface IGetActivityPostsParams {
   size: number;
 }
 export enum LanguageCode {
-  Chinese = 'zh',
-  English = 'en',
-  Indonesian = 'in',
-  Japanese = 'ja',
-  Korean = 'ko',
-  Spanish = 'es',
-  French = 'fr',
-  German = 'de',
-  Russian = 'ru',
-  Arabic = 'ar',
-  Portuguese = 'pt',
-  Vietnamese = 'vi',
-  Thai = 'th',
-  Malay = 'ms',
+  Chinese = 'Chinese',
+  English = 'English',
+  Indonesian = 'Indonesian',
+  Japanese = 'Japanese',
+  Korean = 'Korea',
+  Spanish = 'Spanish',
+  French = 'French',
+  German = 'German',
+  Russian = 'Russian',
+  Arabic = 'Arabic',
+  Portuguese = 'Portuguese',
+  Vietnamese = 'Vietnamese',
+  Thai = 'Thai',
+  Malay = 'Malay',
 }
 
 export interface IGetActivityPostsResponseData {
@@ -1882,6 +1886,23 @@ export const getAiChatTweet = (activeId: string, language: string) => {
   });
 };
 
+// 活动生成推文
+export interface IGetActivityTweetParams {
+  /**
+   * 活动ID
+   */
+  active_id: string;
+  /**
+   * 'English', 'Chinese', 'Korea'中的一种
+   */
+  language: string;
+}
+export const getActivityTweet = (params: IGetActivityTweetParams) => {
+  return kolRequest.get(`/kol/api/v3/generate/tweet/`, {
+    ...params,
+  });
+};
+
 // 发送活动推文
 export interface ISendActivityTweetParams {
   /**
@@ -2052,11 +2073,15 @@ export interface IGetSolanaClaimRewardParams {
   /**
    * 签名
    */
-  signature: string;
+  solana_sign: string;
   /**
    * Solana 钱包地址
    */
   solana_address: string;
+  /**
+   * 时间戳
+   */
+  timestamp: number;
 }
 export const getSolanaClaimReward = (params: IGetSolanaClaimRewardParams) => {
   return kolRequest.post(ENDPOINT_URL.SOLANA_CLAIM_REWARD, params);

@@ -29,6 +29,7 @@ import {
   getPrice,
   uploadImage,
   LanguageCode,
+  getActivityTweet,
 } from '@libs/request';
 import { toast } from 'sonner';
 import { useLocale, useTranslations } from 'next-intl';
@@ -511,7 +512,10 @@ export default function DialogPostTweetLink({
     try {
       setIsGeneratingTweet(true);
 
-      const res: any = await getAiChatTweet(eventId as string, selectedLanguage);
+      const res: any = await getActivityTweet({
+        active_id: eventId as string,
+        language: selectedLanguage,
+      });
 
       if (res.code === 200 && res.data?.data?.content) {
         const generatedContent = res.data.data.content;
@@ -575,7 +579,10 @@ export default function DialogPostTweetLink({
       setPendingImageGeneration(false);
       setIsGeneratingImage(false);
 
-      const res: any = await getAiChatTweet(eventId as string, selectedLanguage);
+      const res: any = await getActivityTweet({
+        active_id: eventId as string,
+        language: selectedLanguage,
+      });
 
       if (res.code === 200 && res.data?.data?.content) {
         const generatedContent = res.data.data.content;

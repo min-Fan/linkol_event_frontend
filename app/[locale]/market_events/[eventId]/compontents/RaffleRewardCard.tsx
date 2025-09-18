@@ -216,7 +216,12 @@ export default function RaffleRewardCard({
           )}
           <Button
             onClick={handleRaffle}
-            disabled={isRaffling || isCooldown || ticketNumber === 0}
+            disabled={
+              !eventInfo?.is_verified ||
+              isRaffling ||
+              isCooldown ||
+              ticketNumber === 0
+            }
             className="h-10 w-full rounded-md bg-gradient-to-r from-[#007AFF] from-0% via-[#D4F5D0] via-30% to-[#007AFF] to-80% bg-[length:200%_100%] bg-[position:100%_50%] !px-2 text-sm transition-[background-position] duration-200 ease-in-out hover:bg-[position:-60%_50%] disabled:cursor-not-allowed disabled:opacity-50 sm:!h-auto sm:w-auto sm:!rounded-full sm:!px-4 sm:!text-base"
           >
             {isRaffling ? (
