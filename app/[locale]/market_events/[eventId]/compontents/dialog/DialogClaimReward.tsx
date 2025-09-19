@@ -524,13 +524,17 @@ const DialogClaimReward = memo(
                 {isWrongChain && eventInfo?.chain_type === 'BASE' && (
                   <div className="flex w-full flex-col items-center justify-center rounded-md bg-yellow-100 p-4 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100">
                     <p className="text-sm">
-                      {t('wrong_chain_message', { chainName: getChainConfig(eventInfo?.chain_type as ChainType).name })}
+                      {t('wrong_chain_message', {
+                        chainName: getChainConfig(eventInfo?.chain_type as ChainType).name,
+                      })}
                     </p>
                     <Button
                       onClick={handleSwitchChain}
                       className="mt-2 bg-yellow-800 text-white hover:bg-yellow-700 dark:bg-yellow-700 dark:hover:bg-yellow-600"
                     >
-                      {t('switch_to_chain', { chainName: getChainConfig(eventInfo?.chain_type as ChainType).name })}
+                      {t('switch_to_chain', {
+                        chainName: getChainConfig(eventInfo?.chain_type as ChainType).name,
+                      })}
                     </Button>
                   </div>
                 )}

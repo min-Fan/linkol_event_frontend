@@ -244,7 +244,7 @@ export default function RaffleRewardCard({
             </span>
           </div>
           {getChainConfig(eventInfo?.chain_type as ChainType).iconUrl && (
-            <div className="bg-background overflow-hidden rounded-full p-2 shadow-md ml-auto">
+            <div className="bg-background ml-auto overflow-hidden rounded-full p-2 shadow-md">
               <img
                 src={getChainConfig(eventInfo?.chain_type as ChainType).iconUrl}
                 alt="chain"
