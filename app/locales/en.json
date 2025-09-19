@@ -1159,6 +1159,7 @@
     "tweet_content_too_long": "Tweet content too long, maximum {max} characters, current {current} characters",
     "wallet_not_connected": "Wallet not connected",
     "signature_failed": "Signature failed",
-    "unverified": "Unverified"
+    "unverified": "Unverified",
+    "search_active_keyword": "Search actives..."
   }
 }

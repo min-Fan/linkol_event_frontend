@@ -5,6 +5,10 @@ import { useState } from 'react';
 import CompActiveTypeTab, { ACTIVE_TYPE } from './ActiveTypeTab';
 import CompActiveSearch from './ActiveSearch';
 import CompActiveList from './ActiveList';
+import { Button } from '@shadcn/components/ui/button';
+import { ArrowRight } from 'lucide-react';
+import { Link } from '@libs/i18n/navigation';
+import PagesRoute from '@constants/routes';
 
 export default function TweetRecord() {
   const [type, setType] = useState<ACTIVE_TYPE>(ACTIVE_TYPE.ALL);
@@ -24,6 +28,12 @@ export default function TweetRecord() {
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <CompActiveTypeTab defaultType={type} onChangeAction={onChangeType} />
         {/* <CompActiveSearch onSearchAction={onSearch} /> */}
+        <Link href={PagesRoute.ACTIVES}>
+          <Button variant="ghost" size="sm" className="flex items-center gap-2">
+            <span className="text-sm sm:text-base">Explore</span>
+            <ArrowRight className="size-4" />
+          </Button>
+        </Link>
       </div>
       <CompActiveList search={search} type={type} page={page} />
     </div>

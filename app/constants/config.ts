@@ -36,16 +36,16 @@ const DEVELOPMENT_CONFIG: Record<ChainType, ChainConfig> = {
     defaultToken: 'usdc',
     tokens: {
       usdc: {
-        symbol: 'USDC',
+        symbol: 'USDT',
         decimals: 6,
-        iconType: 'usdc',
+        iconType: 'usdt',
         contractAddress: '0x6909442C7572D06E28A9535AA99548d1279d1e44', // Base Sepolia USDC
       },
       usdt: {
         symbol: 'USDT',
         decimals: 6,
         iconType: 'usdt',
-        contractAddress: '0x50c5725949A6F0c72E6C4a641F24749F6b268E73', // Base Sepolia USDT
+        contractAddress: '0x6909442C7572D06E28A9535AA99548d1279d1e44', // Base Sepolia USDT
       },
     },
   },

@@ -13,6 +13,7 @@ const MARKET_EVENTS = '/market_events';
 const POST_CAMPAIGN = '/post_campaign';
 const BRANDING = '/branding';
 const CHAT_VIEW = '/chat/view';
+const ACTIVES = '/actives';
 
 const PagesRoute = {
   HOME,
@@ -30,6 +31,7 @@ const PagesRoute = {
   POST_CAMPAIGN,
   BRANDING,
   CHAT_VIEW,
+  ACTIVES,
 };
 
 export default PagesRoute;
