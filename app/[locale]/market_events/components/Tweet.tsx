@@ -1,6 +1,7 @@
 import { Like, Message, ReTwet, Share, Verified } from '@assets/svg';
 import { ITweet } from '@hooks/marketEvents';
 import { formatNumberKMB } from '@libs/utils';
+import { MessageCircle } from 'lucide-react';
 import { useLocale } from 'next-intl';
 
 function mapTweetLangToLocale(lang?: string): string {
@@ -98,7 +99,7 @@ export default function Tweet(props: { data: ITweet }) {
             <span>{formatNumberKMB(data.retweet_count)}</span>
           </div>
           <div className="flex items-center gap-x-1">
-            <Message className="size-4" />
+            <MessageCircle className="size-4" />
             <span>{formatNumberKMB(data.reply_count)}</span>
           </div>
         </div>
