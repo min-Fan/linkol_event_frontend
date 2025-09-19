@@ -83,11 +83,11 @@ export default function LogOutMenu(props: { size?: MenuSize }) {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator /> */}
-        <DropdownMenuGroup>
+        {/* <DropdownMenuGroup>
           <CompLanguage />
           <CompTheme />
         </DropdownMenuGroup>
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator /> */}
         {twInfo.email?.includes('@') ? (
           <UIDialogUnbindEmail email={twInfo.email} kol={true}>
             <DropdownMenuItem

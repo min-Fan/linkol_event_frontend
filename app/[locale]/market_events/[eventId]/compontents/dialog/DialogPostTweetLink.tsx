@@ -45,13 +45,13 @@ import { useAccount, useSwitchChain } from 'wagmi';
 import { cn } from '@shadcn/lib/utils';
 import useUserInfo from '@hooks/useUserInfo';
 import useUserActivityReward from '@hooks/useUserActivityReward';
-import { DEFAULT_CHAIN } from '@constants/chains';
 import avatar from '@assets/image/avatar.png';
 import placeholderImage from '@assets/image/banner-loading.png';
 import DialogImagePreview from './DialogImagePreview';
 import DownloadCard from '../canvasToImg/DownloadCard';
 import html2canvas from 'html2canvas';
 import { useEventTokenInfo } from '@hooks/useEventTokenInfo';
+import { ChainType, getChainConfig } from '@constants/config';
 
 // 图片生成模板配置
 interface ImageTemplateConfig {
@@ -278,7 +278,7 @@ export default function DialogPostTweetLink({
 
   // 检查当前链是否为默认链
   useEffect(() => {
-    if (chainId && DEFAULT_CHAIN.id !== chainId) {
+    if (chainId && getChainConfig(eventInfo?.chain_type as ChainType).chainId !== chainId.toString()) {
       setIsWrongChain(true);
     } else {
       setIsWrongChain(false);
@@ -366,7 +366,8 @@ export default function DialogPostTweetLink({
   // 切换到默认链
   const handleSwitchChain = async () => {
     try {
-      await switchChain({ chainId: DEFAULT_CHAIN.id });
+      await switchChain({ chainId: parseInt(getChainConfig(eventInfo?.chain_type as ChainType).chainId),
+      });
     } catch (error) {
       console.error('switch chain failed:', error);
       toast.error(t('switch_chain_failed'));
@@ -1391,13 +1392,13 @@ export default function DialogPostTweetLink({
               {isWrongChain && (
                 <div className="mb-4 rounded-md bg-yellow-100 p-4 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100">
                   <p className="text-sm">
-                    {t('wrong_chain_message', { chainName: DEFAULT_CHAIN.name })}
+                    {t('wrong_chain_message', { chainName: getChainConfig(eventInfo?.chain_type as ChainType).name })}
                   </p>
                   <Button
                     onClick={handleSwitchChain}
                     className="mt-2 bg-yellow-800 text-white hover:bg-yellow-700 dark:bg-yellow-700 dark:hover:bg-yellow-600"
                   >
-                    {t('switch_to_chain', { chainName: DEFAULT_CHAIN.name })}
+                    {t('switch_to_chain', { chainName: getChainConfig(eventInfo?.chain_type as ChainType).name })}
                   </Button>
                 </div>
               )}
