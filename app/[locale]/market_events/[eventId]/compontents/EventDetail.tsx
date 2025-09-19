@@ -281,14 +281,16 @@ export default function EventDetail({
 
           {/* )} */}
         </div>
-        <div className="flex items-center gap-2">
-          <TimerQuarterIcon className="h-6 w-6" />
-          <span className="text-sm sm:text-base">{eventInfo?.start || '-'}</span>
-          <div className="border-muted-foreground w-3 border-t sm:w-4"></div>
-          <span className="text-sm sm:text-base">{eventInfo?.end || '-'}</span>
-        </div>
+        {eventInfo?.is_verified && (
+          <div className="flex items-center gap-2">
+            <TimerQuarterIcon className="h-6 w-6" />
+            <span className="text-sm sm:text-base">{eventInfo?.start || '-'}</span>
+            <div className="border-muted-foreground w-3 border-t sm:w-4"></div>
+            <span className="text-sm sm:text-base">{eventInfo?.end || '-'}</span>
+          </div>
+        )}
         {isLoggedIn && (
-          <div className="my-2 flex flex-wrap items-center gap-2 sm:my-4 sm:gap-4">
+          <div className="my-1 flex flex-wrap items-center gap-2 sm:my-2 sm:gap-4">
             {eventInfo?.a_type === 'normal' && (
               <Button
                 variant="outline"

@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { TextSearch } from 'lucide-react';
+import { Loader2, TextSearch } from 'lucide-react';
 
-import { useActives } from '@hooks/marketEvents';
+import { useActivesInfinite } from '@hooks/marketEvents';
 import { Skeleton } from '@shadcn/components/ui/skeleton';
 import CompActive from './Active';
 
@@ -62,35 +62,73 @@ const ActiveSkeleton = () => {
 
 export default function ActiveList(props: {
   search: string;
-  page: number;
   size: number;
   is_verify: number;
   onTotalChange?: (total: number) => void;
-  onTotalPagesChange?: (totalPages: number) => void;
+  onLoadMore?: () => void;
 }) {
-  const { search, page, size, is_verify, onTotalChange, onTotalPagesChange } = props;
+  const { search, size, is_verify, onTotalChange, onLoadMore } = props;
   const t = useTranslations('common');
-  const { data, isLoading } = useActives('', page, search, size, is_verify);
+  const { data, total, hasMore, isLoadingMore, isLoading, loadMore } = useActivesInfinite(
+    '',
+    search,
+    24,
+    is_verify
+  );
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
+  // 通知父组件总数变化
   useEffect(() => {
-    console.log('ActiveList', data);
-    if (data) {
-      onTotalChange?.(data.total || 0);
-      onTotalPagesChange?.(Math.ceil((data.total || 0) / size));
-    }
-  }, [data, onTotalChange, onTotalPagesChange, size]);
+    onTotalChange?.(total);
+  }, [total, onTotalChange]);
+
+  // 创建 Intersection Observer 来检测滚动到底部
+  const lastElementRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (isLoadingMore) return;
+      if (observerRef.current) observerRef.current.disconnect();
+
+      observerRef.current = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && hasMore) {
+            loadMore();
+            onLoadMore?.();
+          }
+        },
+        {
+          // 当元素进入视口 20% 时就触发
+          threshold: 0.2,
+          // 提前 100px 触发
+          rootMargin: '800px',
+        }
+      );
+
+      if (node) observerRef.current.observe(node);
+    },
+    [isLoadingMore, hasMore, loadMore, onLoadMore]
+  );
+
+  // 清理 observer
+  useEffect(() => {
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, []);
 
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3 xl:grid-cols-3">
-        {[...Array(size)].map((_, index) => (
+        {[...Array(24)].map((_, index) => (
           <ActiveSkeleton key={index} />
         ))}
       </div>
     );
   }
 
-  if (!Array.isArray(data?.list) || data?.list.length === 0) {
+  if (!Array.isArray(data) || data.length === 0) {
     return (
       <div className="text-md text-muted-foreground flex aspect-square items-center justify-center gap-1 font-medium opacity-40 md:aspect-video lg:aspect-auto lg:h-96">
         <TextSearch className="h-6 w-6" />
@@ -100,10 +138,31 @@ export default function ActiveList(props: {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-3 md:grid-cols-3 xl:grid-cols-3">
-      {data.list.map((item) => (
-        <CompActive key={item.id} data={item} />
-      ))}
-    </div>
+    <>
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-3 xl:grid-cols-3">
+        {data.map((item) => (
+          <CompActive key={item.id} data={item} />
+        ))}
+      </div>
+
+      {/* 加载更多指示器 */}
+      {hasMore && (
+        <div ref={lastElementRef} className="flex justify-center py-4">
+          {isLoadingMore ? (
+            <div className="text-muted-foreground flex items-center gap-1 text-sm">
+              <Loader2 className="h-6 w-6 animate-spin" />
+              {t('loading')}
+            </div>
+          ) : (
+            <div className="text-muted-foreground text-sm">{t('scroll_to_load_more')}</div>
+          )}
+        </div>
+      )}
+
+      {/* 没有更多数据时的提示 */}
+      {!hasMore && data.length > 0 && (
+        <div className="text-muted-foreground py-4 text-center text-sm">{t('no_more_data')}</div>
+      )}
+    </>
   );
 }
