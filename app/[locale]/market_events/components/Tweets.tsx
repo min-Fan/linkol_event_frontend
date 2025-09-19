@@ -46,6 +46,19 @@ export default function Tweets() {
     setIsAutoPlay(!isAutoPlay);
   };
 
+  // 检测是否为移动设备
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 640 || 'ontouchstart' in window);
+    };
+    
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
+
   // 更新CSS变量来控制动画速度和方向
   useEffect(() => {
     console.log('Animation control useEffect triggered');
@@ -55,14 +68,16 @@ export default function Tweets() {
       isSliderHovered,
       isSliderDragging,
       shouldAnimate,
+      isMobile,
     });
 
     if (containerRef.current && shouldAnimate) {
       const animationElements = containerRef.current.querySelectorAll('[data-row]');
       animationElements.forEach((element) => {
         const htmlElement = element as HTMLElement;
-        // 考虑悬停状态：内容悬停或滑块悬停时暂停，否则根据自动播放状态决定
-        const shouldPlay = isAutoPlay && !isHovered && !isSliderHovered && !isSliderDragging;
+        // 移动端不考虑悬停状态，桌面端考虑悬停状态
+        const shouldPlay = isAutoPlay && 
+          (isMobile ? !isSliderDragging : !isHovered && !isSliderHovered && !isSliderDragging);
         console.log('Should play:', shouldPlay);
         htmlElement.style.animationPlayState = shouldPlay ? 'running' : 'paused';
         htmlElement.style.animationDirection = animationDirection;
@@ -77,6 +92,7 @@ export default function Tweets() {
     isSliderHovered,
     isSliderDragging,
     shouldAnimate,
+    isMobile,
   ]);
 
   // 拖动手势处理
@@ -196,7 +212,11 @@ export default function Tweets() {
 
   // 自动播放时滑块从左往右循环移动
   useEffect(() => {
-    if (isAutoPlay && shouldAnimate && !isSliderDragging && !isHovered && !isSliderHovered) {
+    // 移动端不考虑悬停状态，桌面端考虑悬停状态
+    const shouldMoveSlider = isAutoPlay && shouldAnimate && !isSliderDragging && 
+      (isMobile ? true : !isHovered && !isSliderHovered);
+    
+    if (shouldMoveSlider) {
       const interval = setInterval(() => {
         setTimePosition((prev) => {
           // 从左往右循环移动 (0 -> 100)
@@ -207,7 +227,7 @@ export default function Tweets() {
 
       return () => clearInterval(interval);
     }
-  }, [isAutoPlay, shouldAnimate, isSliderDragging, isHovered, isSliderHovered]);
+  }, [isAutoPlay, shouldAnimate, isSliderDragging, isHovered, isSliderHovered, isMobile]);
 
   // 添加全局事件监听处理滑块拖动
   useEffect(() => {
@@ -265,7 +285,7 @@ export default function Tweets() {
       </div>
       {/* 底部时间控制滑块 - 只有在有数据且需要动画时才显示 */}
       {hasData && shouldAnimate && (
-        <div className="mt-auto pt-4">
+        <div className="mt-auto pt-4 hidden sm:block">
           <div className="flex items-center gap-4">
             <div className="bg-muted-foreground/5 hover:bg-muted-foreground/10 flex items-center gap-2 rounded-lg p-2">
               <ChevronLeft className="size-4" />
