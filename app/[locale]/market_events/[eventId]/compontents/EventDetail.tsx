@@ -38,7 +38,7 @@ import DialogInvire from './dialog/DialogInvire';
 import DialogPostTweetLink from './dialog/DialogPostTweetLink';
 import DialogClaimReward from './dialog/DialogClaimReward';
 import DialogGuide from './dialog/DialogGuide';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import PagesRoute from '@constants/routes';
 import { Link, useRouter } from '@libs/i18n/navigation';
 import { BellRing, Dices, Flashlight, Zap } from 'lucide-react';
@@ -140,6 +140,7 @@ export default function EventDetail({
     refreshUserActivityReward: () => Promise<void>;
   } | null>;
 }) {
+  const locale = useLocale();
   const t = useTranslations('common');
   const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
   const { isLogin } = useUserInfo();
@@ -250,10 +251,12 @@ export default function EventDetail({
               <span className="text-md">Linkol</span>
             </Button>
           ) : ( */}
-          {!eventInfo.is_verified && eventInfo?.active_type?.code === 'unverify' ? (
+          {!eventInfo.is_verified ? (
             <>
               <Button className="cursor-default !rounded-xl !bg-orange-500/10 !text-orange-500">
-                {t('unverified')}
+                {locale === 'zh'
+                  ? eventInfo?.active_type?.zh_name
+                  : eventInfo?.active_type?.en_name}
               </Button>
             </>
           ) : (
