@@ -13,7 +13,6 @@ import localForage from 'localforage';
 // 导入自己封装好的reducers
 import userReducer, { initialState, UserState } from './reducers/userSlice';
 import { updateVersion } from './global/actions';
-import { DEFAULT_CHAIN } from 'app/constants/chains';
 
 // 创建一个安全的存储配置，支持SSR
 const createSafeStorage = () => {

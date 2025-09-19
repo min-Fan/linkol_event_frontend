@@ -18,6 +18,7 @@ import DialogInvitationCode from './dialog/DialogInvitationCode';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { InviteIcon } from '@assets/svg';
 import SpaceButton from 'app/components/SpaceButton/SpaceButton';
+import { ChainType, getChainConfig } from '@constants/config';
 
 interface RaffleRewardCardProps {
   eventInfo: IEventInfoResponseData;
@@ -242,6 +243,15 @@ export default function RaffleRewardCard({
               {totalReceiveAmount} {symbol || ''}
             </span>
           </div>
+          {getChainConfig(eventInfo?.chain_type as ChainType).iconUrl && (
+            <div className="bg-background ml-auto overflow-hidden rounded-full p-2 shadow-md">
+              <img
+                src={getChainConfig(eventInfo?.chain_type as ChainType).iconUrl}
+                alt="chain"
+                className="size-8 min-h-8 min-w-8"
+              />
+            </div>
+          )}
           <Button
             onClick={onClaim}
             disabled={totalReceiveAmount === 0}

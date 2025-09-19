@@ -19,6 +19,7 @@ export interface ChainConfig {
   name: string;
   KOLServiceAddress?: string;
   ActivityServiceAddress?: string;
+  iconUrl?: string;
   tokens: Record<TokenType, TokenConfig>;
   defaultToken: TokenType;
 }
@@ -34,6 +35,8 @@ const DEVELOPMENT_CONFIG: Record<ChainType, ChainConfig> = {
     KOLServiceAddress: '0x68Fab9e02bD60a1F9EBDD5bb192eE2C59Fb16970', // 测试网地址
     ActivityServiceAddress: '0xd1CF4991BA007f1743eD5F51CF73c42f18E304Bd', // 测试网地址
     defaultToken: 'usdc',
+    iconUrl:
+      'https://sepolia.basescan.org/assets/basesepolia/images/svg/logos/chain-light.svg?v=25.9.1.0',
     tokens: {
       usdc: {
         symbol: 'USDT',
@@ -53,6 +56,7 @@ const DEVELOPMENT_CONFIG: Record<ChainType, ChainConfig> = {
     chainId: 'solana',
     name: 'Solana',
     defaultToken: 'usd1',
+    iconUrl: 'https://solana.com/apple-touch-icon.png',
     tokens: {
       usd1: {
         symbol: 'USD1',
@@ -78,6 +82,8 @@ const PRODUCTION_CONFIG: Record<ChainType, ChainConfig> = {
     KOLServiceAddress: '0xD562135D926763d4132a3E7d55a536850E03bcA9',
     ActivityServiceAddress: '0xf3E45cF29c86b92cc7CC8Ef68773162B53CB5C78',
     defaultToken: 'usdc',
+    iconUrl:
+      'https://sepolia.basescan.org/assets/basesepolia/images/svg/logos/chain-light.svg?v=25.9.1.0',
     tokens: {
       usdc: {
         symbol: 'USDC',
@@ -97,6 +103,7 @@ const PRODUCTION_CONFIG: Record<ChainType, ChainConfig> = {
     chainId: 'solana',
     name: 'Solana',
     defaultToken: 'usd1',
+    iconUrl: 'https://solana.com/apple-touch-icon.png',
     tokens: {
       usd1: {
         symbol: 'USD1',

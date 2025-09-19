@@ -16,7 +16,7 @@ import { useTranslations } from 'next-intl';
 import Loader from '@ui/loading/loader';
 import { useAppSelector } from '@store/hooks';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt, useSwitchChain } from 'wagmi';
-import { getContractAddress } from '@constants/config';
+import { ChainType, getChainConfig, getContractAddress } from '@constants/config';
 import Activityservice_abi from '@constants/abi/Activityservice_abi.json';
 import { cn } from '@shadcn/lib/utils';
 import { getExplorerLink } from '@constants/chains';
@@ -27,7 +27,6 @@ import {
 } from '@libs/request';
 import UIWallet from '@ui/wallet';
 import useUserInfo from '@hooks/useUserInfo';
-import { DEFAULT_CHAIN } from '@constants/chains';
 import { formatBigNumber, parseToBigNumber, toContractAmount } from '@libs/utils/format-bignumber';
 import useUserActivityReward from '@hooks/useUserActivityReward';
 import UIDialogBindEmail from '@ui/dialog/BindEmail';
@@ -104,7 +103,10 @@ const DialogClaimReward = memo(
 
     // 检查当前链是否为默认链
     useEffect(() => {
-      if (chainId && DEFAULT_CHAIN.id !== chainId) {
+      if (
+        chainId &&
+        getChainConfig(eventInfo?.chain_type as ChainType).chainId !== chainId.toString()
+      ) {
         setIsWrongChain(true);
       } else {
         setIsWrongChain(false);
@@ -114,7 +116,9 @@ const DialogClaimReward = memo(
     // 切换到默认链
     const handleSwitchChain = async () => {
       try {
-        await switchChain({ chainId: DEFAULT_CHAIN.id });
+        await switchChain({
+          chainId: parseInt(getChainConfig(eventInfo?.chain_type as ChainType).chainId),
+        });
       } catch (error) {
         console.error('切换链失败:', error);
         toast.error(t('switch_chain_failed'));
@@ -520,13 +524,17 @@ const DialogClaimReward = memo(
                 {isWrongChain && eventInfo?.chain_type === 'BASE' && (
                   <div className="flex w-full flex-col items-center justify-center rounded-md bg-yellow-100 p-4 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100">
                     <p className="text-sm">
-                      {t('wrong_chain_message', { chainName: DEFAULT_CHAIN.name })}
+                      {t('wrong_chain_message', {
+                        chainName: getChainConfig(eventInfo?.chain_type as ChainType).name,
+                      })}
                     </p>
                     <Button
                       onClick={handleSwitchChain}
                       className="mt-2 bg-yellow-800 text-white hover:bg-yellow-700 dark:bg-yellow-700 dark:hover:bg-yellow-600"
                     >
-                      {t('switch_to_chain', { chainName: DEFAULT_CHAIN.name })}
+                      {t('switch_to_chain', {
+                        chainName: getChainConfig(eventInfo?.chain_type as ChainType).name,
+                      })}
                     </Button>
                   </div>
                 )}

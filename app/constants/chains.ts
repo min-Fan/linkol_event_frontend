@@ -1,11 +1,29 @@
 import { Chain, base, baseSepolia } from 'wagmi/chains';
 import { getSupportedChains, getDefaultChain } from './config';
+import { SolanaProvider } from 'app/solana/solana-provider';
 
 // 扩展 Chain 类型以包含 iconUrl
 interface ExtendedChain extends Chain {
   iconUrl?: string; // 可选属性
   iconBackground?: string;
 }
+
+export const solana_chain = {
+  id: 'solana',
+  name: 'Solana',
+  iconUrl: 'https://solana.com/apple-touch-icon.png',
+  iconBackground: '#fff',
+  nativeCurrency: { name: 'SOL', symbol: 'SOL', decimals: 9 },
+  rpcUrls: {
+    default: { http: [process.env.NEXT_PUBLIC_SOLANA_RPC || ''] },
+  },
+  blockExplorers: {
+    default: {
+      name: 'Solana Explorer',
+      url: 'https://solscan.io',
+    },
+  },
+};
 
 export const chain: { [key: string]: ExtendedChain } = {
   '8453': base,
@@ -35,12 +53,12 @@ export const getChain = (chainId: number) => {
 
 // 生成区块浏览器链接
 export const getExplorerLink = (
-  chainId: number,
+  chainId: number | string,
   data: string,
   type: 'transaction' | 'address' = 'transaction'
 ) => {
   if (!data || !chainId) return '';
-  const currentChain = chain[chainId];
+  const currentChain = chainId === 'solana' ? solana_chain : chain[chainId];
   if (!currentChain?.blockExplorers?.default?.url) {
     return '';
   }
