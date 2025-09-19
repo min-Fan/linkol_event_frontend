@@ -129,6 +129,8 @@
     "error_select_kol": "请至少选择一个KOL",
     "error_email_required": "请输入邮箱",
     "no_data": "暂无数据",
+    "scroll_to_load_more": "滚动加载更多",
+    "no_more_data": "没有更多数据了",
     "not_bind_email": "未绑定邮箱",
     "no_partners": "暂无合作伙伴",
     "login_success": "登录成功",

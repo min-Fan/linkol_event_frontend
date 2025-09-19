@@ -14,7 +14,6 @@ const useLogoutSolana = () => {
     dispatchApp(updateAccount(null));
     dispatchApp(updateIsLoginSolana(false));
     localStorage.removeItem('SOLANA_ACCOUNT');
-    console.log('xxxxxxxxxxxxxxxx disConnect');
   };
   return { disConnectSolana };
 };

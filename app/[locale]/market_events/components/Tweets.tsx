@@ -53,7 +53,7 @@ export default function Tweets() {
     const checkIsMobile = () => {
       setIsMobile(window.innerWidth < 640 || 'ontouchstart' in window);
     };
-    
+
     checkIsMobile();
     window.addEventListener('resize', checkIsMobile);
     return () => window.removeEventListener('resize', checkIsMobile);
@@ -76,7 +76,8 @@ export default function Tweets() {
       animationElements.forEach((element) => {
         const htmlElement = element as HTMLElement;
         // 移动端不考虑悬停状态，桌面端考虑悬停状态
-        const shouldPlay = isAutoPlay && 
+        const shouldPlay =
+          isAutoPlay &&
           (isMobile ? !isSliderDragging : !isHovered && !isSliderHovered && !isSliderDragging);
         console.log('Should play:', shouldPlay);
         htmlElement.style.animationPlayState = shouldPlay ? 'running' : 'paused';
@@ -213,9 +214,12 @@ export default function Tweets() {
   // 自动播放时滑块从左往右循环移动
   useEffect(() => {
     // 移动端不考虑悬停状态，桌面端考虑悬停状态
-    const shouldMoveSlider = isAutoPlay && shouldAnimate && !isSliderDragging && 
+    const shouldMoveSlider =
+      isAutoPlay &&
+      shouldAnimate &&
+      !isSliderDragging &&
       (isMobile ? true : !isHovered && !isSliderHovered);
-    
+
     if (shouldMoveSlider) {
       const interval = setInterval(() => {
         setTimePosition((prev) => {
@@ -285,7 +289,7 @@ export default function Tweets() {
       </div>
       {/* 底部时间控制滑块 - 只有在有数据且需要动画时才显示 */}
       {hasData && shouldAnimate && (
-        <div className="mt-auto pt-4 hidden sm:block">
+        <div className="mt-auto hidden pt-4 sm:block">
           <div className="flex items-center gap-4">
             <div className="bg-muted-foreground/5 hover:bg-muted-foreground/10 flex items-center gap-2 rounded-lg p-2">
               <ChevronLeft className="size-4" />

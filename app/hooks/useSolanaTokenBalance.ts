@@ -46,7 +46,7 @@ export const useSolanaTokenBalance = (mintAddress?: string) => {
   };
 
   useEffect(() => {
-    fetchTokenBalance();
+    // fetchTokenBalance();
   }, [publicKey, mintAddress, connection]);
 
   return {

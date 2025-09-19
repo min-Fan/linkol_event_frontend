@@ -131,6 +131,8 @@
     "error_select_kol": "Please select at least one KOL",
     "error_email_required": "Please enter email",
     "no_data": "No data",
+    "scroll_to_load_more": "Scroll to load more",
+    "no_more_data": "No more data",
     "not_bind_email": "Not Bound Email",
     "no_partners": "No partners",
     "login_success": "Login successfully",
