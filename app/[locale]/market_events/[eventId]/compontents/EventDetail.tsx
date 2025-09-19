@@ -334,7 +334,7 @@ export default function EventDetail({
             '-'
           ) : (
             <>
-              <p>{eventInfo?.requirement}</p>
+              <p>{eventInfo?.description}</p>
             </>
           )}
         </div>
