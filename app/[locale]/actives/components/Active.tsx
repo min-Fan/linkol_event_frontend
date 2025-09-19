@@ -26,7 +26,7 @@ export default function Active(props: { data: IActive }) {
         <div className="space-y-3">
           <dl className="flex items-center justify-between gap-x-3 text-base font-medium">
             <dt className="truncate">{data.title}</dt>
-            <dd className="bg-accent flex h-8 items-center gap-x-1 rounded-full px-2 sm:text-md text-sm">
+            <dd className="bg-accent sm:text-md flex h-8 items-center gap-x-1 rounded-full px-2 text-sm">
               {data.is_verified ? `$${data.reward_amount}` : t('unverified')}
               {data.is_verified && tokenInfo.iconType && (
                 <TokenIcon type={tokenInfo.iconType as string} className="size-5" />

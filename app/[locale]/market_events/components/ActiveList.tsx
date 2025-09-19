@@ -61,7 +61,7 @@ const ActiveSkeleton = () => {
   );
 };
 
-export default function ActiveList(props: { search: string; type: ACTIVE_TYPE; page: number}) {
+export default function ActiveList(props: { search: string; type: ACTIVE_TYPE; page: number }) {
   const { search, type, page } = props;
   const t = useTranslations('common');
   const { data, isLoading } = useActives(type as string, page, search);

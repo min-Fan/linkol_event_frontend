@@ -60,10 +60,10 @@ const ActiveSkeleton = () => {
   );
 };
 
-export default function ActiveList(props: { 
-  search: string; 
-  page: number, 
-  size: number, 
+export default function ActiveList(props: {
+  search: string;
+  page: number;
+  size: number;
   is_verify: number;
   onTotalChange?: (total: number) => void;
   onTotalPagesChange?: (totalPages: number) => void;

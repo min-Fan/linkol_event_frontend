@@ -7,7 +7,11 @@ export default function MarketEventsLayout({ children }: { children: React.React
   return (
     <div className="relative flex min-h-screen w-full flex-col">
       <Header />
-      <div className={cn('mx-auto box-border flex-1 w-full max-w-[1100px] p-0 px-2 pt-14 sm:pt-16 sm:px-0')}>
+      <div
+        className={cn(
+          'mx-auto box-border w-full max-w-[1100px] flex-1 p-0 px-2 pt-14 sm:px-0 sm:pt-16'
+        )}
+      >
         {children}
       </div>
       <Footer />
