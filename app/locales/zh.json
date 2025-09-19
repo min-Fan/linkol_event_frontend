@@ -1160,6 +1160,7 @@
     "tweet_content_too_long": "推文内容过长，最多 {max} 个字符，当前 {current} 个字符",
     "wallet_not_connected": "钱包未连接",
     "signature_failed": "签名失败",
-    "unverified": "未认证"
+    "unverified": "未认证",
+    "search_active_keyword": "搜索活动..."
   }
 }

@@ -6,7 +6,6 @@ import { TextSearch } from 'lucide-react';
 
 import { useActives } from '@hooks/marketEvents';
 import { Skeleton } from '@shadcn/components/ui/skeleton';
-import { ACTIVE_TYPE } from './ActiveTypeTab';
 import CompActive from './Active';
 
 // 活动卡片骨架屏组件
@@ -61,19 +60,30 @@ const ActiveSkeleton = () => {
   );
 };
 
-export default function ActiveList(props: { search: string; type: ACTIVE_TYPE; page: number}) {
-  const { search, type, page } = props;
+export default function ActiveList(props: { 
+  search: string; 
+  page: number, 
+  size: number, 
+  is_verify: number;
+  onTotalChange?: (total: number) => void;
+  onTotalPagesChange?: (totalPages: number) => void;
+}) {
+  const { search, page, size, is_verify, onTotalChange, onTotalPagesChange } = props;
   const t = useTranslations('common');
-  const { data, isLoading } = useActives(type as string, page, search);
+  const { data, isLoading } = useActives('', page, search, size, is_verify);
 
   useEffect(() => {
     console.log('ActiveList', data);
-  }, [data]);
+    if (data) {
+      onTotalChange?.(data.total || 0);
+      onTotalPagesChange?.(Math.ceil((data.total || 0) / size));
+    }
+  }, [data, onTotalChange, onTotalPagesChange, size]);
 
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3 xl:grid-cols-3">
-        {[...Array(3)].map((_, index) => (
+        {[...Array(size)].map((_, index) => (
           <ActiveSkeleton key={index} />
         ))}
       </div>

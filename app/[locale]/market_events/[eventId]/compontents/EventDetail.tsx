@@ -250,7 +250,7 @@ export default function EventDetail({
               <span className="text-md">Linkol</span>
             </Button>
           ) : ( */}
-          {eventInfo?.active_type?.code === 'unverify' ? (
+          {!eventInfo.is_verified && eventInfo?.active_type?.code === 'unverify' ? (
             <>
               <Button className="cursor-default !rounded-xl !bg-orange-500/10 !text-orange-500">
                 {t('unverified')}
@@ -337,7 +337,7 @@ export default function EventDetail({
           <div className="bg-muted-foreground/5 flex w-full flex-wrap items-center justify-between gap-4 rounded-lg p-3 px-4 sm:w-auto sm:flex-1">
             <span className="text-muted-foreground sm:text-md text-sm">{t('reward_pool')}</span>
             <span className="sm:text-md flex items-center gap-1 text-sm font-semibold">
-              {eventInfo?.reward_amount?.toLocaleString() || '-'}
+              {eventInfo?.is_verified && `$${eventInfo?.reward_amount?.toLocaleString()}`}
               {iconType && <TokenIcon type={iconType} className="size-5" />}
               {symbol || ''}
             </span>

@@ -12,7 +12,7 @@ const EndPoint = {
   TWEET_RECORD: '/kol/api/v3/active/all/tweets/',
 };
 
-const PAGE_SIZE = 6;
+const PAGE_SIZE = 3;
 
 interface IBanner {
   id: number;
@@ -95,6 +95,18 @@ export interface IActive {
   participants: number;
   joins: string[];
   join_count: number;
+  /**
+   * 代币网络
+   */
+  chain_type: string;
+  /**
+   * 代币类型
+   */
+  token_type: string;
+  /**
+   * 是否已经认证
+   */
+  is_verified: boolean;
 }
 
 export interface IActives {
@@ -122,10 +134,12 @@ export function useActives(
   type: string,
   page: number,
   search: string = '',
-  size: number = PAGE_SIZE
+  size: number = PAGE_SIZE,
+  is_verify?: number
 ) {
   const { data, ...rest } = useSWR(
-    `${EndPoint.ACTIVES}?data_type=${type}&page=${page}&size=${size}&kw=${search}`,
+    `${EndPoint.ACTIVES}?data_type=${type}&page=${page}&size=${size}&kw=${search}` +
+      (is_verify !== undefined ? `&is_verify=${is_verify}` : ''),
     (url) => activesFetcher(url),
     {
       revalidateOnFocus: false,
