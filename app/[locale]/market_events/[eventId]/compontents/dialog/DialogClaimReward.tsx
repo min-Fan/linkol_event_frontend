@@ -16,7 +16,7 @@ import { useTranslations } from 'next-intl';
 import Loader from '@ui/loading/loader';
 import { useAppSelector } from '@store/hooks';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt, useSwitchChain } from 'wagmi';
-import { getContractAddress } from '@constants/config';
+import { ChainType, getChainConfig, getContractAddress } from '@constants/config';
 import Activityservice_abi from '@constants/abi/Activityservice_abi.json';
 import { cn } from '@shadcn/lib/utils';
 import { getExplorerLink } from '@constants/chains';
@@ -27,17 +27,18 @@ import {
 } from '@libs/request';
 import UIWallet from '@ui/wallet';
 import useUserInfo from '@hooks/useUserInfo';
-import { DEFAULT_CHAIN } from '@constants/chains';
 import { formatBigNumber, parseToBigNumber, toContractAmount } from '@libs/utils/format-bignumber';
 import useUserActivityReward from '@hooks/useUserActivityReward';
 import UIDialogBindEmail from '@ui/dialog/BindEmail';
 import Connect from '@ui/solanaConnect/connect';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { useEventTokenInfo } from '@hooks/useEventTokenInfo';
+import { IEventInfoResponseData } from '@libs/request';
 
 interface DialogClaimRewardProps {
   isOpen: boolean;
   onClose: () => void;
-  eventInfo: any;
+  eventInfo: IEventInfoResponseData;
   onRefresh?: () => Promise<void>;
 }
 
@@ -61,7 +62,10 @@ const DialogClaimReward = memo(
       tokenAddress: string;
     } | null>(null);
     const { eventId } = useParams();
-    const payTokenInfo = useAppSelector((state) => state.userReducer?.pay_token_info);
+    const { symbol, decimals } = useEventTokenInfo({
+      chain_type: eventInfo?.chain_type,
+      token_type: eventInfo?.token_type,
+    });
     const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
     const twInfo = useAppSelector((state) => state.userReducer?.twitter_full_profile);
     const isLoginSolana = useAppSelector((state) => state.userReducer?.isLoginSolana);
@@ -102,7 +106,10 @@ const DialogClaimReward = memo(
 
     // 检查当前链是否为默认链
     useEffect(() => {
-      if (chainId && DEFAULT_CHAIN.id !== chainId) {
+      if (
+        chainId &&
+        getChainConfig(eventInfo?.chain_type as ChainType).chainId !== chainId.toString()
+      ) {
         setIsWrongChain(true);
       } else {
         setIsWrongChain(false);
@@ -112,7 +119,9 @@ const DialogClaimReward = memo(
     // 切换到默认链
     const handleSwitchChain = async () => {
       try {
-        await switchChain({ chainId: DEFAULT_CHAIN.id });
+        await switchChain({
+          chainId: parseInt(getChainConfig(eventInfo?.chain_type as ChainType).chainId),
+        });
       } catch (error) {
         console.error('切换链失败:', error);
         toast.error(t('switch_chain_failed'));
@@ -262,9 +271,10 @@ const DialogClaimReward = memo(
         setClaimedAmount(availableRewards);
 
         // 1. 调用签名接口
+        const contractAddress = getContractAddress(eventInfo?.chain_type, eventInfo?.token_type);
         const signatureRes: any = await getReceiveRewardSignature({
-          tokenAddress: getContractAddress().pay_member_token_address as `0x${string}`,
-          // amount: toContractAmount(String(availableRewards), payTokenInfo?.decimals || 6).toString(),
+          tokenAddress: contractAddress?.pay_member_token_address as `0x${string}`,
+          // amount: toContractAmount(String(availableRewards), decimals || 6).toString(),
           activeId: eventId as string,
           receiver: address,
         });
@@ -289,7 +299,7 @@ const DialogClaimReward = memo(
 
         // 2. 调用合约方法
         claimByReward({
-          address: getContractAddress().ActivityServiceAddress as `0x${string}`,
+          address: contractAddress?.ActivityServiceAddress as `0x${string}`,
           abi: Activityservice_abi,
           functionName: 'claimByReward',
           args: [tokenAddress, amounts, rewardIds, timestamp, signature],
@@ -314,7 +324,7 @@ const DialogClaimReward = memo(
       eventId,
       onRefresh,
       claimByReward,
-      payTokenInfo?.decimals,
+      decimals,
     ]);
 
     const handleClaimRewardSolana = useCallback(async () => {
@@ -380,8 +390,9 @@ const DialogClaimReward = memo(
         const claimRes: any = await getSolanaClaimReward({
           receive_amount: amountWithPrecision,
           active_id: eventId as string,
-          signature: signatureString,
+          solana_sign: signatureString,
           solana_address: publicKey.toString(),
+          timestamp: timestamp,
         });
 
         // 重置签名请求标记
@@ -516,13 +527,17 @@ const DialogClaimReward = memo(
                 {isWrongChain && eventInfo?.chain_type === 'BASE' && (
                   <div className="flex w-full flex-col items-center justify-center rounded-md bg-yellow-100 p-4 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100">
                     <p className="text-sm">
-                      {t('wrong_chain_message', { chainName: DEFAULT_CHAIN.name })}
+                      {t('wrong_chain_message', {
+                        chainName: getChainConfig(eventInfo?.chain_type as ChainType).name,
+                      })}
                     </p>
                     <Button
                       onClick={handleSwitchChain}
                       className="mt-2 bg-yellow-800 text-white hover:bg-yellow-700 dark:bg-yellow-700 dark:hover:bg-yellow-600"
                     >
-                      {t('switch_to_chain', { chainName: DEFAULT_CHAIN.name })}
+                      {t('switch_to_chain', {
+                        chainName: getChainConfig(eventInfo?.chain_type as ChainType).name,
+                      })}
                     </Button>
                   </div>
                 )}
@@ -556,7 +571,7 @@ const DialogClaimReward = memo(
                   <p className="text-sm">
                     {t('reward_sent_to_wallet', {
                       amount: claimedAmount,
-                      symbol: payTokenInfo?.symbol || 'USDC',
+                      symbol: symbol || 'USDC',
                     })}
                   </p>
                 </div>

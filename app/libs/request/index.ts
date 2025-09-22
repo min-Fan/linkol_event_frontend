@@ -80,7 +80,7 @@ export const ENDPOINT_URL = {
   GET_REWARD_RULE: '/kol/api/v3/reward/rules/',
   CREATE_ACTIVITY_CALLBACK: '/kol/api/v3/active/create/pay/',
   CREATE_ACTIVITY_CALLBACK_REWARD: '/kol/api/v6/claim_reward/success/',
-  SOLANA_CLAIM_REWARD: '/kol/api/v6/solana/claim_reward/',
+  SOLANA_CLAIM_REWARD: '/kol/api/v6/claim_reward/usd1/pay/',
   UPDATE_ACTIVITY: '/kol/api/v3/actives/',
   GET_PRICE: '/kol/api/v4/price/',
 };
@@ -1245,6 +1245,10 @@ export interface IEventInfoResponseData {
   user_reward?: number;
   chain_type?: string;
   token_type?: string;
+  /**
+   * 是否认证
+   */
+  is_verified?: boolean;
 }
 
 /**
@@ -1645,7 +1649,7 @@ export interface IGetActivityPostsParams {
    * 语言
    * 国家名字对应的缩写，en英文，zh中文,不传表示获取全部
    */
-  language: LanguageCode | '';
+  language: LanguageCodeShort | '';
   /**
    * 活动ID
    */
@@ -1660,11 +1664,28 @@ export interface IGetActivityPostsParams {
   size: number;
 }
 export enum LanguageCode {
+  Chinese = 'Chinese',
+  English = 'English',
+  Indonesian = 'Indonesian',
+  Japanese = 'Japanese',
+  Korea = 'Korea',
+  Spanish = 'Spanish',
+  French = 'French',
+  German = 'German',
+  Russian = 'Russian',
+  Arabic = 'Arabic',
+  Portuguese = 'Portuguese',
+  Vietnamese = 'Vietnamese',
+  Thai = 'Thai',
+  Malay = 'Malay',
+}
+export enum LanguageCodeShort {
+  All = '',
   Chinese = 'zh',
   English = 'en',
-  Indonesian = 'in',
+  Korea = 'ko',
+  Indonesia = 'in',
   Japanese = 'ja',
-  Korean = 'ko',
   Spanish = 'es',
   French = 'fr',
   German = 'de',
@@ -1882,6 +1903,23 @@ export const getAiChatTweet = (activeId: string, language: string) => {
   });
 };
 
+// 活动生成推文
+export interface IGetActivityTweetParams {
+  /**
+   * 活动ID
+   */
+  active_id: string;
+  /**
+   * 'English', 'Chinese', 'Korea'中的一种
+   */
+  language: string;
+}
+export const getActivityTweet = (params: IGetActivityTweetParams) => {
+  return kolRequest.get(`/kol/api/v3/generate/tweet/`, {
+    ...params,
+  });
+};
+
 // 发送活动推文
 export interface ISendActivityTweetParams {
   /**
@@ -2052,11 +2090,15 @@ export interface IGetSolanaClaimRewardParams {
   /**
    * 签名
    */
-  signature: string;
+  solana_sign: string;
   /**
    * Solana 钱包地址
    */
   solana_address: string;
+  /**
+   * 时间戳
+   */
+  timestamp: number;
 }
 export const getSolanaClaimReward = (params: IGetSolanaClaimRewardParams) => {
   return kolRequest.post(ENDPOINT_URL.SOLANA_CLAIM_REWARD, params);
@@ -2171,4 +2213,57 @@ export interface IGetInvitationCodeData {
 }
 export const getInvitationCode = (params: IGetInvitationCodeParams) => {
   return kolRequest.get<IGetInvitationCodeData>('/kol/api/v6/active/invite_code/', { ...params });
+};
+
+// 活动提现记录
+export interface IGetActivityWithdrawRecordParams {
+  /**
+   * 活动ID
+   */
+  active_id: string;
+}
+export interface IGetActivityWithdrawRecordData {
+  /**
+   * 链类型
+   */
+  chain_type: string;
+  id: number;
+  /**
+   * @前边的名字
+   */
+  name: string;
+  /**
+   * 金额
+   */
+  receive_amount: number;
+  /**
+   * 领取时间
+   */
+  receive_at: string;
+  /**
+   * 哈希
+   */
+  receive_tx_hash: string;
+  /**
+   * @后面的名字
+   */
+  scree_name: string;
+  /**
+   * 代币类型
+   */
+  token_type: string;
+  /**
+   * 用户头像
+   */
+  avatar: string;
+}
+export const getActivityWithdrawRecord = (params: IGetActivityWithdrawRecordParams) => {
+  return kolRequest.get<IGetActivityWithdrawRecordData[]>('/kol/api/v6/active/withdraws/', {
+    ...params,
+  });
+};
+
+// 用户粉丝
+export const getActivityFollowers = () => {
+  return kolRequest.get('/kol/api/v6/user/followers/');
 };

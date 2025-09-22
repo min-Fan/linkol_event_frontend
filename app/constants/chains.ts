@@ -1,4 +1,6 @@
 import { Chain, base, baseSepolia } from 'wagmi/chains';
+import { getSupportedChains, getDefaultChain } from './config';
+import { SolanaProvider } from 'app/solana/solana-provider';
 
 // 扩展 Chain 类型以包含 iconUrl
 interface ExtendedChain extends Chain {
@@ -6,9 +8,22 @@ interface ExtendedChain extends Chain {
   iconBackground?: string;
 }
 
-export const chains: { [key: string]: ExtendedChain } = {
-  base: base,
-  baseSepolia: baseSepolia,
+export const solana_chain = {
+  id: 'solana',
+  name: 'Solana',
+  iconUrl:
+    'https://cdn.brandfetch.io/ide0NUuTHO/theme/dark/symbol.svg?c=1bxid64Mup7aczewSAYMX&t=1668516395705',
+  iconBackground: '#fff',
+  nativeCurrency: { name: 'SOL', symbol: 'SOL', decimals: 9 },
+  rpcUrls: {
+    default: { http: [process.env.NEXT_PUBLIC_SOLANA_RPC || ''] },
+  },
+  blockExplorers: {
+    default: {
+      name: 'Solana Explorer',
+      url: 'https://solscan.io',
+    },
+  },
 };
 
 export const chain: { [key: string]: ExtendedChain } = {
@@ -32,18 +47,19 @@ export const chain: { [key: string]: ExtendedChain } = {
     contracts: {},
   } as const satisfies ExtendedChain,
 };
+
 export const getChain = (chainId: number) => {
   return chain[chainId];
 };
 
 // 生成区块浏览器链接
 export const getExplorerLink = (
-  chainId: number,
+  chainId: number | string,
   data: string,
   type: 'transaction' | 'address' = 'transaction'
 ) => {
   if (!data || !chainId) return '';
-  const currentChain = chain[chainId];
+  const currentChain = chainId === 'solana' ? solana_chain : chain[chainId];
   if (!currentChain?.blockExplorers?.default?.url) {
     return '';
   }
@@ -53,11 +69,23 @@ export const getExplorerLink = (
   return `${baseUrl}/${path}/${data}`;
 };
 
+// 获取支持的链配置
+export const getSupportedChainsConfig = () => {
+  const supportedChains = getSupportedChains();
+  return supportedChains.map((chainInfo) => chain[chainInfo.chainId]).filter(Boolean);
+};
+
+// 获取默认链配置
+export const getDefaultChainConfig = () => {
+  const defaultChainInfo = getDefaultChain();
+  return chain[defaultChainInfo.chainId];
+};
+
 // 支持的链配置
-export const SUPPORTED_CHAINS = [chain[process.env.NEXT_PUBLIC_CHAIN_ID as string]] as const;
+export const SUPPORTED_CHAINS = getSupportedChainsConfig();
 
 // 获取支持的链ID数组
 export const SUPPORTED_CHAIN_IDS = SUPPORTED_CHAINS.map((chain) => chain.id);
 
 // 默认链
-export const DEFAULT_CHAIN = chain[process.env.NEXT_PUBLIC_CHAIN_ID as string];
+export const DEFAULT_CHAIN = getDefaultChainConfig();

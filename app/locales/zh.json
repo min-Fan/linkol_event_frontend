@@ -129,6 +129,8 @@
     "error_select_kol": "请至少选择一个KOL",
     "error_email_required": "请输入邮箱",
     "no_data": "暂无数据",
+    "scroll_to_load_more": "滚动加载更多",
+    "no_more_data": "没有更多数据了",
     "not_bind_email": "未绑定邮箱",
     "no_partners": "暂无合作伙伴",
     "login_success": "登录成功",
@@ -1159,6 +1161,11 @@
     "get_invitation_code_failed": "获取邀请码失败",
     "tweet_content_too_long": "推文内容过长，最多 {max} 个字符，当前 {current} 个字符",
     "wallet_not_connected": "钱包未连接",
-    "signature_failed": "签名失败"
+    "signature_failed": "签名失败",
+    "unverified": "未认证",
+    "search_active_keyword": "搜索活动...",
+    "post_tweet_increase_brand_value_earn_ticket": "发布推文，增加品牌价值，获得抽奖券。",
+    "just_spend_1_minutes_everyday_earn_usd_immediately": "每天花费 1 分钟，立即赚取 USD。",
+    "no_withdraw_record": "暂无提现记录"
   }
 }

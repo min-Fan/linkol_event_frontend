@@ -40,7 +40,7 @@ export default function KOLSelectListView({ children }: { children: React.ReactN
               {t.rich('expected_total_cost', {
                 cost: (chunks) => (
                   <strong className="text-primary text-sm sm:text-base">
-                    {estimateTotal || 0} {payTokenInfo?.symbol}
+                    {estimateTotal || 0}
                   </strong>
                 ),
               })}
@@ -74,9 +74,7 @@ export default function KOLSelectListView({ children }: { children: React.ReactN
                       <p className="text-muted-foreground text-xs sm:text-sm">@{kol.screen_name}</p>
                     </div>
                     <div className="col-span-4 flex flex-col items-center justify-center">
-                      <p className="text-primary sm:text-md text-sm">
-                        {kol.price_yuan} {payTokenInfo?.symbol}
-                      </p>
+                      <p className="text-primary sm:text-md text-sm">{kol.price_yuan}</p>
                       <p className="text-muted-foreground text-xs sm:text-sm">/tweet</p>
                     </div>
                     <div className="col-span-2 flex items-center justify-end">

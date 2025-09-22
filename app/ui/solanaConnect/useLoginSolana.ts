@@ -5,17 +5,17 @@ import { AppEventType } from '@store/reducer';
 import { updateAccount, updateIsLoginSolana } from '@store/reducers/userSlice';
 import { useDispatch } from 'react-redux';
 
-const useLogout = () => {
+const useLogoutSolana = () => {
   const { disconnect } = useWallet();
   const dispatch = useDispatch();
   const dispatchApp = useAppDispatch();
-  const disConnect = () => {
+  const disConnectSolana = () => {
     disconnect();
     dispatchApp(updateAccount(null));
     dispatchApp(updateIsLoginSolana(false));
     localStorage.removeItem('SOLANA_ACCOUNT');
   };
-  return { disConnect };
+  return { disConnectSolana };
 };
 
-export default useLogout;
+export default useLogoutSolana;

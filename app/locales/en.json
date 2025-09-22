@@ -131,6 +131,8 @@
     "error_select_kol": "Please select at least one KOL",
     "error_email_required": "Please enter email",
     "no_data": "No data",
+    "scroll_to_load_more": "Scroll to load more",
+    "no_more_data": "No more data",
     "not_bind_email": "Not Bound Email",
     "no_partners": "No partners",
     "login_success": "Login successfully",
@@ -1158,6 +1160,11 @@
     "get_invitation_code_failed": "Failed to get invitation code",
     "tweet_content_too_long": "Tweet content too long, maximum {max} characters, current {current} characters",
     "wallet_not_connected": "Wallet not connected",
-    "signature_failed": "Signature failed"
+    "signature_failed": "Signature failed",
+    "unverified": "Unverified",
+    "search_active_keyword": "Search actives...",
+    "post_tweet_increase_brand_value_earn_ticket": "Post Tweet, Increase Brand Value, Earn Ticket.",
+    "just_spend_1_minutes_everyday_earn_usd_immediately": "Just spend 1 minutes everyday, Earn USD immediately",
+    "no_withdraw_record": "No withdraw record"
   }
 }

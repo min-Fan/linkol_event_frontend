@@ -19,7 +19,7 @@ export default function SubmitOrderInfo(props: {
     <div className="bg-background w-full rounded-2xl px-4 py-2 shadow-sm">
       <dl className="border-border flex w-full items-center justify-between gap-x-2 border-b p-2">
         <dt>{t('receive_contract_address')}</dt>
-        <dd className="break-all">{contractAddress.KOLServiceAddress || '-'}</dd>
+        <dd className="break-all">{contractAddress?.KOLServiceAddress || '-'}</dd>
       </dl>
       <dl className="border-border flex w-full items-center justify-between gap-x-2 border-b p-2">
         <dt>{t('network')}</dt>

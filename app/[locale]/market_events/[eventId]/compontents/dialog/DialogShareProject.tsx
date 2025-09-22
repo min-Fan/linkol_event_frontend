@@ -169,7 +169,7 @@ export default function DialogShareProject({ isOpen, onClose }: DialogShareProje
             <>
               {/* Project Link Field */}
               <div className="border-border flex items-center gap-2 rounded-lg border px-3 py-2">
-                <span className="text-muted-foreground flex-1 text-sm truncate">{shareLink}</span>
+                <span className="text-muted-foreground flex-1 truncate text-sm">{shareLink}</span>
                 <CopyIcon
                   className="text-muted-foreground h-4 w-4 cursor-pointer"
                   onClick={handleCopyLink}

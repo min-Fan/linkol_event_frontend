@@ -13,6 +13,7 @@ import {
   getActivityDetailLogin,
   getPrice,
   getInvitationCode,
+  getActivityFollowers,
 } from '@libs/request';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
@@ -281,6 +282,12 @@ export default function MarketEventsPage() {
       }
     }
   }, [eventInfo, router]);
+
+  const { data: followers } = useQuery({
+    queryKey: ['activityFollowers'],
+    queryFn: () => getActivityFollowers(),
+    enabled: !!isLoggedIn,
+  });
 
   return (
     <div className="h-full w-full max-w-7xl p-0 sm:px-10 sm:py-6">

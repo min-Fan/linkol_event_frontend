@@ -77,12 +77,10 @@ export default function OrderListItem({ order }: { order: OrderItemProps }) {
       </TableCell>
       <TableCell>
         <dl>
-          <dt>
-            {order.payment_amount || 0} {payTokenInfo?.symbol}
-          </dt>
+          <dt>{order.payment_amount || 0}</dt>
           <dd>
             ({t('spent')} <strong className="text-primary">{order.consumption_amount || 0}</strong>{' '}
-            {payTokenInfo?.symbol})
+            )
           </dd>
         </dl>
       </TableCell>

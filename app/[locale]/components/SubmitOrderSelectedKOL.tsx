@@ -31,9 +31,7 @@ export default function SubmitOrderSelectedKOL(props: { KOLsCount: number }) {
               <TableHead className="text-muted-foreground text-center">{t('tweets')}</TableHead>
               <TableHead className="text-muted-foreground text-center">{t('likes')}</TableHead>
               <TableHead className="text-muted-foreground text-center">{t('hot_tags')}</TableHead>
-              <TableHead className="text-muted-foreground text-center">
-                {payTokenInfo?.symbol}/Tweets
-              </TableHead>
+              <TableHead className="text-muted-foreground text-center">/Tweets</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

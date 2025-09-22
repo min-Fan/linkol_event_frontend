@@ -102,7 +102,7 @@ export function CommBarChart({
       <ChartContainer config={chartConfig} className="h-full w-full">
         <div className="text-muted-foreground flex h-full w-full flex-col items-center justify-center">
           <NullData className="h-14 w-14" />
-          <p className="text-md">{t('brand_value_will_show_after_this_event')}</p>
+          <p className="text-md">{t('post_tweet_increase_brand_value_earn_ticket')}</p>
         </div>
       </ChartContainer>
     );

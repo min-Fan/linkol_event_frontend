@@ -51,6 +51,7 @@ export default function UIDialogBindEmail(props: {
 
   const form = useForm<IBindEmailFormValues>({
     resolver: zodResolver(FormSchema),
+    mode: 'onChange', // 添加实时验证
     defaultValues: {
       email: '',
       code: '',
@@ -60,8 +61,12 @@ export default function UIDialogBindEmail(props: {
     getValues,
     handleSubmit,
     control,
+    watch,
     formState: { isDirty, isValid },
   } = form;
+
+  // 使用 watch 来获取实时的邮箱值
+  const emailValue = watch('email');
 
   const onSubmit = (params: IBindEmailFormValues) => {
     startTransition(async () => {
@@ -139,7 +144,7 @@ export default function UIDialogBindEmail(props: {
                     <FormItem className="grid gap-2">
                       <div className="flex items-center">
                         <FormLabel className="capitalize">{t('form_otp')}</FormLabel>
-                        <CompSendOTP email={getValues('email')} />
+                        <CompSendOTP email={emailValue} />
                       </div>
 
                       <FormControl>

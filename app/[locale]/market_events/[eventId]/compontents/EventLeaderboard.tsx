@@ -24,7 +24,10 @@ import {
 } from '@shadcn/components/ui/table';
 import { formatNumberKMB } from '@libs/utils';
 import { Button } from '@shadcn/components/ui/button';
-import { NullData, RankFirst, RankSecond, RankThird } from '@assets/svg';
+import { NullData } from '@assets/svg';
+import RankFirst from '@assets/image/rank-1.png';
+import RankSecond from '@assets/image/rank-2.png';
+import RankThird from '@assets/image/rank-3.png';
 
 // 图表区域骨架屏组件
 function ChartSkeleton() {
@@ -337,7 +340,7 @@ export default forwardRef<
             />
           </div>
         ) : (
-          <div className="bg-muted-foreground/5 flex w-full flex-1 items-center justify-center rounded-2xl sm:min-h-64">
+          <div className="bg-muted-foreground/5 flex w-full flex-1 items-center justify-center rounded-2xl py-8 sm:min-h-64">
             <div className="text-muted-foreground text-center">
               <NullData className="h-14 w-14" />
               <p className="text-sm">{t('no_data')}</p>
@@ -382,9 +385,24 @@ export default forwardRef<
                     <TableCell className="pb-4">
                       <div className="justify-left flex items-center gap-2 pl-2">
                         <div className="flex w-10 items-center justify-center">
-                          {index === 0 && <RankFirst className="size-8" />}
-                          {index === 1 && <RankSecond className="size-8" />}
-                          {index === 2 && <RankThird className="size-8" />}
+                          {index === 0 && (
+                            <img
+                              src={RankFirst.src}
+                              className="size-6 sm:size-8 sm:min-h-8 sm:min-w-8"
+                            />
+                          )}
+                          {index === 1 && (
+                            <img
+                              src={RankSecond.src}
+                              className="size-6 sm:size-8 sm:min-h-8 sm:min-w-8"
+                            />
+                          )}
+                          {index === 2 && (
+                            <img
+                              src={RankThird.src}
+                              className="size-6 sm:size-8 sm:min-h-8 sm:min-w-8"
+                            />
+                          )}
                           {index > 2 && <span className="sm:text-md text-sm">{index + 1}</span>}
                         </div>
                         <div className="size-6 min-w-6 overflow-hidden rounded-full">

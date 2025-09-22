@@ -21,6 +21,7 @@ import Script from 'next/script';
 import { Analytics } from '@vercel/analytics/next';
 import { ClusterProvider } from 'app/cluster/cluster-data-access';
 import { SolanaProvider } from 'app/solana/solana-provider';
+import { ScrollArea } from '@shadcn/components/ui/scroll-area';
 
 type Params = Promise<{ locale: string }>;
 

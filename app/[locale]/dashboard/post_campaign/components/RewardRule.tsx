@@ -444,7 +444,7 @@ export default function RewardRule({
                         />
                       </CardContent>
                     </Card>
-                    <span>{payTokenInfo?.symbol}</span>
+                    <span></span>
                   </div>
 
                   {/* 按钮组：移动端居左，桌面端跟随内容 */}
@@ -578,7 +578,7 @@ export default function RewardRule({
                           />
                         </CardContent>
                       </Card>
-                      <span className="whitespace-nowrap">{payTokenInfo?.symbol}</span>
+                      <span className="whitespace-nowrap"></span>
                     </div>
 
                     {/* 按钮组：移动端居左，桌面端跟随内容 */}

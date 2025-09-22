@@ -19,11 +19,14 @@ export interface UserState {
   twitter_full_profile: any | null;
   rpc: string;
   account: PublicKey | null;
+  // 多链token信息存储，按链类型分组
   pay_token_info: {
-    symbol: string;
-    decimals: number;
-    balance: bigint;
-    iconType: string;
+    [chainType: string]: {
+      symbol: string;
+      decimals: number;
+      balance: bigint;
+      iconType: string;
+    };
   };
   chat_cid: string | null;
   chat_messages: Array<{
@@ -169,12 +172,7 @@ export const initialState: UserState = {
     consumption_amount: 0,
   },
   twitter_full_profile: null,
-  pay_token_info: {
-    symbol: '',
-    decimals: 0,
-    balance: BigInt(0),
-    iconType: '',
-  },
+  pay_token_info: {},
   chat_cid: null,
   chat_messages: [],
   userActivityRewards: {},
@@ -309,12 +307,30 @@ const userSlice = createSlice({
     },
     updatePayTokenInfo: (
       state,
-      action: PayloadAction<{ symbol: string; decimals: number; balance: bigint; iconType: string }>
+      action: PayloadAction<{
+        chainType: string;
+        symbol: string;
+        decimals: number;
+        balance: bigint;
+        iconType: string;
+      }>
     ) => {
-      state.pay_token_info = {
-        ...state.pay_token_info,
-        ...action.payload,
-      };
+      const { chainType, ...tokenInfo } = action.payload;
+      state.pay_token_info[chainType] = tokenInfo;
+    },
+    // 获取特定链的token信息 - 这个应该是一个selector而不是reducer
+    // getPayTokenInfoByChainType: (state, action: PayloadAction<string>) => {
+    //   const chainType = action.payload;
+    //   return state.pay_token_info[chainType] || null;
+    // },
+    // 清空特定链的token信息
+    clearPayTokenInfoByChainType: (state, action: PayloadAction<string>) => {
+      const chainType = action.payload;
+      delete state.pay_token_info[chainType];
+    },
+    // 清空所有链的token信息
+    clearAllPayTokenInfo: (state) => {
+      state.pay_token_info = {};
     },
     updateChatCid: (state, action: PayloadAction<string | null>) => {
       state.chat_cid = action.payload;
@@ -680,6 +696,8 @@ export const {
   clearSelectedKOLInfo,
   updateTwitterFullProfile,
   updatePayTokenInfo,
+  clearPayTokenInfoByChainType,
+  clearAllPayTokenInfo,
   updateChatCid,
   addChatMessage,
   removeLastChatMessage,

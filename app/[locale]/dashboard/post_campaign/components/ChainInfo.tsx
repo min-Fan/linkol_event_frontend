@@ -19,7 +19,7 @@ export default function ChainInfo(props: {
     <div className="bg-background border-border w-full rounded-2xl border px-4 py-2 shadow-[0px_7.51px_11.27px_0px_#0000000D]">
       <dl className="border-border flex w-full items-center justify-between gap-x-2 border-b p-2">
         <dt>{t('receive_contract_address')}</dt>
-        <dd className="break-all">{contractAddress.ActivityServiceAddress || '-'}</dd>
+        <dd className="break-all">{contractAddress?.ActivityServiceAddress || '-'}</dd>
       </dl>
       <dl className="border-border flex w-full items-center justify-between gap-x-2 border-b p-2">
         <dt>{t('network')}</dt>

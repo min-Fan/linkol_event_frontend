@@ -4,9 +4,9 @@ import { Button } from '@shadcn/components/ui/button';
 import { useTranslations } from 'next-intl';
 import { IEventInfoResponseData, raffle } from '@libs/request';
 import { Dices, Gift, HandCoins, Loader2 } from 'lucide-react';
-import { useAppSelector } from '@store/hooks';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import { useEventTokenInfo } from '@hooks/useEventTokenInfo';
 import DialogRaffleResult from './dialog/DialogRaffleResult';
 import useUserActivityReward from '@hooks/useUserActivityReward';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@shadcn/components/ui/tooltip';
@@ -14,9 +14,8 @@ import CircularProgress from '../../../../components/CircularProgress';
 import { cn } from '@shadcn/lib/utils';
 import DialogRaffleTicketTasks from './dialog/DialogRaffleTicketTasks';
 import DialogInvitationCode from './dialog/DialogInvitationCode';
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
-import { InviteIcon } from '@assets/svg';
 import SpaceButton from 'app/components/SpaceButton/SpaceButton';
+import { ChainType, getChainConfig } from '@constants/config';
 
 interface RaffleRewardCardProps {
   eventInfo: IEventInfoResponseData;
@@ -30,7 +29,10 @@ export default function RaffleRewardCard({
   onRefreshUserReward,
 }: RaffleRewardCardProps) {
   const t = useTranslations('common');
-  const payTokenInfo = useAppSelector((state) => state.userReducer?.pay_token_info);
+  const { symbol, iconType } = useEventTokenInfo({
+    chain_type: eventInfo?.chain_type,
+    token_type: eventInfo?.token_type,
+  });
   const [isRaffling, setIsRaffling] = useState(false);
   const [isRaffleResultDialogOpen, setIsRaffleResultDialogOpen] = useState(false);
   const [raffleResult, setRaffleResult] = useState<{
@@ -209,14 +211,14 @@ export default function RaffleRewardCard({
               </TooltipTrigger>
               <TooltipContent>
                 <div className="max-w-[150px] text-sm sm:max-w-[280px]">
-                  {t('reward_percent_tip', { symbol: payTokenInfo?.symbol || '' })}
+                  {t('reward_percent_tip', { symbol: symbol || '' })}
                 </div>
               </TooltipContent>
             </Tooltip>
           )}
           <Button
             onClick={handleRaffle}
-            disabled={isRaffling || isCooldown || ticketNumber === 0}
+            disabled={!eventInfo?.is_verified || isRaffling || isCooldown || ticketNumber === 0}
             className="h-10 w-full rounded-md bg-gradient-to-r from-[#007AFF] from-0% via-[#D4F5D0] via-30% to-[#007AFF] to-80% bg-[length:200%_100%] bg-[position:100%_50%] !px-2 text-sm transition-[background-position] duration-200 ease-in-out hover:bg-[position:-60%_50%] disabled:cursor-not-allowed disabled:opacity-50 sm:!h-auto sm:w-auto sm:!rounded-full sm:!px-4 sm:!text-base"
           >
             {isRaffling ? (
@@ -238,9 +240,18 @@ export default function RaffleRewardCard({
               {t('available_rewards')}:
             </span>
             <span className="sm:text-md text-sm">
-              {totalReceiveAmount} {payTokenInfo?.symbol || ''}
+              {totalReceiveAmount} {symbol || ''}
             </span>
           </div>
+          {getChainConfig(eventInfo?.chain_type as ChainType).iconUrl && (
+            <div className="ml-auto rounded-full p-2 shadow-sm">
+              <img
+                src={getChainConfig(eventInfo?.chain_type as ChainType).iconUrl as string}
+                alt=""
+                className="size-6 sm:size-8"
+              />
+            </div>
+          )}
           <Button
             onClick={onClaim}
             disabled={totalReceiveAmount === 0}
@@ -271,6 +282,7 @@ export default function RaffleRewardCard({
         isLoading={isRaffling}
         onClose={handleRaffleResultDialogClose}
         raffleResult={raffleResult}
+        eventInfo={eventInfo}
       />
 
       {/* 抽奖任务对话框 */}

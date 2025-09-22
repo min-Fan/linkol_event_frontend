@@ -38,7 +38,7 @@ import DialogInvire from './dialog/DialogInvire';
 import DialogPostTweetLink from './dialog/DialogPostTweetLink';
 import DialogClaimReward from './dialog/DialogClaimReward';
 import DialogGuide from './dialog/DialogGuide';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import PagesRoute from '@constants/routes';
 import { Link, useRouter } from '@libs/i18n/navigation';
 import { BellRing, Dices, Flashlight, Zap } from 'lucide-react';
@@ -47,6 +47,7 @@ import PlatformRewardCard from './PlatformRewardCard';
 import TokenIcon from 'app/components/TokenIcon';
 import useUserActivityReward from '@hooks/useUserActivityReward';
 import useCountdownToMidnight from '@hooks/useCountdownToMidnight';
+import { useEventTokenInfo } from '@hooks/useEventTokenInfo';
 
 // 骨架屏组件
 function EventDetailSkeleton() {
@@ -139,6 +140,7 @@ export default function EventDetail({
     refreshUserActivityReward: () => Promise<void>;
   } | null>;
 }) {
+  const locale = useLocale();
   const t = useTranslations('common');
   const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
   const { isLogin } = useUserInfo();
@@ -149,7 +151,14 @@ export default function EventDetail({
   const [isPostTweetLinkOpen, setIsPostTweetLinkOpen] = useState(false);
   const [isGuideDialogOpen, setIsGuideDialogOpen] = useState(false);
   const [isClaimRewardDialogOpen, setIsClaimRewardDialogOpen] = useState(false);
-  const payTokenInfo = useAppSelector((state) => state.userReducer?.pay_token_info);
+  const {
+    tokenInfo: payTokenInfo,
+    symbol,
+    iconType,
+  } = useEventTokenInfo({
+    chain_type: eventInfo?.chain_type,
+    token_type: eventInfo?.token_type,
+  });
   const router = useRouter();
   const { data: joinList, isLoading: isJoinListLoading } = useQuery({
     queryKey: ['joinList', eventInfo?.id],
@@ -249,33 +258,46 @@ export default function EventDetail({
               <span className="text-md">Linkol</span>
             </Button>
           ) : ( */}
-          <>
-            {eventInfo?.status === 'wait' && (
+          {!eventInfo.is_verified ? (
+            <>
               <Button className="cursor-default !rounded-xl !bg-orange-500/10 !text-orange-500">
-                {t('not_started')}
+                {locale === 'zh'
+                  ? eventInfo?.active_type?.zh_name
+                  : eventInfo?.active_type?.en_name}
               </Button>
-            )}
-            {eventInfo?.status === 'progress' && (
-              <Button className="cursor-default !rounded-xl !bg-green-500/10 !text-green-500">
-                {t('in_progress')}
-              </Button>
-            )}
-            {eventInfo?.status === 'ended' && (
-              <Button className="!bg-muted-foreground/10 !text-muted-foreground cursor-default !rounded-xl">
-                {t('ended')}
-              </Button>
-            )}
-          </>
+            </>
+          ) : (
+            <>
+              {eventInfo?.status === 'wait' && (
+                <Button className="cursor-default !rounded-xl !bg-orange-500/10 !text-orange-500">
+                  {t('not_started')}
+                </Button>
+              )}
+              {eventInfo?.status === 'progress' && (
+                <Button className="cursor-default !rounded-xl !bg-green-500/10 !text-green-500">
+                  {t('in_progress')}
+                </Button>
+              )}
+              {eventInfo?.status === 'ended' && (
+                <Button className="!bg-muted-foreground/10 !text-muted-foreground cursor-default !rounded-xl">
+                  {t('ended')}
+                </Button>
+              )}
+            </>
+          )}
+
           {/* )} */}
         </div>
-        <div className="flex items-center gap-2">
-          <TimerQuarterIcon className="h-6 w-6" />
-          <span className="text-sm sm:text-base">{eventInfo?.start || '-'}</span>
-          <div className="border-muted-foreground w-3 border-t sm:w-4"></div>
-          <span className="text-sm sm:text-base">{eventInfo?.end || '-'}</span>
-        </div>
+        {eventInfo?.is_verified && (
+          <div className="flex items-center gap-2">
+            <TimerQuarterIcon className="h-6 w-6" />
+            <span className="text-sm sm:text-base">{eventInfo?.start || '-'}</span>
+            <div className="border-muted-foreground w-3 border-t sm:w-4"></div>
+            <span className="text-sm sm:text-base">{eventInfo?.end || '-'}</span>
+          </div>
+        )}
         {isLoggedIn && (
-          <div className="my-2 flex flex-wrap items-center gap-2 sm:my-4 sm:gap-4">
+          <div className="my-1 flex flex-wrap items-center gap-2 sm:my-2 sm:gap-4">
             {eventInfo?.a_type === 'normal' && (
               <Button
                 variant="outline"
@@ -319,7 +341,7 @@ export default function EventDetail({
             '-'
           ) : (
             <>
-              <p>{eventInfo?.requirement}</p>
+              <p>{eventInfo?.description}</p>
             </>
           )}
         </div>
@@ -327,11 +349,9 @@ export default function EventDetail({
           <div className="bg-muted-foreground/5 flex w-full flex-wrap items-center justify-between gap-4 rounded-lg p-3 px-4 sm:w-auto sm:flex-1">
             <span className="text-muted-foreground sm:text-md text-sm">{t('reward_pool')}</span>
             <span className="sm:text-md flex items-center gap-1 text-sm font-semibold">
-              {eventInfo?.reward_amount?.toLocaleString() || '-'}
-              {payTokenInfo?.iconType && (
-                <TokenIcon type={payTokenInfo?.iconType as string} className="size-5" />
-              )}
-              {payTokenInfo?.symbol || ''}
+              {eventInfo?.is_verified && `$${eventInfo?.reward_amount?.toLocaleString()}`}
+              {iconType && <TokenIcon type={iconType} className="size-5" />}
+              {symbol || ''}
             </span>
           </div>
           <div className="bg-muted-foreground/5 flex w-full flex-wrap items-center justify-between gap-4 rounded-lg p-3 px-4 sm:w-auto sm:flex-1">
@@ -509,16 +529,17 @@ export default function EventDetail({
             </div>
             <span className="text-sm font-bold sm:text-base">{t('leaderboard')}</span>
           </div>
-          <div className="flex h-full flex-col items-center justify-center gap-0 sm:gap-0">
+          <div className="flex h-full flex-col items-center justify-center gap-0 py-10 sm:gap-0 sm:py-0">
             <div className="flex items-center gap-0 sm:gap-0">
-              <span className="text-xs font-bold sm:text-base">{t('this_data_is_for')}</span>
+              <span className="text-center text-sm font-bold sm:text-base">
+                {t('just_spend_1_minutes_everyday_earn_usd_immediately')}
+              </span>
+              {/* <span className="text-xs font-bold sm:text-base">{t('this_data_is_for')}</span>
               <div className="flex items-center gap-2">
-                {/* <Logo className="h-2 w-2 sm:h-4 sm:w-4" />
-                <span className="text-sm font-bold sm:text-base">Linkol</span> */}
                 <LinkolLight className="!h-6 sm:!h-8 dark:hidden" />
                 <LinkolDark className="hidden !h-6 sm:!h-8 dark:block" />
               </div>
-              <span className="text-xs font-bold sm:text-base">{t('only')}</span>
+              <span className="text-xs font-bold sm:text-base">{t('only')}</span> */}
             </div>
             <p className="sm:text-md text-muted-foreground text-center text-xs">
               {t('please_login_to_view')}
