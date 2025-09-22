@@ -522,16 +522,15 @@ export default function EventDetail({
             </div>
             <span className="text-sm font-bold sm:text-base">{t('leaderboard')}</span>
           </div>
-          <div className="flex h-full flex-col items-center justify-center gap-0 sm:gap-0">
+          <div className="flex h-full flex-col items-center justify-center gap-0 sm:gap-0 py-10 sm:py-0">
             <div className="flex items-center gap-0 sm:gap-0">
-              <span className="text-xs font-bold sm:text-base">{t('this_data_is_for')}</span>
+              <span className="text-sm sm:text-base font-bold text-center">{t('just_spend_1_minutes_everyday_earn_usd_immediately')}</span>
+              {/* <span className="text-xs font-bold sm:text-base">{t('this_data_is_for')}</span>
               <div className="flex items-center gap-2">
-                {/* <Logo className="h-2 w-2 sm:h-4 sm:w-4" />
-                <span className="text-sm font-bold sm:text-base">Linkol</span> */}
                 <LinkolLight className="!h-6 sm:!h-8 dark:hidden" />
                 <LinkolDark className="hidden !h-6 sm:!h-8 dark:block" />
               </div>
-              <span className="text-xs font-bold sm:text-base">{t('only')}</span>
+              <span className="text-xs font-bold sm:text-base">{t('only')}</span> */}
             </div>
             <p className="sm:text-md text-muted-foreground text-center text-xs">
               {t('please_login_to_view')}
