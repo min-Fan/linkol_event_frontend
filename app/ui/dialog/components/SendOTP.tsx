@@ -58,28 +58,36 @@ export default function SendOTP(props: { email: string }) {
     }
 
     startTransition(async () => {
-      clearTimer();
-      setCanSend(false);
-      setCountdown(60);
+      try {
+        clearTimer();
+        setCanSend(false);
+        setCountdown(60);
 
-      const res = await getOtpCode({
-        email,
-      });
+        const res = await getOtpCode({
+          email,
+        });
 
-      if (res.code !== 200) {
+        if (res.code !== 200) {
+          toast.error(t('send_otp_failed'));
+          clearTimer();
+          setCanSend(true);
+          setCountdown(0);
+
+          return;
+        }
+
+        toast.success(
+          t.rich('send_otp_success', {
+            email: (chunks) => <strong className="text-primary">{email}</strong>,
+          })
+        );
+      } catch (error) {
+        console.error(error);
         toast.error(t('send_otp_failed'));
         clearTimer();
         setCanSend(true);
         setCountdown(0);
-
-        return;
       }
-
-      toast.success(
-        t.rich('send_otp_success', {
-          email: (chunks) => <strong className="text-primary">{email}</strong>,
-        })
-      );
     });
   };
 
