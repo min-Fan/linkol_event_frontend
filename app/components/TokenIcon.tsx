@@ -23,14 +23,14 @@ interface TokenIconProps {
 
 export default function TokenIcon({ type, className, width = 24, height = 24 }: TokenIconProps) {
   // 检查是否为SVG类型
-  if (svgIconMap[type as keyof typeof svgIconMap]) {
-    const Icon = svgIconMap[type as keyof typeof svgIconMap];
+  if (svgIconMap[type.toLowerCase() as keyof typeof svgIconMap]) {
+    const Icon = svgIconMap[type.toLowerCase() as keyof typeof svgIconMap];
     return <Icon className={className} />;
   }
 
   // 检查是否为图片类型
-  if (imgIconMap[type as keyof typeof imgIconMap]) {
-    const imgSrc = imgIconMap[type as keyof typeof imgIconMap];
+  if (imgIconMap[type.toLowerCase() as keyof typeof imgIconMap]) {
+    const imgSrc = imgIconMap[type.toLowerCase() as keyof typeof imgIconMap];
     return <Image src={imgSrc} alt={type} className={className} width={width} height={height} />;
   }
 

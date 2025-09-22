@@ -5,14 +5,20 @@ import { usePayTokenInfo } from './usePayTokenInfo';
 /**
  * 根据活动信息获取对应的token信息
  */
-export const useEventTokenInfo = (eventInfo?: IEventInfoResponseData) => {
+export const useEventTokenInfo = ({
+  chain_type,
+  token_type,
+}: {
+  chain_type?: string;
+  token_type?: string;
+}) => {
   // 获取活动的链类型和token类型
-  const eventChainType = eventInfo?.chain_type?.toLowerCase() || 'base';
-  const eventTokenType = eventInfo?.token_type?.toLowerCase();
+  const eventChainType = chain_type?.toLowerCase() || 'base';
+  const eventTokenType = token_type?.toLowerCase();
   const { tokenInfo: payTokenInfo } = usePayTokenInfo(eventChainType, eventTokenType);
 
   // 根据活动信息获取token配置
-  const tokenConfig = getTokenConfigByEventInfo(eventInfo);
+  const tokenConfig = getTokenConfigByEventInfo({ chain_type, token_type });
 
   // 从store中获取对应链和token的信息
   const storeKey = eventTokenType ? `${eventChainType}_${eventTokenType}` : eventChainType;

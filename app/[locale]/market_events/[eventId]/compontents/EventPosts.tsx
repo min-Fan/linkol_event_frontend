@@ -33,6 +33,7 @@ import {
 import { ChevronDown, Check, ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react';
 import Link from 'next/link';
 import PagesRoute from '@constants/routes';
+import ClaimRecordSwiper from '../../components/ClaimRecordSwiper';
 
 // 推文卡片骨架屏组件
 const PostItemSkeleton = () => {
@@ -774,12 +775,15 @@ export default forwardRef<
 
   return (
     <div className={containerClass}>
-      <HeaderSection
-        selectedLanguages={selectedLanguages}
-        onLanguageChange={handleLanguageChange}
-        onMyTweetClick={() => handleMyTweetClick(1)}
-        isMyTweetsMode={isMyTweetsMode}
-      />
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <HeaderSection
+          selectedLanguages={selectedLanguages}
+          onLanguageChange={handleLanguageChange}
+          onMyTweetClick={() => handleMyTweetClick(1)}
+          isMyTweetsMode={isMyTweetsMode}
+        />
+        <ClaimRecordSwiper />
+      </div>
 
       {posts.length === 0 ? (
         <EmptyState />
