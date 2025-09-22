@@ -20,6 +20,7 @@ export interface ChainConfig {
   KOLServiceAddress?: string;
   ActivityServiceAddress?: string;
   iconUrl?: string;
+  blockExplorerUrl: string;
   tokens: Record<TokenType, TokenConfig>;
   defaultToken: TokenType;
 }
@@ -35,6 +36,7 @@ const DEVELOPMENT_CONFIG: Record<ChainType, ChainConfig> = {
     KOLServiceAddress: '0x68Fab9e02bD60a1F9EBDD5bb192eE2C59Fb16970', // 测试网地址
     ActivityServiceAddress: '0xd1CF4991BA007f1743eD5F51CF73c42f18E304Bd', // 测试网地址
     defaultToken: 'usdc',
+    blockExplorerUrl: 'https://sepolia.basescan.org',
     iconUrl:
       'https://cdn.brandfetch.io/id6XsSOVVS/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1757929784005',
     tokens: {
@@ -56,7 +58,9 @@ const DEVELOPMENT_CONFIG: Record<ChainType, ChainConfig> = {
     chainId: 'solana',
     name: 'Solana',
     defaultToken: 'usd1',
-    iconUrl: 'https://cdn.brandfetch.io/ide0NUuTHO/theme/dark/symbol.svg?c=1bxid64Mup7aczewSAYMX&t=1668516395705',
+    blockExplorerUrl: 'https://solscan.io',
+    iconUrl:
+      'https://cdn.brandfetch.io/ide0NUuTHO/theme/dark/symbol.svg?c=1bxid64Mup7aczewSAYMX&t=1668516395705',
     tokens: {
       usd1: {
         symbol: 'USD1',
@@ -82,6 +86,7 @@ const PRODUCTION_CONFIG: Record<ChainType, ChainConfig> = {
     KOLServiceAddress: '0xD562135D926763d4132a3E7d55a536850E03bcA9',
     ActivityServiceAddress: '0xf3E45cF29c86b92cc7CC8Ef68773162B53CB5C78',
     defaultToken: 'usdc',
+    blockExplorerUrl: 'https://basescan.org',
     iconUrl:
       'https://cdn.brandfetch.io/id6XsSOVVS/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1757929784005',
     tokens: {
@@ -103,7 +108,9 @@ const PRODUCTION_CONFIG: Record<ChainType, ChainConfig> = {
     chainId: 'solana',
     name: 'Solana',
     defaultToken: 'usd1',
-    iconUrl: 'https://cdn.brandfetch.io/ide0NUuTHO/theme/dark/symbol.svg?c=1bxid64Mup7aczewSAYMX&t=1668516395705',
+    blockExplorerUrl: 'https://solscan.io',
+    iconUrl:
+      'https://cdn.brandfetch.io/ide0NUuTHO/theme/dark/symbol.svg?c=1bxid64Mup7aczewSAYMX&t=1668516395705',
     tokens: {
       usd1: {
         symbol: 'USD1',
@@ -152,15 +159,18 @@ export const getTokenInfoByChainType = (chainType: string) => {
 };
 
 // 根据活动信息获取token配置
-export const getTokenConfigByEventInfo = (eventInfo?: {
+export const getTokenConfigByEventInfo = ({
+  chain_type,
+  token_type,
+}: {
   chain_type?: string;
   token_type?: string;
 }): TokenConfig => {
-  if (!eventInfo?.chain_type) {
+  if (!chain_type) {
     return CHAIN_CONFIG.base.tokens[CHAIN_CONFIG.base.defaultToken];
   }
 
-  return getTokenConfig(eventInfo.chain_type, eventInfo.token_type);
+  return getTokenConfig(chain_type, token_type);
 };
 
 // 根据链类型和token类型获取合约地址
@@ -199,4 +209,25 @@ export const getDefaultChain = () => {
     chainId: parseInt(CHAIN_CONFIG.base.chainId),
     name: CHAIN_CONFIG.base.name,
   };
+};
+
+// 根据链类型和交易哈希生成区块链浏览器链接
+export const getExplorerUrl = (txHash: string, chainType: string): string => {
+  const normalizedChainType = chainType?.toLowerCase();
+
+  // 如果配置中没有找到，使用默认的映射
+  let getExplorerUrl = '';
+  switch (normalizedChainType) {
+    case 'solana':
+      getExplorerUrl = getChainConfig(normalizedChainType as ChainType).blockExplorerUrl;
+      break;
+    case 'base':
+      getExplorerUrl = getChainConfig(normalizedChainType as ChainType).blockExplorerUrl;
+      break;
+    default:
+      // 默认使用 Solana 浏览器
+      getExplorerUrl = getChainConfig(normalizedChainType as ChainType).blockExplorerUrl;
+      break;
+  }
+  return `${getExplorerUrl}/tx/${txHash}`;
 };

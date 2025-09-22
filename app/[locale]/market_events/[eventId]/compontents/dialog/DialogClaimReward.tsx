@@ -62,7 +62,10 @@ const DialogClaimReward = memo(
       tokenAddress: string;
     } | null>(null);
     const { eventId } = useParams();
-    const { symbol, decimals } = useEventTokenInfo(eventInfo);
+    const { symbol, decimals } = useEventTokenInfo({
+      chain_type: eventInfo?.chain_type,
+      token_type: eventInfo?.token_type,
+    });
     const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
     const twInfo = useAppSelector((state) => state.userReducer?.twitter_full_profile);
     const isLoginSolana = useAppSelector((state) => state.userReducer?.isLoginSolana);

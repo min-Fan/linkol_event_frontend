@@ -2214,3 +2214,51 @@ export interface IGetInvitationCodeData {
 export const getInvitationCode = (params: IGetInvitationCodeParams) => {
   return kolRequest.get<IGetInvitationCodeData>('/kol/api/v6/active/invite_code/', { ...params });
 };
+
+// 活动提现记录
+export interface IGetActivityWithdrawRecordParams {
+  /**
+   * 活动ID
+   */
+  active_id: string;
+}
+export interface IGetActivityWithdrawRecordData {
+  /**
+   * 链类型
+   */
+  chain_type: string;
+  id: number;
+  /**
+   * @前边的名字
+   */
+  name: string;
+  /**
+   * 金额
+   */
+  receive_amount: number;
+  /**
+   * 领取时间
+   */
+  receive_at: string;
+  /**
+   * 哈希
+   */
+  receive_tx_hash: string;
+  /**
+   * @后面的名字
+   */
+  scree_name: string;
+  /**
+   * 代币类型
+   */
+  token_type: string;
+  /**
+   * 用户头像
+   */
+  avatar: string;
+}
+export const getActivityWithdrawRecord = (params: IGetActivityWithdrawRecordParams) => {
+  return kolRequest.get<IGetActivityWithdrawRecordData[]>('/kol/api/v6/active/withdraws/', {
+    ...params,
+  });
+};

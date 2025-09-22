@@ -5,6 +5,7 @@ import { Play, Pause, ChevronLeft, ChevronRight } from 'lucide-react';
 
 import CompTweetLanguageTab, { TWEET_LANGUAGE } from './TweetLanguageTab';
 import CompTweetRecord from './TweetRecord';
+import ClaimRecordSwiper from './ClaimRecordSwiper';
 
 export default function Tweets() {
   const [language, setLanguage] = useState<TWEET_LANGUAGE>(TWEET_LANGUAGE.ALL);
@@ -274,6 +275,7 @@ export default function Tweets() {
           defaultLanguage={TWEET_LANGUAGE.ALL}
           onChangeAction={onChangeLanguage}
         />
+        <ClaimRecordSwiper className="!px-0" />
       </div>
       <div
         ref={containerRef}

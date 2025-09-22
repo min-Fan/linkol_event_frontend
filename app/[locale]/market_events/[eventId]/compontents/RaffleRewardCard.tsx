@@ -29,7 +29,10 @@ export default function RaffleRewardCard({
   onRefreshUserReward,
 }: RaffleRewardCardProps) {
   const t = useTranslations('common');
-  const { symbol, iconType } = useEventTokenInfo(eventInfo);
+  const { symbol, iconType } = useEventTokenInfo({
+    chain_type: eventInfo?.chain_type,
+    token_type: eventInfo?.token_type,
+  });
   const [isRaffling, setIsRaffling] = useState(false);
   const [isRaffleResultDialogOpen, setIsRaffleResultDialogOpen] = useState(false);
   const [raffleResult, setRaffleResult] = useState<{

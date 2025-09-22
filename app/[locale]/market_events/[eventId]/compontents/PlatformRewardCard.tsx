@@ -27,7 +27,10 @@ export default function PlatformRewardCard({ eventInfo, onRefresh }: PlatformRew
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPostTweetDialogOpen, setIsPostTweetDialogOpen] = useState(false);
   const [isClaimRewardDialogOpen, setIsClaimRewardDialogOpen] = useState(false);
-  const { symbol } = useEventTokenInfo(eventInfo);
+  const { symbol } = useEventTokenInfo({
+    chain_type: eventInfo?.chain_type,
+    token_type: eventInfo?.token_type,
+  });
   const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
   const redemptionCode = useAppSelector((state) => state.userReducer?.redemptionCode || '');
 

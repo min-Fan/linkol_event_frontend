@@ -151,7 +151,10 @@ export default function EventDetail({
   const [isPostTweetLinkOpen, setIsPostTweetLinkOpen] = useState(false);
   const [isGuideDialogOpen, setIsGuideDialogOpen] = useState(false);
   const [isClaimRewardDialogOpen, setIsClaimRewardDialogOpen] = useState(false);
-  const { tokenInfo: payTokenInfo, symbol, iconType } = useEventTokenInfo(eventInfo);
+  const { tokenInfo: payTokenInfo, symbol, iconType } = useEventTokenInfo({
+    chain_type: eventInfo?.chain_type,
+    token_type: eventInfo?.token_type,
+  });
   const router = useRouter();
   const { data: joinList, isLoading: isJoinListLoading } = useQuery({
     queryKey: ['joinList', eventInfo?.id],

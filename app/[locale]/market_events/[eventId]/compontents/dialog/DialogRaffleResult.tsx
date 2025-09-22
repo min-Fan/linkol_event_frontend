@@ -42,7 +42,10 @@ export default function DialogRaffleResult({
   eventInfo,
 }: DialogRaffleResultProps) {
   const t = useTranslations('common');
-  const { symbol, iconType } = useEventTokenInfo(eventInfo);
+  const { symbol, iconType } = useEventTokenInfo({
+    chain_type: eventInfo?.chain_type,
+    token_type: eventInfo?.token_type,
+  });
   const { eventId } = useParams();
 
   // 分享相关状态

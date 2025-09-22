@@ -167,7 +167,10 @@ export default function DialogPostTweetLink({
   const [selectedLanguage, setSelectedLanguage] = useState<LanguageCode>(LanguageCode.Korea); // 语言选择状态
   const [kolScreenNames, setKolScreenNames] = useState<string[]>([]); // 存储从推文接口获取的KOL名称数组
   const downloadCardRef = useRef<HTMLDivElement>(null);
-  const { symbol } = useEventTokenInfo(eventInfo);
+  const { symbol } = useEventTokenInfo({
+    chain_type: eventInfo?.chain_type,
+    token_type: eventInfo?.token_type,
+  });
 
   // 原有状态
   const [tweetUrl, setTweetUrl] = useState('');
