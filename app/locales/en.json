@@ -1162,6 +1162,8 @@
     "wallet_not_connected": "Wallet not connected",
     "signature_failed": "Signature failed",
     "unverified": "Unverified",
-    "search_active_keyword": "Search actives..."
+    "search_active_keyword": "Search actives...",
+    "post_tweet_increase_brand_value_earn_ticket": "Post Tweet, Increase Brand Value, Earn Ticket.",
+    "just_spend_1_minutes_everyday_earn_usd_immediately": "Just spend 1 minutes everyday, Earn USD immediately"
   }
 }

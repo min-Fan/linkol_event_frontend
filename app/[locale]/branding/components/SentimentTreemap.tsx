@@ -64,7 +64,7 @@ const CustomContent = (props: any) => {
           style={backgroundColor ? { backgroundColor } : undefined}
         ></div>
         <div className="absolute inset-0 flex flex-col justify-start p-0.5 font-bold text-white drop-shadow-lg sm:p-1 sm:pl-2">
-          <p className="truncate text-sm sm:text-lg">{name}</p>
+          <p className="truncate text-sm leading-6 sm:text-lg">{name}</p>
           {/* 显示原始数值，而不是变换后的数值 */}
           <p className="mt-0 text-xs sm:mt-1 sm:text-sm">
             {/* {amount && amount < 0 ? '-' : '+'} */}
