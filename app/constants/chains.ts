@@ -11,7 +11,7 @@ interface ExtendedChain extends Chain {
 export const solana_chain = {
   id: 'solana',
   name: 'Solana',
-  iconUrl: 'https://solana.com/apple-touch-icon.png',
+  iconUrl: 'https://api.linkol.ai/linkol-test/files/QqXU3y2qmNrexSVwU8VGfY_solana.png',
   iconBackground: '#fff',
   nativeCurrency: { name: 'SOL', symbol: 'SOL', decimals: 9 },
   rpcUrls: {
