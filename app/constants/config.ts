@@ -56,7 +56,7 @@ const DEVELOPMENT_CONFIG: Record<ChainType, ChainConfig> = {
     chainId: 'solana',
     name: 'Solana',
     defaultToken: 'usd1',
-    iconUrl: 'https://solana.com/apple-touch-icon.png',
+    iconUrl: 'https://api.linkol.ai/linkol-test/files/QqXU3y2qmNrexSVwU8VGfY_solana.png',
     tokens: {
       usd1: {
         symbol: 'USD1',
@@ -103,7 +103,7 @@ const PRODUCTION_CONFIG: Record<ChainType, ChainConfig> = {
     chainId: 'solana',
     name: 'Solana',
     defaultToken: 'usd1',
-    iconUrl: 'https://solana.com/apple-touch-icon.png',
+    iconUrl: 'https://api.linkol.ai/linkol-test/files/QqXU3y2qmNrexSVwU8VGfY_solana.png',
     tokens: {
       usd1: {
         symbol: 'USD1',
