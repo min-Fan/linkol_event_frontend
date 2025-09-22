@@ -326,7 +326,7 @@ export default forwardRef<
           <div className="bg-muted-foreground/5 min-h-[300px] w-full flex-1 rounded-2xl sm:min-h-[400px]">
             <ChartSkeleton />
           </div>
-        ) : leaderboardData.length >= 0 ? (
+        ) : leaderboardData.length >= 7 ? (
           <div className="h-[300px] w-full sm:h-[400px]">
             <CompSentimentTreemap
               data={leaderboardData
