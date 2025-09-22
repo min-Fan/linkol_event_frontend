@@ -36,7 +36,7 @@ const DEVELOPMENT_CONFIG: Record<ChainType, ChainConfig> = {
     ActivityServiceAddress: '0xd1CF4991BA007f1743eD5F51CF73c42f18E304Bd', // 测试网地址
     defaultToken: 'usdc',
     iconUrl:
-      'https://sepolia.basescan.org/assets/basesepolia/images/svg/logos/chain-light.svg?v=25.9.1.0',
+      'https://api.linkol.ai/linkol-test/files/Yh2dBmz4933CRqA2UYEK6L_base-chain-light.svg',
     tokens: {
       usdc: {
         symbol: 'USDT',
@@ -83,7 +83,7 @@ const PRODUCTION_CONFIG: Record<ChainType, ChainConfig> = {
     ActivityServiceAddress: '0xf3E45cF29c86b92cc7CC8Ef68773162B53CB5C78',
     defaultToken: 'usdc',
     iconUrl:
-      'https://sepolia.basescan.org/assets/basesepolia/images/svg/logos/chain-light.svg?v=25.9.1.0',
+      'https://api.linkol.ai/linkol-test/files/Yh2dBmz4933CRqA2UYEK6L_base-chain-light.svg',
     tokens: {
       usdc: {
         symbol: 'USDC',
