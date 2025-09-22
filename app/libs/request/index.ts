@@ -2262,3 +2262,8 @@ export const getActivityWithdrawRecord = (params: IGetActivityWithdrawRecordPara
     ...params,
   });
 };
+
+// 用户粉丝
+export const getActivityFollowers = () => {
+  return kolRequest.get('/kol/api/v6/user/followers/');
+};

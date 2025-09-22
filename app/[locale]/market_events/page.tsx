@@ -1,10 +1,19 @@
-import CompBanner from './components/Banner';
+'use client';
 import CompActives from './components/Actives';
 import CompLeadboard from './components/Leadboard';
 import CompTweets from './components/Tweets';
 import CompProjectApplication from './components/ProjectApplication';
+import { useQuery } from '@tanstack/react-query';
+import { getActivityFollowers } from '@libs/request';
+import { useAppSelector } from '@store/hooks';
 
 export default function MarketEventsPage() {
+  const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
+  const { data: followers } = useQuery({
+    queryKey: ['activityFollowers'],
+    queryFn: () => getActivityFollowers(),
+    enabled: !!isLoggedIn,
+  });
   return (
     <div className="mx-auto box-border w-full max-w-[1100px] space-y-5 p-0">
       {/* <CompBanner /> */}
