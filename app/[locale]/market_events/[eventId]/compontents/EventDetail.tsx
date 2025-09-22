@@ -522,9 +522,11 @@ export default function EventDetail({
             </div>
             <span className="text-sm font-bold sm:text-base">{t('leaderboard')}</span>
           </div>
-          <div className="flex h-full flex-col items-center justify-center gap-0 sm:gap-0 py-10 sm:py-0">
+          <div className="flex h-full flex-col items-center justify-center gap-0 py-10 sm:gap-0 sm:py-0">
             <div className="flex items-center gap-0 sm:gap-0">
-              <span className="text-sm sm:text-base font-bold text-center">{t('just_spend_1_minutes_everyday_earn_usd_immediately')}</span>
+              <span className="text-center text-sm font-bold sm:text-base">
+                {t('just_spend_1_minutes_everyday_earn_usd_immediately')}
+              </span>
               {/* <span className="text-xs font-bold sm:text-base">{t('this_data_is_for')}</span>
               <div className="flex items-center gap-2">
                 <LinkolLight className="!h-6 sm:!h-8 dark:hidden" />

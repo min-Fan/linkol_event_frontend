@@ -340,7 +340,7 @@ export default forwardRef<
             />
           </div>
         ) : (
-          <div className="bg-muted-foreground/5 flex w-full flex-1 items-center justify-center rounded-2xl sm:min-h-64 py-8">
+          <div className="bg-muted-foreground/5 flex w-full flex-1 items-center justify-center rounded-2xl py-8 sm:min-h-64">
             <div className="text-muted-foreground text-center">
               <NullData className="h-14 w-14" />
               <p className="text-sm">{t('no_data')}</p>
@@ -385,9 +385,24 @@ export default forwardRef<
                     <TableCell className="pb-4">
                       <div className="justify-left flex items-center gap-2 pl-2">
                         <div className="flex w-10 items-center justify-center">
-                          {index === 0 && <img src={RankFirst.src} className="sm:size-8 size-6 sm:min-w-8 sm:min-h-8" />}
-                          {index === 1 && <img src={RankSecond.src} className="sm:size-8 size-6 sm:min-w-8 sm:min-h-8" />}
-                          {index === 2 && <img src={RankThird.src} className="sm:size-8 size-6 sm:min-w-8 sm:min-h-8" />}
+                          {index === 0 && (
+                            <img
+                              src={RankFirst.src}
+                              className="size-6 sm:size-8 sm:min-h-8 sm:min-w-8"
+                            />
+                          )}
+                          {index === 1 && (
+                            <img
+                              src={RankSecond.src}
+                              className="size-6 sm:size-8 sm:min-h-8 sm:min-w-8"
+                            />
+                          )}
+                          {index === 2 && (
+                            <img
+                              src={RankThird.src}
+                              className="size-6 sm:size-8 sm:min-h-8 sm:min-w-8"
+                            />
+                          )}
                           {index > 2 && <span className="sm:text-md text-sm">{index + 1}</span>}
                         </div>
                         <div className="size-6 min-w-6 overflow-hidden rounded-full">
