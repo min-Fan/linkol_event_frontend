@@ -11,7 +11,8 @@ interface ExtendedChain extends Chain {
 export const solana_chain = {
   id: 'solana',
   name: 'Solana',
-  iconUrl: 'https://cdn.brandfetch.io/ide0NUuTHO/theme/dark/symbol.svg?c=1bxid64Mup7aczewSAYMX&t=1668516395705',
+  iconUrl:
+    'https://cdn.brandfetch.io/ide0NUuTHO/theme/dark/symbol.svg?c=1bxid64Mup7aczewSAYMX&t=1668516395705',
   iconBackground: '#fff',
   nativeCurrency: { name: 'SOL', symbol: 'SOL', decimals: 9 },
   rpcUrls: {

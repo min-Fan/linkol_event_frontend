@@ -12,7 +12,7 @@ import { MoneyBag } from '@assets/svg';
 import { cn } from '@shadcn/lib/utils';
 
 const ClaimRecordSwiper = memo(
-  function ClaimRecordSwiper({className}: {className?: string}) {
+  function ClaimRecordSwiper({ className }: { className?: string }) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isTransitioning, setIsTransitioning] = useState(true);
     const [isPaused, setIsPaused] = useState(false);
