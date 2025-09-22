@@ -26,7 +26,7 @@ export interface ChainConfig {
 }
 
 // 检测是否为开发环境
-const isDevelopment = process.env.NODE_ENV === 'development';
+const isDevelopment = process.env.NEXT_PUBLIC_NODE_ENV === 'development';
 
 // 开发环境配置
 const DEVELOPMENT_CONFIG: Record<ChainType, ChainConfig> = {
