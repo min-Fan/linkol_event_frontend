@@ -36,7 +36,7 @@ const DEVELOPMENT_CONFIG: Record<ChainType, ChainConfig> = {
     ActivityServiceAddress: '0xd1CF4991BA007f1743eD5F51CF73c42f18E304Bd', // 测试网地址
     defaultToken: 'usdc',
     iconUrl:
-      'https://api.linkol.ai/linkol-test/files/Yh2dBmz4933CRqA2UYEK6L_base-chain-light.svg',
+      'https://cdn.brandfetch.io/id6XsSOVVS/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1757929784005',
     tokens: {
       usdc: {
         symbol: 'USDT',
@@ -56,7 +56,7 @@ const DEVELOPMENT_CONFIG: Record<ChainType, ChainConfig> = {
     chainId: 'solana',
     name: 'Solana',
     defaultToken: 'usd1',
-    iconUrl: 'https://api.linkol.ai/linkol-test/files/QqXU3y2qmNrexSVwU8VGfY_solana.png',
+    iconUrl: 'https://cdn.brandfetch.io/ide0NUuTHO/theme/dark/symbol.svg?c=1bxid64Mup7aczewSAYMX&t=1668516395705',
     tokens: {
       usd1: {
         symbol: 'USD1',
@@ -83,7 +83,7 @@ const PRODUCTION_CONFIG: Record<ChainType, ChainConfig> = {
     ActivityServiceAddress: '0xf3E45cF29c86b92cc7CC8Ef68773162B53CB5C78',
     defaultToken: 'usdc',
     iconUrl:
-      'https://api.linkol.ai/linkol-test/files/Yh2dBmz4933CRqA2UYEK6L_base-chain-light.svg',
+      'https://cdn.brandfetch.io/id6XsSOVVS/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1757929784005',
     tokens: {
       usdc: {
         symbol: 'USDC',
@@ -103,7 +103,7 @@ const PRODUCTION_CONFIG: Record<ChainType, ChainConfig> = {
     chainId: 'solana',
     name: 'Solana',
     defaultToken: 'usd1',
-    iconUrl: 'https://api.linkol.ai/linkol-test/files/QqXU3y2qmNrexSVwU8VGfY_solana.png',
+    iconUrl: 'https://cdn.brandfetch.io/ide0NUuTHO/theme/dark/symbol.svg?c=1bxid64Mup7aczewSAYMX&t=1668516395705',
     tokens: {
       usd1: {
         symbol: 'USD1',

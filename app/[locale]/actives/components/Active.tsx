@@ -5,6 +5,7 @@ import { Link, useRouter } from '@libs/i18n/navigation';
 import { IActive } from '@hooks/marketEvents';
 import TokenIcon from 'app/components/TokenIcon';
 import defaultAvatar from '@assets/image/avatar.png';
+import defaultCover from '@assets/image/default-cover.png';
 import { usePayTokenInfo } from '@hooks/usePayTokenInfo';
 
 export default function Active(props: { data: IActive }) {
@@ -21,7 +22,15 @@ export default function Active(props: { data: IActive }) {
       href={`${PagesRoute.MARKET_EVENTS}/${data?.id}`}
       className="shadow-primary/10 hover:shadow-primary/20 flex cursor-pointer flex-col overflow-hidden rounded-2xl border-none shadow-sm hover:shadow-lg"
     >
-      <img className="h-36 w-full object-cover" src={data.cover_img} alt={data.title} />
+      <img
+        className="h-36 w-full object-cover"
+        src={data.cover_img || defaultCover.src}
+        alt={data.title}
+        onError={(e) => {
+          const target = e.target as HTMLImageElement;
+          target.src = defaultCover.src;
+        }}
+      />
       <div className="bg-background flex flex-1 flex-col justify-between gap-y-4 p-6">
         <div className="space-y-3">
           <dl className="flex items-center justify-between gap-x-3 text-base font-medium">

@@ -4,7 +4,6 @@ import { Button } from '@shadcn/components/ui/button';
 import { useTranslations } from 'next-intl';
 import { IEventInfoResponseData, raffle } from '@libs/request';
 import { Dices, Gift, HandCoins, Loader2 } from 'lucide-react';
-import { useAppSelector } from '@store/hooks';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useEventTokenInfo } from '@hooks/useEventTokenInfo';
@@ -15,8 +14,6 @@ import CircularProgress from '../../../../components/CircularProgress';
 import { cn } from '@shadcn/lib/utils';
 import DialogRaffleTicketTasks from './dialog/DialogRaffleTicketTasks';
 import DialogInvitationCode from './dialog/DialogInvitationCode';
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
-import { InviteIcon } from '@assets/svg';
 import SpaceButton from 'app/components/SpaceButton/SpaceButton';
 import { ChainType, getChainConfig } from '@constants/config';
 
@@ -244,11 +241,11 @@ export default function RaffleRewardCard({
             </span>
           </div>
           {getChainConfig(eventInfo?.chain_type as ChainType).iconUrl && (
-            <div className="bg-background ml-auto overflow-hidden rounded-full p-2 shadow-md">
+            <div className="ml-auto rounded-full p-2 shadow-sm">
               <img
-                src={getChainConfig(eventInfo?.chain_type as ChainType).iconUrl}
-                alt="chain"
-                className="size-8 min-h-8 min-w-8"
+                src={getChainConfig(eventInfo?.chain_type as ChainType).iconUrl as string}
+                alt=""
+                className="size-6 sm:size-8"
               />
             </div>
           )}
