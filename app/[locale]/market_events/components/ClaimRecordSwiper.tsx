@@ -128,6 +128,10 @@ const ClaimRecordSwiper = memo(
       setIsPaused(false);
     }, []);
 
+    const handleToX = (record: IGetActivityWithdrawRecordData) => {
+      window.open(`https://x.com/${record.scree_name}`, '_blank');
+    };
+
     // 缓存记录列表的渲染
     const recordsList = useMemo(() => {
       return extendedRecords.map((record, index) => (
@@ -138,18 +142,20 @@ const ClaimRecordSwiper = memo(
         >
           <div className="sm:text-md flex-warp flex w-full flex-col items-end gap-x-1 text-sm sm:w-auto sm:flex-row sm:items-center">
             <div className="flex items-center gap-x-1">
-              <div className="bg-muted-foreground/10 h-4 w-4 flex-shrink-0 rounded-full sm:h-6 sm:w-6">
-                <img
-                  src={record.avatar || defaultAvatar.src}
-                  alt={record.scree_name || record.name}
-                  className="h-full w-full rounded-full object-cover"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = defaultAvatar.src;
-                  }}
-                />
+              <div className="flex items-center gap-x-1 cursor-pointer" onClick={() => handleToX(record)}>
+                <div className="bg-muted-foreground/10 h-4 w-4 flex-shrink-0 rounded-full sm:h-6 sm:w-6">
+                  <img
+                    src={record.avatar || defaultAvatar.src}
+                    alt={record.scree_name || record.name}
+                    className="h-full w-full rounded-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = defaultAvatar.src;
+                    }}
+                  />
+                </div>
+                <span className="truncate font-medium">@{record.scree_name || record.name}</span>
               </div>
-              <span className="truncate font-medium">@{record.scree_name || record.name}</span>
             </div>
             <div className="flex items-center gap-x-1">
               <span className="text-muted-foreground">claimed</span>
