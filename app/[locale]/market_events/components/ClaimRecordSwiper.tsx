@@ -145,7 +145,7 @@ const ClaimRecordSwiper = memo(
           data-item={index}
           className="flex min-h-8 flex-shrink-0 items-center justify-end pr-1"
         >
-          <div className="sm:text-md flex-warp flex w-full flex-col items-end gap-x-1 text-sm sm:w-auto sm:flex-row sm:items-center">
+          <div className="sm:text-md flex-warp flex w-full items-end gap-x-1 text-sm sm:w-auto sm:items-center">
             <div className="flex items-center gap-x-1">
               <div
                 className="flex cursor-pointer items-center gap-x-1"
@@ -175,8 +175,6 @@ const ClaimRecordSwiper = memo(
               <span className="text-muted-foreground hidden sm:block">
                 {getTokenConfig(record.chain_type, record.token_type).symbol}
               </span>
-            </div>
-            <div className="flex items-center gap-x-1">
               <span className="text-muted-foreground text-xs">txs:</span>
               <span className="">
                 <Link
@@ -231,7 +229,7 @@ const ClaimRecordSwiper = memo(
 
     return (
       <div
-        className={cn('relative overflow-hidden px-2 sm:px-4', className)}
+        className={cn('relative overflow-hidden px-2 sm:px-4 w-full sm:w-auto', className)}
         style={{ height: `${itemHeight}px` }}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
