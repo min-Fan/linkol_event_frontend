@@ -7,6 +7,7 @@ import TokenIcon from 'app/components/TokenIcon';
 import defaultAvatar from '@assets/image/avatar.png';
 import defaultCover from '@assets/image/default-cover.png';
 import { usePayTokenInfo } from '@hooks/usePayTokenInfo';
+import { track } from '@vercel/analytics';
 
 export default function Active(props: { data: IActive }) {
   const { data } = props;
@@ -21,6 +22,13 @@ export default function Active(props: { data: IActive }) {
     <Link
       href={`${PagesRoute.MARKET_EVENTS}/${data?.id}`}
       className="shadow-primary/10 hover:shadow-primary/20 flex cursor-pointer flex-col overflow-hidden rounded-2xl border-none shadow-sm hover:shadow-lg"
+      onClick={() => {
+        track('Active', {
+          active_id: data?.id,
+          active_name: data?.title,
+          path: location.pathname,
+        });
+      }}
     >
       <img
         className="h-36 w-full object-cover"
