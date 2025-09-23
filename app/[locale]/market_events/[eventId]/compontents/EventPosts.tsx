@@ -209,7 +209,7 @@ export const HeaderSection = ({
   const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
 
   const languages = [
-    { code: LanguageCodeShort.All, label: t('all') },
+    { code: LanguageCodeShort.All, label: t('region_all') },
     { code: LanguageCodeShort.English, label: t('english') },
     { code: LanguageCodeShort.Chinese, label: t('chinese') },
     { code: LanguageCodeShort.Korea, label: t('korean') },
@@ -219,11 +219,11 @@ export const HeaderSection = ({
   // 获取显示文本：如果选择了"全部"或没有选择，显示"全部"，否则显示选中的语言
   const getDisplayText = () => {
     if (selectedLanguages.includes(LanguageCodeShort.All) || selectedLanguages.length === 0) {
-      return t('all');
+      return t('region_all');
     }
     if (selectedLanguages.length === 1) {
       const lang = languages.find((l) => l.code === selectedLanguages[0]);
-      return lang ? lang.label : t('all');
+      return lang ? lang.label : t('region_all');
     }
     return `${selectedLanguages.length} ${t('languages')}`;
   };
