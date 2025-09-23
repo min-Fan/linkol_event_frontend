@@ -229,7 +229,7 @@ const ClaimRecordSwiper = memo(
 
     return (
       <div
-        className={cn('relative overflow-hidden px-2 sm:px-4 w-full sm:w-auto', className)}
+        className={cn('relative w-full overflow-hidden px-2 sm:w-auto sm:px-4', className)}
         style={{ height: `${itemHeight}px` }}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
