@@ -9,6 +9,7 @@ import { Button } from '@shadcn/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { Link } from '@libs/i18n/navigation';
 import PagesRoute from '@constants/routes';
+import { track } from '@vercel/analytics';
 
 export default function TweetRecord() {
   const [type, setType] = useState<ACTIVE_TYPE>(ACTIVE_TYPE.ALL);
@@ -28,7 +29,12 @@ export default function TweetRecord() {
       <div className="flex items-center justify-between">
         <CompActiveTypeTab defaultType={type} onChangeAction={onChangeType} />
         {/* <CompActiveSearch onSearchAction={onSearch} /> */}
-        <Link href={PagesRoute.ACTIVES}>
+        <Link
+          href={PagesRoute.ACTIVES}
+          onClick={() => {
+            track('Explore Button ==> ActivesList Page');
+          }}
+        >
           <Button variant="ghost" size="sm" className="flex items-center gap-2">
             <span className="text-sm sm:text-base">Explore</span>
             <ArrowRight className="size-4" />

@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { Button } from '@shadcn/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import PixelBlast from '@shadcn/components/pixelBlast/PixelBlast';
+import { track } from '@vercel/analytics';
 
 export default function HomeScreenBanner() {
   const { data, isLoading } = useBanner();
@@ -43,7 +44,13 @@ export default function HomeScreenBanner() {
           {t('boost_personal_brand')}
         </p>
         <div className="mt-6 rounded-full shadow-[0_1px_40px_0_rgba(242,242,242,0.80)]">
-          <Link href={`${PagesRoute.MARKET_EVENTS}/5`} title={t('join_campaign')}>
+          <Link
+            href={`${PagesRoute.MARKET_EVENTS}/5`}
+            title={t('join_campaign')}
+            onClick={() => {
+              track('Join Campaign Button ==> MarketEvents Detail Page', { active_id: '5' });
+            }}
+          >
             <Button className="text-primary !h-11 gap-x-1 !rounded-full bg-white !px-6 !text-base font-medium">
               <span>{t('join_campaign')}</span>
               <ArrowRight className="size-5" />

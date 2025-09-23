@@ -10,6 +10,7 @@ import { useTranslations } from 'next-intl';
 import { X } from 'lucide-react';
 import { MoneyBag } from '@assets/svg';
 import { cn } from '@shadcn/lib/utils';
+import { track } from '@vercel/analytics';
 
 const ClaimRecordSwiper = memo(
   function ClaimRecordSwiper({ className }: { className?: string }) {
@@ -129,6 +130,10 @@ const ClaimRecordSwiper = memo(
     }, []);
 
     const handleToX = (record: IGetActivityWithdrawRecordData) => {
+      track('Show Kol Twitter Info ==> X Page', {
+        screen_name: record.scree_name,
+        path: location.pathname,
+      });
       window.open(`https://x.com/${record.scree_name}`, '_blank');
     };
 
@@ -140,9 +145,12 @@ const ClaimRecordSwiper = memo(
           data-item={index}
           className="flex min-h-8 flex-shrink-0 items-center justify-end pr-1"
         >
-          <div className="sm:text-md flex-warp flex w-full flex-col items-end gap-x-1 text-sm sm:w-auto sm:flex-row sm:items-center">
+          <div className="sm:text-md flex-warp flex w-full items-end gap-x-1 text-sm sm:w-auto sm:items-center">
             <div className="flex items-center gap-x-1">
-              <div className="flex items-center gap-x-1 cursor-pointer" onClick={() => handleToX(record)}>
+              <div
+                className="flex cursor-pointer items-center gap-x-1"
+                onClick={() => handleToX(record)}
+              >
                 <div className="bg-muted-foreground/10 h-4 w-4 flex-shrink-0 rounded-full sm:h-6 sm:w-6">
                   <img
                     src={record.avatar || defaultAvatar.src}
@@ -167,14 +175,15 @@ const ClaimRecordSwiper = memo(
               <span className="text-muted-foreground hidden sm:block">
                 {getTokenConfig(record.chain_type, record.token_type).symbol}
               </span>
-            </div>
-            <div className="flex items-center gap-x-1">
               <span className="text-muted-foreground text-xs">txs:</span>
               <span className="">
                 <Link
                   href={getExplorerUrl(record.receive_tx_hash, record.chain_type)}
                   target="_blank"
                   className="text-primary text-xs hover:underline"
+                  onClick={() => {
+                    track('Claim Record txs', { tx_hash: record.receive_tx_hash });
+                  }}
                 >
                   {record.receive_tx_hash.slice(0, 4)}...{record.receive_tx_hash.slice(-4)}
                 </Link>
@@ -220,7 +229,7 @@ const ClaimRecordSwiper = memo(
 
     return (
       <div
-        className={cn('relative overflow-hidden px-2 sm:px-4', className)}
+        className={cn('relative overflow-hidden px-2 sm:px-4 w-full sm:w-auto', className)}
         style={{ height: `${itemHeight}px` }}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
