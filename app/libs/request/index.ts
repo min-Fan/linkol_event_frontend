@@ -2267,3 +2267,20 @@ export const getActivityWithdrawRecord = (params: IGetActivityWithdrawRecordPara
 export const getActivityFollowers = () => {
   return kolRequest.get('/kol/api/v6/user/followers/');
 };
+
+// 获取用户是否接受了Agent
+export interface IGetUserIsAcceptedAgentData {
+  /**
+   * 是否接受了Agent
+   */
+  is_accept: boolean;
+}
+export const getUserIsAcceptedAgent = () => {
+  return kolRequest.get<IGetUserIsAcceptedAgentData>('/kol/api/v7/accept_agent/');
+};
+
+
+// 接受Agent
+export const acceptAgent = () => {
+  return kolRequest.post('/kol/api/v7/accept_agent/');
+};

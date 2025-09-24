@@ -133,6 +133,7 @@ import RateBorderBg from './rate-border-bg.svg';
 import InviteIcon from './inviteicon.svg';
 import FluentShare from './fluent_share.svg';
 import SolIcon from './sol-icon.svg';
+import LucideBot from './lucide_bot.svg';
 
 export {
   Share,
@@ -270,4 +271,5 @@ export {
   InviteIcon,
   FluentShare,
   SolIcon,
+  LucideBot,
 };
