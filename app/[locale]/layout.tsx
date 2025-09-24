@@ -22,6 +22,7 @@ import { Analytics } from '@vercel/analytics/next';
 import { ClusterProvider } from 'app/cluster/cluster-data-access';
 import { SolanaProvider } from 'app/solana/solana-provider';
 import { ScrollArea } from '@shadcn/components/ui/scroll-area';
+import TelegramProvider from 'app/context/TgProvider';
 
 type Params = Promise<{ locale: string }>;
 
@@ -81,26 +82,28 @@ export default async function LocaleLayout(props: { children: ReactNode; params:
         <ClusterProvider>
           <SolanaProvider>
             <ReduxProvider>
-              <ThemeProvider
-                attribute="class"
-                defaultTheme="system"
-                enableSystem
-                disableTransitionOnChange
-              >
-                <AppProvider userInfo={userInfo}>
-                  <NextIntlClientProvider>
-                    <WagmiProviderContext>
-                      <BprogressProvider>
-                        <GlobalInitializer />
-                        <main className="dark:bg-background flex min-h-screen w-full flex-col bg-[#F9F9F9]">
-                          {children}
-                        </main>
-                        <Toaster position="bottom-right" />
-                      </BprogressProvider>
-                    </WagmiProviderContext>
-                  </NextIntlClientProvider>
-                </AppProvider>
-              </ThemeProvider>
+              <TelegramProvider>
+                <ThemeProvider
+                  attribute="class"
+                  defaultTheme="system"
+                  enableSystem
+                  disableTransitionOnChange
+                >
+                  <AppProvider userInfo={userInfo}>
+                    <NextIntlClientProvider>
+                      <WagmiProviderContext>
+                        <BprogressProvider>
+                          <GlobalInitializer />
+                          <main className="dark:bg-background flex min-h-screen w-full flex-col bg-[#F9F9F9]">
+                            {children}
+                          </main>
+                          <Toaster position="bottom-right" />
+                        </BprogressProvider>
+                      </WagmiProviderContext>
+                    </NextIntlClientProvider>
+                  </AppProvider>
+                </ThemeProvider>
+              </TelegramProvider>
             </ReduxProvider>
           </SolanaProvider>
         </ClusterProvider>
