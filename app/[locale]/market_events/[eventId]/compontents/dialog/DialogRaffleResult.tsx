@@ -54,6 +54,7 @@ export default function DialogRaffleResult({
   const [verifyResult, setVerifyResult] = useState<'success' | 'failed' | null>(null);
   // 新的 Raffle Ticket Tasks 弹窗状态
   const [isRaffleTasksOpen, setIsRaffleTasksOpen] = useState(false);
+  const [receivedTickets, setReceivedTickets] = useState(0);
   // 使用新的 hook 从 store 中获取用户活动奖励数据
   const {
     data: userActivityReward,
@@ -88,6 +89,7 @@ export default function DialogRaffleResult({
     window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(tweetText)}`, '_blank');
     // 分享后设置为已分享状态
     setIsShared(true);
+    handleVerifyShare();
   }, [raffleResult?.receive_amount, symbol, eventId]);
 
   const handleVerifyShare = useCallback(async () => {
@@ -100,14 +102,15 @@ export default function DialogRaffleResult({
       });
 
       if (response.code === 200) {
-        const receivedTickets = response.data?.number;
+        const tickets = response.data?.number;
+        setReceivedTickets(tickets);
         refetchUserActivityReward();
-        if (receivedTickets === 1) {
-          setVerifyResult('success');
-          toast.success(t('share_success_extra_ticket'));
-        } else {
-          setVerifyResult('failed');
-        }
+        // if (tickets === 1) {
+        setVerifyResult('success');
+        toast.success(t('share_success_extra_ticket'));
+        // } else {
+        //   setVerifyResult('failed');
+        // }
       } else {
         setVerifyResult('failed');
       }
@@ -159,9 +162,13 @@ export default function DialogRaffleResult({
                   </div>
                   <div className="text-center">
                     <p className="text-lg font-semibold">{t('share_verified_success')}</p>
-                    <p className="text-muted-foreground text-sm">{t('extra_ticket_received')}</p>
+                    <p className="text-muted-foreground text-sm">
+                      {receivedTickets !== 0
+                        ? t('extra_ticket_received')
+                        : t('raffle_tickets_received')}
+                    </p>
                   </div>
-                  <Button onClick={handleClose} className="!h-auto !rounded-lg px-8">
+                  <Button onClick={handleClose} className="!h-auto w-40 !rounded-lg px-8">
                     {t('done')}
                   </Button>
                 </div>
