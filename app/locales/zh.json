@@ -269,6 +269,19 @@
     "twitter_auth_failed_title": "授权失败",
     "twitter_auth_failed_description": "Twitter 账户授权过程中出现了问题，请稍后重试。",
     "btn_back_home": "返回首页",
+    "fed_up_with_daily_tasks": "厌倦了日常任务烦恼？让 Linkol 代理为您代劳！",
+    "fed_up_with_daily_tasks_1": "厌倦了日常任务烦恼？",
+    "fed_up_with_daily_tasks_2": "让 Linkol 代理为您代劳！",
+    "earn_tickets_or_usdt_with_agent": "通过 Linkol 代理赚取门票或 USDT — 每天上午 9 点后自动管理评论、点赞、分享和推文。",
+    "next_time": "下次再说",
+    "create_agent": "创建代理",
+    "creating_agent": "正在创建代理...",
+    "agent_created_successfully": "代理创建成功！",
+    "failed_to_create_agent": "创建代理失败",
+    "agent_creation_failed": "代理创建失败",
+    "your_agent_earned_for_you": "您的代理为您赚取了 {amount} {symbol}",
+    "while_you_were_away": "在您离开期间。",
+    "find_more_details_in_event_interface": "在活动界面中查找更多详情。",
     "my_task": "我的任务",
     "btn_next_step": "下一步",
     "field_required": "此字段必填: {field}",
@@ -1167,6 +1180,7 @@
     "post_tweet_increase_brand_value_earn_ticket": "发布推文，增加品牌价值，获得抽奖券。",
     "just_spend_1_minutes_everyday_earn_usd_immediately": "每天花费 1 分钟，立即赚取 USD。",
     "no_withdraw_record": "暂无提现记录",
-    "region_all": "全部地区"
+    "region_all": "全部地区",
+    "link_agent": "Linkol 代理"
   }
 }
