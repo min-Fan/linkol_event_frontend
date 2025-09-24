@@ -31,6 +31,7 @@ export default function DialogShareProject({ isOpen, onClose }: DialogShareProje
   const [isShared, setIsShared] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyResult, setVerifyResult] = useState<'success' | 'failed' | null>(null);
+  const [receivedTickets, setReceivedTickets] = useState(0);
 
   const { refetch: refetchUserActivityReward } = useUserActivityReward({
     eventId: eventId as string,
@@ -57,6 +58,7 @@ export default function DialogShareProject({ isOpen, onClose }: DialogShareProje
     window.open(twitterUrl, '_blank');
     // 分享后设置为已分享状态
     setIsShared(true);
+    handleVerifyShare();
   }, [tweetText, project]);
 
   const handleVerifyShare = useCallback(async () => {
@@ -69,14 +71,15 @@ export default function DialogShareProject({ isOpen, onClose }: DialogShareProje
       });
 
       if (response.code === 200) {
-        const receivedTickets = response.data?.number;
-        if (receivedTickets === 1) {
-          refetchUserActivityReward();
-          setVerifyResult('success');
-          toast.success(t('share_success_extra_ticket'));
-        } else {
-          setVerifyResult('failed');
-        }
+        const tickets = response.data?.number;
+        setReceivedTickets(tickets);
+        // if (tickets === 1) {
+        refetchUserActivityReward();
+        setVerifyResult('success');
+        toast.success(t('share_success_extra_ticket'));
+        // } else {
+        //   setVerifyResult('failed');
+        // }
       } else {
         setVerifyResult('failed');
       }
@@ -127,9 +130,13 @@ export default function DialogShareProject({ isOpen, onClose }: DialogShareProje
               </div>
               <div className="text-center">
                 <p className="text-lg font-semibold">{t('share_verified_success')}</p>
-                <p className="text-muted-foreground text-sm">{t('extra_ticket_received')}</p>
+                <p className="text-muted-foreground text-sm">
+                  {receivedTickets !== 0
+                    ? t('extra_ticket_received')
+                    : t('raffle_tickets_received')}
+                </p>
               </div>
-              <Button onClick={handleClose} className="!h-auto !rounded-lg px-8">
+              <Button onClick={handleClose} className="!h-auto w-40 !rounded-lg px-8">
                 {t('done')}
               </Button>
             </div>
