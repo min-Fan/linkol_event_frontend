@@ -27,6 +27,7 @@ export default function UIDialogKOLLogin(props: {
   onOpenChange: (value: boolean) => void;
   loginStatusType: LoginStatusType;
   onLoginStatusTypeChange: (value: LoginStatusType) => void;
+  hideAlternativeMethod?: boolean; // 新增参数，用于隐藏其他验证方式
 }) {
   const t = useTranslations('common');
 
@@ -74,12 +75,14 @@ export default function UIDialogKOLLogin(props: {
                 {t('kol_twitter_auth_login_failed')}
               </div>
             </div>
-            <div
-              className="hover:text-primary cursor-pointer text-center text-sm font-medium underline"
-              onClick={() => props.onLoginStatusTypeChange(LoginStatusType.POST)}
-            >
-              {t('try_other_verification_method')}
-            </div>
+            {!props.hideAlternativeMethod && (
+              <div
+                className="hover:text-primary cursor-pointer text-center text-sm font-medium underline"
+                onClick={() => props.onLoginStatusTypeChange(LoginStatusType.POST)}
+              >
+                {t('try_other_verification_method')}
+              </div>
+            )}
           </div>
         )}
         {props.loginStatusType === LoginStatusType.POST && (
