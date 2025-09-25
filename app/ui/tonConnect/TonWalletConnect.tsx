@@ -2,21 +2,23 @@
 import { useTonWallet, useTonConnectUI, CHAIN } from '@tonconnect/ui-react';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { updateIsLoginTon } from '@store/reducers/userSlice';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, memo } from 'react';
 import { Button } from '@shadcn/components/ui/button';
 import { cn } from '@shadcn/lib/utils';
 import useLogoutTon from './useLoginTon';
 import { useTranslations } from 'next-intl';
 
-export default function TonWalletConnect({
-  className,
-  onSuccess,
-  onWalletModalOpen,
-}: {
+interface TonWalletConnectProps {
   className?: string;
   onSuccess?: () => void;
   onWalletModalOpen?: () => void;
-}) {
+}
+
+const TonWalletConnect = memo(function TonWalletConnect({
+  className,
+  onSuccess,
+  onWalletModalOpen,
+}: TonWalletConnectProps) {
   const t = useTranslations('common');
   const wallet = useTonWallet();
   const [tonConnectUI] = useTonConnectUI();
@@ -68,12 +70,12 @@ export default function TonWalletConnect({
       dispatchApp(updateIsLoginTon(true));
       onSuccess?.();
     }
-  }, [wallet, dispatchApp, onSuccess]);
+  }, [wallet, dispatchApp, onSuccess, tonConnectUI]);
 
-  const handleConnect = () => {
+  const handleConnect = useCallback(() => {
     tonConnectUI.openModal();
     onWalletModalOpen?.();
-  };
+  }, [tonConnectUI, onWalletModalOpen]);
 
   return (
     <div className={cn(className)}>
@@ -98,4 +100,6 @@ export default function TonWalletConnect({
       )}
     </div>
   );
-}
+});
+
+export default TonWalletConnect;

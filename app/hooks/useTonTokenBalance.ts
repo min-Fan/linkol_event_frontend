@@ -77,11 +77,11 @@ export const useTonTokenBalance = (mintAddress?: string) => {
  */
 export const parseJettonContent = (contentCell: Cell) => {
   try {
-    console.log('Start parsing jetton content cell:', contentCell.toString());
+    // console.log('Start parsing jetton content cell:', contentCell.toString());
 
     // 从 cell 的十六进制表示中提取 URI
     const cellHex = contentCell.toString();
-    console.log('Cell hex:', cellHex);
+    // console.log('Cell hex:', cellHex);
 
     // 查找可能的 URI 模式 (https://)
     const uriPattern = /68747470733A2F2F[0-9A-Fa-f]+/g;

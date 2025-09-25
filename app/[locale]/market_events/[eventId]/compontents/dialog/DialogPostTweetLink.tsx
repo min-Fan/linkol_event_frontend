@@ -286,16 +286,16 @@ export default function DialogPostTweetLink({
   }, [templateData, pendingImageGeneration, isGeneratingImage]);
 
   // 检查当前链是否为默认链
-  useEffect(() => {
-    if (
-      chainId &&
-      getChainConfig(eventInfo?.chain_type as ChainType).chainId !== chainId.toString()
-    ) {
-      setIsWrongChain(true);
-    } else {
-      setIsWrongChain(false);
-    }
-  }, [chainId]);
+  // useEffect(() => {
+  //   if (
+  //     chainId &&
+  //     getChainConfig(eventInfo?.chain_type as ChainType).chainId !== chainId.toString()
+  //   ) {
+  //     setIsWrongChain(true);
+  //   } else {
+  //     setIsWrongChain(false);
+  //   }
+  // }, [chainId]);
 
   // 检查缓存中是否有用户自己的图片
   const checkCachedUserImage = useCallback(() => {
@@ -1427,7 +1427,7 @@ export default function DialogPostTweetLink({
           {!isLoading && !isSuccess && !isFailed && (
             <>
               {/* 错误链提示 */}
-              {isWrongChain && (
+              {/* {isWrongChain && (
                 <div className="mb-4 rounded-md bg-yellow-100 p-4 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100">
                   <p className="text-sm">
                     {t('wrong_chain_message', {
@@ -1443,7 +1443,7 @@ export default function DialogPostTweetLink({
                     })}
                   </Button>
                 </div>
-              )}
+              )} */}
 
               <div className="flex gap-3">
                 <Button
@@ -1464,12 +1464,10 @@ export default function DialogPostTweetLink({
                         isGeneratingImage ||
                         pendingImageGeneration ||
                         (eventInfo?.a_type === 'platform' &&
-                          (!email.trim() || !!emailError || !eventCode.trim())) ||
-                        isWrongChain
+                          (!email.trim() || !!emailError || !eventCode.trim()))
                       : !tweetUrl.trim() ||
                         (eventInfo?.a_type === 'platform' &&
-                          (!email.trim() || !!emailError || !eventCode.trim())) ||
-                        isWrongChain
+                          (!email.trim() || !!emailError || !eventCode.trim()))
                   }
                 >
                   {isGenerateMode ? t('post') || 'Post' : t('submit') || 'Submit'}

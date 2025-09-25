@@ -6,7 +6,7 @@ import { updateAccount, updateIsLoginSolana } from '../../store/reducers/userSli
 import { useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey } from '@solana/web3.js';
 import bs58 from 'bs58';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, memo } from 'react';
 import styled from 'styled-components';
 import nacl from 'tweetnacl';
 import NavWallet from './NavWallet';
@@ -15,15 +15,18 @@ import { cn } from '@shadcn/lib/utils';
 import { useTranslations } from 'next-intl';
 
 const ConnectStyled = styled.div``;
-export default function Connect({
-  className,
-  onSuccess,
-  onWalletModalOpen,
-}: {
+
+interface ConnectProps {
   className?: string;
   onSuccess?: () => void;
   onWalletModalOpen?: () => void;
-}) {
+}
+
+const Connect = memo(function Connect({
+  className,
+  onSuccess,
+  onWalletModalOpen,
+}: ConnectProps) {
   const t = useTranslations('common');
   const { wallet, publicKey, signIn, signMessage, connected, connecting } = useWallet();
   const isLoginSolana = useAppSelector((state) => state.userReducer?.isLoginSolana);
@@ -104,7 +107,7 @@ export default function Connect({
     } catch (error) {
       console.log('Signing error:', error);
     }
-  }, [publicKey, signIn]);
+  }, [publicKey, signIn, dispatchApp]);
 
   return (
     <ConnectStyled className={cn(className)}>
@@ -121,4 +124,6 @@ export default function Connect({
       )}
     </ConnectStyled>
   );
-}
+});
+
+export default Connect;
