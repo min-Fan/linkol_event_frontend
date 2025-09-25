@@ -6120,6 +6120,70 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tonconnect/isomorphic-eventsource@npm:0.0.2":
+  version: 0.0.2
+  resolution: "@tonconnect/isomorphic-eventsource@npm:0.0.2"
+  dependencies:
+    eventsource: ^2.0.2
+  checksum: e19ab965129e6be8a019c8d8d3a2e2b88aca4b9b42389b747370f96a2411de79676b96122040e068396f8fd54662e0dab947d9d6bd41dc403172343cc6de8796
+  languageName: node
+  linkType: hard
+
+"@tonconnect/isomorphic-fetch@npm:0.0.3":
+  version: 0.0.3
+  resolution: "@tonconnect/isomorphic-fetch@npm:0.0.3"
+  dependencies:
+    node-fetch: ^2.6.9
+  checksum: cb9c72d760263b92a17fdba05c5888d650fcaad7df1f91770ee6c218e829f02256e695e4a2086c62f27cabece8c0952fab2d00f7a613060a8d433ff1b8dd8c37
+  languageName: node
+  linkType: hard
+
+"@tonconnect/protocol@npm:2.3.0":
+  version: 2.3.0
+  resolution: "@tonconnect/protocol@npm:2.3.0"
+  dependencies:
+    tweetnacl: ^1.0.3
+    tweetnacl-util: ^0.15.1
+  checksum: 5a7baadb7154a409b0baf2f3e6c449f06a128e19a45540538e7070f49bc7a4ddba94cca30e9d0c813441a2a5edd356b89058659bc0012042b6ef5f3d48a433d5
+  languageName: node
+  linkType: hard
+
+"@tonconnect/sdk@npm:3.3.1":
+  version: 3.3.1
+  resolution: "@tonconnect/sdk@npm:3.3.1"
+  dependencies:
+    "@tonconnect/isomorphic-eventsource": 0.0.2
+    "@tonconnect/isomorphic-fetch": 0.0.3
+    "@tonconnect/protocol": 2.3.0
+  checksum: d86a83041034f552c7d77964e1f2ce4dac397474a7e4e18617bef4fb5cb30264c64dc4d09c89473c30b4678ed65738e6a90ab5ac9a05cddd54c308321bd0ed32
+  languageName: node
+  linkType: hard
+
+"@tonconnect/ui-react@npm:^2.3.1":
+  version: 2.3.1
+  resolution: "@tonconnect/ui-react@npm:2.3.1"
+  dependencies:
+    "@tonconnect/ui": 2.3.1
+  peerDependencies:
+    react: ">=17.0.0"
+    react-dom: ">=17.0.0"
+  checksum: ba95d29d9c931581bce4ff66d679b6f0a111d5c91cf1d796630f42d330034d3a81cd170cbed4089b16d46b171562969dc269e6d3719327a4d32005399986f1bd
+  languageName: node
+  linkType: hard
+
+"@tonconnect/ui@npm:2.3.1":
+  version: 2.3.1
+  resolution: "@tonconnect/ui@npm:2.3.1"
+  dependencies:
+    "@tonconnect/sdk": 3.3.1
+    classnames: ^2.5.1
+    csstype: ^3.1.3
+    deepmerge: ^4.3.1
+    ua-parser-js: ^1.0.35
+  checksum: fe3f5c3002c8ba1dd5ffa829044cd123683005020f64bda8ff2828ec491ddccc2b6006d18ee8f9258c36ad740ed4eb49aa3e8f60ed0fde4f4d2e83c9e905fc4f
+  languageName: node
+  linkType: hard
+
 "@toruslabs/base-controllers@npm:^5.5.5":
   version: 5.11.0
   resolution: "@toruslabs/base-controllers@npm:5.11.0"
@@ -8374,6 +8438,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"axios@npm:^0.25.0":
+  version: 0.25.0
+  resolution: "axios@npm:0.25.0"
+  dependencies:
+    follow-redirects: ^1.14.7
+  checksum: 2a8a3787c05f2a0c9c3878f49782357e2a9f38945b93018fb0c4fd788171c43dceefbb577988628e09fea53952744d1ecebde234b561f1e703aa43e0a598a3ad
+  languageName: node
+  linkType: hard
+
 "axios@npm:^1.8.4":
   version: 1.12.2
   resolution: "axios@npm:1.12.2"
@@ -9185,6 +9258,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"classnames@npm:^2.5.1":
+  version: 2.5.1
+  resolution: "classnames@npm:2.5.1"
+  checksum: da424a8a6f3a96a2e87d01a432ba19315503294ac7e025f9fece656db6b6a0f7b5003bb1fbb51cbb0d9624d964f1b9bb35a51c73af9b2434c7b292c42231c1e5
+  languageName: node
+  linkType: hard
+
 "client-only@npm:0.0.1":
   version: 0.0.1
   resolution: "client-only@npm:0.0.1"
@@ -9589,7 +9669,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"csstype@npm:3.1.3, csstype@npm:^3.0.2, csstype@npm:^3.0.7":
+"csstype@npm:3.1.3, csstype@npm:^3.0.2, csstype@npm:^3.0.7, csstype@npm:^3.1.3":
   version: 3.1.3
   resolution: "csstype@npm:3.1.3"
   checksum: 8db785cc92d259102725b3c694ec0c823f5619a84741b5c7991b8ad135dfaa66093038a1cc63e03361a6cd28d122be48f2106ae72334e067dd619a51f49eddf7
@@ -9742,6 +9822,13 @@ __metadata:
     es-errors: ^1.3.0
     is-data-view: ^1.0.1
   checksum: 8dd492cd51d19970876626b5b5169fbb67ca31ec1d1d3238ee6a71820ca8b80cafb141c485999db1ee1ef02f2cc3b99424c5eda8d59e852d9ebb79ab290eb5ee
+  languageName: node
+  linkType: hard
+
+"dataloader@npm:^2.0.0":
+  version: 2.2.3
+  resolution: "dataloader@npm:2.2.3"
+  checksum: cc272181f6cad0ea20511c0a0d270cbc1df960a3526ab24941bbeb2cb7120499a598fe2cd41b4818527367acf7bc1be0723b6e5034637db4759a396c904b78a6
   languageName: node
   linkType: hard
 
@@ -11270,6 +11357,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"follow-redirects@npm:^1.14.7":
+  version: 1.15.11
+  resolution: "follow-redirects@npm:1.15.11"
+  peerDependenciesMeta:
+    debug:
+      optional: true
+  checksum: 20bf55e9504f59e6cc3743ba27edb2ebf41edea1baab34799408f2c050f73f0c612728db21c691276296d2795ea8a812dc532a98e8793619fcab91abe06d017f
+  languageName: node
+  linkType: hard
+
 "follow-redirects@npm:^1.15.6":
   version: 1.15.9
   resolution: "follow-redirects@npm:1.15.9"
@@ -12673,6 +12770,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jssha@npm:3.2.0":
+  version: 3.2.0
+  resolution: "jssha@npm:3.2.0"
+  checksum: 2adb8a9a57a79360379e843c0548e240d072c2ef12aef39ef6a784315686bd6f65501e9353fdd2f3a604f64af07e7eab04a0ed92b221cdfea97d671d7b8e14f4
+  languageName: node
+  linkType: hard
+
 "jsx-ast-utils@npm:^2.4.1 || ^3.0.0, jsx-ast-utils@npm:^3.3.5":
   version: 3.3.5
   resolution: "jsx-ast-utils@npm:3.3.5"
@@ -12933,6 +13037,7 @@ __metadata:
     "@tailwindcss/postcss": ^4.1.4
     "@tanstack/query-core": ^5.74.4
     "@tanstack/react-query": ^5.74.4
+    "@tonconnect/ui-react": ^2.3.1
     "@types/ethereum-blockies": ^0.1.2
     "@types/node": 22.15.2
     "@types/react": ^19
@@ -13006,6 +13111,9 @@ __metadata:
     tailwind-merge: ^3.2.0
     tailwindcss: ^4.1.4
     three: ^0.180.0
+    ton: ^13.9.0
+    ton-core: ^0.53.0
+    ton-crypto: ^3.2.0
     tslib: ^2.8.1
     tw-animate-css: ^1.2.8
     tweetnacl: ^1.0.3
@@ -14371,7 +14479,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-fetch@npm:^2.7.0":
+"node-fetch@npm:^2.6.9, node-fetch@npm:^2.7.0":
   version: 2.7.0
   resolution: "node-fetch@npm:2.7.0"
   dependencies:
@@ -17159,6 +17267,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"symbol.inspect@npm:1.0.1":
+  version: 1.0.1
+  resolution: "symbol.inspect@npm:1.0.1"
+  checksum: 47fa8d38d0bc5d04c06df2f71bba1a723ee0e015ca042c47b29c11f107877dd1a2e2d2154c9ef5eec11e92e4165d126c844f06d05da80e477581c8f284f05fdf
+  languageName: node
+  linkType: hard
+
 "synckit@npm:^0.11.7":
   version: 0.11.11
   resolution: "synckit@npm:0.11.11"
@@ -17264,6 +17379,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"teslabot@npm:^1.3.0":
+  version: 1.5.0
+  resolution: "teslabot@npm:1.5.0"
+  checksum: 1494f83b9070f3d0882c7ce089a69ea46f0f30ee24c14036880ed5f49882cd80ff47f1c5543c9c973d250596896640130c16b221e84be296474a02f65e7187d0
+  languageName: node
+  linkType: hard
+
 "text-encoding-utf-8@npm:^1.0.2":
   version: 1.0.2
   resolution: "text-encoding-utf-8@npm:1.0.2"
@@ -17351,6 +17473,53 @@ __metadata:
   version: 3.0.0
   resolution: "toml@npm:3.0.0"
   checksum: 5d7f1d8413ad7780e9bdecce8ea4c3f5130dd53b0a4f2e90b93340979a137739879d7b9ce2ce05c938b8cc828897fe9e95085197342a1377dd8850bf5125f15f
+  languageName: node
+  linkType: hard
+
+"ton-core@npm:^0.53.0":
+  version: 0.53.0
+  resolution: "ton-core@npm:0.53.0"
+  dependencies:
+    symbol.inspect: 1.0.1
+  peerDependencies:
+    ton-crypto: ">=3.2.0"
+  checksum: a0f6bc3034fda8521e1c628c1bedd5869166be29e4a1267268dd99e885ba25d5d7b67c88970b23bbb332d936ff1fe0d82f776ddb24649f938c047173b81a8629
+  languageName: node
+  linkType: hard
+
+"ton-crypto-primitives@npm:2.0.0":
+  version: 2.0.0
+  resolution: "ton-crypto-primitives@npm:2.0.0"
+  dependencies:
+    jssha: 3.2.0
+  checksum: a81e5e7f1e44a2f32c519d6a9c3512c047b837be2f90a4e5aa226378b330ec6f9d36c1937a21b947eb792ae819c6906cfbd5b5eeab891f9df486d570141fc749
+  languageName: node
+  linkType: hard
+
+"ton-crypto@npm:^3.2.0":
+  version: 3.2.0
+  resolution: "ton-crypto@npm:3.2.0"
+  dependencies:
+    jssha: 3.2.0
+    ton-crypto-primitives: 2.0.0
+    tweetnacl: 1.0.3
+  checksum: 5c4b077ce36f6d6583c6fee91be45ba88024cfb17927d2da8fce355f226dba559ba5dc91ee508b205c537d6dd6a34bfea17a26c2656ef80bd72f64d1a2604c45
+  languageName: node
+  linkType: hard
+
+"ton@npm:^13.9.0":
+  version: 13.9.0
+  resolution: "ton@npm:13.9.0"
+  dependencies:
+    axios: ^0.25.0
+    dataloader: ^2.0.0
+    symbol.inspect: 1.0.1
+    teslabot: ^1.3.0
+    zod: ^3.21.4
+  peerDependencies:
+    ton-core: ">=0.53.0"
+    ton-crypto: ">=3.2.0"
+  checksum: 41223a54a6acb59f20415b92e2ff287877323c9928cb2efbb745196201d9c8e363653fb55564fa4942f7dde904094feb00f0e6d0d39d5fc9efa658e05e96b9fa
   languageName: node
   linkType: hard
 
@@ -17447,7 +17616,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tweetnacl@npm:^1.0.3":
+"tweetnacl-util@npm:^0.15.1":
+  version: 0.15.1
+  resolution: "tweetnacl-util@npm:0.15.1"
+  checksum: ae6aa8a52cdd21a95103a4cc10657d6a2040b36c7a6da7b9d3ab811c6750a2d5db77e8c36969e75fdee11f511aa2b91c552496c6e8e989b6e490e54aca2864fc
+  languageName: node
+  linkType: hard
+
+"tweetnacl@npm:1.0.3, tweetnacl@npm:^1.0.3":
   version: 1.0.3
   resolution: "tweetnacl@npm:1.0.3"
   checksum: e4a57cac188f0c53f24c7a33279e223618a2bfb5fea426231991652a13247bea06b081fd745d71291fcae0f4428d29beba1b984b1f1ce6f66b06a6d1ab90645c
@@ -17547,6 +17723,15 @@ __metadata:
   version: 0.1.2
   resolution: "ua-is-frozen@npm:0.1.2"
   checksum: 139c89b175bd4e3aeed2ebd1c972ce078e9507ade5f9d704d4ac0a916b2a5e8ada0bc6f616a8c39415e6b602e967ab172d0c44f0dfe353ce8104139897472f48
+  languageName: node
+  linkType: hard
+
+"ua-parser-js@npm:^1.0.35":
+  version: 1.0.41
+  resolution: "ua-parser-js@npm:1.0.41"
+  bin:
+    ua-parser-js: script/cli.js
+  checksum: a57c258ea3a242ade7601460ddf9a7e990d8d8bffc15df2ca87057a81993ca19f5045432c744d07bf2d9f280665d84aebb08630c5af5bea3922fdbe8f6fe6cb0
   languageName: node
   linkType: hard
 
@@ -18732,7 +18917,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zod@npm:^3.24.3":
+"zod@npm:^3.21.4, zod@npm:^3.24.3":
   version: 3.25.76
   resolution: "zod@npm:3.25.76"
   checksum: c9a403a62b329188a5f6bd24d5d935d2bba345f7ab8151d1baa1505b5da9f227fb139354b043711490c798e91f3df75991395e40142e6510a4b16409f302b849

@@ -26,7 +26,22 @@ export const solana_chain = {
   },
 };
 
-export const chain: { [key: string]: ExtendedChain } = {
+export const ton_chain = {
+  id: 'ton',
+  name: 'Ton',
+  iconUrl:
+    'https://cdn.brandfetch.io/id20SzFgBn/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1756832097074',
+  iconBackground: '#fff',
+  nativeCurrency: { name: 'TON', symbol: 'TON', decimals: 9 },
+  rpcUrls: {
+    default: { http: ['https://toncenter.com/api/v2/jsonRPC'] },
+  },
+  blockExplorers: {
+    default: { name: 'Ton Explorer', url: 'https://tonviewer.com' },
+  },
+};
+
+export const chain: { [key: string]: ExtendedChain | any } = {
   '8453': base,
   '84532': baseSepolia,
   '32383': {
@@ -59,14 +74,33 @@ export const getExplorerLink = (
   type: 'transaction' | 'address' = 'transaction'
 ) => {
   if (!data || !chainId) return '';
-  const currentChain = chainId === 'solana' ? solana_chain : chain[chainId];
+  let currentChain = chain[chainId];
+  switch (chainId) {
+    case 'ton':
+      currentChain = ton_chain;
+      break;
+    case 'solana':
+      currentChain = solana_chain;
+      break;
+    default:
+      currentChain = chain[chainId];
+      break;
+  }
   if (!currentChain?.blockExplorers?.default?.url) {
     return '';
   }
 
   const baseUrl = currentChain.blockExplorers.default.url;
-  const path = type === 'transaction' ? 'tx' : 'address';
-  return `${baseUrl}/${path}/${data}`;
+  let path = '';
+  switch (chainId) {
+    case 'ton':
+      path = type === 'transaction' ? '/transactions' : '/';
+      break;
+    default:
+      path = type === 'transaction' ? '/tx' : '/address';
+      break;
+  }
+  return `${baseUrl}${path}/${data}`;
 };
 
 // 获取支持的链配置

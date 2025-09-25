@@ -1,5 +1,5 @@
 // 链类型定义
-export type ChainType = 'base' | 'solana';
+export type ChainType = 'base' | 'solana' | 'ton';
 
 // Token类型定义
 export type TokenType = 'usdc' | 'usdt' | 'usd1' | string;
@@ -11,6 +11,7 @@ export interface TokenConfig {
   iconType: string;
   contractAddress?: string; // EVM链使用
   mintAddress?: string; // Solana链使用
+  imageUrl?: string;
 }
 
 // 链配置接口
@@ -76,6 +77,23 @@ const DEVELOPMENT_CONFIG: Record<ChainType, ChainConfig> = {
       },
     },
   },
+  ton: {
+    chainId: 'Ton',
+    name: 'Ton',
+    defaultToken: 'usdt',
+    blockExplorerUrl: 'https://tonscan.org',
+    iconUrl:
+      'https://cdn.brandfetch.io/id20SzFgBn/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1756832097074',
+    tokens: {
+      usdt: {
+        symbol: 'USDT',
+        decimals: 6,
+        iconType: 'usdt',
+        mintAddress: 'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs',
+        imageUrl: 'https://tether.to/images/logoCircle.png',
+      },
+    },
+  },
 };
 
 // 生产环境配置
@@ -95,12 +113,14 @@ const PRODUCTION_CONFIG: Record<ChainType, ChainConfig> = {
         decimals: 6,
         iconType: 'usdc',
         contractAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+        imageUrl: 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png',
       },
       usdt: {
         symbol: 'USDT',
         decimals: 6,
         iconType: 'usdt',
         contractAddress: '0x50c5725949A6F0c72E6C4a641F24749F6b268E73',
+        imageUrl: 'https://cryptologos.cc/logos/tether-usdt-logo.png',
       },
     },
   },
@@ -117,6 +137,24 @@ const PRODUCTION_CONFIG: Record<ChainType, ChainConfig> = {
         decimals: 6,
         iconType: 'usd1',
         mintAddress: 'USD1ttGY1N17NEEHLmELoaybftRBUSErhqYiQzvEmuB',
+        imageUrl: '/assets/image/token/usd1.png',
+      },
+    },
+  },
+  ton: {
+    chainId: 'Ton',
+    name: 'Ton',
+    defaultToken: 'usdt',
+    blockExplorerUrl: 'https://tonviewer.com',
+    iconUrl:
+      'https://cdn.brandfetch.io/id20SzFgBn/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1756832097074',
+    tokens: {
+      usdt: {
+        symbol: 'USDT',
+        decimals: 6,
+        iconType: 'usdt',
+        mintAddress: 'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs',
+        imageUrl: 'https://tether.to/images/logoCircle.png',
       },
     },
   },
@@ -224,10 +262,14 @@ export const getExplorerUrl = (txHash: string, chainType: string): string => {
     case 'base':
       getExplorerUrl = getChainConfig(normalizedChainType as ChainType).blockExplorerUrl;
       break;
+    case 'ton':
+      getExplorerUrl = getChainConfig(normalizedChainType as ChainType).blockExplorerUrl;
+      break;
     default:
       // 默认使用 Solana 浏览器
       getExplorerUrl = getChainConfig(normalizedChainType as ChainType).blockExplorerUrl;
       break;
   }
-  return `${getExplorerUrl}/tx/${txHash}`;
+  const txType = normalizedChainType === 'ton' ? 'transactions' : 'tx';
+  return `${getExplorerUrl}/${txType}/${txHash}`;
 };

@@ -10,9 +10,9 @@ export default function useAgentStatus() {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       const res = await getUserIsAcceptedAgent();
-      
+
       if (res.code === 200) {
         setIsAccepted(res.data.is_accept);
       } else {
