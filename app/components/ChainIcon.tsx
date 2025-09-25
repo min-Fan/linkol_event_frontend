@@ -71,7 +71,9 @@ export default function ChainIcon({
   // 检查是否为本地图片类型
   if (imgIconMap[normalizedChainType as keyof typeof imgIconMap]) {
     const imgSrc = imgIconMap[normalizedChainType as keyof typeof imgIconMap];
-    return <Image src={imgSrc} alt={chainType} className={className} width={width} height={height} />;
+    return (
+      <Image src={imgSrc} alt={chainType} className={className} width={width} height={height} />
+    );
   }
 
   // 如果提供了备用图标，返回备用图标

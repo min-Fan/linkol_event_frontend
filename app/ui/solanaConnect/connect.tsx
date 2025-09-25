@@ -22,11 +22,7 @@ interface ConnectProps {
   onWalletModalOpen?: () => void;
 }
 
-const Connect = memo(function Connect({
-  className,
-  onSuccess,
-  onWalletModalOpen,
-}: ConnectProps) {
+const Connect = memo(function Connect({ className, onSuccess, onWalletModalOpen }: ConnectProps) {
   const t = useTranslations('common');
   const { wallet, publicKey, signIn, signMessage, connected, connecting } = useWallet();
   const isLoginSolana = useAppSelector((state) => state.userReducer?.isLoginSolana);
