@@ -34,6 +34,7 @@ import { ChevronDown, Check, ChevronLeft, ChevronRight, Play, Pause } from 'luci
 import Link from 'next/link';
 import PagesRoute from '@constants/routes';
 import ClaimRecordSwiper from '../../components/ClaimRecordSwiper';
+import { Badge } from '@shadcn/components/ui/badge';
 
 // 推文卡片骨架屏组件
 const PostItemSkeleton = () => {
@@ -95,6 +96,7 @@ const PostItem = ({
   post: IGetActivityPostsResponseDataItem;
   isFirst?: boolean;
 }) => {
+  const t = useTranslations('common');
   const formatDate = (dateString?: string) => {
     if (!dateString) return '';
     const date = new Date(dateString);
@@ -156,10 +158,24 @@ const PostItem = ({
             <span>{post.reply_count || 0}</span>
           </div>
         </div>
-        {/* <div className="text-muted-foreground/90 sm:text-md flex cursor-pointer items-center gap-0.5 text-sm sm:gap-1">
-          <Share className="size-3" />
-          <span>Share</span>
-        </div> */}
+        <div className="sm:text-md flex items-center gap-0.5 text-sm sm:gap-1">
+          {post.is_real_user && (
+            <Badge
+              variant="outline"
+              className="sm:text-md flex items-center gap-0.5 text-sm sm:gap-1"
+            >
+              {t('real_user')}
+            </Badge>
+          )}
+          {post.join_type === 'agent' && (
+            <Badge
+              variant="outline"
+              className="sm:text-md flex items-center gap-0.5 !border-green-500 !bg-green-500/10 text-sm !text-green-500 sm:gap-1"
+            >
+              {t('link_agent')}
+            </Badge>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -213,7 +229,7 @@ export const HeaderSection = ({
     { code: LanguageCodeShort.English, label: t('english') },
     { code: LanguageCodeShort.Chinese, label: t('chinese') },
     { code: LanguageCodeShort.Korea, label: t('korean') },
-    { code: LanguageCodeShort.Japanese, label: t('japanese') },
+    // { code: LanguageCodeShort.Japanese, label: t('japanese') },
   ];
 
   // 获取显示文本：如果选择了"全部"或没有选择，显示"全部"，否则显示选中的语言
@@ -788,7 +804,7 @@ export default forwardRef<
       {posts.length === 0 ? (
         <EmptyState />
       ) : (
-        <div className="flex flex-col gap-4 p-2 sm:p-4">
+        <div className="flex min-h-[64rem] flex-col gap-4 p-2 sm:p-4">
           {/* 推文列表 - 移动端单列，桌面端多列 */}
           <div
             className={cn('grid grid-cols-1 gap-4 sm:grid-cols-2', col && `sm:grid-cols-${col}`)}

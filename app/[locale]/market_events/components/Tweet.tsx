@@ -1,8 +1,9 @@
 import { Like, Message, ReTwet, Share, Verified } from '@assets/svg';
 import { ITweet } from '@hooks/marketEvents';
 import { formatNumberKMB } from '@libs/utils';
+import { Badge } from '@shadcn/components/ui/badge';
 import { MessageCircle } from 'lucide-react';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 function mapTweetLangToLocale(lang?: string): string {
   switch (lang) {
@@ -62,6 +63,7 @@ function formatMonthShortDay(input?: string, lang?: string): string {
 export default function Tweet(props: { data: ITweet }) {
   const { data } = props;
   const locale = useLocale();
+  const t = useTranslations('common');
   return (
     <div className="border-primary/15 bg-background flex h-full flex-col justify-between gap-y-3 rounded-2xl border-2 p-6">
       <div className="space-y-3">
@@ -103,10 +105,24 @@ export default function Tweet(props: { data: ITweet }) {
             <span>{formatNumberKMB(data.reply_count)}</span>
           </div>
         </div>
-        {/* <div className="flex items-center gap-x-1">
-          <Share className="size-4" />
-          <span>Share</span>
-        </div> */}
+        <div className="sm:text-md flex items-center gap-0.5 text-sm sm:gap-1">
+          {data.is_real_user && (
+            <Badge
+              variant="outline"
+              className="sm:text-md flex items-center gap-0.5 text-sm sm:gap-1"
+            >
+              {t('real_user')}
+            </Badge>
+          )}
+          {data.join_type === 'agent' && (
+            <Badge
+              variant="outline"
+              className="sm:text-md flex items-center gap-0.5 !border-green-500 !bg-green-500/10 text-sm !text-green-500 sm:gap-1"
+            >
+              {t('link_agent')}
+            </Badge>
+          )}
+        </div>
       </div>
     </div>
   );

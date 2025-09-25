@@ -553,8 +553,20 @@ export const getKOLListLineChart = (params: IGetKOLListLineChartParams) => {
 export interface IGetTwitterAuthUrlParams {
   call_back_url: string;
 }
+export interface IGetTwitterAuthUrlResponseData {
+  agent_id: string;
+  app_id: string;
+  /**
+   * 用于授权的URL 前端需要跳转
+   */
+  authorization_url: string;
+  oauth_token: string;
+  oauth_token_secret: string;
+}
 export const getTwitterAuthUrl = (params: IGetTwitterAuthUrlParams) => {
-  return request.get(ENDPOINT_URL.TWITTER_AUTH_URL, { ...params });
+  return kolRequest.get<IGetTwitterAuthUrlResponseData>(ENDPOINT_URL.TWITTER_AUTH_URL, {
+    ...params,
+  });
 };
 
 // 步骤2.回调页面调用
@@ -565,7 +577,7 @@ export interface IGetTwitterAuthCallbackParams {
   app_id: string;
 }
 export const getTwitterAuthCallback = (params: IGetTwitterAuthCallbackParams) => {
-  return request.post(ENDPOINT_URL.TWITTER_AUTH_CALLBACK, { ...params });
+  return kolRequest.post(ENDPOINT_URL.TWITTER_AUTH_CALLBACK, { ...params });
 };
 
 // 步骤3.获取推特授权后的用户信息
@@ -575,7 +587,7 @@ export interface IGetTwitterAuthUserInfoParams {
   app_id: string;
 }
 export const getTwitterAuthUserInfo = (params: IGetTwitterAuthUserInfoParams) => {
-  return request.get(ENDPOINT_URL.TWITTER_AUTH_USER_INFO, { ...params });
+  return kolRequest.get(ENDPOINT_URL.TWITTER_AUTH_USER_INFO, { ...params });
 };
 
 // 步骤4.推特授权回调
@@ -583,7 +595,7 @@ export interface IGetTwitterAuthCompleteCallbackParams {
   /**
    * 认证URL接口中返回的app_id
    */
-  app_id: number;
+  app_id: string | number;
   /**
    * 接口3中返回的description
    */
@@ -610,7 +622,7 @@ export interface IGetTwitterAuthCompleteCallbackParams {
   user_id: string;
 }
 export const getTwitterAuthCompleteCallback = (params: IGetTwitterAuthCompleteCallbackParams) => {
-  return request.post(ENDPOINT_URL.TWITTER_AUTH_COMPLETE_CALLBACK, { ...params });
+  return kolRequest.post(ENDPOINT_URL.TWITTER_AUTH_COMPLETE_CALLBACK, { ...params });
 };
 
 // 平台总充值和总成交的统计数据
@@ -1753,6 +1765,14 @@ export interface IGetActivityPostsResponseDataItem {
    * 是否认证
    */
   is_verified: boolean;
+  /**
+   * 是否是真实用户
+   */
+  is_real_user: boolean;
+  /**
+   * 是否是代理
+   */
+  join_type: string;
 }
 export const getActivityPosts = (params: IGetActivityPostsParams) => {
   return kolRequest.get<IGetActivityPostsResponseData>(`/kol/api/v3/active/tweets/`, {
@@ -1862,6 +1882,10 @@ export interface IGetActivityVoicesTop10ResponseData {
    * 粉丝数
    */
   followers_count?: number;
+  /**
+   * 是否认证
+   */
+  is_verified?: boolean;
 }
 export const getActivityVoicesTop10 = (params: IGetActivityVoicesTop10Params) => {
   return kolRequest.get<IGetActivityVoicesTop10ResponseData[]>(`/kol/api/v3/active/voices/`, {
@@ -2266,4 +2290,20 @@ export const getActivityWithdrawRecord = (params: IGetActivityWithdrawRecordPara
 // 用户粉丝
 export const getActivityFollowers = () => {
   return kolRequest.get('/kol/api/v6/user/followers/');
+};
+
+// 获取用户是否接受了Agent
+export interface IGetUserIsAcceptedAgentData {
+  /**
+   * 是否接受了Agent
+   */
+  is_accept: boolean;
+}
+export const getUserIsAcceptedAgent = () => {
+  return kolRequest.get<IGetUserIsAcceptedAgentData>('/kol/api/v7/accept_agent/');
+};
+
+// 接受Agent
+export const acceptAgent = () => {
+  return kolRequest.post('/kol/api/v7/accept_agent/');
 };

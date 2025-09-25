@@ -71,6 +71,7 @@ export default function XAuth({
 
       localStorage.setItem('twitter_x_id', res.data.x_id);
       localStorage.setItem('twitter_callback_url', currentUrl);
+      localStorage.setItem('twitter_auth_version', 'v2'); // 标记使用v2版本
 
       if (res.data.url) {
         win.current = openCenteredPopup(res.data.url, '', 600, 600);

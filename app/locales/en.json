@@ -270,6 +270,18 @@
     "twitter_auth_failed_title": "Authorization Failed",
     "twitter_auth_failed_description": "There was an issue during the Twitter account authorization process. Please try again later.",
     "btn_back_home": "Back to Home",
+    "fed_up_with_daily_tasks_1": "Fed up with daily task hassles?",
+    "fed_up_with_daily_tasks_2": "Let Linkol agent do the job!",
+    "earn_tickets_or_usdt_with_agent": "Earn tickets or USDT with Linkol agent — automatically manage comments, likes, shares, and tweets after 9 AM daily.",
+    "next_time": "Next time",
+    "create_agent": "Create Agent",
+    "creating_agent": "Creating Agent...",
+    "agent_created_successfully": "Agent created successfully!",
+    "failed_to_create_agent": "Failed to create agent",
+    "agent_creation_failed": "Agent creation failed",
+    "your_agent_earned_for_you": "Your agent earned {amount} {symbol} for you",
+    "while_you_were_away": "while you were away.",
+    "find_more_details_in_event_interface": "Find more details in the event interface.",
     "my_task": "My Task",
     "btn_next_step": "Next Step",
     "field_required": "This field is required: {field}",
@@ -1166,6 +1178,8 @@
     "post_tweet_increase_brand_value_earn_ticket": "Post Tweet, Increase Brand Value, Earn Ticket.",
     "just_spend_1_minutes_everyday_earn_usd_immediately": "Just spend 1 minutes everyday, Earn USD immediately",
     "no_withdraw_record": "No withdraw record",
-    "region_all": "Region All"
+    "region_all": "Region All",
+    "link_agent": "Linkol Agent",
+    "real_user": "Real User"
   }
 }
