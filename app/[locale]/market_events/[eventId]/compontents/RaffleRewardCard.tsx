@@ -16,6 +16,7 @@ import DialogRaffleTicketTasks from './dialog/DialogRaffleTicketTasks';
 import DialogInvitationCode from './dialog/DialogInvitationCode';
 import SpaceButton from 'app/components/SpaceButton/SpaceButton';
 import { ChainType, getChainConfig } from '@constants/config';
+import ChainIcon from 'app/components/ChainIcon';
 
 interface RaffleRewardCardProps {
   eventInfo: IEventInfoResponseData;
@@ -243,15 +244,14 @@ export default function RaffleRewardCard({
               {totalReceiveAmount} {symbol || ''}
             </span>
           </div>
-          {getChainConfig(eventInfo?.chain_type as ChainType).iconUrl && (
-            <div className="ml-auto rounded-full p-2 shadow-sm">
-              <img
-                src={getChainConfig(eventInfo?.chain_type as ChainType).iconUrl as string}
-                alt=""
-                className="size-6 sm:size-8"
-              />
-            </div>
-          )}
+          <div className="ml-auto rounded-full p-2 shadow-sm">
+            <ChainIcon
+              chainType={eventInfo?.chain_type as ChainType}
+              className="size-6 sm:size-8"
+              width={32}
+              height={32}
+            />
+          </div>
           <Button
             onClick={onClaim}
             disabled={totalReceiveAmount === 0}

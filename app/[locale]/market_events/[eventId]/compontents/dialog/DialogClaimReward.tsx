@@ -702,12 +702,12 @@ const DialogClaimReward = memo(
                     <UIWallet className="!h-auto flex-1 !rounded-lg" onSuccess={handleClose} />
                   </div>
                 )}
-                {/* {!isLoginSolana && eventInfo?.chain_type === 'Solana' && (
+                {!isLoginSolana && eventInfo?.chain_type === 'Solana' && (
                   <div className="flex">
                     <Connect onSuccess={handleClose} onWalletModalOpen={handleClose} />
                   </div>
-                )} */}
-                {!isLoginTon && eventInfo?.chain_type === 'Solana' && (
+                )}
+                {!isLoginTon && eventInfo?.chain_type === 'Ton' && (
                   <div className="flex">
                     <TonWalletConnect onSuccess={handleClose} onWalletModalOpen={handleClose} />
                   </div>
