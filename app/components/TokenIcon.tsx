@@ -1,7 +1,9 @@
+'use client';
 import { UsdcIcon, Usdt } from '@assets/svg';
 import Usd1 from '@assets/image/token/usd1.png';
 import Image from 'next/image';
 import { getTokenConfig } from '@constants/config';
+import { useState } from 'react';
 
 // SVG组件映射
 const svgIconMap = {
@@ -32,8 +34,10 @@ export default function TokenIcon({
   width = 24,
   height = 24,
 }: TokenIconProps) {
+  const [imageError, setImageError] = useState(false);
+
   // 如果提供了 chainType 和 tokenType，尝试从配置中获取 imageUrl
-  if (chainType && tokenType) {
+  if (chainType && tokenType && !imageError) {
     try {
       const tokenConfig = getTokenConfig(chainType, tokenType);
       if (tokenConfig.imageUrl) {
@@ -44,6 +48,10 @@ export default function TokenIcon({
             className={className}
             width={width}
             height={height}
+            onError={() => {
+              console.warn('外部图片加载失败，将回退到本地图标:', tokenConfig.imageUrl);
+              setImageError(true);
+            }}
           />
         );
       }
