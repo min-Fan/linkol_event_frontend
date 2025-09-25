@@ -17,6 +17,18 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'pbs.twimg.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'tether.to',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cryptologos.cc',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.brandfetch.io',
+      },
     ],
   },
   webpack: (config, { isServer }) => {
