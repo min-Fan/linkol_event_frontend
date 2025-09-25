@@ -123,7 +123,10 @@ export const usePayTokenInfo = (chainType?: string, tokenType?: string) => {
       let iconType = tokenConfig.iconType;
 
       // 如果提供了 mintAddress，尝试从链上获取 token 信息
-      if (tokenConfig.mintAddress && tokenConfig.mintAddress !== '0x0000000000000000000000000000000000000000') {
+      if (
+        tokenConfig.mintAddress &&
+        tokenConfig.mintAddress !== '0x0000000000000000000000000000000000000000'
+      ) {
         try {
           const jettonAddress = Address.parse(tokenConfig.mintAddress);
           const result = await tonClient.runMethod(jettonAddress, 'get_jetton_data');

@@ -24,13 +24,13 @@ interface TokenIconProps {
   height?: number;
 }
 
-export default function TokenIcon({ 
-  type, 
-  chainType, 
-  tokenType, 
-  className, 
-  width = 24, 
-  height = 24 
+export default function TokenIcon({
+  type,
+  chainType,
+  tokenType,
+  className,
+  width = 24,
+  height = 24,
 }: TokenIconProps) {
   // 如果提供了 chainType 和 tokenType，尝试从配置中获取 imageUrl
   if (chainType && tokenType) {
@@ -38,12 +38,12 @@ export default function TokenIcon({
       const tokenConfig = getTokenConfig(chainType, tokenType);
       if (tokenConfig.imageUrl) {
         return (
-          <Image 
-            src={tokenConfig.imageUrl} 
-            alt={tokenConfig.symbol || type} 
-            className={className} 
-            width={width} 
-            height={height} 
+          <Image
+            src={tokenConfig.imageUrl}
+            alt={tokenConfig.symbol || type}
+            className={className}
+            width={width}
+            height={height}
           />
         );
       }

@@ -36,15 +36,15 @@ export const useTonTokenBalance = (mintAddress?: string) => {
         const jettonMinter = Address.parse(mintAddress);
 
         // 1. 先通过 jetton minter 获取用户的 Jetton Wallet 地址
-        const jettonWalletRes = await tonClient.runMethod(jettonMinter, "get_wallet_address", [
-          { type: "slice", cell: beginCell().storeAddress(userAddress).endCell() }
+        const jettonWalletRes = await tonClient.runMethod(jettonMinter, 'get_wallet_address', [
+          { type: 'slice', cell: beginCell().storeAddress(userAddress).endCell() },
         ]);
         const jettonWalletAddress = jettonWalletRes.stack.readAddress();
 
         // 2. 再调用该 Jetton Wallet 合约的 get_wallet_data
-        const walletData = await tonClient.runMethod(jettonWalletAddress, "get_wallet_data");
+        const walletData = await tonClient.runMethod(jettonWalletAddress, 'get_wallet_data');
         const balance = walletData.stack.readBigNumber(); // 代币余额
-        
+
         setBalance(balance);
       }
     } catch (err) {
@@ -78,22 +78,22 @@ export const useTonTokenBalance = (mintAddress?: string) => {
 export const parseJettonContent = (contentCell: Cell) => {
   try {
     console.log('开始解析 jetton content cell:', contentCell.toString());
-    
+
     // 从 cell 的十六进制表示中提取 URI
     const cellHex = contentCell.toString();
     console.log('Cell 十六进制:', cellHex);
-    
+
     // 查找可能的 URI 模式 (https://)
     const uriPattern = /68747470733A2F2F[0-9A-Fa-f]+/g;
     const matches = cellHex.match(uriPattern);
-    
+
     if (matches && matches.length > 0) {
       for (const match of matches) {
         try {
           const uriBytes = Buffer.from(match, 'hex');
           const uri = uriBytes.toString('utf8');
           console.log('找到 URI:', uri);
-          
+
           if (uri && uri.includes('http')) {
             return {
               uri: uri.trim(),
@@ -105,10 +105,9 @@ export const parseJettonContent = (contentCell: Cell) => {
         }
       }
     }
-    
+
     console.log('未找到有效的 URI');
     return null;
-    
   } catch (error) {
     console.warn('解析 jetton content 失败:', error);
     return null;

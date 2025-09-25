@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     const response = await fetch(uri, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; LinkolEvent/1.0)',
-        'Accept': 'application/json',
+        Accept: 'application/json',
       },
     });
 
@@ -24,9 +24,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(data);
   } catch (error) {
     console.error('Error fetching TON metadata:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch metadata' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to fetch metadata' }, { status: 500 });
   }
 }
