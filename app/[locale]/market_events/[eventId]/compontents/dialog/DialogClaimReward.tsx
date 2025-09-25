@@ -34,6 +34,8 @@ import Connect from '@ui/solanaConnect/connect';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useEventTokenInfo } from '@hooks/useEventTokenInfo';
 import { IEventInfoResponseData } from '@libs/request';
+import { TonConnectButton } from '@tonconnect/ui-react';
+import TonWalletConnect from '@ui/tonConnect/TonWalletConnect';
 
 interface DialogClaimRewardProps {
   isOpen: boolean;
@@ -69,6 +71,7 @@ const DialogClaimReward = memo(
     const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
     const twInfo = useAppSelector((state) => state.userReducer?.twitter_full_profile);
     const isLoginSolana = useAppSelector((state) => state.userReducer?.isLoginSolana);
+    const isLoginTon = useAppSelector((state) => state.userReducer?.isLoginTon);
     const { address, chainId } = useAccount();
     const { switchChain } = useSwitchChain();
     const { isPending, isConnected, isLogin, connect, login, logout, email } = useUserInfo();
@@ -510,7 +513,8 @@ const DialogClaimReward = memo(
           >
             {(!isLogin && eventInfo?.chain_type === 'BASE') ||
             (isWrongChain && eventInfo?.chain_type === 'BASE') ||
-            (!isLoginSolana && eventInfo?.chain_type === 'Solana') ? (
+            (!isLoginSolana && eventInfo?.chain_type === 'Solana') ||
+            (!isLoginTon && eventInfo?.chain_type === 'Ton') ? (
               // 未连接钱包状态
               <div className="flex flex-col items-center justify-center space-y-4">
                 <div className="bg-primary/10 flex h-20 w-20 items-center justify-center rounded-full">
@@ -549,6 +553,11 @@ const DialogClaimReward = memo(
                 {!isLoginSolana && eventInfo?.chain_type === 'Solana' && (
                   <div className="flex">
                     <Connect onSuccess={handleClose} onWalletModalOpen={handleClose} />
+                  </div>
+                )}
+                {!isLoginTon && eventInfo?.chain_type === 'Ton' && (
+                  <div className="flex">
+                    <TonWalletConnect onSuccess={handleClose} onWalletModalOpen={handleClose} />
                   </div>
                 )}
               </div>

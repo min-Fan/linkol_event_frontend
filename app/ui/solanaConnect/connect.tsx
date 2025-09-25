@@ -12,6 +12,7 @@ import nacl from 'tweetnacl';
 import NavWallet from './NavWallet';
 import { Button } from '@shadcn/components/ui/button';
 import { cn } from '@shadcn/lib/utils';
+import { useTranslations } from 'next-intl';
 
 const ConnectStyled = styled.div``;
 export default function Connect({
@@ -23,6 +24,7 @@ export default function Connect({
   onSuccess?: () => void;
   onWalletModalOpen?: () => void;
 }) {
+  const t = useTranslations('common');
   const { wallet, publicKey, signIn, signMessage, connected, connecting } = useWallet();
   const isLoginSolana = useAppSelector((state) => state.userReducer?.isLoginSolana);
   const dispatchApp = useAppDispatch();
@@ -112,7 +114,7 @@ export default function Connect({
         </>
       ) : connected && !isLoginSolana ? (
         <Button className={cn(className)} onClick={handleSignMessage}>
-          Sign message
+          {t('Sign message')}
         </Button>
       ) : (
         <NavWallet></NavWallet>

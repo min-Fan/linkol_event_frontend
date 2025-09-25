@@ -48,8 +48,8 @@ export const useTonTokenBalance = (mintAddress?: string) => {
         setBalance(balance);
       }
     } catch (err) {
-      console.error('获取 TON token 余额失败:', err);
-      setError(err instanceof Error ? err.message : '获取余额失败');
+      console.error('Get TON token balance failed:', err);
+      setError(err instanceof Error ? err.message : 'Get balance failed');
       setBalance(BigInt(0));
     } finally {
       setIsLoading(false);
@@ -77,11 +77,11 @@ export const useTonTokenBalance = (mintAddress?: string) => {
  */
 export const parseJettonContent = (contentCell: Cell) => {
   try {
-    console.log('开始解析 jetton content cell:', contentCell.toString());
+    console.log('Start parsing jetton content cell:', contentCell.toString());
 
     // 从 cell 的十六进制表示中提取 URI
     const cellHex = contentCell.toString();
-    console.log('Cell 十六进制:', cellHex);
+    console.log('Cell hex:', cellHex);
 
     // 查找可能的 URI 模式 (https://)
     const uriPattern = /68747470733A2F2F[0-9A-Fa-f]+/g;
@@ -92,7 +92,7 @@ export const parseJettonContent = (contentCell: Cell) => {
         try {
           const uriBytes = Buffer.from(match, 'hex');
           const uri = uriBytes.toString('utf8');
-          console.log('找到 URI:', uri);
+          console.log('Found URI:', uri);
 
           if (uri && uri.includes('http')) {
             return {
@@ -101,15 +101,15 @@ export const parseJettonContent = (contentCell: Cell) => {
             };
           }
         } catch (hexError) {
-          console.log('十六进制解析失败:', hexError);
+          console.log('Hex parsing failed:', hexError);
         }
       }
     }
 
-    console.log('未找到有效的 URI');
+    console.log('No valid URI found');
     return null;
   } catch (error) {
-    console.warn('解析 jetton content 失败:', error);
+    console.warn('Parsing jetton content failed:', error);
     return null;
   }
 };

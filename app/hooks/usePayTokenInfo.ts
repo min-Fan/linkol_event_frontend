@@ -123,10 +123,7 @@ export const usePayTokenInfo = (chainType?: string, tokenType?: string) => {
       let iconType = tokenConfig.iconType;
 
       // 如果提供了 mintAddress，尝试从链上获取 token 信息
-      if (
-        tokenConfig.mintAddress &&
-        tokenConfig.mintAddress !== '0x0000000000000000000000000000000000000000'
-      ) {
+      if (tokenConfig.mintAddress) {
         try {
           const jettonAddress = Address.parse(tokenConfig.mintAddress);
           const result = await tonClient.runMethod(jettonAddress, 'get_jetton_data');
@@ -148,7 +145,7 @@ export const usePayTokenInfo = (chainType?: string, tokenType?: string) => {
           // 尝试解析 jetton content 中的 metadata
           try {
             const metadata = parseJettonContent(jettonContent);
-            console.log('Jetton metadata 解析结果:', metadata);
+            console.log('Jetton metadata parsing result:', metadata);
             if (metadata && metadata.uri) {
               // 从 URI 获取完整的 metadata（通过代理API避免跨域问题）
               try {
@@ -163,11 +160,11 @@ export const usePayTokenInfo = (chainType?: string, tokenType?: string) => {
                 if (metadataData.decimals) decimals = metadataData.decimals;
                 if (metadataData.name) iconType = metadataData.name.toLowerCase();
               } catch (fetchError) {
-                console.warn('无法从 URI 获取 metadata:', fetchError);
+                console.warn('Failed to get metadata from URI:', fetchError);
               }
             }
           } catch (contentError) {
-            console.warn('无法解析 jetton content:', contentError);
+            console.warn('Failed to parse jetton content:', contentError);
           }
         } catch (jettonError) {
           console.warn('jetton error:', jettonError);
@@ -187,7 +184,7 @@ export const usePayTokenInfo = (chainType?: string, tokenType?: string) => {
         })
       );
     } catch (error) {
-      console.error('获取TON token信息失败:', error);
+      console.error('Get TON token info failed:', error);
     }
   };
 
