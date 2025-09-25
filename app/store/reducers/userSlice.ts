@@ -2,13 +2,13 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { DEFAULT_CHAIN } from 'app/constants/chains';
 import { Filter, IConfig, KOLInfo, QuickOrder } from './types';
 import { KolRankListItem, PromotionData } from 'app/@types/types';
-import { ReactNode } from 'react';
 import { IGetUserActivityRewardResponseData } from '@libs/request';
 import { PublicKey } from '@solana/web3.js';
 // 定义用户状态接口
 export interface UserState {
   isLoggedIn: boolean;
   isLoginSolana: boolean;
+  isLoginTon: boolean;
   chainId: number;
   config: IConfig;
   filter: Filter;
@@ -135,6 +135,7 @@ export interface UserState {
 export const initialState: UserState = {
   isLoggedIn: false,
   isLoginSolana: false,
+  isLoginTon: false,
   chainId: DEFAULT_CHAIN.id,
   rpc: process.env.NEXT_PUBLIC_SOLANA_RPC || '',
   account: null,
@@ -239,6 +240,9 @@ const userSlice = createSlice({
     },
     updateIsLoginSolana: (state, action: PayloadAction<boolean>) => {
       state.isLoginSolana = action.payload;
+    },
+    updateIsLoginTon: (state, action: PayloadAction<boolean>) => {
+      state.isLoginTon = action.payload;
     },
     updateChain: (state, action: PayloadAction<number>) => {
       state.chainId = action.payload;
@@ -678,6 +682,7 @@ export const {
   updateComparisonInfo,
   updateIsLoggedIn,
   updateIsLoginSolana,
+  updateIsLoginTon,
   updateChain,
   updateRpc,
   updateAccount,

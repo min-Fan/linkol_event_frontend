@@ -1182,6 +1182,10 @@
     "no_withdraw_record": "暂无提现记录",
     "region_all": "全部地区",
     "link_agent": "Linkol 代理",
-    "real_user": "真实用户"
+    "real_user": "真实用户",
+    "connect_wallet_ton": "连接TON钱包",
+    "Sign message": "签名消息",
+    "connected": "已连接",
+    "disconnect": "断开连接"
   }
 }

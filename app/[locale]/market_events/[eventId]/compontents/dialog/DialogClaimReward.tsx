@@ -34,6 +34,8 @@ import Connect from '@ui/solanaConnect/connect';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useEventTokenInfo } from '@hooks/useEventTokenInfo';
 import { IEventInfoResponseData } from '@libs/request';
+import { TonConnectButton, useTonWallet, useTonConnectUI, CHAIN } from '@tonconnect/ui-react';
+import TonWalletConnect from '@ui/tonConnect/TonWalletConnect';
 
 interface DialogClaimRewardProps {
   isOpen: boolean;
@@ -69,10 +71,13 @@ const DialogClaimReward = memo(
     const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
     const twInfo = useAppSelector((state) => state.userReducer?.twitter_full_profile);
     const isLoginSolana = useAppSelector((state) => state.userReducer?.isLoginSolana);
+    const isLoginTon = useAppSelector((state) => state.userReducer?.isLoginTon);
     const { address, chainId } = useAccount();
     const { switchChain } = useSwitchChain();
     const { isPending, isConnected, isLogin, connect, login, logout, email } = useUserInfo();
     const { publicKey, signMessage } = useWallet();
+    const wallet = useTonWallet();
+    const [tonConnectUI] = useTonConnectUI();
 
     // 使用新的 hook 从 store 中获取用户活动奖励数据
     const {
@@ -313,6 +318,7 @@ const DialogClaimReward = memo(
         setIsClaiming(false);
         setIsClaimFailed(true);
         setHasStartedClaim(false); // 重置状态以允许重试
+        hasProcessedSuccessRef.current = false; // 重置成功处理标记，允许重试
         isRequestingSignatureRef.current = false; // 重置签名请求标记
       }
     }, [
@@ -368,6 +374,7 @@ const DialogClaimReward = memo(
           setIsClaimFailed(true);
           setHasStartedClaim(false);
           isRequestingSignatureRef.current = false;
+          hasProcessedSuccessRef.current = false; // 重置成功处理标记，允许重试
           return;
         }
 
@@ -380,6 +387,7 @@ const DialogClaimReward = memo(
           setIsClaimFailed(true);
           setHasStartedClaim(false);
           isRequestingSignatureRef.current = false;
+          hasProcessedSuccessRef.current = false; // 重置成功处理标记，允许重试
           return;
         }
 
@@ -415,6 +423,8 @@ const DialogClaimReward = memo(
           setIsClaiming(false);
           setIsClaimFailed(true);
           setHasStartedClaim(false);
+          isRequestingSignatureRef.current = false; // 重置签名请求标记
+          hasProcessedSuccessRef.current = false; // 重置成功处理标记，允许重试
           toast.error(claimRes.msg || t('claim_failed'));
         }
       } catch (error) {
@@ -423,6 +433,7 @@ const DialogClaimReward = memo(
         setIsClaiming(false);
         setIsClaimFailed(true);
         setHasStartedClaim(false);
+        hasProcessedSuccessRef.current = false; // 重置成功处理标记，允许重试
         isRequestingSignatureRef.current = false;
       }
     }, [
@@ -434,6 +445,124 @@ const DialogClaimReward = memo(
       t,
       eventId,
       signMessage,
+      refetchUserActivityReward,
+      onRefresh,
+    ]);
+    const handleClaimRewardTon = useCallback(async () => {
+      if (!isLoginTon || !wallet) {
+        toast.error(t('please_connect_wallet'));
+        return;
+      }
+
+      // 如果已经开始了领取流程或正在请求签名，避免重复执行
+      if (hasStartedClaim || isRequestingSignatureRef.current) {
+        return;
+      }
+
+      try {
+        setIsClaiming(true);
+        setHasStartedClaim(true); // 标记已经开始领取流程
+        isRequestingSignatureRef.current = true; // 标记正在请求签名
+
+        const availableRewards = totalReceiveAmount;
+        if (availableRewards === 0 && eventInfo?.a_type === 'normal') {
+          toast.error(t('no_rewards_to_claim'));
+          setIsClaiming(false);
+          setHasStartedClaim(false); // 重置状态以允许重试
+          isRequestingSignatureRef.current = false; // 重置签名请求标记
+          return;
+        }
+
+        // 缓存领取时的奖励数量，用于成功弹窗显示
+        setClaimedAmount(availableRewards);
+
+        // 1. 构建需要签名的消息：receive_amount,active_id,时间戳
+        const timestamp = Math.floor(Date.now() / 1000);
+        // 将 availableRewards 转换为正确的精度（乘以 10^6）
+        const amountWithPrecision = Math.floor(availableRewards * Math.pow(10, 6));
+        const messageToSign = `${amountWithPrecision},${eventId},${timestamp}`;
+
+        // 2. 使用 TON 钱包签名消息
+        if (!tonConnectUI) {
+          toast.error(t('wallet_not_connected'));
+          setIsClaiming(false);
+          setIsClaimFailed(true);
+          setHasStartedClaim(false);
+          isRequestingSignatureRef.current = false;
+          return;
+        }
+
+        const signatureResult = await tonConnectUI.signData({
+          network: CHAIN.MAINNET,
+          from: wallet.account.address,
+          type: 'text',
+          text: messageToSign,
+        });
+
+        if (!signatureResult || !signatureResult.signature) {
+          toast.error(t('signature_failed'));
+          setIsClaiming(false);
+          setIsClaimFailed(true);
+          setHasStartedClaim(false);
+          isRequestingSignatureRef.current = false;
+          hasProcessedSuccessRef.current = false; // 重置成功处理标记，允许重试
+          return;
+        }
+
+        // 3. 将签名转换为 base64 字符串
+        const signatureString = signatureResult.signature;
+
+        // 4. 调用领取接口提交签名
+        const claimRes: any = await getSolanaClaimReward({
+          receive_amount: amountWithPrecision,
+          active_id: eventId as string,
+          solana_sign: signatureString,
+          solana_address: wallet.account.address || '',
+          timestamp: timestamp,
+        });
+
+        // 重置签名请求标记
+        isRequestingSignatureRef.current = false;
+
+        if (claimRes.code === 200) {
+          // 成功状态
+          setIsClaiming(false);
+          setIsClaimSuccess(true);
+          toast.success(
+            t.rich('reward_claimed_successfully', {
+              amount: (chunks) => <span className="text-primary">{availableRewards}</span>,
+            })
+          );
+          // 刷新用户活动奖励数据和父组件数据
+          await refetchUserActivityReward();
+          onRefresh?.();
+        } else {
+          // 失败状态
+          setIsClaiming(false);
+          setIsClaimFailed(true);
+          setHasStartedClaim(false);
+          isRequestingSignatureRef.current = false; // 重置签名请求标记
+          hasProcessedSuccessRef.current = false; // 重置成功处理标记，允许重试
+          toast.error(claimRes.msg || t('claim_failed'));
+        }
+      } catch (error) {
+        console.error('Failed to claim reward:', error);
+        setIsClaiming(false);
+        setIsClaimFailed(true);
+        setHasStartedClaim(false);
+        hasProcessedSuccessRef.current = false; // 重置成功处理标记，允许重试
+        isRequestingSignatureRef.current = false; // 重置签名请求标记
+        toast.error(t('failed_to_claim_reward'));
+      }
+    }, [
+      isLoginTon,
+      wallet,
+      hasStartedClaim,
+      totalReceiveAmount,
+      eventInfo?.a_type,
+      t,
+      eventId,
+      tonConnectUI,
       refetchUserActivityReward,
       onRefresh,
     ]);
@@ -469,7 +598,31 @@ const DialogClaimReward = memo(
           !hasStartedClaim && // 避免重复开始领取流程
           isLoginSolana // 只有在登录状态下才自动执行领取流程
         ) {
-          handleClaimRewardSolana();
+          // 检查邮箱是否已绑定
+          if (!isEmailBound()) {
+            // 如果没有绑定邮箱，打开绑定邮箱弹窗
+            setIsBindEmailDialogOpen(true);
+          } else {
+            // 如果已绑定邮箱，继续正常的领取流程
+            handleClaimRewardSolana();
+          }
+        }
+        if (
+          isOpen &&
+          !isClaiming &&
+          !isClaimSuccess &&
+          !isClaimFailed &&
+          !hasStartedClaim && // 避免重复开始领取流程
+          isLoginTon // 只有在登录状态下才自动执行领取流程
+        ) {
+          // 检查邮箱是否已绑定
+          if (!isEmailBound()) {
+            // 如果没有绑定邮箱，打开绑定邮箱弹窗
+            setIsBindEmailDialogOpen(true);
+          } else {
+            // 如果已绑定邮箱，继续正常的领取流程
+            handleClaimRewardTon();
+          }
         }
       }
     }, [
@@ -482,8 +635,10 @@ const DialogClaimReward = memo(
       isClaimFailed,
       isLogin,
       isLoginSolana,
+      isLoginTon,
       handleClaimReward,
       handleClaimRewardSolana,
+      handleClaimRewardTon,
       twInfo?.email,
       email,
       eventInfo?.chain_type,
@@ -510,7 +665,8 @@ const DialogClaimReward = memo(
           >
             {(!isLogin && eventInfo?.chain_type === 'BASE') ||
             (isWrongChain && eventInfo?.chain_type === 'BASE') ||
-            (!isLoginSolana && eventInfo?.chain_type === 'Solana') ? (
+            (!isLoginSolana && eventInfo?.chain_type === 'Solana') ||
+            (!isLoginTon && eventInfo?.chain_type === 'Ton') ? (
               // 未连接钱包状态
               <div className="flex flex-col items-center justify-center space-y-4">
                 <div className="bg-primary/10 flex h-20 w-20 items-center justify-center rounded-full">
@@ -549,6 +705,11 @@ const DialogClaimReward = memo(
                 {!isLoginSolana && eventInfo?.chain_type === 'Solana' && (
                   <div className="flex">
                     <Connect onSuccess={handleClose} onWalletModalOpen={handleClose} />
+                  </div>
+                )}
+                {!isLoginTon && eventInfo?.chain_type === 'Ton' && (
+                  <div className="flex">
+                    <TonWalletConnect onSuccess={handleClose} onWalletModalOpen={handleClose} />
                   </div>
                 )}
               </div>
@@ -652,8 +813,10 @@ const DialogClaimReward = memo(
                     handleClose();
                   }
                 } else {
-                  if (isLoginSolana) {
+                  if (isLoginSolana && eventInfo?.chain_type === 'Solana') {
                     handleClaimRewardSolana();
+                  } else if (isLoginTon && eventInfo?.chain_type === 'Ton') {
+                    handleClaimRewardTon();
                   } else {
                     handleClose();
                   }

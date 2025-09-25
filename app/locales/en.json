@@ -1180,6 +1180,10 @@
     "no_withdraw_record": "No withdraw record",
     "region_all": "Region All",
     "link_agent": "Linkol Agent",
-    "real_user": "Real User"
+    "real_user": "Real User",
+    "connect_wallet_ton": "Connect TON Wallet",
+    "Sign message": "Sign Message",
+    "connected": "Connected",
+    "disconnect": "Disconnect"
   }
 }

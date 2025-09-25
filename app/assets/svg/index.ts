@@ -134,6 +134,7 @@ import InviteIcon from './inviteicon.svg';
 import FluentShare from './fluent_share.svg';
 import SolIcon from './sol-icon.svg';
 import LucideBot from './lucide_bot.svg';
+import TonIcon from './ton.svg';
 
 export {
   Share,
@@ -272,4 +273,5 @@ export {
   FluentShare,
   SolIcon,
   LucideBot,
+  TonIcon,
 };
