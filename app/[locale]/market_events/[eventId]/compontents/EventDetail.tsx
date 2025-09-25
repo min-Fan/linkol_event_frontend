@@ -350,7 +350,7 @@ export default function EventDetail({
             <span className="text-muted-foreground sm:text-md text-sm">{t('reward_pool')}</span>
             <span className="sm:text-md flex items-center gap-1 text-sm font-semibold">
               {eventInfo?.is_verified && `$${eventInfo?.reward_amount?.toLocaleString()}`}
-              {iconType && <TokenIcon type={iconType} className="size-5" />}
+              {iconType && <TokenIcon chainType={eventInfo?.chain_type} tokenType={eventInfo?.token_type} type={iconType} className="size-5" />}
               {symbol || ''}
             </span>
           </div>

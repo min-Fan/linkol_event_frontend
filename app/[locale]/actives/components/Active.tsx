@@ -46,7 +46,7 @@ export default function Active(props: { data: IActive }) {
             <dd className="bg-accent sm:text-md flex h-8 items-center gap-x-1 rounded-full px-2 text-sm">
               {data?.is_verified ? `$${data?.reward_amount}` : t('unverified')}
               {data?.is_verified && tokenInfo?.iconType && (
-                <TokenIcon type={tokenInfo?.iconType as string} className="size-5" />
+                <TokenIcon chainType={data?.chain_type} tokenType={data?.token_type} type={tokenInfo?.iconType as string} className="size-5" />
               )}
             </dd>
           </dl>

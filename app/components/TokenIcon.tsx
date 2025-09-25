@@ -1,6 +1,7 @@
 import { UsdcIcon, Usdt } from '@assets/svg';
 import Usd1 from '@assets/image/token/usd1.png';
 import Image from 'next/image';
+import { getTokenConfig } from '@constants/config';
 
 // SVG组件映射
 const svgIconMap = {
@@ -16,12 +17,41 @@ const imgIconMap = {
 
 interface TokenIconProps {
   type: string;
+  chainType?: string;
+  tokenType?: string;
   className?: string;
   width?: number;
   height?: number;
 }
 
-export default function TokenIcon({ type, className, width = 24, height = 24 }: TokenIconProps) {
+export default function TokenIcon({ 
+  type, 
+  chainType, 
+  tokenType, 
+  className, 
+  width = 24, 
+  height = 24 
+}: TokenIconProps) {
+  // 如果提供了 chainType 和 tokenType，尝试从配置中获取 imageUrl
+  if (chainType && tokenType) {
+    try {
+      const tokenConfig = getTokenConfig(chainType, tokenType);
+      if (tokenConfig.imageUrl) {
+        return (
+          <Image 
+            src={tokenConfig.imageUrl} 
+            alt={tokenConfig.symbol || type} 
+            className={className} 
+            width={width} 
+            height={height} 
+          />
+        );
+      }
+    } catch (error) {
+      console.warn('warring token config:', error);
+    }
+  }
+
   // 检查是否为SVG类型
   if (svgIconMap[type.toLowerCase() as keyof typeof svgIconMap]) {
     const Icon = svgIconMap[type.toLowerCase() as keyof typeof svgIconMap];
