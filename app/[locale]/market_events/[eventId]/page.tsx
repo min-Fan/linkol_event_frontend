@@ -271,13 +271,13 @@ export default function MarketEventsPage() {
     // 当eventInfo数据加载完成且包含项目信息时，添加project参数到URL
     if (eventInfo?.project?.name) {
       const currentUrl = new URL(window.location.href);
-      const currentProject = currentUrl.searchParams.get('project');
+      const currentProject = currentUrl.searchParams.get('p');
       // 将项目名称中的空格替换为下划线
       const projectNameWithUnderscore = eventInfo.project.name.replace(/\s+/g, '_');
 
       // 只有当project参数不存在或与当前项目名称不同时才更新URL
       if (currentProject !== projectNameWithUnderscore) {
-        currentUrl.searchParams.set('project', projectNameWithUnderscore);
+        currentUrl.searchParams.set('p', projectNameWithUnderscore);
         router.replace(currentUrl.pathname + currentUrl.search, { scroll: false });
       }
     }

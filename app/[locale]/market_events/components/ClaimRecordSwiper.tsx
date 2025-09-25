@@ -18,6 +18,7 @@ const ClaimRecordSwiper = memo(
     const [isTransitioning, setIsTransitioning] = useState(true);
     const [isPaused, setIsPaused] = useState(false);
     const [itemHeight, setItemHeight] = useState(32); // 默认高度 32px (h-8)
+    const [showShake, setShowShake] = useState(false); // 控制shake动画
     const containerRef = useRef<HTMLDivElement>(null);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const { eventId: activeId } = useParams() as { eventId: string };
@@ -94,6 +95,7 @@ const ClaimRecordSwiper = memo(
       intervalRef.current = setInterval(() => {
         setCurrentIndex((prevIndex) => {
           const nextIndex = prevIndex + 1;
+          
           // 如果到达扩展列表的最后一条（即原始列表的第一条），无缝回到第一条
           if (nextIndex >= extendedRecords.length) {
             // 先禁用过渡效果
@@ -104,10 +106,22 @@ const ClaimRecordSwiper = memo(
               // 重新启用过渡效果
               setTimeout(() => {
                 setIsTransitioning(true);
+                // 轮播完成后触发shake动画
+                setShowShake(true);
+                // 1.5秒后停止shake动画
+                setTimeout(() => setShowShake(false), 1500);
               }, 100);
             }, 100);
             return nextIndex;
           }
+          
+          // 轮播完成后触发shake动画（延迟700ms，等待过渡动画完成）
+          setTimeout(() => {
+            setShowShake(true);
+            // 1.5秒后停止shake动画
+            setTimeout(() => setShowShake(false), 1500);
+          }, 700); // 延迟700ms，等待transition-transform duration-700完成
+          
           return nextIndex;
         });
       }, 3000); // 每3秒切换一次
@@ -143,7 +157,10 @@ const ClaimRecordSwiper = memo(
         <div
           key={`${record.id}-${index}`}
           data-item={index}
-          className="flex min-h-8 flex-shrink-0 items-center justify-end pr-1"
+          className={cn(
+            "flex min-h-8 flex-shrink-0 items-center justify-end pr-1",
+            index === currentIndex && showShake && 'animate-shake'
+          )}
         >
           <div className="sm:text-md flex-warp flex w-full items-end gap-x-1 text-sm sm:w-auto sm:items-center">
             <div className="flex items-center gap-x-1">
@@ -192,7 +209,7 @@ const ClaimRecordSwiper = memo(
           </div>
         </div>
       ));
-    }, [extendedRecords]);
+    }, [extendedRecords, currentIndex, showShake]);
 
     // 错误状态
     if (error) {

@@ -1765,6 +1765,14 @@ export interface IGetActivityPostsResponseDataItem {
    * 是否认证
    */
   is_verified: boolean;
+  /**
+   * 是否是真实用户
+   */
+  is_real_user: boolean;
+  /**
+   * 是否是代理
+   */
+  join_type: string;
 }
 export const getActivityPosts = (params: IGetActivityPostsParams) => {
   return kolRequest.get<IGetActivityPostsResponseData>(`/kol/api/v3/active/tweets/`, {
@@ -1874,6 +1882,10 @@ export interface IGetActivityVoicesTop10ResponseData {
    * 粉丝数
    */
   followers_count?: number;
+  /**
+   * 是否认证
+   */
+  is_verified?: boolean;
 }
 export const getActivityVoicesTop10 = (params: IGetActivityVoicesTop10Params) => {
   return kolRequest.get<IGetActivityVoicesTop10ResponseData[]>(`/kol/api/v3/active/voices/`, {

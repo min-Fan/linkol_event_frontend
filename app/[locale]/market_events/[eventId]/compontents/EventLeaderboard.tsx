@@ -24,7 +24,7 @@ import {
 } from '@shadcn/components/ui/table';
 import { formatNumberKMB } from '@libs/utils';
 import { Button } from '@shadcn/components/ui/button';
-import { NullData } from '@assets/svg';
+import { NullData, Verified } from '@assets/svg';
 import RankFirst from '@assets/image/rank-1.png';
 import RankSecond from '@assets/image/rank-2.png';
 import RankThird from '@assets/image/rank-3.png';
@@ -416,9 +416,12 @@ export default forwardRef<
                             }}
                           />
                         </div>
-                        <p className="sm:text-md max-w-[100px] truncate text-sm sm:text-base">
-                          {item.name || item.screen_name || t('unknown')}
-                        </p>
+                        <div className="flex items-center gap-2">
+                          <p className="sm:text-md max-w-[100px] truncate text-sm sm:text-base">
+                            {item.name || item.screen_name || t('unknown')}
+                          </p>
+                          {item.is_verified && <Verified className="size-4 min-w-4" />}
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell>
