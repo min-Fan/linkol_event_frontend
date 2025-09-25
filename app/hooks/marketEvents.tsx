@@ -266,6 +266,8 @@ export interface ITweet {
   retweet_count: number;
   view_count: number;
   is_verified: boolean;
+  is_real_user: boolean;
+  join_type: string;
 }
 
 export interface ITweetRecord {
