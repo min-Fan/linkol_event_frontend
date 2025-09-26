@@ -90,7 +90,7 @@ export default function Active(props: { data: IActive }) {
               <span className="flex-1 truncate text-base">{data?.project?.name}</span>
             </dt>
             <dd className="text-primary text-md">
-              {t('participate')}
+              {t('active_tweets')}
               {/* {locale === 'en' ? data.active_type.en_name : data.active_type.zh_name} */}
             </dd>
           </dl>

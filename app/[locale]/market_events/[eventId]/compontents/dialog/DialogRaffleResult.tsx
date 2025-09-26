@@ -216,12 +216,12 @@ export default function DialogRaffleResult({
                     onLoad={() => console.log('Lottie animation loaded')}
                     onError={(error) => console.error('Lottie animation error:', error)}
                   />
-                  <div className="relative z-10 flex items-center justify-center pt-4">
+                  <div className="relative z-10 flex w-full items-center justify-center pt-4">
                     <div className="relative z-10">
                       <Success className="w-16" />
                       <div className="absolute top-0 left-[-50%] z-[-1] h-[110%] w-[110%] rounded-full bg-[#D4F5D0] blur-xl" />
                     </div>
-                    <div className="relative z-0 -ml-4 h-12 w-12">
+                    <div className="relative z-0 -ml-4 h-16 w-16">
                       <TokenIcon
                         chainType={eventInfo?.chain_type}
                         tokenType={eventInfo?.token_type}
