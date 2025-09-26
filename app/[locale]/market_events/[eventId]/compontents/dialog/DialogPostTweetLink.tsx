@@ -143,6 +143,7 @@ export default function DialogPostTweetLink({
   const [templateData, setTemplateData] = useState<any>(null);
   const [imageTemplate, setImageTemplate] = useState<ImageTemplateConfig | null>(null);
   const [isWrongChain, setIsWrongChain] = useState(false);
+  const [giveMoney, setGiveMoney] = useState<number>(0);
   const { eventId } = useParams();
   const searchParams = useSearchParams();
 
@@ -808,8 +809,10 @@ export default function DialogPostTweetLink({
         onRefresh?.();
         toast.success(t('tweet_posted_successfully'));
 
+        setGiveMoney(res.data?.give_money || 0);
+
         // 如果 eventInfo?.give_money 不等于0，直接弹出 DialogRaffleResult
-        if (eventInfo?.give_money && eventInfo.give_money !== 0 && todayJoin === 0) {
+        if (res.data?.give_money && res.data.give_money !== 0 && todayJoin === 0) {
           setIsRaffleResultOpen(true);
         } else {
           // 检查是否是一天内第一次发推
@@ -880,8 +883,10 @@ export default function DialogPostTweetLink({
         onRefresh?.();
         toast.success(t('task_verified'));
 
+        setGiveMoney(res.data?.give_money || 0);
+
         // 如果 eventInfo?.give_money 不等于0，直接弹出 DialogRaffleResult
-        if (eventInfo?.give_money && eventInfo.give_money !== 0 && todayJoin === 0) {
+        if (res.data?.give_money && res.data.give_money !== 0 && todayJoin === 0) {
           setIsRaffleResultOpen(true);
         } else {
           // 检查是否是一天内第一次发推
@@ -1497,7 +1502,7 @@ export default function DialogPostTweetLink({
         onClose={() => setIsRaffleResultOpen(false)}
         raffleResult={{
           is_win: true,
-          receive_amount: eventInfo?.give_money || 0,
+          receive_amount: giveMoney,
         }}
         eventInfo={eventInfo}
       />

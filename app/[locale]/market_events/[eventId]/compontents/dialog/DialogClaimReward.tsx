@@ -757,7 +757,7 @@ const DialogClaimReward = memo(
                             <span className="">{symbol || ''}</span>
                           </div>
                         ),
-                        points: (chunks) => <span className="font-bold">{points}</span>,
+                        points: (chunks) => <span className="font-bold">100</span>,
                       })}
                     </p>
                   </div>
