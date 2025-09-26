@@ -157,12 +157,14 @@ const ClaimRecordSwiper = memo(
         <div
           key={`${record.id}-${index}`}
           data-item={index}
-          className={cn(
-            'flex min-h-8 flex-shrink-0 items-center justify-end pr-1',
-            index === currentIndex && showShake && 'animate-shake'
-          )}
+          className={cn('flex min-h-8 flex-shrink-0 items-center justify-end pr-1')}
         >
-          <div className="sm:text-md flex-warp flex w-full items-end gap-x-1 text-sm sm:w-auto sm:items-center">
+          <div
+            className={cn(
+              'sm:text-md flex-warp flex w-full items-end gap-x-1 text-sm sm:w-auto sm:items-center',
+              index === currentIndex && showShake && 'animate-shake'
+            )}
+          >
             <div className="flex items-center gap-x-1">
               <div
                 className="flex cursor-pointer items-center gap-x-1"
