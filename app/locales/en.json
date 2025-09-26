@@ -1180,6 +1180,15 @@
     "no_withdraw_record": "No withdraw record",
     "region_all": "Region All",
     "link_agent": "Linkol Agent",
-    "real_user": "Real User"
+    "real_user": "Real User",
+    "connect_wallet_ton": "Connect TON Wallet",
+    "Sign message": "Sign Message",
+    "connected": "Connected",
+    "disconnect": "Disconnect",
+    "active_tweets": "Tweets",
+    "increase_your_points_to_earn": "Increase your Points to Earn",
+    "during_this_event_received": "During this event, you have already received more than <amount>amount</amount> of rewards. You can earn points by inviting your friends. For each friend you invite to post a tweet, you will receive <points>points</points> Points. Remember, the more contributions you make, the more incentives you may receive in the future. Come on!",
+    "available": "Available",
+    "cost_points": "Cost points"
   }
 }

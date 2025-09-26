@@ -82,8 +82,7 @@ const DEVELOPMENT_CONFIG: Record<ChainType, ChainConfig> = {
     name: 'Ton',
     defaultToken: 'usdt',
     blockExplorerUrl: 'https://tonscan.org',
-    iconUrl:
-      'https://cdn.brandfetch.io/id20SzFgBn/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1756832097074',
+    iconUrl: 'https://cryptologos.cc/logos/toncoin-ton-logo.png?v=040',
     tokens: {
       usdt: {
         symbol: 'USDT',
@@ -146,8 +145,7 @@ const PRODUCTION_CONFIG: Record<ChainType, ChainConfig> = {
     name: 'Ton',
     defaultToken: 'usdt',
     blockExplorerUrl: 'https://tonviewer.com',
-    iconUrl:
-      'https://cdn.brandfetch.io/id20SzFgBn/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1756832097074',
+    iconUrl: 'https://cryptologos.cc/logos/toncoin-ton-logo.png?v=040',
     tokens: {
       usdt: {
         symbol: 'USDT',

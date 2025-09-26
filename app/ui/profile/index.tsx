@@ -10,13 +10,17 @@ import { useAccount } from 'wagmi';
 import { useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import useLogoutSolana from '@ui/solanaConnect/useLoginSolana';
+import { useTonWallet } from '@tonconnect/ui-react';
+import useLogoutTon from '@ui/tonConnect/useLoginTon';
 
 export { MenuSize };
 
 export default function UIProfile(props: { size?: MenuSize }) {
   const { size } = props;
   const { isLogin, logoutWallet } = useUserInfo();
+  const wallet = useTonWallet();
   const { disConnectSolana } = useLogoutSolana();
+  const { disConnectTon } = useLogoutTon();
   const { isConnected } = useAccount();
   const pathname = usePathname();
   const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
@@ -33,7 +37,10 @@ export default function UIProfile(props: { size?: MenuSize }) {
     if (!connected) {
       disConnectSolana();
     }
-  }, [isConnected, connected]);
+    if (!wallet) {
+      disConnectTon();
+    }
+  }, [isConnected, connected, wallet]);
 
   // if ((pathname.includes('kol') || pathname.includes('market_events')) && !isLoggedIn) {
   //   return <CompXAuth />;

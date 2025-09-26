@@ -49,7 +49,6 @@ export default function TokenIcon({
             width={width}
             height={height}
             onError={() => {
-              console.warn('外部图片加载失败，将回退到本地图标:', tokenConfig.imageUrl);
               setImageError(true);
             }}
           />

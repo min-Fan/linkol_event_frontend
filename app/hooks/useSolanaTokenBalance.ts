@@ -37,8 +37,8 @@ export const useSolanaTokenBalance = (mintAddress?: string) => {
       const balance = tokenAccount.account.data.parsed.info.tokenAmount.uiAmount;
       setBalance(BigInt(Math.floor(balance * Math.pow(10, 6)))); // 假设精度为6
     } catch (err) {
-      console.error('获取Solana token余额失败:', err);
-      setError(err instanceof Error ? err.message : '获取余额失败');
+      console.error('Get Solana token balance failed:', err);
+      setError(err instanceof Error ? err.message : 'Get balance failed');
       setBalance(BigInt(0));
     } finally {
       setIsLoading(false);
