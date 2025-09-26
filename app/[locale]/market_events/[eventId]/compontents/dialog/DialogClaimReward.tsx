@@ -779,7 +779,7 @@ const DialogClaimReward = memo(
                     </div>
                     <div className="bg-primary/5 flex items-center justify-between rounded-lg p-1 sm:rounded-xl sm:p-2">
                       <span className="text-muted-foreground text-sm">{t('cost_points')}</span>
-                      <span className="text-lg font-bold">{points}</span>
+                      <span className="text-lg font-bold">{Math.ceil(totalReceiveAmount * 1000)}</span>
                     </div>
                   </div>
 
