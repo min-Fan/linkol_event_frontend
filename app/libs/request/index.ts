@@ -1261,6 +1261,10 @@ export interface IEventInfoResponseData {
    * 是否认证
    */
   is_verified?: boolean;
+  /**
+   * 奖励金额
+   */
+  give_money: number;
 }
 
 /**

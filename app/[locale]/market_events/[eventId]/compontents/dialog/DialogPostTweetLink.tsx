@@ -54,6 +54,7 @@ import { useEventTokenInfo } from '@hooks/useEventTokenInfo';
 import { ChainType, getChainConfig } from '@constants/config';
 import DialogLinkAgent from './DialogLinkAgent';
 import useAgentStatus from '@hooks/useAgentStatus';
+import DialogRaffleResult from './DialogRaffleResult';
 
 // 图片生成模板配置
 interface ImageTemplateConfig {
@@ -137,6 +138,7 @@ export default function DialogPostTweetLink({
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isFailed, setIsFailed] = useState(false);
+  const [isRaffleResultOpen, setIsRaffleResultOpen] = useState(false);
   const [rewardAmount, setRewardAmount] = useState<number | null>(null);
   const [templateData, setTemplateData] = useState<any>(null);
   const [imageTemplate, setImageTemplate] = useState<ImageTemplateConfig | null>(null);
@@ -806,11 +808,16 @@ export default function DialogPostTweetLink({
         onRefresh?.();
         toast.success(t('tweet_posted_successfully'));
 
-        // 检查是否是一天内第一次发推
-        // 如果 todayJoin > 0 表示今天已经发过推，显示 Link Agent 弹窗
-        // 如果 todayJoin === 0 表示今天第一次发推，显示正常成功弹窗
-        if (todayJoin > 0 && isAgentAccepted === false) {
-          setIsLinkAgentOpen(true);
+        // 如果 eventInfo?.give_money 不等于0，直接弹出 DialogRaffleResult
+        if (eventInfo?.give_money && eventInfo.give_money !== 0 && todayJoin === 0) {
+          setIsRaffleResultOpen(true);
+        } else {
+          // 检查是否是一天内第一次发推
+          // 如果 todayJoin > 0 表示今天已经发过推，显示 Link Agent 弹窗
+          // 如果 todayJoin === 0 表示今天第一次发推，显示正常成功弹窗
+          if (todayJoin > 0 && isAgentAccepted === false) {
+            setIsLinkAgentOpen(true);
+          }
         }
       } else {
         setIsLoading(false);
@@ -873,16 +880,21 @@ export default function DialogPostTweetLink({
         onRefresh?.();
         toast.success(t('task_verified'));
 
-        // 检查是否是一天内第一次发推
-        // 如果 todayJoin > 0 表示今天已经发过推，显示 Link Agent 弹窗
-        // 如果 todayJoin === 0 表示今天第一次发推，显示正常成功弹窗
-        if (todayJoin > 0 && isAgentAccepted === false) {
-          setIsLinkAgentOpen(true);
+        // 如果 eventInfo?.give_money 不等于0，直接弹出 DialogRaffleResult
+        if (eventInfo?.give_money && eventInfo.give_money !== 0 && todayJoin === 0) {
+          setIsRaffleResultOpen(true);
+        } else {
+          // 检查是否是一天内第一次发推
+          // 如果 todayJoin > 0 表示今天已经发过推，显示 Link Agent 弹窗
+          // 如果 todayJoin === 0 表示今天第一次发推，显示正常成功弹窗
+          if (todayJoin > 0 && isAgentAccepted === false) {
+            setIsLinkAgentOpen(true);
+          }
         }
       } else {
         setIsLoading(false);
         setIsFailed(true);
-        toast.error(res.message);
+        toast.error(res.msg || t('failed_to_submit_tweet_link'));
       }
     } catch (err: any) {
       setIsLoading(false);
@@ -945,6 +957,7 @@ export default function DialogPostTweetLink({
     setSelectedLanguage(getDefaultLanguage()); // 重置语言选择
     setKolScreenNames([]); // 重置KOL名称数组
     setIsLinkAgentOpen(false); // 重置 Agent 弹窗状态
+    setIsRaffleResultOpen(false); // 重置抽奖结果弹窗状态
     onClose();
   }, [onClose]);
 
@@ -1477,6 +1490,17 @@ export default function DialogPostTweetLink({
           )}
         </div>
       </DialogContent>
+
+      <DialogRaffleResult
+        isOpen={isRaffleResultOpen}
+        isLoading={false}
+        onClose={() => setIsRaffleResultOpen(false)}
+        raffleResult={{
+          is_win: true,
+          receive_amount: eventInfo?.give_money || 0,
+        }}
+        eventInfo={eventInfo}
+      />
 
       {/* 图片预览弹窗 */}
       <DialogImagePreview
