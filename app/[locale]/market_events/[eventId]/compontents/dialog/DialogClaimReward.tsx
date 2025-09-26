@@ -272,9 +272,6 @@ const DialogClaimReward = memo(
           return;
         }
 
-        // 缓存领取时的奖励数量，用于成功弹窗显示
-        setClaimedAmount(availableRewards);
-
         // 1. 调用签名接口
         const contractAddress = getContractAddress(eventInfo?.chain_type, eventInfo?.token_type);
         const signatureRes: any = await getReceiveRewardSignature({
@@ -299,6 +296,9 @@ const DialogClaimReward = memo(
 
         const { tokenAddress, amounts, rewardIds, timestamp, signature } = signatureRes.data;
 
+        // 缓存领取时的奖励数量，用于成功弹窗显示
+        setClaimedAmount(amounts);
+
         // 保存签名数据，用于后续回调
         setSignatureData({ amounts, rewardIds, timestamp, signature, tokenAddress });
 
@@ -314,7 +314,7 @@ const DialogClaimReward = memo(
         isRequestingSignatureRef.current = false;
       } catch (error) {
         console.error('Failed to claim reward:', error);
-        toast.error(t('failed_to_claim_reward'));
+        toast.error(error.response?.data?.msg || t('failed_to_claim_reward'));
         setIsClaiming(false);
         setIsClaimFailed(true);
         setHasStartedClaim(false); // 重置状态以允许重试
@@ -429,7 +429,7 @@ const DialogClaimReward = memo(
         }
       } catch (error) {
         console.error('Failed to claim reward:', error);
-        toast.error(t('failed_to_claim_reward'));
+        toast.error(error.response?.data?.msg || t('failed_to_claim_reward'));
         setIsClaiming(false);
         setIsClaimFailed(true);
         setHasStartedClaim(false);
@@ -552,7 +552,7 @@ const DialogClaimReward = memo(
         setHasStartedClaim(false);
         hasProcessedSuccessRef.current = false; // 重置成功处理标记，允许重试
         isRequestingSignatureRef.current = false; // 重置签名请求标记
-        toast.error(t('failed_to_claim_reward'));
+        toast.error(error.response?.data?.msg || t('failed_to_claim_reward'));
       }
     }, [
       isLoginTon,
