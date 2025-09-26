@@ -1186,6 +1186,7 @@
     "connect_wallet_ton": "连接TON钱包",
     "Sign message": "签名消息",
     "connected": "已连接",
-    "disconnect": "断开连接"
+    "disconnect": "断开连接",
+    "active_tweets": "活动推文"
   }
 }

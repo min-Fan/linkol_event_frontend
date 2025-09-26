@@ -1184,6 +1184,7 @@
     "connect_wallet_ton": "Connect TON Wallet",
     "Sign message": "Sign Message",
     "connected": "Connected",
-    "disconnect": "Disconnect"
+    "disconnect": "Disconnect",
+    "active_tweets": "Tweets"
   }
 }
