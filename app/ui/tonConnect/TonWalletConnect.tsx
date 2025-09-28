@@ -7,6 +7,7 @@ import { Button } from '@shadcn/components/ui/button';
 import { cn } from '@shadcn/lib/utils';
 import useLogoutTon from './useLoginTon';
 import { useTranslations } from 'next-intl';
+import { Address } from 'ton-core';
 
 interface TonWalletConnectProps {
   className?: string;
@@ -47,17 +48,17 @@ const TonWalletConnect = memo(function TonWalletConnect({
     }
 
     try {
-      console.log('TON Wallet connected:', wallet.account.address);
+      console.log('TON Wallet connected:', Address.parse(wallet.account.address).toString({bounceable: false}));
 
       // 构建需要签名的消息
       const timestamp = Math.floor(Date.now() / 1000);
-      const messageToSign = `Login to Linkol Event Platform\nTimestamp: ${timestamp}\nAddress: ${wallet.account.address}`;
+      const messageToSign = `Login to Linkol Event Platform\nTimestamp: ${timestamp}\nAddress: ${Address.parse(wallet.account.address).toString({bounceable: false})}`;
 
       console.log('messageToSign:', messageToSign);
 
       const result = await tonConnectUI.signData({
         network: CHAIN.MAINNET,
-        from: wallet.account.address,
+        from: Address.parse(wallet.account.address).toString({bounceable: false}),
         type: 'text',
         text: messageToSign,
       });
@@ -90,8 +91,8 @@ const TonWalletConnect = memo(function TonWalletConnect({
       ) : (
         <div className="flex flex-col items-center space-y-2">
           <div className="text-sm text-gray-600">
-            {t('connected')}: {wallet.account.address.slice(0, 6)}...
-            {wallet.account.address.slice(-4)}
+            {t('connected')}: {Address.parse(wallet.account.address).toString({bounceable: false}).slice(0, 6)}...
+            {Address.parse(wallet.account.address).toString({bounceable: false}).slice(-4)}
           </div>
           <Button onClick={disConnectTon} variant="outline" size="sm">
             {t('disconnect')}

@@ -24,6 +24,7 @@ import {
   getReceiveRewardSignature,
   getReceiveRewardCallback,
   getSolanaClaimReward,
+  getTonClaimReward,
 } from '@libs/request';
 import UIWallet from '@ui/wallet';
 import useUserInfo from '@hooks/useUserInfo';
@@ -39,7 +40,7 @@ import TonWalletConnect from '@ui/tonConnect/TonWalletConnect';
 import DialogInvitationCode from './DialogInvitationCode';
 import TokenIcon from 'app/components/TokenIcon';
 import SpaceButton from 'app/components/SpaceButton/SpaceButton';
-
+import { Address } from 'ton-core';
 interface DialogClaimRewardProps {
   isOpen: boolean;
   onClose: () => void;
@@ -516,9 +517,11 @@ const DialogClaimReward = memo(
           return;
         }
 
+        console.log('ton wallet:', Address.parse(wallet.account.address).toString({bounceable: false}));
+
         const signatureResult = await tonConnectUI.signData({
           network: CHAIN.MAINNET,
-          from: wallet.account.address,
+          from: Address.parse(wallet.account.address).toString({bounceable: false}),
           type: 'text',
           text: messageToSign,
         });
@@ -537,11 +540,11 @@ const DialogClaimReward = memo(
         const signatureString = signatureResult.signature;
 
         // 4. 调用领取接口提交签名
-        const claimRes: any = await getSolanaClaimReward({
+        const claimRes: any = await getTonClaimReward({
           receive_amount: amountWithPrecision,
           active_id: eventId as string,
-          solana_sign: signatureString,
-          solana_address: wallet.account.address || '',
+          ton_sign: signatureString,
+          ton_address: Address.parse(wallet.account.address).toString({bounceable: false}) || '',
           timestamp: timestamp,
         });
 
@@ -721,7 +724,7 @@ const DialogClaimReward = memo(
                       hasProcessedSuccessRef.current = false;
                       isRequestingSignatureRef.current = false;
                     }}
-                    disabled={isWrongChain || isClaiming || isConfirming || isWritePending}
+                    disabled={isClaiming || isConfirming || isWritePending}
                     className="bg-primary hover:bg-primary/90 !h-auto flex-1 !rounded-lg text-white disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {isClaiming || isConfirming || isWritePending ? (

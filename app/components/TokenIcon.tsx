@@ -48,6 +48,9 @@ export default function TokenIcon({
             className={className}
             width={width}
             height={height}
+            quality={100}
+            priority={false}
+            unoptimized={false}
             onError={() => {
               setImageError(true);
             }}
@@ -68,7 +71,18 @@ export default function TokenIcon({
   // 检查是否为图片类型
   if (imgIconMap[type.toLowerCase() as keyof typeof imgIconMap]) {
     const imgSrc = imgIconMap[type.toLowerCase() as keyof typeof imgIconMap];
-    return <Image src={imgSrc} alt={type} className={className} width={width} height={height} />;
+    return (
+      <Image 
+        src={imgSrc} 
+        alt={type} 
+        className={className} 
+        width={width} 
+        height={height}
+        quality={100}
+        priority={false}
+        unoptimized={false}
+      />
+    );
   }
 
   // 如果没有找到对应的图标，返回null
