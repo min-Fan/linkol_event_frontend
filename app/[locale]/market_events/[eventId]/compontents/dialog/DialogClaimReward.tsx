@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, memo, useRef } from 'react';
+import React, { useEffect, useState, useCallback, memo, useRef, useMemo } from 'react';
 import { Button } from '@shadcn/components/ui/button';
 import {
   Dialog,
@@ -94,6 +94,15 @@ const DialogClaimReward = memo(
       eventId: eventInfo?.id?.toString() || '',
       enabled: !!eventInfo?.id && isOpen, // 只有在弹窗打开时才获取数据
     });
+
+    // 计算可领取的奖励金额和需要消耗的积分
+    const claimableAmount = useMemo(() => {
+      return (points / 1000).toFixed(2);
+    }, [points]);
+
+    const requiredPoints = useMemo(() => {
+      return Math.ceil(totalReceiveAmount * 1000);
+    }, [totalReceiveAmount]);
 
     // 合约调用
     const {
@@ -753,11 +762,11 @@ const DialogClaimReward = memo(
                       {t.rich('during_this_event_received', {
                         amount: (chunks) => (
                           <div className="inline-block items-center space-x-1 font-bold">
-                            <span className="text-primary">{totalReceiveAmount}</span>
+                            <span className="text-primary">{0.3}</span>
                             <span className="">{symbol || ''}</span>
                           </div>
                         ),
-                        points: (chunks) => <span className="font-bold">100</span>,
+                        points: (chunks) => <span className="font-bold">500</span>,
                       })}
                     </p>
                   </div>
@@ -767,7 +776,7 @@ const DialogClaimReward = memo(
                     <div className="bg-primary/5 flex items-center justify-between rounded-lg p-1 sm:rounded-xl sm:p-2">
                       <span className="text-muted-foreground text-sm">{t('available')}</span>
                       <div className="flex items-center gap-1">
-                        <span className="text-lg font-bold">{totalReceiveAmount}</span>
+                        <span className="text-lg font-bold">{claimableAmount}</span>
                         <TokenIcon
                           type={symbol || ''}
                           chainType={eventInfo?.chain_type}
@@ -779,9 +788,7 @@ const DialogClaimReward = memo(
                     </div>
                     <div className="bg-primary/5 flex items-center justify-between rounded-lg p-1 sm:rounded-xl sm:p-2">
                       <span className="text-muted-foreground text-sm">{t('cost_points')}</span>
-                      <span className="text-lg font-bold">
-                        {Math.ceil(totalReceiveAmount * 1000)}
-                      </span>
+                      <span className="text-lg font-bold">{requiredPoints}</span>
                     </div>
                   </div>
 

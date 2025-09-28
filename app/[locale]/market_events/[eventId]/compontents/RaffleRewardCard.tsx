@@ -247,7 +247,7 @@ export default function RaffleRewardCard({
           <div className="ml-auto rounded-full p-2 shadow-sm">
             <ChainIcon
               chainType={eventInfo?.chain_type as ChainType}
-              className="size-6 sm:size-8"
+              className="size-6 rounded-full sm:size-8"
               width={32}
               height={32}
             />
