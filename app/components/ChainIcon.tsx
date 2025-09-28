@@ -40,7 +40,6 @@ export default function ChainIcon({
   if (!configError && !imageError) {
     try {
       const chainConfig = getChainConfig(chainType as any);
-      console.log('chainConfig:', chainConfig);
       if (chainConfig?.iconUrl) {
         return (
           <Image
