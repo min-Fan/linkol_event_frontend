@@ -517,11 +517,14 @@ const DialogClaimReward = memo(
           return;
         }
 
-        console.log('ton wallet:', Address.parse(wallet.account.address).toString({bounceable: false}));
+        console.log(
+          'ton wallet:',
+          Address.parse(wallet.account.address).toString({ bounceable: false })
+        );
 
         const signatureResult = await tonConnectUI.signData({
           network: CHAIN.MAINNET,
-          from: Address.parse(wallet.account.address).toString({bounceable: false}),
+          from: Address.parse(wallet.account.address).toString({ bounceable: false }),
           type: 'text',
           text: messageToSign,
         });
@@ -544,7 +547,7 @@ const DialogClaimReward = memo(
           receive_amount: amountWithPrecision,
           active_id: eventId as string,
           ton_sign: signatureString,
-          ton_address: Address.parse(wallet.account.address).toString({bounceable: false}) || '',
+          ton_address: Address.parse(wallet.account.address).toString({ bounceable: false }) || '',
           timestamp: timestamp,
         });
 

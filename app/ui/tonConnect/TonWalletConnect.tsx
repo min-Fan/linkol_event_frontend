@@ -48,17 +48,20 @@ const TonWalletConnect = memo(function TonWalletConnect({
     }
 
     try {
-      console.log('TON Wallet connected:', Address.parse(wallet.account.address).toString({bounceable: false}));
+      console.log(
+        'TON Wallet connected:',
+        Address.parse(wallet.account.address).toString({ bounceable: false })
+      );
 
       // 构建需要签名的消息
       const timestamp = Math.floor(Date.now() / 1000);
-      const messageToSign = `Login to Linkol Event Platform\nTimestamp: ${timestamp}\nAddress: ${Address.parse(wallet.account.address).toString({bounceable: false})}`;
+      const messageToSign = `Login to Linkol Event Platform\nTimestamp: ${timestamp}\nAddress: ${Address.parse(wallet.account.address).toString({ bounceable: false })}`;
 
       console.log('messageToSign:', messageToSign);
 
       const result = await tonConnectUI.signData({
         network: CHAIN.MAINNET,
-        from: Address.parse(wallet.account.address).toString({bounceable: false}),
+        from: Address.parse(wallet.account.address).toString({ bounceable: false }),
         type: 'text',
         text: messageToSign,
       });
@@ -91,8 +94,9 @@ const TonWalletConnect = memo(function TonWalletConnect({
       ) : (
         <div className="flex flex-col items-center space-y-2">
           <div className="text-sm text-gray-600">
-            {t('connected')}: {Address.parse(wallet.account.address).toString({bounceable: false}).slice(0, 6)}...
-            {Address.parse(wallet.account.address).toString({bounceable: false}).slice(-4)}
+            {t('connected')}:{' '}
+            {Address.parse(wallet.account.address).toString({ bounceable: false }).slice(0, 6)}...
+            {Address.parse(wallet.account.address).toString({ bounceable: false }).slice(-4)}
           </div>
           <Button onClick={disConnectTon} variant="outline" size="sm">
             {t('disconnect')}

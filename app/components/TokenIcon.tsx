@@ -72,11 +72,11 @@ export default function TokenIcon({
   if (imgIconMap[type.toLowerCase() as keyof typeof imgIconMap]) {
     const imgSrc = imgIconMap[type.toLowerCase() as keyof typeof imgIconMap];
     return (
-      <Image 
-        src={imgSrc} 
-        alt={type} 
-        className={className} 
-        width={width} 
+      <Image
+        src={imgSrc}
+        alt={type}
+        className={className}
+        width={width}
         height={height}
         quality={100}
         priority={false}
