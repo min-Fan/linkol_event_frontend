@@ -24,6 +24,7 @@ import {
   getReceiveRewardSignature,
   getReceiveRewardCallback,
   getSolanaClaimReward,
+  getTonClaimReward,
 } from '@libs/request';
 import UIWallet from '@ui/wallet';
 import useUserInfo from '@hooks/useUserInfo';
@@ -39,7 +40,7 @@ import TonWalletConnect from '@ui/tonConnect/TonWalletConnect';
 import DialogInvitationCode from './DialogInvitationCode';
 import TokenIcon from 'app/components/TokenIcon';
 import SpaceButton from 'app/components/SpaceButton/SpaceButton';
-
+import { Address } from 'ton-core';
 interface DialogClaimRewardProps {
   isOpen: boolean;
   onClose: () => void;
@@ -97,12 +98,19 @@ const DialogClaimReward = memo(
 
     // 计算可领取的奖励金额和需要消耗的积分
     const claimableAmount = useMemo(() => {
-      return (points / 1000).toFixed(2);
-    }, [points]);
+      // 根据用户积分计算最大可领取金额
+      // 积分转换为金额的比例是 1000积分 = 1个代币
+      const maxClaimableByPoints = points / 1000;
+      // 取用户积分能兑换的最大金额和实际可领取金额的较小值
+      return Math.min(maxClaimableByPoints, totalReceiveAmount).toFixed(2);
+    }, [points, totalReceiveAmount]);
 
     const requiredPoints = useMemo(() => {
-      return Math.ceil(totalReceiveAmount * 1000);
-    }, [totalReceiveAmount]);
+      // 计算实际需要消耗的积分
+      // 如果用户积分足够，则消耗对应积分；否则消耗全部积分
+      const actualClaimableAmount = Math.min(points / 1000, totalReceiveAmount);
+      return Math.ceil(actualClaimableAmount * 1000);
+    }, [points, totalReceiveAmount]);
 
     // 合约调用
     const {
@@ -516,6 +524,11 @@ const DialogClaimReward = memo(
           return;
         }
 
+        console.log(
+          'ton wallet:',
+          Address.parse(wallet.account.address).toString({ bounceable: false })
+        );
+
         const signatureResult = await tonConnectUI.signData({
           network: CHAIN.MAINNET,
           from: wallet.account.address,
@@ -537,11 +550,11 @@ const DialogClaimReward = memo(
         const signatureString = signatureResult.signature;
 
         // 4. 调用领取接口提交签名
-        const claimRes: any = await getSolanaClaimReward({
+        const claimRes: any = await getTonClaimReward({
           receive_amount: amountWithPrecision,
           active_id: eventId as string,
-          solana_sign: signatureString,
-          solana_address: wallet.account.address || '',
+          ton_sign: signatureString,
+          ton_address: Address.parse(wallet.account.address).toString({ bounceable: false }) || '',
           timestamp: timestamp,
         });
 
@@ -721,7 +734,7 @@ const DialogClaimReward = memo(
                       hasProcessedSuccessRef.current = false;
                       isRequestingSignatureRef.current = false;
                     }}
-                    disabled={isWrongChain || isClaiming || isConfirming || isWritePending}
+                    disabled={isClaiming || isConfirming || isWritePending}
                     className="bg-primary hover:bg-primary/90 !h-auto flex-1 !rounded-lg text-white disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {isClaiming || isConfirming || isWritePending ? (
