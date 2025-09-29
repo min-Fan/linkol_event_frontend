@@ -98,12 +98,19 @@ const DialogClaimReward = memo(
 
     // 计算可领取的奖励金额和需要消耗的积分
     const claimableAmount = useMemo(() => {
-      return (points / 1000).toFixed(2);
-    }, [points]);
+      // 根据用户积分计算最大可领取金额
+      // 积分转换为金额的比例是 1000积分 = 1个代币
+      const maxClaimableByPoints = points / 1000;
+      // 取用户积分能兑换的最大金额和实际可领取金额的较小值
+      return Math.min(maxClaimableByPoints, totalReceiveAmount).toFixed(2);
+    }, [points, totalReceiveAmount]);
 
     const requiredPoints = useMemo(() => {
-      return Math.ceil(totalReceiveAmount * 1000);
-    }, [totalReceiveAmount]);
+      // 计算实际需要消耗的积分
+      // 如果用户积分足够，则消耗对应积分；否则消耗全部积分
+      const actualClaimableAmount = Math.min(points / 1000, totalReceiveAmount);
+      return Math.ceil(actualClaimableAmount * 1000);
+    }, [points, totalReceiveAmount]);
 
     // 合约调用
     const {
@@ -524,7 +531,7 @@ const DialogClaimReward = memo(
 
         const signatureResult = await tonConnectUI.signData({
           network: CHAIN.MAINNET,
-          from: Address.parse(wallet.account.address).toString({ bounceable: false }),
+          from: wallet.account.address,
           type: 'text',
           text: messageToSign,
         });
