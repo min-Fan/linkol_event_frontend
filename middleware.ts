@@ -3,23 +3,24 @@ import createMiddleware from 'next-intl/middleware';
 
 import { routing } from '@libs/i18n/routing';
 
-// const intlMiddleware = createMiddleware(routing);
+const intlMiddleware = createMiddleware(routing);
 
-// export default function middleware(request: NextRequest) {
-//   const { pathname } = request.nextUrl;
+export default function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
 
-//   // 只允许访问根目录页面 (/, /zh, /en)
-//   const allowedPaths = ['/', '/zh', '/en', '/en/not-found'];
+  // 处理 /market_events/ 路由重定向到 /m/
+  // 匹配模式: /[locale]/market_events/ 或 /market_events/
+  if (pathname.match(/^\/[a-z]{2}\/market_events\//) || pathname.match(/^\/market_events\//)) {
+    const newPath = pathname.replace(/\/market_events\//, '/m/');
+    const url = new URL(newPath, request.url);
+    // 保持查询参数
+    url.search = request.nextUrl.search;
+    return NextResponse.redirect(url);
+  }
 
-//   if (!allowedPaths.includes(pathname)) {
-//     // 其他页面都跳转到404
-//     return NextResponse.redirect(new URL('/en/not-found', request.url));
-//   }
-
-//   // 对于允许的路径，使用国际化中间件
-//   return intlMiddleware(request);
-// }
-export default createMiddleware(routing);
+  // 使用国际化中间件处理其他路由
+  return intlMiddleware(request);
+}
 
 export const config = {
   // Match all pathnames except for
