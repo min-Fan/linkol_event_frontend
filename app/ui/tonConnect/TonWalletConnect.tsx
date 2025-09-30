@@ -9,17 +9,20 @@ import useLogoutTon from './useLoginTon';
 import { useTranslations } from 'next-intl';
 import { Address } from 'ton-core';
 import { toast } from 'sonner';
+import CustomWalletModal from './CustomWalletModal';
 
 interface TonWalletConnectProps {
   className?: string;
   onSuccess?: () => void;
   onWalletModalOpen?: () => void;
+  onCloseAllDialogs?: () => void;
 }
 
 const TonWalletConnect = memo(function TonWalletConnect({
   className,
   onSuccess,
   onWalletModalOpen,
+  onCloseAllDialogs,
 }: TonWalletConnectProps) {
   const t = useTranslations('common');
   const wallet = useTonWallet();
@@ -32,6 +35,9 @@ const TonWalletConnect = memo(function TonWalletConnect({
   const [isSigning, setIsSigning] = useState(false);
   const [hasAttemptedSign, setHasAttemptedSign] = useState(false);
   const signingRef = useRef(false);
+  
+  // 自定义弹窗状态
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
 
   useEffect(() => {
     // 当钱包断开连接时，重置状态
@@ -130,37 +136,61 @@ const TonWalletConnect = memo(function TonWalletConnect({
   }, [wallet, dispatchApp, onSuccess, tonConnectUI, t]);
 
   const handleConnect = useCallback(() => {
-    tonConnectUI.openModal();
-    onWalletModalOpen?.();
-  }, [tonConnectUI, onWalletModalOpen]);
+    setIsWalletModalOpen(true);
+    // onWalletModalOpen?.();
+  }, [onWalletModalOpen]);
+
+  const handleWalletConnect = useCallback(() => {
+    // 钱包连接成功后的处理
+    setIsWalletModalOpen(false);
+    // 可以在这里添加额外的连接后处理逻辑
+  }, []);
+
+  const handleCloseModal = useCallback(() => {
+    setIsWalletModalOpen(false);
+    // 重置连接状态，确保按钮可以重新点击
+    setIsSigning(false);
+    signingRef.current = false;
+    setHasAttemptedSign(false);
+  }, []);
 
   return (
-    <div className={cn(className)}>
-      {!wallet ? (
-        <Button className={cn(className)} onClick={handleConnect}>
-          {t('connect_wallet_ton')}
-        </Button>
-      ) : wallet && !isLoginTon ? (
-        <Button
-          className={cn(className)}
-          onClick={handleSignMessage}
-          disabled={isSigning || signingRef.current}
-        >
-          {isSigning ? t('signing') : t('Sign_message')}
-        </Button>
-      ) : (
-        <div className="flex flex-col items-center space-y-2">
-          <div className="text-sm text-gray-600">
-            {t('connected')}:{' '}
-            {Address.parse(wallet.account.address).toString({ bounceable: false }).slice(0, 6)}...
-            {Address.parse(wallet.account.address).toString({ bounceable: false }).slice(-4)}
-          </div>
-          <Button onClick={disConnectTon} variant="outline" size="sm">
-            {t('disconnect')}
+    <>
+      <div className={cn(className)}>
+        {!wallet ? (
+          <Button className={cn(className)} onClick={handleConnect}>
+            {t('connect_wallet_ton')}
           </Button>
-        </div>
-      )}
-    </div>
+        ) : wallet && !isLoginTon ? (
+          <Button
+            className={cn(className)}
+            onClick={handleSignMessage}
+            disabled={isSigning || signingRef.current}
+          >
+            {isSigning ? t('signing') : t('Sign_message')}
+          </Button>
+        ) : (
+          <div className="flex flex-col items-center space-y-2">
+            <div className="text-sm text-gray-600">
+              {t('connected')}:{' '}
+              {Address.parse(wallet.account.address).toString({ bounceable: false }).slice(0, 6)}...
+              {Address.parse(wallet.account.address).toString({ bounceable: false }).slice(-4)}
+            </div>
+            <Button onClick={disConnectTon} variant="outline" size="sm">
+              {t('disconnect')}
+            </Button>
+          </div>
+        )}
+      </div>
+      
+      {/* 自定义钱包连接弹窗 */}
+      <CustomWalletModal
+        isOpen={isWalletModalOpen}
+        onClose={handleCloseModal}
+        onConnect={handleWalletConnect}
+        onCloseAllDialogs={onCloseAllDialogs}
+      />
+    </>
   );
 });
 

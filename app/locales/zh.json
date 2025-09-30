@@ -1195,6 +1195,18 @@
     "cost_points": "消耗积分",
     "first_claim_free": "第一次免费",
     "no_points_required": "无积分要求",
-    "points": "积分"
+    "points": "积分",
+    "connect_wallet": "连接钱包",
+    "tonkeeper_description": "TON区块链官方钱包",
+    "connecting": "连接中...",
+    "connect": "连接",
+    "wallet_connect_description": "请选择您要连接的钱包",
+    "no_wallets_found": "未找到支持的钱包",
+    "install_wallet_app": "请先安装TON钱包应用",
+    "installed": "已安装",
+    "not_installed": "未安装",
+    "mobile": "移动端",
+    "recommended": "推荐",
+    "loading_installed_wallets": "加载钱包中..."
   }
 }

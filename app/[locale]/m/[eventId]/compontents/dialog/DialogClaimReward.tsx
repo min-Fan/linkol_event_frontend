@@ -297,6 +297,15 @@ const DialogClaimReward = memo(
       onClose();
     }, [onClose]);
 
+    // 关闭所有弹窗的回调函数
+    const handleCloseAllDialogs = useCallback(() => {
+      // 关闭所有子弹窗
+      setIsBindEmailDialogOpen(false);
+      setIsInvitationDialogOpen(false);
+      // 关闭主弹窗
+      handleClose();
+    }, [handleClose]);
+
     // 处理邀请弹窗
     const handleInvitationDialogOpen = () => {
       setIsInvitationDialogOpen(true);
@@ -708,7 +717,11 @@ const DialogClaimReward = memo(
                 )}
                 {!isLoginTon && eventInfo?.chain_type === 'Ton' && (
                   <div className="flex">
-                    <TonWalletConnect onSuccess={handleClose} onWalletModalOpen={handleClose} />
+                    <TonWalletConnect 
+                      onSuccess={handleClose} 
+                      onWalletModalOpen={handleClose}
+                      onCloseAllDialogs={handleCloseAllDialogs}
+                    />
                   </div>
                 )}
               </div>

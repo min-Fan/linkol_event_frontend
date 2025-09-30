@@ -1193,6 +1193,18 @@
     "cost_points": "Cost points",
     "first_claim_free": "First claim free",
     "no_points_required": "No points required",
-    "points": "Points"
+    "points": "Points",
+    "connect_wallet": "Connect Wallet",
+    "tonkeeper_description": "Official TON blockchain wallet",
+    "connecting": "Connecting...",
+    "connect": "Connect",
+    "wallet_connect_description": "Please select the wallet you want to connect",
+    "no_wallets_found": "No supported wallets found",
+    "install_wallet_app": "Please install TON wallet apps first",
+    "installed": "Installed",
+    "not_installed": "Not Installed",
+    "mobile": "Mobile",
+    "recommended": "Recommended",
+    "loading_installed_wallets": "Loading wallets..."
   }
 }
