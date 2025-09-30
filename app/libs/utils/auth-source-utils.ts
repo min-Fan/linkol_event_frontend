@@ -48,12 +48,12 @@ export const clearAuthSource = (): void => {
 export const isAuthSourceValid = (maxAgeMinutes: number = 30): boolean => {
   const source = getAuthSource();
   if (!source) return false;
-  
+
   const now = Date.now();
   const authTime = parseInt(source.timestamp);
   const maxAge = maxAgeMinutes * 60 * 1000; // 转换为毫秒
-  
-  return (now - authTime) <= maxAge;
+
+  return now - authTime <= maxAge;
 };
 
 // 从URL参数获取授权信息
@@ -62,17 +62,17 @@ export const getAuthSourceFromUrl = (searchParams: URLSearchParams): AuthSourceD
     const authSource = searchParams.get('auth_source');
     const authTimestamp = searchParams.get('auth_timestamp');
     const authId = searchParams.get('auth_id');
-    
+
     if (!authSource || !authTimestamp) {
       return null;
     }
-    
+
     return {
       type: authSource as 'telegram' | 'web',
       timestamp: authTimestamp,
       isTelegram: authSource === 'telegram',
       userAgent: navigator.userAgent,
-      authId: authId || undefined
+      authId: authId || undefined,
     };
   } catch (error) {
     console.error('Failed to parse auth source from URL:', error);
@@ -90,14 +90,16 @@ export const getAuthSourceHybrid = (searchParams?: URLSearchParams): AuthSourceD
       return urlSource;
     }
   }
-  
+
   // 回退到localStorage
   console.log('Falling back to localStorage for auth source');
   return getAuthSource();
 };
 
 // 混合获取授权来源类型
-export const getAuthSourceTypeHybrid = (searchParams?: URLSearchParams): 'telegram' | 'web' | 'unknown' => {
+export const getAuthSourceTypeHybrid = (
+  searchParams?: URLSearchParams
+): 'telegram' | 'web' | 'unknown' => {
   const source = getAuthSourceHybrid(searchParams);
   return source?.type || 'unknown';
 };

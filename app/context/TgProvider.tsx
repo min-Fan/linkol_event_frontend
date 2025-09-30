@@ -273,7 +273,7 @@ export default function TelegramProvider({ children }: TelegramProviderProps) {
 
     // 延迟初始化，确保Telegram脚本已加载
     const timer = setTimeout(initializeTelegram, 100);
-    
+
     // 如果第一次初始化失败，尝试重试
     const retryTimer = setTimeout(() => {
       const telegramWebApp = (window as any).Telegram?.WebApp;
@@ -282,7 +282,7 @@ export default function TelegramProvider({ children }: TelegramProviderProps) {
         initializeTelegram();
       }
     }, 1000);
-    
+
     return () => {
       clearTimeout(timer);
       clearTimeout(retryTimer);
