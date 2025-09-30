@@ -13,11 +13,12 @@ import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { useEffect, useRef } from 'react';
 import { useTelegram } from 'app/context/TgProvider';
+import { CACHE_KEY } from '@constants/app';
 
 export default function MarketEventsPage() {
   const dispatch = useAppDispatch();
   const t = useTranslations('common');
-  const { webApp } = useTelegram();
+  const { webApp, isTelegram } = useTelegram();
   const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
   const { data: followers } = useQuery({
     queryKey: ['activityFollowers'],
@@ -30,6 +31,9 @@ export default function MarketEventsPage() {
         screen_name,
       });
       if (twitterInfo && twitterInfo.code === 200) {
+        const { token } = twitterInfo.data;
+        document.cookie = `${CACHE_KEY.KOL_TOKEN}=${token}; path=/;`;
+        localStorage.setItem(CACHE_KEY.KOL_TOKEN, token);
         dispatch(updateTwitterFullProfile(twitterInfo.data));
         dispatch(updateIsLoggedIn(true));
         toast.success(t('twitter_auth_success'));
@@ -44,16 +48,16 @@ export default function MarketEventsPage() {
 
   const handled = useRef(false);
   useEffect(() => {
+    if (!isTelegram || !webApp) return;
     if (handled.current) return;
     handled.current = true;
     if (webApp) {
-      const screen_name = webApp.initDataUnsafe.start_param;
-      // alert(screen_name);
+      const screen_name = webApp?.initDataUnsafe.start_param;
       if (screen_name) {
         handleTgStartApp(screen_name);
       }
     }
-  }, [webApp]);
+  }, [webApp, isTelegram]);
   return (
     <div className="mx-auto box-border w-full max-w-[1100px] space-y-5 p-0">
       {/* <CompBanner /> */}

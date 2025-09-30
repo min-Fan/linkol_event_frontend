@@ -864,12 +864,12 @@ export const getVerifyTweet = () => {
   return kolRequest.get(ENDPOINT_URL.KOL_GET_VERIFY_TWEET);
 };
 
-// 通过推特名或者链接获取用户登录信息
+// 通过screen_name获取登录信息
 export interface IGetTwitterAuthByUsernameOrLinkParams {
   screen_name: string;
 }
 export const getTwitterAuthByUsernameOrLink = (params: IGetTwitterAuthByUsernameOrLinkParams) => {
-  return request.get('/kol/api/v2/user/info/by/x/', { ...params });
+  return request.post('/kol/api/v1/x/2/kol/login/screen_name/', { ...params });
 };
 
 interface IVerifyTweetParams {
