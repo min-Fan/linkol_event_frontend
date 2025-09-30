@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 import {
   getActivityDetail,
-  getActivityDetailFromDashboard,
   getActivityDetailLogin,
   getActivityFollowers,
   getInvitationCode,
@@ -37,17 +36,6 @@ export function useEventData(eventId: string | string[] | undefined) {
     }
     return null;
   }, [isLoggedIn, eventId]);
-
-  // 获取创建者活动详情信息
-  const getEventInfoCreator = useCallback(async () => {
-    if (!eventId || !isLogin) return null;
-
-    const res: any = await getActivityDetailFromDashboard(eventId as string);
-    if (res.code === 200) {
-      return res.data;
-    }
-    return null;
-  }, [isLogin, eventId]);
 
   // 获取邀请码
   const fetchInvitationCode = useCallback(async () => {
@@ -95,18 +83,18 @@ export function useEventData(eventId: string | string[] | undefined) {
     retry: 2, // 失败时重试2次
   });
 
-  const {
-    data: eventInfoCreator,
-    isLoading: isEventInfoLoadingCreator,
-    refetch: refetchEventInfoCreator,
-  } = useQuery({
-    queryKey: ['eventInfoCreator', eventId, isLogin],
-    queryFn: getEventInfoCreator,
-    enabled: !!eventId && !!isLogin,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
-    retry: 2,
-  });
+  // const {
+  //   data: eventInfoCreator,
+  //   isLoading: isEventInfoLoadingCreator,
+  //   refetch: refetchEventInfoCreator,
+  // } = useQuery({
+  //   queryKey: ['eventInfoCreator', eventId, isLogin],
+  //   queryFn: getEventInfoCreator,
+  //   enabled: !!eventId && !!isLogin,
+  //   staleTime: 5 * 60 * 1000,
+  //   gcTime: 10 * 60 * 1000,
+  //   retry: 2,
+  // });
 
   const { data: followers } = useQuery({
     queryKey: ['activityFollowers'],
@@ -119,23 +107,21 @@ export function useEventData(eventId: string | string[] | undefined) {
   // 刷新所有数据的函数
   const refreshAllData = useCallback(async () => {
     try {
-      await Promise.all([refetchEventInfo(), refetchEventInfoCreator(), fetchInvitationCode()]);
+      await Promise.all([refetchEventInfo(), fetchInvitationCode()]);
     } catch (error) {
       console.error('Failed to refresh all data:', error);
     }
-  }, [refetchEventInfo, refetchEventInfoCreator, fetchInvitationCode]);
+  }, [refetchEventInfo, fetchInvitationCode]);
 
   // 使用 useMemo 优化返回的对象，避免不必要的重新渲染
   const result = useMemo(
     () => ({
       // 数据
       eventInfo,
-      eventInfoCreator,
       followers,
 
       // 加载状态
       isEventInfoLoading,
-      isEventInfoLoadingCreator,
 
       // 错误状态
       eventInfoError,
@@ -143,19 +129,15 @@ export function useEventData(eventId: string | string[] | undefined) {
       // 刷新函数
       refreshAllData,
       refetchEventInfo,
-      refetchEventInfoCreator,
       fetchInvitationCode,
     }),
     [
       eventInfo,
-      eventInfoCreator,
       followers,
       isEventInfoLoading,
-      isEventInfoLoadingCreator,
       eventInfoError,
       refreshAllData,
       refetchEventInfo,
-      refetchEventInfoCreator,
       fetchInvitationCode,
     ]
   );
