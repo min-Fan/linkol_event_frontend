@@ -1188,11 +1188,23 @@
     "disconnect": "Disconnect",
     "active_tweets": "Tweets",
     "increase_your_points_to_earn": "Increase your Points to Earn",
-    "during_this_event_received": "During this event, you have already received once rewards. You can earn points by inviting your friends. For each friend you invite to post a tweet, you will receive <points>points</points> Points. Remember, the more contributions you make, the more incentives you may receive in the future. Come on!",
+    "during_this_event_received": "You can earn points by inviting your friends. For each friend you invite to post a tweet, you will receive <points>points</points> Points. Remember, the more contributions you make, the more incentives you may receive in the future. Come on!",
     "available": "Available",
     "cost_points": "Cost points",
     "first_claim_free": "First claim free",
     "no_points_required": "No points required",
-    "points": "Points"
+    "points": "Points",
+    "connect_wallet": "Connect Wallet",
+    "tonkeeper_description": "Official TON blockchain wallet",
+    "connecting": "Connecting...",
+    "connect": "Connect",
+    "wallet_connect_description": "Please select the wallet you want to connect",
+    "no_wallets_found": "No supported wallets found",
+    "install_wallet_app": "Please install TON wallet apps first",
+    "installed": "Installed",
+    "not_installed": "Not Installed",
+    "mobile": "Mobile",
+    "recommended": "Recommended",
+    "loading_installed_wallets": "Loading wallets..."
   }
 }
