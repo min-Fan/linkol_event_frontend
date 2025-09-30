@@ -46,7 +46,7 @@ const createSafeStorage = () => {
 const persistConfig = {
   key: 'interface',
   storage: createSafeStorage(),
-  version: 0.7,
+  version: 0.8,
   throttle: 1000, // ms
   serialize: false,
   deserialize: false,
