@@ -176,23 +176,26 @@ export default function TelegramProvider({ children }: TelegramProviderProps) {
 
   useEffect(() => {
     const initializeTelegram = () => {
-      console.log('初始化Telegram Mini App...');
+      console.log('initialize Telegram Mini App...');
 
       // 检查是否在Telegram环境中
       if (typeof window === 'undefined') {
-        console.log('服务端环境，跳过Telegram初始化');
+        console.log('server environment, skip Telegram initialization');
         return;
       }
+
+      // 检查Telegram对象是否存在
+      console.log('window.Telegram:', (window as any).Telegram);
+      console.log('window.Telegram?.WebApp:', (window as any).Telegram?.WebApp);
 
       // 检查Telegram WebApp对象
       const telegramWebApp = (window as any).Telegram?.WebApp;
       if (!telegramWebApp) {
-        console.log('未检测到Telegram WebApp对象');
+        console.log('no Telegram WebApp object');
         return;
       }
 
-      console.log('检测到Telegram WebApp对象:', telegramWebApp);
-      setIsTelegram(true);
+      console.log('detect Telegram WebApp object:', telegramWebApp);
       setWebApp(telegramWebApp);
 
       telegramWebApp.ready();
@@ -203,23 +206,24 @@ export default function TelegramProvider({ children }: TelegramProviderProps) {
 
       // 获取用户信息
       if (telegramWebApp.initDataUnsafe?.user) {
+        setIsTelegram(true);
         setUser(telegramWebApp.initDataUnsafe.user);
-        console.log('获取到用户信息:', telegramWebApp.initDataUnsafe.user);
+        console.log('get user info:', telegramWebApp.initDataUnsafe.user);
       }
 
       // 获取启动参数
       if (telegramWebApp.initDataUnsafe?.start_param) {
         setStartParam(telegramWebApp.initDataUnsafe.start_param);
-        console.log('获取到启动参数:', telegramWebApp.initDataUnsafe.start_param);
+        console.log('get start param:', telegramWebApp.initDataUnsafe.start_param);
       }
 
       // 初始化WebApp
       try {
         telegramWebApp.ready();
-        console.log('Telegram WebApp已就绪');
+        console.log('Telegram WebApp is ready');
         setIsReady(true);
       } catch (error) {
-        console.error('初始化Telegram WebApp失败:', error);
+        console.error('initialize Telegram WebApp failed:', error);
       }
 
       // 设置主题
@@ -245,10 +249,10 @@ export default function TelegramProvider({ children }: TelegramProviderProps) {
             );
           }
 
-          console.log('应用Telegram主题:', telegramWebApp.themeParams);
+          console.log('telegramWebApp.themeParams:', telegramWebApp.themeParams);
         }
       } catch (error) {
-        console.error('应用主题失败:', error);
+        console.error('apply theme failed:', error);
       }
 
       telegramWebApp.expand();
@@ -260,16 +264,29 @@ export default function TelegramProvider({ children }: TelegramProviderProps) {
             '--tg-viewport-height',
             `${telegramWebApp.viewportHeight}px`
           );
-          console.log('设置视口高度:', telegramWebApp.viewportHeight);
+          console.log('telegramWebApp.viewportHeight:', telegramWebApp.viewportHeight);
         }
       } catch (error) {
-        console.error('设置视口高度失败:', error);
+        console.error('set viewport height failed:', error);
       }
     };
 
     // 延迟初始化，确保Telegram脚本已加载
     const timer = setTimeout(initializeTelegram, 100);
-    return () => clearTimeout(timer);
+    
+    // 如果第一次初始化失败，尝试重试
+    const retryTimer = setTimeout(() => {
+      const telegramWebApp = (window as any).Telegram?.WebApp;
+      if (!telegramWebApp) {
+        console.log('retry initialize Telegram WebApp...');
+        initializeTelegram();
+      }
+    }, 1000);
+    
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(retryTimer);
+    };
   }, []);
 
   const value: TelegramContextType = {

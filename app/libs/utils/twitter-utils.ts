@@ -1,3 +1,5 @@
+import { TelegramWebApp } from 'app/context/TgProvider';
+
 export const extractTweetId = (url: string): string | null => {
   // 匹配以下格式的URL:
   // https://x.com/username/status/1912742441519620530
@@ -9,10 +11,17 @@ export const extractTweetId = (url: string): string | null => {
 
 export const openCenteredPopup = (
   url: string,
+  isTelegram: boolean,
+  webApp: TelegramWebApp | null,
   title: string,
   width: number,
   height: number
 ): Window | null => {
+  if (isTelegram && webApp) {
+    webApp?.openLink(url);
+    return null;
+  }
+
   const screenLeft = window.screenLeft ?? window.screenX;
   const screenTop = window.screenTop ?? window.screenY;
 
