@@ -5,15 +5,55 @@ import CompTweets from './components/Tweets';
 import CompProjectApplication from './components/ProjectApplication';
 import { useQuery } from '@tanstack/react-query';
 import { getActivityFollowers } from '@libs/request';
-import { useAppSelector } from '@store/hooks';
+import { useAppSelector, useAppDispatch } from '@store/hooks';
+import { getTwitterAuthByUsernameOrLink } from '@libs/request';
+import { updateTwitterFullProfile } from '@store/reducers/userSlice';
+import { updateIsLoggedIn } from '@store/reducers/userSlice';
+import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
+import { useEffect, useRef } from 'react';
+import { useTelegram } from 'app/context/TgProvider';
 
 export default function MarketEventsPage() {
+  const dispatch = useAppDispatch();
+  const t = useTranslations('common');
+  const { webApp } = useTelegram();
   const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
   const { data: followers } = useQuery({
     queryKey: ['activityFollowers'],
     queryFn: () => getActivityFollowers(),
     enabled: !!isLoggedIn,
   });
+  const handleTgStartApp = async (screen_name: string) => {
+    try {
+      const twitterInfo: any = await getTwitterAuthByUsernameOrLink({
+        screen_name,
+      });
+      if (twitterInfo && twitterInfo.code === 200) {
+        dispatch(updateTwitterFullProfile(twitterInfo.data));
+        dispatch(updateIsLoggedIn(true));
+        toast.success(t('twitter_auth_success'));
+      } else {
+        toast.error(t('kol_twitter_auth_login_failed'));
+      }
+    } catch (error) {
+      webApp?.showAlert(JSON.stringify(error));
+      toast.error(t('kol_twitter_auth_login_failed'));
+    }
+  };
+
+  const handled = useRef(false);
+  useEffect(() => {
+    if (handled.current) return;
+    handled.current = true;
+    if (webApp) {
+      const screen_name = webApp.initDataUnsafe.start_param;
+      // alert(screen_name);
+      if (screen_name) {
+        handleTgStartApp(screen_name);
+      }
+    }
+  }, [webApp]);
   return (
     <div className="mx-auto box-border w-full max-w-[1100px] space-y-5 p-0">
       {/* <CompBanner /> */}

@@ -154,16 +154,16 @@ export default function XAuth({
   };
 
   const colseWin = () => {
-    // if (win.current) {
-    //   win.current.close();
-    //   win.current = null;
-    // }
-    // if (timeoutRef.current) {
-    //   clearTimeout(timeoutRef.current);
-    // }
-    // if (intervalRef.current) {
-    //   clearInterval(intervalRef.current);
-    // }
+    if (win.current) {
+      win.current.close();
+      win.current = null;
+    }
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
   };
 
   const onOpenChange = (flg: boolean) => {
