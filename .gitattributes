@@ -2,4 +2,4 @@
 /.yarn/releases/*    binary
 /.yarn/plugins/**/*  binary
 /.pnp.*              binary linguist-generated
-public/tonconnect-manifest.json merge=union
+public/tonconnect-manifest.json merge=ours
