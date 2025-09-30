@@ -35,12 +35,28 @@ import Connect from '@ui/solanaConnect/connect';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useEventTokenInfo } from '@hooks/useEventTokenInfo';
 import { IEventInfoResponseData } from '@libs/request';
-import { TonConnectButton, useTonWallet, useTonConnectUI, CHAIN } from '@tonconnect/ui-react';
+import {
+  TonConnectButton,
+  useTonWallet,
+  useTonConnectUI,
+  CHAIN,
+  SignDataPayloadText,
+} from '@tonconnect/ui-react';
 import TonWalletConnect from '@ui/tonConnect/TonWalletConnect';
 import DialogInvitationCode from './DialogInvitationCode';
 import TokenIcon from 'app/components/TokenIcon';
 import SpaceButton from 'app/components/SpaceButton/SpaceButton';
-import { Address } from 'ton-core';
+import {
+  Address,
+  safeSignVerify,
+  Cell,
+  BitString,
+  beginCell,
+  loadStateInit,
+  contractAddress,
+} from 'ton-core';
+import nacl from 'tweetnacl';
+import { sha256, signVerify } from 'ton-crypto';
 interface DialogClaimRewardProps {
   isOpen: boolean;
   onClose: () => void;
@@ -492,10 +508,6 @@ const DialogClaimReward = memo(
       }
 
       try {
-        setIsClaiming(true);
-        setHasStartedClaim(true); // 标记已经开始领取流程
-        isRequestingSignatureRef.current = true; // 标记正在请求签名
-
         const availableRewards = totalReceiveAmount;
         if (availableRewards === 0 && eventInfo?.a_type === 'normal') {
           toast.error(t('no_rewards_to_claim'));
@@ -513,6 +525,7 @@ const DialogClaimReward = memo(
         // 将 availableRewards 转换为正确的精度（乘以 10^6）
         const amountWithPrecision = Math.floor(availableRewards * Math.pow(10, 6));
         const messageToSign = `${amountWithPrecision},${eventId},${timestamp}`;
+        // const messageToSign = `abc`;
 
         // 2. 使用 TON 钱包签名消息
         if (!tonConnectUI) {
@@ -524,8 +537,13 @@ const DialogClaimReward = memo(
           return;
         }
 
+        setIsClaiming(true);
+        setHasStartedClaim(true); // 标记已经开始领取流程
+        isRequestingSignatureRef.current = true; // 标记正在请求签名
+
         console.log(
           'ton wallet:',
+          wallet,
           Address.parse(wallet.account.address).toString({ bounceable: false })
         );
 
@@ -553,9 +571,13 @@ const DialogClaimReward = memo(
         const claimRes: any = await getTonClaimReward({
           receive_amount: amountWithPrecision,
           active_id: eventId as string,
-          ton_sign: signatureString,
-          ton_address: Address.parse(wallet.account.address).toString({ bounceable: false }) || '',
-          timestamp: timestamp,
+          signature: signatureResult.signature,
+          address: wallet.account.address,
+          public_key: wallet.account.publicKey || '',
+          walletStateInit: wallet.account.walletStateInit,
+          domain: signatureResult.domain,
+          message: messageToSign,
+          timestamp: signatureResult.timestamp,
         });
 
         // 重置签名请求标记

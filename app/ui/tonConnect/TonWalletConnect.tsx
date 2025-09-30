@@ -2,7 +2,7 @@
 import { useTonWallet, useTonConnectUI, CHAIN } from '@tonconnect/ui-react';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { updateIsLoginTon } from '@store/reducers/userSlice';
-import { useCallback, useEffect, memo } from 'react';
+import { useCallback, useEffect, memo, useState, useRef } from 'react';
 import { Button } from '@shadcn/components/ui/button';
 import { cn } from '@shadcn/lib/utils';
 import useLogoutTon from './useLoginTon';
@@ -28,26 +28,60 @@ const TonWalletConnect = memo(function TonWalletConnect({
   const dispatchApp = useAppDispatch();
   const { disConnectTon } = useLogoutTon();
 
-  useEffect(() => {
-    // 当钱包断开连接时，只更新状态，不调用断开连接方法
-    if (!wallet && isLoginTon) {
-      dispatchApp(updateIsLoginTon(false));
-    }
-  }, [wallet, isLoginTon, dispatchApp]);
+  // 签名状态管理
+  const [isSigning, setIsSigning] = useState(false);
+  const [hasAttemptedSign, setHasAttemptedSign] = useState(false);
+  const signingRef = useRef(false);
 
   useEffect(() => {
-    // 钱包连接后自动登录
-    if (wallet && !isLoginTon) {
-      handleSignMessage();
+    // 当钱包断开连接时，重置状态
+    if (!wallet && isLoginTon) {
+      disConnectTon()
+      setHasAttemptedSign(false);
+      setIsSigning(false);
+      signingRef.current = false;
     }
-  }, [wallet, isLoginTon]);
+  }, [wallet, isLoginTon, disConnectTon]);
+
+  // useEffect(() => {
+  //   if (!tonConnectUI) return;
+  //   tonConnectUI.onStatusChange((walletInfo) => {
+  //     if (walletInfo) {
+  //       console.log("钱包已连接:", walletInfo);
+  //     } else {
+  //       console.log("钱包已断开连接");
+  //       disConnectTon()
+  //       setHasAttemptedSign(false);
+  //       setIsSigning(false);
+  //       signingRef.current = false;
+  //     }
+  //   });
+  // }, [tonConnectUI]);
+
+  // useEffect(() => {
+  //   // 钱包连接后自动登录，但只尝试一次
+  //   if (wallet && !isLoginTon && !isSigning && !signingRef.current) {
+  //     setHasAttemptedSign(true);
+  //     handleSignMessage();
+  //   }
+  // }, [wallet, isLoginTon, isSigning, signingRef.current]);
 
   // 签名登录
   const handleSignMessage = useCallback(async () => {
-    if (!wallet) {
-      console.log('TON Wallet not connected');
+    // 防止重复调用
+    if (!wallet || isSigning || signingRef.current) {
+      console.log(
+        'TON Wallet not connected or already signing',
+        !wallet,
+        isSigning,
+        signingRef.current
+      );
       return;
     }
+
+    // 设置签名状态
+    setIsSigning(true);
+    signingRef.current = true;
 
     try {
       const walletAddress = wallet.account.address;
@@ -80,15 +114,18 @@ const TonWalletConnect = memo(function TonWalletConnect({
       }
     } catch (error) {
       console.error('TON Wallet login error:', error);
-      console.error('Error details:', {
-        message: error.message,
-        code: error.code,
-        data: error.data,
-      });
+      console.error('Error details:', { message: error.message });
 
       dispatchApp(updateIsLoginTon(false));
+      setIsSigning(false);
+      setHasAttemptedSign(false); // 允许重试
+      signingRef.current = false;
 
       toast.error(error.message || t('login_failed'));
+    } finally {
+      // 重置签名状态
+      setIsSigning(false);
+      signingRef.current = false;
     }
   }, [wallet, dispatchApp, onSuccess, tonConnectUI, t]);
 
@@ -104,8 +141,12 @@ const TonWalletConnect = memo(function TonWalletConnect({
           {t('connect_wallet_ton')}
         </Button>
       ) : wallet && !isLoginTon ? (
-        <Button className={cn(className)} onClick={handleSignMessage}>
-          {t('Sign message')}
+        <Button
+          className={cn(className)}
+          onClick={handleSignMessage}
+          disabled={isSigning || signingRef.current}
+        >
+          {isSigning ? t('signing') : t('Sign_message')}
         </Button>
       ) : (
         <div className="flex flex-col items-center space-y-2">
