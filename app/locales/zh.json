@@ -1190,7 +1190,7 @@
     "disconnect": "断开连接",
     "active_tweets": "活动推文",
     "increase_your_points_to_earn": "增加您的积分来获得奖励",
-    "during_this_event_received": "在此活动期间，您已经领取过一次奖励。您可以通过邀请朋友来获得积分。每邀请一位朋友发推文，您将获得 <points>points</points> 积分。记住，您贡献越多，未来可能获得的激励就越多。加油！",
+    "during_this_event_received": "您可以通过邀请朋友来获得积分。每邀请一位朋友发推文，您将获得 <points>points</points> 积分。记住，您贡献越多，未来可能获得的激励就越多。加油！",
     "available": "可用",
     "cost_points": "消耗积分",
     "first_claim_free": "第一次免费",
