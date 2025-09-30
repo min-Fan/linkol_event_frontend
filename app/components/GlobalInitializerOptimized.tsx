@@ -93,10 +93,35 @@ export default function GlobalInitializerOptimized() {
               const jettonWalletRes = await getCachedRunMethod(jettonMinter, 'get_wallet_address', [
                 { type: 'slice', cell: beginCell().storeAddress(userAddress).endCell() },
               ]);
+
+              // 验证返回结果
+              if (!jettonWalletRes || !jettonWalletRes.stack) {
+                throw new Error('Invalid response from jetton minter');
+              }
+
+              // 检查 stack 是否有足够的元素
+              if (jettonWalletRes.stack.remaining === 0) {
+                throw new Error('Empty stack response from jetton minter');
+              }
+
               const jettonWalletAddress = jettonWalletRes.stack.readAddress();
+              console.log(
+                '[GlobalInitializer] Jetton wallet address:',
+                jettonWalletAddress.toString()
+              );
 
               // 2. 再调用该 Jetton Wallet 合约的 get_wallet_data
               const walletData = await getCachedRunMethod(jettonWalletAddress, 'get_wallet_data');
+
+              // 验证钱包数据
+              if (!walletData || !walletData.stack) {
+                throw new Error('Invalid response from jetton wallet');
+              }
+
+              if (walletData.stack.remaining === 0) {
+                throw new Error('Empty stack response from jetton wallet');
+              }
+
               balance = walletData.stack.readBigNumber(); // 代币余额
 
               console.log('[GlobalInitializer] TON USDT Jetton balance:', balance.toString());
@@ -105,12 +130,19 @@ export default function GlobalInitializerOptimized() {
                 '[GlobalInitializer] Failed to get TON USDT Jetton balance:',
                 jettonError
               );
-              // 如果获取Jetton余额失败，回退到获取TON原生代币余额
-              balance = await getCachedBalance(userAddress);
-              console.log(
-                '[GlobalInitializer] Fallback to TON native balance:',
-                balance.toString()
-              );
+
+              // 如果是 EOF 错误，可能是合约不存在或方法调用失败，直接设置为0
+              if (jettonError instanceof Error && jettonError.message.includes('EOF')) {
+                console.log('[GlobalInitializer] Contract method failed, setting balance to 0');
+                balance = BigInt(0);
+              } else {
+                // 如果获取Jetton余额失败，回退到获取TON原生代币余额
+                balance = await getCachedBalance(userAddress);
+                console.log(
+                  '[GlobalInitializer] Fallback to TON native balance:',
+                  balance.toString()
+                );
+              }
             }
           } else {
             // 如果没有mintAddress，获取TON原生代币余额

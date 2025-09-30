@@ -67,20 +67,55 @@ export const useTonTokenBalanceOptimized = (mintAddress?: string) => {
           console.log('[TON Balance] Fetching Jetton balance...');
           const jettonMinter = Address.parse(mintAddress);
 
-          // 1. 先通过 jetton minter 获取用户的 Jetton Wallet 地址
-          const jettonWalletRes = await getCachedRunMethod(jettonMinter, 'get_wallet_address', [
-            { type: 'slice', cell: beginCell().storeAddress(userAddress).endCell() },
-          ]);
-          const jettonWalletAddress = jettonWalletRes.stack.readAddress();
+          try {
+            // 1. 先通过 jetton minter 获取用户的 Jetton Wallet 地址
+            const jettonWalletRes = await getCachedRunMethod(jettonMinter, 'get_wallet_address', [
+              { type: 'slice', cell: beginCell().storeAddress(userAddress).endCell() },
+            ]);
 
-          // 2. 再调用该 Jetton Wallet 合约的 get_wallet_data
-          const walletData = await getCachedRunMethod(jettonWalletAddress, 'get_wallet_data');
-          const balance = walletData.stack.readBigNumber(); // 代币余额
+            // 验证返回结果
+            if (!jettonWalletRes || !jettonWalletRes.stack) {
+              throw new Error('Invalid response from jetton minter');
+            }
 
-          setBalance(balance);
+            // 检查 stack 是否有足够的元素
+            if (jettonWalletRes.stack.remaining === 0) {
+              throw new Error('Empty stack response from jetton minter');
+            }
+
+            const jettonWalletAddress = jettonWalletRes.stack.readAddress();
+            console.log('[TON Balance] Jetton wallet address:', jettonWalletAddress.toString());
+
+            // 2. 再调用该 Jetton Wallet 合约的 get_wallet_data
+            const walletData = await getCachedRunMethod(jettonWalletAddress, 'get_wallet_data');
+
+            // 验证钱包数据
+            if (!walletData || !walletData.stack) {
+              throw new Error('Invalid response from jetton wallet');
+            }
+
+            if (walletData.stack.remaining === 0) {
+              throw new Error('Empty stack response from jetton wallet');
+            }
+
+            const balance = walletData.stack.readBigNumber(); // 代币余额
+            console.log('[TON Balance] Jetton balance:', balance.toString());
+
+            setBalance(balance);
+          } catch (jettonError) {
+            // console.error('[TON Balance] Jetton balance fetch failed:', jettonError);
+
+            // 如果是 EOF 错误，可能是合约不存在或方法调用失败
+            if (jettonError instanceof Error && jettonError.message.includes('EOF')) {
+              console.log('[TON Balance] Contract method failed, setting balance to 0');
+              setBalance(BigInt(0));
+            } else {
+              throw jettonError;
+            }
+          }
         }
       } catch (err) {
-        console.error('[TON Balance] Get TON token balance failed:', err);
+        // console.error('[TON Balance] Get TON token balance failed:', err);
         setError(err instanceof Error ? err.message : 'Get balance failed');
         setBalance(BigInt(0));
       } finally {
