@@ -113,9 +113,14 @@ const DialogClaimReward = memo(
       enabled: !!eventInfo?.id && isOpen, // 只有在弹窗打开时才获取数据
     });
 
+    // 开不开启消耗积分
+    const isCostPoints = false;
     // 计算可领取的奖励金额和需要消耗的积分
     const claimableAmount = useMemo(() => {
       // 如果是第一次领取（hasWithdrawn为false），则不需要扣除积分，可领数量就是全部
+      if (!isCostPoints) {
+        return totalReceiveAmount;
+      }
       if (!hasWithdrawn) {
         return totalReceiveAmount.toFixed(2);
       }
@@ -296,6 +301,15 @@ const DialogClaimReward = memo(
       isRequestingSignatureRef.current = false; // 重置签名请求标记
       onClose();
     }, [onClose]);
+
+    // 关闭所有弹窗的回调函数
+    const handleCloseAllDialogs = useCallback(() => {
+      // 关闭所有子弹窗
+      setIsBindEmailDialogOpen(false);
+      setIsInvitationDialogOpen(false);
+      // 关闭主弹窗
+      handleClose();
+    }, [handleClose]);
 
     // 处理邀请弹窗
     const handleInvitationDialogOpen = () => {
@@ -587,7 +601,7 @@ const DialogClaimReward = memo(
           receive_amount: claimAmount,
           active_id: eventId as string,
           signature: signatureResult.signature,
-          address: wallet.account.address,
+          address: signatureResult.address,
           public_key: wallet.account.publicKey || '',
           walletStateInit: wallet.account.walletStateInit,
           domain: signatureResult.domain,
@@ -708,7 +722,11 @@ const DialogClaimReward = memo(
                 )}
                 {!isLoginTon && eventInfo?.chain_type === 'Ton' && (
                   <div className="flex">
-                    <TonWalletConnect onSuccess={handleClose} onWalletModalOpen={handleClose} />
+                    <TonWalletConnect
+                      onSuccess={handleClose}
+                      onWalletModalOpen={handleClose}
+                      onCloseAllDialogs={handleCloseAllDialogs}
+                    />
                   </div>
                 )}
               </div>
@@ -820,11 +838,11 @@ const DialogClaimReward = memo(
                     <div className="bg-primary/5 flex flex-wrap items-center justify-between gap-2 rounded-lg p-1 sm:rounded-xl sm:p-2">
                       <span className="text-muted-foreground text-sm">{t('available')}</span>
                       <div className="ml-auto flex items-center gap-2">
-                        <div className="flex items-center">
+                        {/* <div className="flex items-center">
                           <span className="text-muted-foreground text-sm">
                             100 {t('points')} = 0.1
                           </span>
-                        </div>
+                        </div> */}
                         <div className="flex items-center gap-1">
                           <span className="text-lg font-bold">{claimableAmount}</span>
                           <TokenIcon
@@ -837,7 +855,7 @@ const DialogClaimReward = memo(
                         </div>
                       </div>
                     </div>
-                    {hasWithdrawn && (
+                    {/* {hasWithdrawn && (
                       <div className="bg-primary/5 flex flex-wrap items-center justify-between gap-2 rounded-lg p-1 sm:rounded-xl sm:p-2">
                         <span className="text-muted-foreground text-sm">{t('cost_points')}</span>
                         <span className="text-lg font-bold">{requiredPoints}</span>
@@ -852,7 +870,7 @@ const DialogClaimReward = memo(
                           {t('no_points_required')}
                         </span>
                       </div>
-                    )}
+                    )} */}
                   </div>
 
                   {/* 操作按钮 */}

@@ -6148,7 +6148,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tonconnect/sdk@npm:3.3.1":
+"@tonconnect/sdk@npm:3.3.1, @tonconnect/sdk@npm:^3.3.1":
   version: 3.3.1
   resolution: "@tonconnect/sdk@npm:3.3.1"
   dependencies:
@@ -13037,6 +13037,7 @@ __metadata:
     "@tailwindcss/postcss": ^4.1.4
     "@tanstack/query-core": ^5.74.4
     "@tanstack/react-query": ^5.74.4
+    "@tonconnect/sdk": ^3.3.1
     "@tonconnect/ui-react": ^2.3.1
     "@types/ethereum-blockies": ^0.1.2
     "@types/node": 22.15.2
