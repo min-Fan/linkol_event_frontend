@@ -102,7 +102,7 @@ export const useTonTokenBalance = (mintAddress?: string) => {
 
             setBalance(balance);
           } catch (jettonError) {
-            console.error('[TON Balance] Jetton balance fetch failed:', jettonError);
+            // console.error('[TON Balance] Jetton balance fetch failed:', jettonError);
 
             // 如果是 EOF 错误，可能是合约不存在或方法调用失败
             if (jettonError instanceof Error && jettonError.message.includes('EOF')) {
@@ -114,7 +114,7 @@ export const useTonTokenBalance = (mintAddress?: string) => {
           }
         }
       } catch (err) {
-        console.error('[TON Balance] Get TON token balance failed:', err);
+        // console.error('[TON Balance] Get TON token balance failed:', err);
         setError(err instanceof Error ? err.message : 'Get balance failed');
         setBalance(BigInt(0));
       } finally {
