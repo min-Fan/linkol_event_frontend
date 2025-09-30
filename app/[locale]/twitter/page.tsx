@@ -306,10 +306,40 @@ export default function TwitterPage() {
   // V2 版本函数（原有逻辑）
   const getTwitterAuth = async (code: string, x_id: string): Promise<any> => {
     try {
+      // 构建当前页面的回调URL，保持与传入回调地址相同的格式
+      const currentUrl = new URL(window.location.href);
+      const callbackUrlObj = new URL(currentUrl.origin + currentUrl.pathname);
+      
+      // 只保留auth相关的参数，去掉x_id、state、code等Twitter回调参数
+      const authParams = ['auth_source', 'auth_timestamp', 'auth_id', 'auth_version'];
+      authParams.forEach(param => {
+        if (currentUrl.searchParams.has(param)) {
+          let value = currentUrl.searchParams.get(param)!;
+          // 清理auth_version参数，确保只包含版本号
+          if (param === 'auth_version') {
+            // 处理各种可能的格式：v2?x_id=4, v2%3Fx_id%3D4 等
+            value = value.split('%3F')[0]; // 处理URL编码的?符号
+            value = value.split('?')[0];   // 处理未编码的?符号
+            value = value.trim();          // 去除空格
+          }
+          callbackUrlObj.searchParams.set(param, value);
+        }
+      });
+      
+      const callbackUrl = callbackUrlObj.toString();
+      
+      console.log('=== URL Debug Info ===');
+      console.log('Current URL:', window.location.href);
+      console.log('Current URL search params:', Object.fromEntries(currentUrl.searchParams.entries()));
+      console.log('Auth version raw value:', currentUrl.searchParams.get('auth_version'));
+      console.log('Callback URL:', callbackUrl);
+      console.log('Callback URL params:', Object.fromEntries(new URL(callbackUrl).searchParams.entries()));
+      console.log('========================');
+      
       const res: any = await getTwitterAuthCallbackV2({
         code,
         x_id,
-        call_back_url: localStorage.getItem('twitter_callback_url') || '',
+        call_back_url: callbackUrl,
       });
 
       if (res && res.code === 200) {
