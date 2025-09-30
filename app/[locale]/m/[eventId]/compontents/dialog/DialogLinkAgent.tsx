@@ -22,6 +22,7 @@ import { LucideBot, Success, Fail } from '@assets/svg';
 import { useLocale } from 'next-intl';
 import { IEventInfoResponseData } from '@libs/request';
 import LoaderCircle from '@ui/loading/loader-circle';
+import { useTelegram } from 'app/context/TgProvider';
 
 interface DialogLinkAgentProps {
   isOpen: boolean;
@@ -51,6 +52,7 @@ export default function DialogLinkAgent({
   const [isFailed, setIsFailed] = useState(false);
   const locale = useLocale();
   const authTimeSec = 60; // 超时时间 s
+  const { webApp, isTelegram } = useTelegram();
 
   // 监听授权状态变化
   useEffect(() => {
@@ -156,7 +158,26 @@ export default function DialogLinkAgent({
       setLoginStatusType(LoginStatusType.WAITING_AUTHORIZED);
       setOpen(true);
 
-      const currentUrl = `${window.location.origin}/${locale}/twitter`;
+      // 设置来源类型和时间戳
+      const authSource = isTelegram ? 'telegram' : 'web';
+      const authTimestamp = Date.now().toString();
+      const authId = `auth_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+      console.log('V1 Twitter Auth Source:', authSource);
+      console.log('V1 Is Telegram:', isTelegram);
+      console.log('V1 Auth ID:', authId);
+
+      // 构建回调URL，包含授权信息作为URL参数
+      const baseUrl = `${window.location.origin}/${locale}/twitter`;
+      const callbackUrl = new URL(baseUrl);
+      callbackUrl.searchParams.set('auth_source', authSource);
+      callbackUrl.searchParams.set('auth_timestamp', authTimestamp);
+      callbackUrl.searchParams.set('auth_id', authId);
+      callbackUrl.searchParams.set('auth_version', 'v1');
+
+      const currentUrl = callbackUrl.toString();
+      console.log('V1 Callback URL with params:', currentUrl);
+
       const res = await getTwitterAuthUrl({
         call_back_url: currentUrl,
       });
@@ -168,14 +189,39 @@ export default function DialogLinkAgent({
         return;
       }
 
+      // 保存授权信息到localStorage（作为备用）
       localStorage.setItem('twitter_x_id', res.data.app_id);
       localStorage.setItem('twitter_callback_url', currentUrl);
       localStorage.setItem('twitter_oauth_token', res.data.oauth_token);
       localStorage.setItem('twitter_oauth_token_secret', res.data.oauth_token_secret);
-      localStorage.setItem('twitter_auth_version', 'v1'); // 标记使用v1版本
+      localStorage.setItem('twitter_auth_version', 'v1');
+      localStorage.setItem('twitter_auth_url_type', authSource);
+      localStorage.setItem('twitter_auth_timestamp', authTimestamp);
+      localStorage.setItem('twitter_auth_id', authId);
+      localStorage.setItem(
+        'twitter_auth_source',
+        JSON.stringify({
+          type: authSource,
+          timestamp: authTimestamp,
+          isTelegram: isTelegram,
+          userAgent: navigator.userAgent,
+          authId: authId,
+        })
+      );
 
       if (res.data.authorization_url) {
-        win.current = openCenteredPopup(res.data.authorization_url, '', 600, 600);
+        win.current = openCenteredPopup(
+          res.data.authorization_url,
+          isTelegram,
+          webApp,
+          'Twitter Auth',
+          600,
+          600
+        );
+        if (isTelegram && webApp) {
+          webApp.close();
+          return;
+        }
         if (win.current === null) {
           location.href = res.data.authorization_url;
         } else {

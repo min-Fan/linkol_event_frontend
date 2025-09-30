@@ -60,7 +60,7 @@ export default function XAuth({
       const authSource = isTelegram ? 'telegram' : 'web';
       const authTimestamp = Date.now().toString();
       const authId = `auth_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      
+
       console.log('Twitter Auth Source:', authSource);
       console.log('Is Telegram:', isTelegram);
       console.log('Auth ID:', authId);
@@ -72,7 +72,7 @@ export default function XAuth({
       callbackUrl.searchParams.set('auth_timestamp', authTimestamp);
       callbackUrl.searchParams.set('auth_id', authId);
       callbackUrl.searchParams.set('auth_version', 'v2');
-      
+
       const currentUrl = callbackUrl.toString();
       console.log('Callback URL with params:', currentUrl);
 
@@ -95,13 +95,16 @@ export default function XAuth({
       localStorage.setItem('twitter_auth_url_type', authSource);
       localStorage.setItem('twitter_auth_timestamp', authTimestamp);
       localStorage.setItem('twitter_auth_id', authId);
-      localStorage.setItem('twitter_auth_source', JSON.stringify({
-        type: authSource,
-        timestamp: authTimestamp,
-        isTelegram: isTelegram,
-        userAgent: navigator.userAgent,
-        authId: authId
-      }));
+      localStorage.setItem(
+        'twitter_auth_source',
+        JSON.stringify({
+          type: authSource,
+          timestamp: authTimestamp,
+          isTelegram: isTelegram,
+          userAgent: navigator.userAgent,
+          authId: authId,
+        })
+      );
 
       if (res.data.url) {
         win.current = openCenteredPopup(res.data.url, isTelegram, webApp, 'Twitter Auth', 600, 600);

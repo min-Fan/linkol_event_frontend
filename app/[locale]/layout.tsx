@@ -78,10 +78,7 @@ export default async function LocaleLayout(props: { children: ReactNode; params:
             logo: 'https://www.linkol.fun/favicon.ico',
           })}
         </Script>
-        <Script
-          src="https://telegram.org/js/telegram-web-app.js"
-          strategy="beforeInteractive"
-        />
+        <Script src="https://telegram.org/js/telegram-web-app.js" strategy="beforeInteractive" />
         <link rel="manifest" href="/telegram-manifest.json" />
         <meta
           name="viewport"

@@ -106,6 +106,7 @@ export default function TwitterPage() {
             userInfo: null,
             method: 'TwitterAuth',
           });
+          setStatus(LoginStatus.ERROR);
           return;
         }
 
@@ -123,6 +124,13 @@ export default function TwitterPage() {
         const { token } = loginInfo;
         document.cookie = `${CACHE_KEY.KOL_TOKEN}=${token}; path=/;`;
         localStorage.setItem(CACHE_KEY.KOL_TOKEN, token);
+
+        // V1版本也支持Telegram重定向
+        if (authSourceType === 'telegram') {
+          location.href = `${process.env.NEXT_PUBLIC_TG_MINI_APP}?startapp`;
+          return;
+        }
+
         dispatch(updateIsLoggedIn(true));
         dispatch(updateTwitterFullProfile({ ...userInfo, ...loginInfo }));
         setStatus(LoginStatus.SUCCESS);
