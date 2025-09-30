@@ -213,8 +213,8 @@ export default function DialogRaffleResult({
                     speed={1}
                     className="pointer-events-none absolute inset-0 h-full w-full"
                     style={{ zIndex: 0 }}
-                    onLoad={() => console.log('Lottie animation loaded')}
-                    onError={(error) => console.error('Lottie animation error:', error)}
+                    // onLoad={() => console.log('Lottie animation loaded')}
+                    // onError={(error) => console.error('Lottie animation error:', error)}
                   />
                   <div className="relative z-10 flex w-full items-center justify-center pt-4">
                     <div className="relative z-10">
