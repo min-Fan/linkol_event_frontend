@@ -6,11 +6,10 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "node scripts/generate-manifest.js && next dev",
-    "build": "node scripts/generate-manifest.js && next build",
+    "dev": "next dev",
+    "build": "next build",
     "start": "next start",
-    "update": "ncu -u --deep",
-    "generate-manifest": "node scripts/generate-manifest.js"
+    "update": "ncu -u --deep"
   },
   "dependencies": {
     "@bprogress/next": "^3.2.12",
