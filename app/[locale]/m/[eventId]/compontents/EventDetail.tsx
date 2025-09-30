@@ -426,7 +426,7 @@ const EventDetail = memo(function EventDetail({
               <PlatformRewardCard eventInfo={eventInfo} onRefresh={handleRefresh} />
             )}
           </div>
-          <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-col flex-wrap items-center justify-between gap-2 sm:flex-row">
             <div className="flex items-center gap-4">
               {/* <div className="flex items-center gap-4">
                 <Button
