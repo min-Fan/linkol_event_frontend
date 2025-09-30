@@ -44,6 +44,10 @@ export default function TwitterPage() {
     const authSourceType = getAuthSourceTypeHybrid(params);
 
     console.log('Auth source type for redirect:', authSourceType);
+    if (authSourceType === 'telegram') {
+      location.href = `${process.env.NEXT_PUBLIC_TG_MINI_APP}?startapp`;
+      return;
+    }
 
     // 清除授权源数据
     clearAuthSource();
