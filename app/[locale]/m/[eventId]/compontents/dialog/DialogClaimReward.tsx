@@ -107,6 +107,7 @@ const DialogClaimReward = memo(
       refetch: refetchUserActivityReward,
       totalReceiveAmount,
       points,
+      hasWithdrawn,
     } = useUserActivityReward({
       eventId: eventInfo?.id?.toString() || '',
       enabled: !!eventInfo?.id && isOpen, // 只有在弹窗打开时才获取数据
@@ -114,19 +115,29 @@ const DialogClaimReward = memo(
 
     // 计算可领取的奖励金额和需要消耗的积分
     const claimableAmount = useMemo(() => {
-      // 根据用户积分计算最大可领取金额
+      // 如果是第一次领取（hasWithdrawn为false），则不需要扣除积分，可领数量就是全部
+      if (!hasWithdrawn) {
+        return totalReceiveAmount.toFixed(2);
+      }
+
+      // 如果是第二次及以后领取，根据用户积分计算最大可领取金额
       // 积分转换为金额的比例是 1000积分 = 1个代币
       const maxClaimableByPoints = points / 1000;
       // 取用户积分能兑换的最大金额和实际可领取金额的较小值
       return Math.min(maxClaimableByPoints, totalReceiveAmount).toFixed(2);
-    }, [points, totalReceiveAmount]);
+    }, [hasWithdrawn, points, totalReceiveAmount]);
 
     const requiredPoints = useMemo(() => {
-      // 计算实际需要消耗的积分
+      // 如果是第一次领取（hasWithdrawn为false），则不需要消耗积分
+      if (!hasWithdrawn) {
+        return 0;
+      }
+
+      // 如果是第二次及以后领取，计算实际需要消耗的积分
       // 如果用户积分足够，则消耗对应积分；否则消耗全部积分
       const actualClaimableAmount = Math.min(points / 1000, totalReceiveAmount);
       return Math.ceil(actualClaimableAmount * 1000);
-    }, [points, totalReceiveAmount]);
+    }, [hasWithdrawn, points, totalReceiveAmount]);
 
     // 合约调用
     const {
@@ -799,12 +810,6 @@ const DialogClaimReward = memo(
                   <div className="mb-6 space-y-3 text-center">
                     <p className="px-4 text-sm sm:text-base">
                       {t.rich('during_this_event_received', {
-                        amount: (chunks) => (
-                          <div className="inline-block items-center space-x-1 font-bold">
-                            <span className="text-primary">{0.3}</span>
-                            <span className="">{symbol || ''}</span>
-                          </div>
-                        ),
                         points: (chunks) => <span className="font-bold">500</span>,
                       })}
                     </p>
@@ -812,23 +817,42 @@ const DialogClaimReward = memo(
 
                   {/* 奖励信息 */}
                   <div className="w-full space-y-2">
-                    <div className="bg-primary/5 flex items-center justify-between rounded-lg p-1 sm:rounded-xl sm:p-2">
+                    <div className="bg-primary/5 flex flex-wrap items-center justify-between gap-2 rounded-lg p-1 sm:rounded-xl sm:p-2">
                       <span className="text-muted-foreground text-sm">{t('available')}</span>
-                      <div className="flex items-center gap-1">
-                        <span className="text-lg font-bold">{claimableAmount}</span>
-                        <TokenIcon
-                          type={symbol || ''}
-                          chainType={eventInfo?.chain_type}
-                          tokenType={eventInfo?.token_type}
-                          className="h-5 w-5"
-                        />
-                        <span className="text-sm">{symbol || 'USDC'}</span>
+                      <div className="ml-auto flex items-center gap-2">
+                        <div className="flex items-center">
+                          <span className="text-muted-foreground text-sm">
+                            100 {t('points')} = 0.1
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className="text-lg font-bold">{claimableAmount}</span>
+                          <TokenIcon
+                            type={symbol || ''}
+                            chainType={eventInfo?.chain_type}
+                            tokenType={eventInfo?.token_type}
+                            className="h-5 w-5"
+                          />
+                          <span className="text-sm">{symbol || 'USDC'}</span>
+                        </div>
                       </div>
                     </div>
-                    <div className="bg-primary/5 flex items-center justify-between rounded-lg p-1 sm:rounded-xl sm:p-2">
-                      <span className="text-muted-foreground text-sm">{t('cost_points')}</span>
-                      <span className="text-lg font-bold">{requiredPoints}</span>
-                    </div>
+                    {hasWithdrawn && (
+                      <div className="bg-primary/5 flex flex-wrap items-center justify-between gap-2 rounded-lg p-1 sm:rounded-xl sm:p-2">
+                        <span className="text-muted-foreground text-sm">{t('cost_points')}</span>
+                        <span className="text-lg font-bold">{requiredPoints}</span>
+                      </div>
+                    )}
+                    {!hasWithdrawn && (
+                      <div className="flex items-center justify-between rounded-lg bg-green-50 p-1 sm:rounded-xl sm:p-2 dark:bg-green-900/20">
+                        <span className="text-sm text-green-700 dark:text-green-300">
+                          {t('first_claim_free')}
+                        </span>
+                        <span className="text-sm font-bold text-green-700 dark:text-green-300">
+                          {t('no_points_required')}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {/* 操作按钮 */}

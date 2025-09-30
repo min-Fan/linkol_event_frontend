@@ -124,6 +124,7 @@ export function useUserActivityReward({ eventId, enabled = true }: UseUserActivi
     usedMustWinTimes: data?.used_must_win_times || 0,
     todayJoinAt: data?.today_join_at || '',
     isVerifiedFollow: data?.is_verified_follow || false,
+    hasWithdrawn: data?.has_withdrawn || false,
   };
 }
 

@@ -2066,6 +2066,10 @@ export interface IGetUserActivityRewardResponseData {
    * 是否已验证关注
    */
   is_verified_follow: boolean;
+  /**
+   * 是否已提现
+   */
+  has_withdrawn: boolean;
 }
 export const getUserActivityReward = (params: IGetUserActivityRewardParams) => {
   return kolRequest.get<IGetUserActivityRewardResponseData>(`/kol/api/v6/tickets/`, {
