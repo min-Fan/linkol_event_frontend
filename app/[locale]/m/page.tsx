@@ -27,6 +27,7 @@ export default function MarketEventsPage() {
   });
   const handleTgStartApp = async (screen_name: string) => {
     try {
+      if (isLoggedIn) return;
       const twitterInfo: any = await getTwitterAuthByUsernameOrLink({
         screen_name,
       });
