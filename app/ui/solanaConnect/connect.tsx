@@ -113,7 +113,7 @@ const Connect = memo(function Connect({ className, onSuccess, onWalletModalOpen 
         </>
       ) : connected && !isLoginSolana ? (
         <Button className={cn(className)} onClick={handleSignMessage}>
-          {t('Sign message')}
+          {t('Sign_message')}
         </Button>
       ) : (
         <NavWallet></NavWallet>

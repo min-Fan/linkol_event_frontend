@@ -4,11 +4,12 @@ import { Address, beginCell, Cell } from 'ton';
 import { getCachedBalance, getCachedRunMethod } from '@libs/ton-client-optimized';
 
 /**
- * 获取 TON 链 token 余额的 hook
+ * 优化的获取 TON 链 token 余额的 hook
  * 支持获取 TON 原生代币余额和 Jetton 代币余额
+ * 实现了请求去重和缓存机制，避免重复的 RPC 调用
  * @param mintAddress - Jetton 代币合约地址，如果不提供则获取 TON 原生代币余额
  */
-export const useTonTokenBalance = (mintAddress?: string) => {
+export const useTonTokenBalanceOptimized = (mintAddress?: string) => {
   const [tonConnectUI] = useTonConnectUI();
   const wallet = useTonWallet();
   const [balance, setBalance] = useState<bigint>(BigInt(0));
@@ -138,11 +139,8 @@ export const useTonTokenBalance = (mintAddress?: string) => {
  */
 export const parseJettonContent = (contentCell: Cell) => {
   try {
-    // console.log('Start parsing jetton content cell:', contentCell.toString());
-
     // 从 cell 的十六进制表示中提取 URI
     const cellHex = contentCell.toString();
-    // console.log('Cell hex:', cellHex);
 
     // 查找可能的 URI 模式 (https://)
     const uriPattern = /68747470733A2F2F[0-9A-Fa-f]+/g;
@@ -153,7 +151,7 @@ export const parseJettonContent = (contentCell: Cell) => {
         try {
           const uriBytes = Buffer.from(match, 'hex');
           const uri = uriBytes.toString('utf8');
-          console.log('Found URI:', uri);
+          console.log('[TON Balance] Found URI:', uri);
 
           if (uri && uri.includes('http')) {
             return {
@@ -162,15 +160,15 @@ export const parseJettonContent = (contentCell: Cell) => {
             };
           }
         } catch (hexError) {
-          console.log('Hex parsing failed:', hexError);
+          console.log('[TON Balance] Hex parsing failed:', hexError);
         }
       }
     }
 
-    console.log('No valid URI found');
+    console.log('[TON Balance] No valid URI found');
     return null;
   } catch (error) {
-    console.warn('Parsing jetton content failed:', error);
+    console.warn('[TON Balance] Parsing jetton content failed:', error);
     return null;
   }
 };

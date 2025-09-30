@@ -2307,3 +2307,46 @@ export const getUserIsAcceptedAgent = () => {
 export const acceptAgent = () => {
   return kolRequest.post('/kol/api/v7/accept_agent/');
 };
+
+// Ton 领取奖励接口
+export interface IGetTonClaimRewardParams {
+  /**
+   * 领取金额
+   */
+  receive_amount: number;
+  /**
+   * 活动ID
+   */
+  active_id: string;
+  /**
+   * 签名
+   */
+  signature: string;
+  /**
+   * Ton 钱包地址
+   */
+  address: string;
+  /**
+   * 时间戳
+   */
+  timestamp: number;
+  /**
+   * 公钥
+   */
+  public_key: string;
+  /**
+   * 钱包状态
+   */
+  walletStateInit: string;
+  /**
+   * 域名
+   */
+  domain: string;
+  /**
+   * 消息
+   */
+  message: string;
+}
+export const getTonClaimReward = (params: IGetTonClaimRewardParams) => {
+  return kolRequest.post('/kol/api/v6/claim_reward/ton/pay/', params);
+};

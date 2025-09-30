@@ -13,7 +13,7 @@ import { ThemeProvider } from '@ui/theme/Provider';
 import BprogressProvider from '@ui/bprogress/Provider';
 import ReduxProvider from 'app/context/ReduxProvider';
 import WagmiProviderContext from 'app/context/WagmiProviderContext';
-import GlobalInitializer from 'app/components/GlobalInitializer';
+import GlobalInitializerOptimized from 'app/components/GlobalInitializerOptimized';
 import '@rainbow-me/rainbowkit/styles.css';
 import 'app/assets/font/index.css';
 import './globals.css';
@@ -95,7 +95,7 @@ export default async function LocaleLayout(props: { children: ReactNode; params:
                       <NextIntlClientProvider>
                         <WagmiProviderContext>
                           <BprogressProvider>
-                            <GlobalInitializer />
+                            <GlobalInitializerOptimized />
                             <main className="dark:bg-background flex min-h-screen w-full flex-col bg-[#F9F9F9]">
                               {children}
                             </main>

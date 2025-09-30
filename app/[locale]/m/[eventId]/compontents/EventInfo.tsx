@@ -3,7 +3,7 @@ import { Discord, Share, Telegram, TwIcon, Up } from '@assets/svg';
 import { Badge } from '@shadcn/components/ui/badge';
 import { Skeleton } from '@shadcn/components/ui/skeleton';
 import { Globe, Shrub } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { cn } from '@shadcn/lib/utils';
 import { IEventInfoResponseData } from '@libs/request';
 import avatar from '@assets/image/avatar.png';
@@ -72,7 +72,7 @@ function EventInfoSkeleton() {
   );
 }
 
-export default function EventInfo({
+const EventInfo = memo(function EventInfo({
   eventInfo,
   isLoading,
   onRefresh,
@@ -239,4 +239,6 @@ export default function EventInfo({
       />
     </div>
   );
-}
+});
+
+export default EventInfo;
