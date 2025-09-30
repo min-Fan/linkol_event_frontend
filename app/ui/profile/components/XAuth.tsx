@@ -7,7 +7,7 @@ import UIDialogKOLLogin, { LoginStatusType } from '@ui/dialog/KOLLogin';
 import { LoaderCircle } from 'lucide-react';
 import { Button } from '@shadcn-ui/button';
 import { useEffect, useRef, useState } from 'react';
-import { ChannelEventType, LoginStatus, subscribeTo } from '@libs/utils/broadcast';
+import { ChannelEventType, LoginStatus, postEvent, subscribeTo } from '@libs/utils/broadcast';
 import { getTwitterAuthUrlV2 } from '@libs/request';
 import { toast } from 'sonner';
 import { openCenteredPopup } from '@libs/utils/twitter-utils';
@@ -17,6 +17,7 @@ import UITheme from '@ui/theme';
 import UILanguage from '@ui/language';
 import { cn } from '@shadcn/lib/utils';
 import { TwitterX } from '@assets/svg';
+import { useTelegram } from 'app/context/TgProvider';
 
 export default function XAuth({
   button,
@@ -34,6 +35,7 @@ export default function XAuth({
   const [loginStatusType, setLoginStatusType] = useState(LoginStatusType.WAITING_AUTHORIZED);
   const lang = useLocale();
   const authTimeSec = 60; //超时时间 s
+  const { webApp, isTelegram } = useTelegram();
   useEffect(() => {
     const unsubscribe = subscribeTo(ChannelEventType.LOGIN_STATUS, (payload) => {
       if (payload.status == LoginStatus.SUCCESS) {
@@ -54,8 +56,26 @@ export default function XAuth({
 
   const handleTwitterAuth = async () => {
     try {
-      // 获取当前的url
-      const currentUrl = `${window.location.origin}/${lang}/twitter`;
+      // 设置来源类型和时间戳
+      const authSource = isTelegram ? 'telegram' : 'web';
+      const authTimestamp = Date.now().toString();
+      const authId = `auth_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+      console.log('Twitter Auth Source:', authSource);
+      console.log('Is Telegram:', isTelegram);
+      console.log('Auth ID:', authId);
+
+      // 构建回调URL，包含授权信息作为URL参数
+      const baseUrl = `${window.location.origin}/${lang}/twitter`;
+      const callbackUrl = new URL(baseUrl);
+      callbackUrl.searchParams.set('auth_source', authSource);
+      callbackUrl.searchParams.set('auth_timestamp', authTimestamp);
+      callbackUrl.searchParams.set('auth_id', authId);
+      callbackUrl.searchParams.set('auth_version', 'v2');
+
+      const currentUrl = callbackUrl.toString();
+      console.log('Callback URL with params:', currentUrl);
+
       setLoginStatusType(LoginStatusType.WAITING_AUTHORIZED);
       setOpen(true);
 
@@ -65,18 +85,35 @@ export default function XAuth({
 
       if (!res || res.code !== 200) {
         toast.error(t('kol_twitter_auth_login_failed'));
-
         return;
       }
 
+      // 保存授权信息到localStorage（作为备用）
       localStorage.setItem('twitter_x_id', res.data.x_id);
       localStorage.setItem('twitter_callback_url', currentUrl);
-      localStorage.setItem('twitter_auth_version', 'v2'); // 标记使用v2版本
+      localStorage.setItem('twitter_auth_version', 'v2');
+      localStorage.setItem('twitter_auth_url_type', authSource);
+      localStorage.setItem('twitter_auth_timestamp', authTimestamp);
+      localStorage.setItem('twitter_auth_id', authId);
+      localStorage.setItem(
+        'twitter_auth_source',
+        JSON.stringify({
+          type: authSource,
+          timestamp: authTimestamp,
+          isTelegram: isTelegram,
+          userAgent: navigator.userAgent,
+          authId: authId,
+        })
+      );
 
       if (res.data.url) {
-        win.current = openCenteredPopup(res.data.url, '', 600, 600);
+        win.current = openCenteredPopup(res.data.url, isTelegram, webApp, 'Twitter Auth', 600, 600);
+        if (isTelegram && webApp) {
+          webApp.close();
+          return;
+        }
+
         if (win.current === null) {
-          // toast.error(t('popup_was_blocked'));
           location.href = res.data.url;
         } else {
           checkAuthTimeOut();

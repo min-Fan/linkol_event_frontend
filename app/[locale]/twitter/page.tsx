@@ -20,6 +20,15 @@ import { Button } from '@shadcn/components/ui/button';
 import { useTranslations } from 'next-intl';
 import { useAppDispatch } from '@store/hooks';
 import { updateIsLoggedIn, updateTwitterFullProfile } from '@store/reducers/userSlice';
+import {
+  getAuthSourceType,
+  isFromTelegram,
+  isAuthSourceValid,
+  clearAuthSource,
+  getAuthSourceTypeHybrid,
+  isFromTelegramHybrid,
+  getAuthSourceHybrid,
+} from '@libs/utils/auth-source-utils';
 
 export default function TwitterPage() {
   const params = useSearchParams();
@@ -31,14 +40,52 @@ export default function TwitterPage() {
 
   // 返回根目录的处理函数
   const handleGoHome = () => {
+    // 使用混合函数获取授权来源
+    const authSourceType = getAuthSourceTypeHybrid(params);
+
+    console.log('Auth source type for redirect:', authSourceType);
+    if (authSourceType === 'telegram') {
+      location.href = `${process.env.NEXT_PUBLIC_TG_MINI_APP}?startapp`;
+      return;
+    }
+
+    // 清除授权源数据
+    clearAuthSource();
     router.push(PagesRoute.HOME);
   };
 
   const handleTwitterAuthCallback = async () => {
     try {
-      const version = localStorage.getItem('twitter_auth_version');
+      // 使用混合函数获取授权信息（优先URL参数，回退到localStorage）
+      const authSourceData = getAuthSourceHybrid(params);
+      const authSourceType = getAuthSourceTypeHybrid(params);
+      const isFromTG = isFromTelegramHybrid(params);
+
+      // 获取版本信息
+      const urlVersion = params.get('auth_version');
+      const localStorageVersion = localStorage.getItem('twitter_auth_version');
+      const version = urlVersion || localStorageVersion || 'v2';
       const isV1 = version === 'v1';
-      console.log(isV1, version);
+
+      // 验证时间戳
+      let isSourceValid = true;
+      if (authSourceData?.timestamp) {
+        const now = Date.now();
+        const authTime = parseInt(authSourceData.timestamp);
+        const maxAge = 30 * 60 * 1000; // 30分钟
+        isSourceValid = now - authTime <= maxAge;
+      }
+
+      console.log('Twitter Callback - Version:', version);
+      console.log('Twitter Callback - Auth Source Type:', authSourceType);
+      console.log('Twitter Callback - Is From Telegram:', isFromTG);
+      console.log('Twitter Callback - Is Source Valid:', isSourceValid);
+      console.log('Twitter Callback - Auth Source Data:', authSourceData);
+
+      // 如果授权源无效，记录警告
+      if (!isSourceValid) {
+        console.warn('Auth source is invalid or expired');
+      }
 
       const error = params.get('error');
       if (error == 'access_denied') {
@@ -48,6 +95,7 @@ export default function TwitterPage() {
           userInfo: null,
           method: 'TwitterAuth',
         });
+        setStatus(LoginStatus.ERROR);
         return;
       }
 
@@ -62,6 +110,7 @@ export default function TwitterPage() {
             userInfo: null,
             method: 'TwitterAuth',
           });
+          setStatus(LoginStatus.ERROR);
           return;
         }
 
@@ -79,6 +128,13 @@ export default function TwitterPage() {
         const { token } = loginInfo;
         document.cookie = `${CACHE_KEY.KOL_TOKEN}=${token}; path=/;`;
         localStorage.setItem(CACHE_KEY.KOL_TOKEN, token);
+
+        // V1版本也支持Telegram重定向
+        if (authSourceType === 'telegram') {
+          location.href = `${process.env.NEXT_PUBLIC_TG_MINI_APP}?startapp`;
+          return;
+        }
+
         dispatch(updateIsLoggedIn(true));
         dispatch(updateTwitterFullProfile({ ...userInfo, ...loginInfo }));
         setStatus(LoginStatus.SUCCESS);
@@ -127,6 +183,10 @@ export default function TwitterPage() {
         const { token } = loginInfo;
         document.cookie = `${CACHE_KEY.KOL_TOKEN}=${token}; path=/;`;
         localStorage.setItem(CACHE_KEY.KOL_TOKEN, token);
+        if (authSourceType === 'telegram') {
+          location.href = `${process.env.NEXT_PUBLIC_TG_MINI_APP}?startapp=${loginInfo.screen_name}`;
+          return;
+        }
         dispatch(updateIsLoggedIn(true));
         dispatch(updateTwitterFullProfile({ ...userInfo, ...loginInfo }));
         setStatus(LoginStatus.SUCCESS);
@@ -341,6 +401,7 @@ export default function TwitterPage() {
   useEffect(() => {
     if (handled.current) return;
     handled.current = true;
+    setStatus(LoginStatus.WAITING);
     handleTwitterAuthCallback();
   }, [params]);
   return (
