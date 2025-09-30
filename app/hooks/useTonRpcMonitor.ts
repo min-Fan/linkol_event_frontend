@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { getCachedBalance, getCachedRunMethod } from '@libs/ton-client-optimized';
 
 interface RpcCall {
   method: string;
@@ -176,8 +177,8 @@ export const useTonRpcMonitor = (enabled: boolean = process.env.NODE_ENV === 'de
  * 创建 TON RPC 调用的包装器，自动记录调用信息
  */
 export const createTonRpcWrapper = (monitor: ReturnType<typeof useTonRpcMonitor>) => {
-  const originalGetBalance = require('@libs/ton-client-optimized').getCachedBalance;
-  const originalRunMethod = require('@libs/ton-client-optimized').getCachedRunMethod;
+  const originalGetBalance = getCachedBalance;
+  const originalRunMethod = getCachedRunMethod;
 
   return {
     async getBalance(address: any) {
