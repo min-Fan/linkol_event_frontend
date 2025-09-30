@@ -2346,7 +2346,6 @@ export interface IGetTonClaimRewardParams {
    * 消息
    */
   message: string;
-  
 }
 export const getTonClaimReward = (params: IGetTonClaimRewardParams) => {
   return kolRequest.post('/kol/api/v6/claim_reward/ton/pay/', params);

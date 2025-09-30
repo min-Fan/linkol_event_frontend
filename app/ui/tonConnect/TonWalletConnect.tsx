@@ -36,7 +36,7 @@ const TonWalletConnect = memo(function TonWalletConnect({
   useEffect(() => {
     // 当钱包断开连接时，重置状态
     if (!wallet && isLoginTon) {
-      disConnectTon()
+      disConnectTon();
       setHasAttemptedSign(false);
       setIsSigning(false);
       signingRef.current = false;
