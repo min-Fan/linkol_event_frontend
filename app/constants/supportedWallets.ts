@@ -13,8 +13,8 @@ export interface SupportedWalletConfig {
 // 支持的钱包列表配置
 export const SUPPORTED_WALLETS: SupportedWalletConfig[] = [
   {
-    appName: "telegram-wallet",
-    name: "Wallet",
+    appName: 'telegram-wallet',
+    name: 'Wallet',
     priority: 1,
     enabled: true,
   },
@@ -29,31 +29,28 @@ export const SUPPORTED_WALLETS: SupportedWalletConfig[] = [
     name: 'MyTonWallet',
     priority: 3,
     enabled: false,
-  }
-
+  },
 ];
 
 /**
  * 获取启用的支持钱包列表
  */
 export const getEnabledSupportedWallets = (): SupportedWalletConfig[] => {
-  return SUPPORTED_WALLETS
-    .filter(wallet => wallet.enabled)
-    .sort((a, b) => a.priority - b.priority);
+  return SUPPORTED_WALLETS.filter((wallet) => wallet.enabled).sort(
+    (a, b) => a.priority - b.priority
+  );
 };
 
 /**
  * 检查钱包是否被支持
  */
 export const isWalletSupported = (appName: string): boolean => {
-  return SUPPORTED_WALLETS.some(wallet => 
-    wallet.appName === appName && wallet.enabled
-  );
+  return SUPPORTED_WALLETS.some((wallet) => wallet.appName === appName && wallet.enabled);
 };
 
 /**
  * 获取钱包的配置信息
  */
 export const getWalletConfig = (appName: string): SupportedWalletConfig | undefined => {
-  return SUPPORTED_WALLETS.find(wallet => wallet.appName === appName);
+  return SUPPORTED_WALLETS.find((wallet) => wallet.appName === appName);
 };

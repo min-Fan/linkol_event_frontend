@@ -29,19 +29,15 @@ export const useWalletConfig = () => {
   };
 
   const isWalletSupported = (appName: string): boolean => {
-    return configs.some(wallet => 
-      wallet.appName === appName && wallet.enabled
-    );
+    return configs.some((wallet) => wallet.appName === appName && wallet.enabled);
   };
 
   const getWalletConfig = (appName: string): SupportedWalletConfig | undefined => {
-    return configs.find(wallet => wallet.appName === appName);
+    return configs.find((wallet) => wallet.appName === appName);
   };
 
   const getEnabledConfigs = (): SupportedWalletConfig[] => {
-    return configs
-      .filter(wallet => wallet.enabled)
-      .sort((a, b) => a.priority - b.priority);
+    return configs.filter((wallet) => wallet.enabled).sort((a, b) => a.priority - b.priority);
   };
 
   const resetToDefault = () => {

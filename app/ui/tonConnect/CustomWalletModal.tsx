@@ -15,7 +15,12 @@ interface CustomWalletModalProps {
   onCloseAllDialogs?: () => void;
 }
 
-const CustomWalletModal: React.FC<CustomWalletModalProps> = ({ isOpen, onClose, onConnect, onCloseAllDialogs }) => {
+const CustomWalletModal: React.FC<CustomWalletModalProps> = ({
+  isOpen,
+  onClose,
+  onConnect,
+  onCloseAllDialogs,
+}) => {
   const t = useTranslations('common');
   const [tonConnectUI] = useTonConnectUI();
   const { isWalletSupported, getWalletConfig } = useWalletConfig();
@@ -116,7 +121,7 @@ const CustomWalletModal: React.FC<CustomWalletModalProps> = ({ isOpen, onClose, 
       }
 
       // 等待一小段时间确保弹窗完全关闭
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // 打开指定钱包的专用模态框
       await tonConnectUI.openSingleWalletModal(wallet.appName);

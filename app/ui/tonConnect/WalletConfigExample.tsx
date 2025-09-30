@@ -24,42 +24,41 @@ const WalletConfigExample: React.FC = () => {
 
   return (
     <div className="p-4">
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4 flex items-center justify-between">
         <h2 className="text-lg font-semibold">钱包配置管理</h2>
         <div className="space-x-2">
-          <Button onClick={() => setIsConfigModalOpen(true)}>
-            配置钱包
-          </Button>
+          <Button onClick={() => setIsConfigModalOpen(true)}>配置钱包</Button>
           <Button variant="outline" onClick={handleResetToDefault}>
             重置为默认
           </Button>
         </div>
       </div>
-      
+
       <div className="space-y-2">
         <h3 className="font-medium">当前配置:</h3>
         {configs.map((config) => (
-          <div key={config.appName} className="flex items-center justify-between p-2 border rounded">
+          <div
+            key={config.appName}
+            className="flex items-center justify-between rounded border p-2"
+          >
             <div>
               <span className="font-medium">{config.name}</span>
-              <span className="text-sm text-gray-500 ml-2">({config.appName})</span>
+              <span className="ml-2 text-sm text-gray-500">({config.appName})</span>
             </div>
             <div className="flex items-center space-x-4">
-              <span className={`px-2 py-1 text-xs rounded ${
-                config.enabled 
-                  ? 'bg-green-100 text-green-800' 
-                  : 'bg-red-100 text-red-800'
-              }`}>
+              <span
+                className={`rounded px-2 py-1 text-xs ${
+                  config.enabled ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                }`}
+              >
                 {config.enabled ? '启用' : '禁用'}
               </span>
-              <span className="text-sm text-gray-500">
-                优先级: {config.priority}
-              </span>
+              <span className="text-sm text-gray-500">优先级: {config.priority}</span>
             </div>
           </div>
         ))}
       </div>
-      
+
       <WalletConfigModal
         isOpen={isConfigModalOpen}
         onClose={() => setIsConfigModalOpen(false)}

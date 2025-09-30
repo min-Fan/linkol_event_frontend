@@ -35,7 +35,7 @@ const TonWalletConnect = memo(function TonWalletConnect({
   const [isSigning, setIsSigning] = useState(false);
   const [hasAttemptedSign, setHasAttemptedSign] = useState(false);
   const signingRef = useRef(false);
-  
+
   // 自定义弹窗状态
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
 
@@ -182,7 +182,7 @@ const TonWalletConnect = memo(function TonWalletConnect({
           </div>
         )}
       </div>
-      
+
       {/* 自定义钱包连接弹窗 */}
       <CustomWalletModal
         isOpen={isWalletModalOpen}

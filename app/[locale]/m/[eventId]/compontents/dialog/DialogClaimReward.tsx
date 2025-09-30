@@ -717,8 +717,8 @@ const DialogClaimReward = memo(
                 )}
                 {!isLoginTon && eventInfo?.chain_type === 'Ton' && (
                   <div className="flex">
-                    <TonWalletConnect 
-                      onSuccess={handleClose} 
+                    <TonWalletConnect
+                      onSuccess={handleClose}
                       onWalletModalOpen={handleClose}
                       onCloseAllDialogs={handleCloseAllDialogs}
                     />

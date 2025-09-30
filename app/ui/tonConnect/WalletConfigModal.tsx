@@ -14,11 +14,7 @@ interface WalletConfigModalProps {
   onSave: (configs: SupportedWalletConfig[]) => void;
 }
 
-const WalletConfigModal: React.FC<WalletConfigModalProps> = ({
-  isOpen,
-  onClose,
-  onSave,
-}) => {
+const WalletConfigModal: React.FC<WalletConfigModalProps> = ({ isOpen, onClose, onSave }) => {
   const t = useTranslations('common');
   const [configs, setConfigs] = useState<SupportedWalletConfig[]>([]);
 
@@ -49,37 +45,37 @@ const WalletConfigModal: React.FC<WalletConfigModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>钱包配置管理</DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-4 py-4">
-          <div className="text-sm text-gray-600 mb-4">
+          <div className="mb-4 text-sm text-gray-600">
             配置系统支持的钱包列表，可以启用/禁用钱包并设置显示优先级
           </div>
-          
+
           {sortedConfigs.map((config, index) => (
-            <div key={config.appName} className="flex items-center space-x-4 p-4 border rounded-lg">
+            <div key={config.appName} className="flex items-center space-x-4 rounded-lg border p-4">
               <div className="flex-1">
                 <div className="flex items-center space-x-2">
                   <h3 className="font-semibold">{config.name}</h3>
                   <span className="text-xs text-gray-500">({config.appName})</span>
                 </div>
               </div>
-              
+
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2">
                   <Label htmlFor={`enabled-${config.appName}`}>启用</Label>
                   <Switch
                     id={`enabled-${config.appName}`}
                     checked={config.enabled}
-                    onCheckedChange={() => handleToggleEnabled(
-                      configs.findIndex(c => c.appName === config.appName)
-                    )}
+                    onCheckedChange={() =>
+                      handleToggleEnabled(configs.findIndex((c) => c.appName === config.appName))
+                    }
                   />
                 </div>
-                
+
                 <div className="flex items-center space-x-2">
                   <Label htmlFor={`priority-${config.appName}`}>优先级</Label>
                   <Input
@@ -88,24 +84,24 @@ const WalletConfigModal: React.FC<WalletConfigModalProps> = ({
                     min="1"
                     max="10"
                     value={config.priority}
-                    onChange={(e) => handlePriorityChange(
-                      configs.findIndex(c => c.appName === config.appName),
-                      parseInt(e.target.value) || 1
-                    )}
+                    onChange={(e) =>
+                      handlePriorityChange(
+                        configs.findIndex((c) => c.appName === config.appName),
+                        parseInt(e.target.value) || 1
+                      )
+                    }
                     className="w-20"
                   />
                 </div>
               </div>
             </div>
           ))}
-          
-          <div className="flex justify-end space-x-2 pt-4 border-t">
+
+          <div className="flex justify-end space-x-2 border-t pt-4">
             <Button variant="outline" onClick={onClose}>
               取消
             </Button>
-            <Button onClick={handleSave}>
-              保存配置
-            </Button>
+            <Button onClick={handleSave}>保存配置</Button>
           </div>
         </div>
       </DialogContent>
