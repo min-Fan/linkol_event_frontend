@@ -135,5 +135,3 @@ certificates
 .DS_Store
 .env.development
 .vercel
-
-public/tonconnect-manifest.json
