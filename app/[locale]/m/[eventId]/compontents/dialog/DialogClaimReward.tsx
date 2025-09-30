@@ -587,7 +587,7 @@ const DialogClaimReward = memo(
           receive_amount: claimAmount,
           active_id: eventId as string,
           signature: signatureResult.signature,
-          address: wallet.account.address,
+          address: signatureResult.address,
           public_key: wallet.account.publicKey || '',
           walletStateInit: wallet.account.walletStateInit,
           domain: signatureResult.domain,
