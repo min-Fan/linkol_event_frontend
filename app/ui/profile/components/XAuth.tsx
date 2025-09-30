@@ -80,7 +80,7 @@ export default function XAuth({
       setOpen(true);
 
       const res = await getTwitterAuthUrlV2({
-        call_back_url: baseUrl,
+        call_back_url: currentUrl,
       });
 
       if (!res || res.code !== 200) {
@@ -90,7 +90,7 @@ export default function XAuth({
 
       // 保存授权信息到localStorage（作为备用）
       localStorage.setItem('twitter_x_id', res.data.x_id);
-      localStorage.setItem('twitter_callback_url', baseUrl);
+      localStorage.setItem('twitter_callback_url', currentUrl);
       localStorage.setItem('twitter_auth_version', 'v2');
       localStorage.setItem('twitter_auth_url_type', authSource);
       localStorage.setItem('twitter_auth_timestamp', authTimestamp);
@@ -154,16 +154,16 @@ export default function XAuth({
   };
 
   const colseWin = () => {
-    if (win.current) {
-      win.current.close();
-      win.current = null;
-    }
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-    }
+    // if (win.current) {
+    //   win.current.close();
+    //   win.current = null;
+    // }
+    // if (timeoutRef.current) {
+    //   clearTimeout(timeoutRef.current);
+    // }
+    // if (intervalRef.current) {
+    //   clearInterval(intervalRef.current);
+    // }
   };
 
   const onOpenChange = (flg: boolean) => {
