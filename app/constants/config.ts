@@ -69,19 +69,13 @@ const DEVELOPMENT_CONFIG: Record<ChainType, ChainConfig> = {
         iconType: 'usd1',
         mintAddress: 'USD1ttGY1N17NEEHLmELoaybftRBUSErhqYiQzvEmuB',
       },
-      usdc: {
-        symbol: 'USDC',
-        decimals: 6,
-        iconType: 'usdc',
-        mintAddress: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
-      },
     },
   },
   ton: {
     chainId: 'Ton',
     name: 'Ton',
     defaultToken: 'usdt',
-    blockExplorerUrl: 'https://tonscan.org',
+    blockExplorerUrl: 'https://tonviewer.com',
     iconUrl: 'https://cryptologos.cc/logos/toncoin-ton-logo.png?v=040',
     tokens: {
       usdt: {
@@ -181,7 +175,14 @@ export const getTokenConfig = (chainType: string, tokenType?: string): TokenConf
       return chainConfig.tokens[normalizedTokenType];
     }
 
-    // 否则返回默认token配置
+    // 如果指定了token类型但不存在，记录警告并返回默认token配置
+    if (normalizedTokenType && !chainConfig.tokens[normalizedTokenType]) {
+      console.warn(
+        `Token type '${normalizedTokenType}' not found for chain '${normalizedChainType}', falling back to default token '${chainConfig.defaultToken}'`
+      );
+    }
+
+    // 返回默认token配置
     return chainConfig.tokens[chainConfig.defaultToken];
   }
 
@@ -268,6 +269,6 @@ export const getExplorerUrl = (txHash: string, chainType: string): string => {
       getExplorerUrl = getChainConfig(normalizedChainType as ChainType).blockExplorerUrl;
       break;
   }
-  const txType = normalizedChainType === 'ton' ? 'transactions' : 'tx';
+  const txType = normalizedChainType === 'ton' ? 'transaction' : 'tx';
   return `${getExplorerUrl}/${txType}/${txHash}`;
 };

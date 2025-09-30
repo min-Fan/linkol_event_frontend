@@ -1,4 +1,10 @@
-import { getContractAddress, getChainConfig, getTokenConfig, ChainType } from '@constants/config';
+import {
+  getContractAddress,
+  getChainConfig,
+  getTokenConfig,
+  ChainType,
+  TokenType,
+} from '@constants/config';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { updatePayTokenInfo } from '@store/reducers/userSlice';
 import { erc20Abi } from 'viem';
@@ -8,7 +14,7 @@ import { PublicKey } from '@solana/web3.js';
 import { useEffect, useState } from 'react';
 import { useSolanaTokenBalance } from './useSolanaTokenBalance';
 import { Address } from 'ton';
-import { tonClient } from '@libs/ton-client';
+import { getCachedRunMethod } from '@libs/ton-client-optimized';
 import { useTonTokenBalance, parseJettonContent } from './useTonTokenBalance';
 
 export const usePayTokenInfo = (chainType?: string, tokenType?: string) => {
@@ -23,8 +29,12 @@ export const usePayTokenInfo = (chainType?: string, tokenType?: string) => {
   const chainConfig = getChainConfig(currentChainType);
   const tokenConfig = getTokenConfig(currentChainType, currentTokenType);
 
-  // 构建store key
-  const storeKey = currentTokenType ? `${currentChainType}_${currentTokenType}` : currentChainType;
+  // 构建store key - 使用实际获取到的token类型，而不是请求的token类型
+  // 这样可以避免当请求不存在的token类型时，storeKey与实际token配置不匹配的问题
+  const actualTokenType = chainConfig.tokens[currentTokenType as TokenType]
+    ? currentTokenType
+    : chainConfig.defaultToken;
+  const storeKey = actualTokenType ? `${currentChainType}_${actualTokenType}` : currentChainType;
   const tokenInfo = useAppSelector(
     (state) => (state as any).userReducer?.pay_token_info?.[storeKey]
   );
@@ -126,7 +136,7 @@ export const usePayTokenInfo = (chainType?: string, tokenType?: string) => {
       if (tokenConfig.mintAddress) {
         try {
           const jettonAddress = Address.parse(tokenConfig.mintAddress);
-          const result = await tonClient.runMethod(jettonAddress, 'get_jetton_data');
+          const result = await getCachedRunMethod(jettonAddress, 'get_jetton_data');
 
           // 解析 jetton 数据
           const stack = result.stack;

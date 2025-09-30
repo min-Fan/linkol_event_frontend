@@ -35,12 +35,28 @@ import Connect from '@ui/solanaConnect/connect';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useEventTokenInfo } from '@hooks/useEventTokenInfo';
 import { IEventInfoResponseData } from '@libs/request';
-import { TonConnectButton, useTonWallet, useTonConnectUI, CHAIN } from '@tonconnect/ui-react';
+import {
+  TonConnectButton,
+  useTonWallet,
+  useTonConnectUI,
+  CHAIN,
+  SignDataPayloadText,
+} from '@tonconnect/ui-react';
 import TonWalletConnect from '@ui/tonConnect/TonWalletConnect';
 import DialogInvitationCode from './DialogInvitationCode';
 import TokenIcon from 'app/components/TokenIcon';
 import SpaceButton from 'app/components/SpaceButton/SpaceButton';
-import { Address } from 'ton-core';
+import {
+  Address,
+  safeSignVerify,
+  Cell,
+  BitString,
+  beginCell,
+  loadStateInit,
+  contractAddress,
+} from 'ton-core';
+import nacl from 'tweetnacl';
+import { sha256, signVerify } from 'ton-crypto';
 interface DialogClaimRewardProps {
   isOpen: boolean;
   onClose: () => void;
@@ -329,7 +345,9 @@ const DialogClaimReward = memo(
         const { tokenAddress, amounts, rewardIds, timestamp, signature } = signatureRes.data;
 
         // 缓存领取时的奖励数量，用于成功弹窗显示
-        setClaimedAmount(amounts);
+        const claimAmount = Math.floor(Number(claimableAmount) * Math.pow(10, 6));
+        setClaimedAmount(Number(claimableAmount));
+        console.log('claimAmount:', claimAmount);
 
         // 保存签名数据，用于后续回调
         setSignatureData({ amounts, rewardIds, timestamp, signature, tokenAddress });
@@ -391,12 +409,13 @@ const DialogClaimReward = memo(
         }
 
         // 缓存领取时的奖励数量，用于成功弹窗显示
-        setClaimedAmount(availableRewards);
-
+        const claimAmount = Math.floor(Number(claimableAmount) * Math.pow(10, 6));
+        setClaimedAmount(Number(claimableAmount));
+        console.log('claimAmount:', claimAmount);
         // 1. 构建需要签名的消息：receive_amount,active_id,时间戳
         const timestamp = Math.floor(Date.now() / 1000);
         // 将 availableRewards 转换为正确的精度（乘以 10^6）
-        const amountWithPrecision = Math.floor(availableRewards * Math.pow(10, 6));
+        const amountWithPrecision = claimAmount;
         const messageToSign = `${amountWithPrecision},${eventId},${timestamp}`;
 
         // 2. 使用 Solana 钱包签名消息
@@ -428,7 +447,7 @@ const DialogClaimReward = memo(
 
         // 4. 调用领取接口提交签名
         const claimRes: any = await getSolanaClaimReward({
-          receive_amount: amountWithPrecision,
+          receive_amount: claimAmount,
           active_id: eventId as string,
           solana_sign: signatureString,
           solana_address: publicKey.toString(),
@@ -444,7 +463,7 @@ const DialogClaimReward = memo(
           setIsClaimSuccess(true);
           toast.success(
             t.rich('reward_claimed_successfully', {
-              amount: (chunks) => <span className="text-primary">{availableRewards}</span>,
+              amount: (chunks) => <span className="text-primary">{claimableAmount}</span>,
             })
           );
           // 刷新用户活动奖励数据和父组件数据
@@ -492,10 +511,6 @@ const DialogClaimReward = memo(
       }
 
       try {
-        setIsClaiming(true);
-        setHasStartedClaim(true); // 标记已经开始领取流程
-        isRequestingSignatureRef.current = true; // 标记正在请求签名
-
         const availableRewards = totalReceiveAmount;
         if (availableRewards === 0 && eventInfo?.a_type === 'normal') {
           toast.error(t('no_rewards_to_claim'));
@@ -506,13 +521,15 @@ const DialogClaimReward = memo(
         }
 
         // 缓存领取时的奖励数量，用于成功弹窗显示
-        setClaimedAmount(availableRewards);
-
+        const claimAmount = Math.floor(Number(claimableAmount) * Math.pow(10, 6));
+        setClaimedAmount(Number(claimableAmount));
+        console.log('claimAmount:', claimAmount);
         // 1. 构建需要签名的消息：receive_amount,active_id,时间戳
         const timestamp = Math.floor(Date.now() / 1000);
         // 将 availableRewards 转换为正确的精度（乘以 10^6）
-        const amountWithPrecision = Math.floor(availableRewards * Math.pow(10, 6));
+        const amountWithPrecision = claimAmount;
         const messageToSign = `${amountWithPrecision},${eventId},${timestamp}`;
+        // const messageToSign = `abc`;
 
         // 2. 使用 TON 钱包签名消息
         if (!tonConnectUI) {
@@ -524,8 +541,13 @@ const DialogClaimReward = memo(
           return;
         }
 
+        setIsClaiming(true);
+        setHasStartedClaim(true); // 标记已经开始领取流程
+        isRequestingSignatureRef.current = true; // 标记正在请求签名
+
         console.log(
           'ton wallet:',
+          wallet,
           Address.parse(wallet.account.address).toString({ bounceable: false })
         );
 
@@ -551,11 +573,15 @@ const DialogClaimReward = memo(
 
         // 4. 调用领取接口提交签名
         const claimRes: any = await getTonClaimReward({
-          receive_amount: amountWithPrecision,
+          receive_amount: claimAmount,
           active_id: eventId as string,
-          ton_sign: signatureString,
-          ton_address: Address.parse(wallet.account.address).toString({ bounceable: false }) || '',
-          timestamp: timestamp,
+          signature: signatureResult.signature,
+          address: wallet.account.address,
+          public_key: wallet.account.publicKey || '',
+          walletStateInit: wallet.account.walletStateInit,
+          domain: signatureResult.domain,
+          message: messageToSign,
+          timestamp: signatureResult.timestamp,
         });
 
         // 重置签名请求标记
@@ -567,7 +593,7 @@ const DialogClaimReward = memo(
           setIsClaimSuccess(true);
           toast.success(
             t.rich('reward_claimed_successfully', {
-              amount: (chunks) => <span className="text-primary">{availableRewards}</span>,
+              amount: (chunks) => <span className="text-primary">{claimableAmount}</span>,
             })
           );
           // 刷新用户活动奖励数据和父组件数据

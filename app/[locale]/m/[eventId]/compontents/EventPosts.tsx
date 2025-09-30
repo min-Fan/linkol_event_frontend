@@ -7,6 +7,7 @@ import React, {
   forwardRef,
   useImperativeHandle,
   useRef,
+  memo,
 } from 'react';
 import { Skeleton } from '@shadcn/components/ui/skeleton';
 import { useAppSelector } from '@store/hooks';
@@ -466,60 +467,216 @@ const Pagination = ({
   );
 };
 
-export default forwardRef<
-  { refreshPosts: () => Promise<void> },
-  {
-    eventInfo: IEventInfoResponseData;
-    isLoading: boolean;
-    onRefresh?: () => Promise<void>;
-    col?: number;
-  }
->(function EventPosts({ eventInfo, isLoading, onRefresh, col }, ref) {
-  const t = useTranslations('common');
-  const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
-  const [selectedLanguages, setSelectedLanguages] = useState<LanguageCodeShort[]>([
-    LanguageCodeShort.All,
-  ]); // 支持多选，默认选择全部
-  const [posts, setPosts] = useState<IGetActivityPostsResponseDataItem[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // 分页相关状态 - 现在使用服务端分页
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
-  const [total, setTotal] = useState(0);
-  const [isMyTweetsMode, setIsMyTweetsMode] = useState(false); // 标记当前是否在查看我的推文
-  const [isAutoMode, setIsAutoMode] = useState(true); // auto模式，默认开启
-  const [showShake, setShowShake] = useState(false); // 控制首个推文的shake动画
-  const autoTimerRef = useRef<NodeJS.Timeout | null>(null); // auto模式定时器
-  const itemsPerPage = isLoggedIn ? 8 : 9; // 每页显示的项目数量
-  const autoTime = 2000; // auto模式下每2秒切换页面
-
-  // 获取活动ID，优先使用props传入的eventId
-  const getEventId = useCallback(() => {
-    if (eventInfo?.id) {
-      return eventInfo.id;
+const EventPosts = memo(
+  forwardRef<
+    { refreshPosts: () => Promise<void> },
+    {
+      eventInfo: IEventInfoResponseData;
+      isLoading: boolean;
+      onRefresh?: () => Promise<void>;
+      col?: number;
     }
-    // 如果没有传入eventId，尝试从URL获取
-    if (typeof window !== 'undefined') {
-      const pathParts = window.location.pathname.split('/');
-      const eventIdIndex = pathParts.findIndex((part) => part === 'market_events') + 1;
-      if (eventIdIndex > 0 && pathParts[eventIdIndex]) {
-        return pathParts[eventIdIndex];
+  >(function EventPosts({ eventInfo, isLoading, onRefresh, col }, ref) {
+    const t = useTranslations('common');
+    const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
+    const [selectedLanguages, setSelectedLanguages] = useState<LanguageCodeShort[]>([
+      LanguageCodeShort.All,
+    ]); // 支持多选，默认选择全部
+    const [posts, setPosts] = useState<IGetActivityPostsResponseDataItem[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    // 分页相关状态 - 现在使用服务端分页
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(0);
+    const [total, setTotal] = useState(0);
+    const [isMyTweetsMode, setIsMyTweetsMode] = useState(false); // 标记当前是否在查看我的推文
+    const [isAutoMode, setIsAutoMode] = useState(true); // auto模式，默认开启
+    const [showShake, setShowShake] = useState(false); // 控制首个推文的shake动画
+    const autoTimerRef = useRef<NodeJS.Timeout | null>(null); // auto模式定时器
+    const itemsPerPage = isLoggedIn ? 8 : 9; // 每页显示的项目数量
+    const autoTime = 2000; // auto模式下每2秒切换页面
+
+    // 获取活动ID，优先使用props传入的eventId
+    const getEventId = useCallback(() => {
+      if (eventInfo?.id) {
+        return eventInfo.id;
       }
-    }
-    return '';
-  }, [eventInfo?.id]);
-
-  const fetchPosts = useCallback(
-    async (languages: LanguageCodeShort[], page: number = 1, isAutoModeCall = false) => {
-      try {
-        // auto模式下不显示loading状态
-        if (!isAutoModeCall) {
-          setLoading(true);
+      // 如果没有传入eventId，尝试从URL获取
+      if (typeof window !== 'undefined') {
+        const pathParts = window.location.pathname.split('/');
+        const eventIdIndex = pathParts.findIndex((part) => part === 'market_events') + 1;
+        if (eventIdIndex > 0 && pathParts[eventIdIndex]) {
+          return pathParts[eventIdIndex];
         }
+      }
+      return '';
+    }, [eventInfo?.id]);
+
+    const fetchPosts = useCallback(
+      async (languages: LanguageCodeShort[], page: number = 1, isAutoModeCall = false) => {
+        try {
+          // auto模式下不显示loading状态
+          if (!isAutoModeCall) {
+            setLoading(true);
+          }
+          setError(null);
+          setIsMyTweetsMode(false); // 重置为普通模式
+          const currentEventId = getEventId();
+
+          if (!currentEventId) {
+            setError('Event ID not found');
+            setPosts([]);
+            setTotalPages(0);
+            setTotal(0);
+            return;
+          }
+
+          // 构建请求参数
+          const params: IGetActivityPostsParams = {
+            active_id: currentEventId.toString(),
+            page: page,
+            size: itemsPerPage,
+            language: '', // 默认为空字符串表示全部
+          };
+
+          // 处理语言参数
+          const hasAll = languages.includes(LanguageCodeShort.All);
+          if (!hasAll && languages.length > 0) {
+            // 后端API支持逗号分隔的多语言参数，尽管TypeScript类型定义可能不够准确
+            params.language = languages.join(',') as LanguageCodeShort;
+          }
+
+          const response = await getActivityPosts(params);
+          const responseData = response.data;
+
+          if (responseData) {
+            setPosts(responseData.list || []);
+            setCurrentPage(responseData.current_page || 1);
+            setTotal(responseData.total || 0);
+            // 计算总页数
+            setTotalPages(Math.ceil((responseData.total || 0) / itemsPerPage));
+
+            // auto模式下，显示首个推文的shake动画
+            if (isAutoModeCall && responseData.list && responseData.list.length > 0) {
+              setShowShake(true);
+              // 1.5秒后停止shake动画
+              setTimeout(() => setShowShake(false), 1500);
+            }
+          } else {
+            setPosts([]);
+            setTotalPages(0);
+            setTotal(0);
+          }
+        } catch (err) {
+          console.error('Failed to fetch posts:', err);
+          setError('Failed to fetch posts');
+          setPosts([]);
+          setTotalPages(0);
+          setTotal(0);
+        } finally {
+          // auto模式下不设置loading为false
+          if (!isAutoModeCall) {
+            setLoading(false);
+          }
+        }
+      },
+      [getEventId, itemsPerPage, isLoggedIn]
+    );
+
+    // auto模式定时器逻辑
+    useEffect(() => {
+      if (isAutoMode && !isMyTweetsMode && totalPages > 1) {
+        // 清除之前的定时器
+        if (autoTimerRef.current) {
+          clearInterval(autoTimerRef.current);
+        }
+
+        // 设置新的定时器，每autoTime秒切换页面
+        autoTimerRef.current = setInterval(() => {
+          setCurrentPage((prevPage) => {
+            const nextPage = prevPage >= totalPages ? 1 : prevPage + 1;
+            fetchPosts(selectedLanguages, nextPage, true); // 使用auto模式调用
+            return nextPage;
+          });
+        }, autoTime);
+      } else {
+        // 清除定时器
+        if (autoTimerRef.current) {
+          clearInterval(autoTimerRef.current);
+          autoTimerRef.current = null;
+        }
+      }
+
+      // 清理函数
+      return () => {
+        if (autoTimerRef.current) {
+          clearInterval(autoTimerRef.current);
+          autoTimerRef.current = null;
+        }
+      };
+    }, [isAutoMode, isMyTweetsMode, totalPages, selectedLanguages, fetchPosts]);
+
+    useEffect(() => {
+      // 只有当eventInfo存在且有ID时才获取推文
+      if (eventInfo?.id) {
+        fetchPosts(selectedLanguages, 1); // 重置到第一页
+      }
+    }, [selectedLanguages, fetchPosts, eventInfo?.id, isLoggedIn]);
+
+    const handlePageChange = (page: number) => {
+      if (page !== currentPage) {
+        if (isMyTweetsMode) {
+          handleMyTweetClick(page);
+        } else {
+          fetchPosts(selectedLanguages, page);
+        }
+      }
+    };
+
+    const handleLanguageChange = (language: LanguageCodeShort) => {
+      // 当选择语言时，退出我的推文模式并自动开启auto模式
+      setIsMyTweetsMode(false);
+      setIsAutoMode(true); // 从我的推文切换回全部数据时自动开启auto模式
+
+      setSelectedLanguages((prev) => {
+        if (language === LanguageCodeShort.All) {
+          // 如果选择"全部"，清空其他选择
+          return [LanguageCodeShort.All];
+        } else {
+          // 如果选择具体语言
+          if (prev.includes(LanguageCodeShort.All)) {
+            // 如果之前选择了"全部"，移除"全部"并添加当前语言
+            return [language];
+          } else if (prev.includes(language)) {
+            // 如果当前语言已选中，移除它
+            return prev.filter((lang) => lang !== language);
+          } else {
+            // 添加新语言
+            return [...prev, language];
+          }
+        }
+      });
+    };
+
+    const handleAutoModeToggle = () => {
+      setIsAutoMode((prev) => !prev);
+    };
+
+    const handleRetry = () => {
+      if (isMyTweetsMode) {
+        handleMyTweetClick(currentPage);
+      } else {
+        fetchPosts(selectedLanguages, currentPage);
+      }
+    };
+
+    const handleMyTweetClick = async (page: number = 1) => {
+      try {
+        setLoading(true);
         setError(null);
-        setIsMyTweetsMode(false); // 重置为普通模式
+        setIsMyTweetsMode(true); // 设置为我的推文模式
+        setIsAutoMode(false); // 我的推文模式下关闭auto模式
         const currentEventId = getEventId();
 
         if (!currentEventId) {
@@ -530,290 +687,63 @@ export default forwardRef<
           return;
         }
 
-        // 构建请求参数
-        const params: IGetActivityPostsParams = {
+        const params: IGetActivityPostsMyRecordParams = {
           active_id: currentEventId.toString(),
           page: page,
           size: itemsPerPage,
-          language: '', // 默认为空字符串表示全部
         };
 
-        // 处理语言参数
-        const hasAll = languages.includes(LanguageCodeShort.All);
-        if (!hasAll && languages.length > 0) {
-          // 后端API支持逗号分隔的多语言参数，尽管TypeScript类型定义可能不够准确
-          params.language = languages.join(',') as LanguageCodeShort;
-        }
-
-        const response = await getActivityPosts(params);
+        const response = await getActivityPostsMyRecord(params);
         const responseData = response.data;
 
         if (responseData) {
           setPosts(responseData.list || []);
           setCurrentPage(responseData.current_page || 1);
           setTotal(responseData.total || 0);
-          // 计算总页数
           setTotalPages(Math.ceil((responseData.total || 0) / itemsPerPage));
-
-          // auto模式下，显示首个推文的shake动画
-          if (isAutoModeCall && responseData.list && responseData.list.length > 0) {
-            setShowShake(true);
-            // 1.5秒后停止shake动画
-            setTimeout(() => setShowShake(false), 1500);
-          }
         } else {
           setPosts([]);
           setTotalPages(0);
           setTotal(0);
+          setCurrentPage(1);
         }
       } catch (err) {
-        console.error('Failed to fetch posts:', err);
-        setError('Failed to fetch posts');
+        console.error('Failed to fetch my tweets:', err);
+        setError('Failed to fetch my tweets');
         setPosts([]);
         setTotalPages(0);
         setTotal(0);
       } finally {
-        // auto模式下不设置loading为false
-        if (!isAutoModeCall) {
-          setLoading(false);
-        }
-      }
-    },
-    [getEventId, itemsPerPage, isLoggedIn]
-  );
-
-  // auto模式定时器逻辑
-  useEffect(() => {
-    if (isAutoMode && !isMyTweetsMode && totalPages > 1) {
-      // 清除之前的定时器
-      if (autoTimerRef.current) {
-        clearInterval(autoTimerRef.current);
-      }
-
-      // 设置新的定时器，每autoTime秒切换页面
-      autoTimerRef.current = setInterval(() => {
-        setCurrentPage((prevPage) => {
-          const nextPage = prevPage >= totalPages ? 1 : prevPage + 1;
-          fetchPosts(selectedLanguages, nextPage, true); // 使用auto模式调用
-          return nextPage;
-        });
-      }, autoTime);
-    } else {
-      // 清除定时器
-      if (autoTimerRef.current) {
-        clearInterval(autoTimerRef.current);
-        autoTimerRef.current = null;
-      }
-    }
-
-    // 清理函数
-    return () => {
-      if (autoTimerRef.current) {
-        clearInterval(autoTimerRef.current);
-        autoTimerRef.current = null;
+        setLoading(false);
       }
     };
-  }, [isAutoMode, isMyTweetsMode, totalPages, selectedLanguages, fetchPosts]);
 
-  useEffect(() => {
-    // 只有当eventInfo存在且有ID时才获取推文
-    if (eventInfo?.id) {
-      fetchPosts(selectedLanguages, 1); // 重置到第一页
-    }
-  }, [selectedLanguages, fetchPosts, eventInfo?.id, isLoggedIn]);
-
-  const handlePageChange = (page: number) => {
-    if (page !== currentPage) {
-      if (isMyTweetsMode) {
-        handleMyTweetClick(page);
-      } else {
-        fetchPosts(selectedLanguages, page);
-      }
-    }
-  };
-
-  const handleLanguageChange = (language: LanguageCodeShort) => {
-    // 当选择语言时，退出我的推文模式并自动开启auto模式
-    setIsMyTweetsMode(false);
-    setIsAutoMode(true); // 从我的推文切换回全部数据时自动开启auto模式
-
-    setSelectedLanguages((prev) => {
-      if (language === LanguageCodeShort.All) {
-        // 如果选择"全部"，清空其他选择
-        return [LanguageCodeShort.All];
-      } else {
-        // 如果选择具体语言
-        if (prev.includes(LanguageCodeShort.All)) {
-          // 如果之前选择了"全部"，移除"全部"并添加当前语言
-          return [language];
-        } else if (prev.includes(language)) {
-          // 如果当前语言已选中，移除它
-          return prev.filter((lang) => lang !== language);
+    // 使用 useImperativeHandle 暴露刷新函数
+    useImperativeHandle(ref, () => ({
+      refreshPosts: () => {
+        if (isMyTweetsMode) {
+          return handleMyTweetClick(currentPage);
         } else {
-          // 添加新语言
-          return [...prev, language];
+          return fetchPosts(selectedLanguages, currentPage);
         }
-      }
-    });
-  };
+      },
+    }));
 
-  const handleAutoModeToggle = () => {
-    setIsAutoMode((prev) => !prev);
-  };
+    // 公共容器样式
+    const containerClass =
+      'flex h-full w-full flex-col gap-2 p-2 px-0 pt-2 pb-2 sm:p-2 sm:pt-4 sm:pb-4';
 
-  const handleRetry = () => {
-    if (isMyTweetsMode) {
-      handleMyTweetClick(currentPage);
-    } else {
-      fetchPosts(selectedLanguages, currentPage);
-    }
-  };
-
-  const handleMyTweetClick = async (page: number = 1) => {
-    try {
-      setLoading(true);
-      setError(null);
-      setIsMyTweetsMode(true); // 设置为我的推文模式
-      setIsAutoMode(false); // 我的推文模式下关闭auto模式
-      const currentEventId = getEventId();
-
-      if (!currentEventId) {
-        setError('Event ID not found');
-        setPosts([]);
-        setTotalPages(0);
-        setTotal(0);
-        return;
-      }
-
-      const params: IGetActivityPostsMyRecordParams = {
-        active_id: currentEventId.toString(),
-        page: page,
-        size: itemsPerPage,
-      };
-
-      const response = await getActivityPostsMyRecord(params);
-      const responseData = response.data;
-
-      if (responseData) {
-        setPosts(responseData.list || []);
-        setCurrentPage(responseData.current_page || 1);
-        setTotal(responseData.total || 0);
-        setTotalPages(Math.ceil((responseData.total || 0) / itemsPerPage));
-      } else {
-        setPosts([]);
-        setTotalPages(0);
-        setTotal(0);
-        setCurrentPage(1);
-      }
-    } catch (err) {
-      console.error('Failed to fetch my tweets:', err);
-      setError('Failed to fetch my tweets');
-      setPosts([]);
-      setTotalPages(0);
-      setTotal(0);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // 使用 useImperativeHandle 暴露刷新函数
-  useImperativeHandle(ref, () => ({
-    refreshPosts: () => {
-      if (isMyTweetsMode) {
-        return handleMyTweetClick(currentPage);
-      } else {
-        return fetchPosts(selectedLanguages, currentPage);
-      }
-    },
-  }));
-
-  // 公共容器样式
-  const containerClass =
-    'flex h-full w-full flex-col gap-2 p-2 px-0 pt-2 pb-2 sm:p-2 sm:pt-4 sm:pb-4';
-
-  if (loading || isLoading) {
-    return (
-      <div className={containerClass}>
-        <HeaderSection
-          selectedLanguages={selectedLanguages}
-          onLanguageChange={handleLanguageChange}
-          onMyTweetClick={() => handleMyTweetClick(1)}
-          disabled={true}
-          isMyTweetsMode={isMyTweetsMode}
-        />
-        <LoadingState col={col} />
-        {/* 分页组件 */}
-        {totalPages > 1 && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-            disabled={loading}
-            isAutoMode={isAutoMode}
-            onAutoModeToggle={handleAutoModeToggle}
+    if (loading || isLoading) {
+      return (
+        <div className={containerClass}>
+          <HeaderSection
+            selectedLanguages={selectedLanguages}
+            onLanguageChange={handleLanguageChange}
+            onMyTweetClick={() => handleMyTweetClick(1)}
+            disabled={true}
             isMyTweetsMode={isMyTweetsMode}
           />
-        )}
-      </div>
-    );
-  }
-
-  // 如果eventInfo不存在，显示加载状态或空状态
-  if (!eventInfo) {
-    return (
-      <div className={containerClass}>
-        <HeaderSection
-          selectedLanguages={selectedLanguages}
-          onLanguageChange={handleLanguageChange}
-          onMyTweetClick={() => handleMyTweetClick(1)}
-          disabled={true}
-          isMyTweetsMode={isMyTweetsMode}
-        />
-        <LoadingState col={col} />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className={containerClass}>
-        <HeaderSection
-          selectedLanguages={selectedLanguages}
-          onLanguageChange={handleLanguageChange}
-          onMyTweetClick={() => handleMyTweetClick(1)}
-          disabled={true}
-          isMyTweetsMode={isMyTweetsMode}
-        />
-        <ErrorState error={error} onRetry={handleRetry} />
-      </div>
-    );
-  }
-
-  return (
-    <div className={containerClass}>
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <HeaderSection
-          selectedLanguages={selectedLanguages}
-          onLanguageChange={handleLanguageChange}
-          onMyTweetClick={() => handleMyTweetClick(1)}
-          isMyTweetsMode={isMyTweetsMode}
-        />
-        <ClaimRecordSwiper />
-      </div>
-
-      {posts.length === 0 ? (
-        <EmptyState />
-      ) : (
-        <div className="flex min-h-[64rem] flex-col gap-4 p-2 sm:p-4">
-          {/* 推文列表 - 移动端单列，桌面端多列 */}
-          <div
-            className={cn('grid grid-cols-1 gap-4 sm:grid-cols-2', col && `sm:grid-cols-${col}`)}
-          >
-            {posts.map((post, index) => (
-              <PostItem key={post.id || index} post={post} isFirst={index === 0 && showShake} />
-            ))}
-          </div>
-
+          <LoadingState col={col} />
           {/* 分页组件 */}
           {totalPages > 1 && (
             <Pagination
@@ -827,7 +757,82 @@ export default forwardRef<
             />
           )}
         </div>
-      )}
-    </div>
-  );
-});
+      );
+    }
+
+    // 如果eventInfo不存在，显示加载状态或空状态
+    if (!eventInfo) {
+      return (
+        <div className={containerClass}>
+          <HeaderSection
+            selectedLanguages={selectedLanguages}
+            onLanguageChange={handleLanguageChange}
+            onMyTweetClick={() => handleMyTweetClick(1)}
+            disabled={true}
+            isMyTweetsMode={isMyTweetsMode}
+          />
+          <LoadingState col={col} />
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className={containerClass}>
+          <HeaderSection
+            selectedLanguages={selectedLanguages}
+            onLanguageChange={handleLanguageChange}
+            onMyTweetClick={() => handleMyTweetClick(1)}
+            disabled={true}
+            isMyTweetsMode={isMyTweetsMode}
+          />
+          <ErrorState error={error} onRetry={handleRetry} />
+        </div>
+      );
+    }
+
+    return (
+      <div className={containerClass}>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <HeaderSection
+            selectedLanguages={selectedLanguages}
+            onLanguageChange={handleLanguageChange}
+            onMyTweetClick={() => handleMyTweetClick(1)}
+            isMyTweetsMode={isMyTweetsMode}
+          />
+          <ClaimRecordSwiper />
+        </div>
+
+        {posts.length === 0 ? (
+          <EmptyState />
+        ) : (
+          <div className="flex min-h-[64rem] flex-col gap-4 p-2 sm:p-4">
+            {/* 推文列表 - 移动端单列，桌面端多列 */}
+            <div
+              className={cn('grid grid-cols-1 gap-4 sm:grid-cols-2', col && `sm:grid-cols-${col}`)}
+            >
+              {posts.map((post, index) => (
+                <PostItem key={post.id || index} post={post} isFirst={index === 0 && showShake} />
+              ))}
+            </div>
+
+            {/* 分页组件 */}
+            {totalPages > 1 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                disabled={loading}
+                isAutoMode={isAutoMode}
+                onAutoModeToggle={handleAutoModeToggle}
+                isMyTweetsMode={isMyTweetsMode}
+              />
+            )}
+          </div>
+        )}
+      </div>
+    );
+  })
+);
+
+export default EventPosts;

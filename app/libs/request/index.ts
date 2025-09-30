@@ -2321,15 +2321,31 @@ export interface IGetTonClaimRewardParams {
   /**
    * 签名
    */
-  ton_sign: string;
+  signature: string;
   /**
    * Ton 钱包地址
    */
-  ton_address: string;
+  address: string;
   /**
    * 时间戳
    */
   timestamp: number;
+  /**
+   * 公钥
+   */
+  public_key: string;
+  /**
+   * 钱包状态
+   */
+  walletStateInit: string;
+  /**
+   * 域名
+   */
+  domain: string;
+  /**
+   * 消息
+   */
+  message: string;
 }
 export const getTonClaimReward = (params: IGetTonClaimRewardParams) => {
   return kolRequest.post('/kol/api/v6/claim_reward/ton/pay/', params);
