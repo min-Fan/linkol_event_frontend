@@ -1,7 +1,7 @@
 {
   "name": "Linkol Event",
   "short_name": "Linkol",
-  "description": "Linkol Event - 区块链活动平台",
+  "description": "Linkol Event",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
