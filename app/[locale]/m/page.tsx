@@ -17,7 +17,7 @@ import { useTelegram } from 'app/context/TgProvider';
 export default function MarketEventsPage() {
   const dispatch = useAppDispatch();
   const t = useTranslations('common');
-  const { webApp } = useTelegram();
+  const { webApp, isTelegram } = useTelegram();
   const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
   const { data: followers } = useQuery({
     queryKey: ['activityFollowers'],
@@ -44,16 +44,16 @@ export default function MarketEventsPage() {
 
   const handled = useRef(false);
   useEffect(() => {
+    if(!isTelegram || !webApp) return;
     if (handled.current) return;
     handled.current = true;
     if (webApp) {
-      const screen_name = webApp.initDataUnsafe.start_param;
-      // alert(screen_name);
+      const screen_name = webApp?.initDataUnsafe.start_param;
       if (screen_name) {
         handleTgStartApp(screen_name);
       }
     }
-  }, [webApp]);
+  }, [webApp, isTelegram]);
   return (
     <div className="mx-auto box-border w-full max-w-[1100px] space-y-5 p-0">
       {/* <CompBanner /> */}
