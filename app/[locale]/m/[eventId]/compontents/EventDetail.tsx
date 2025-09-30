@@ -17,7 +17,7 @@ import {
 } from '@assets/svg';
 import { Button } from '@shadcn/components/ui/button';
 import { Skeleton } from '@shadcn/components/ui/skeleton';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import { CommLineChart } from './CommLineChart';
 import { useAppSelector } from '@store/hooks';
 import XAuth from '@ui/profile/components/XAuth';
@@ -121,7 +121,7 @@ function EventDetailSkeleton() {
   );
 }
 
-export default function EventDetail({
+const EventDetail = memo(function EventDetail({
   eventInfo,
   isLoading,
   onRefresh,
@@ -587,4 +587,6 @@ export default function EventDetail({
       />
     </div>
   );
-}
+});
+
+export default EventDetail;
