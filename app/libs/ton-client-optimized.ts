@@ -103,6 +103,11 @@ export const getCachedRunMethod = async (
   const request = tonClient
     .runMethod(address, method, params)
     .then((result) => {
+      // 验证返回结果
+      if (!result) {
+        throw new Error('Empty response from contract method');
+      }
+
       // 缓存结果
       cache.set(cacheKey, {
         data: result,
@@ -119,6 +124,17 @@ export const getCachedRunMethod = async (
     .catch((error) => {
       // 清除pending请求
       pendingRequests.delete(cacheKey);
+
+      // 记录更详细的错误信息
+      console.error(`[TON Cache] Method call failed for ${addressStr}.${method}:`, error);
+
+      // 如果是 EOF 错误，提供更友好的错误信息
+      if (error instanceof Error && error.message.includes('EOF')) {
+        throw new Error(
+          `Contract method '${method}' failed: Invalid response format or contract not found`
+        );
+      }
+
       throw error;
     });
 
