@@ -1207,6 +1207,7 @@
     "not_installed": "未安装",
     "mobile": "移动端",
     "recommended": "推荐",
-    "loading_installed_wallets": "加载钱包中..."
+    "loading_installed_wallets": "加载钱包中...",
+    "service_fee": "服务费"
   }
 }
