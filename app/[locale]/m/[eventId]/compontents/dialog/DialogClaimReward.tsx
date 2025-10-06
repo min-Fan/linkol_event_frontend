@@ -855,6 +855,13 @@ const DialogClaimReward = memo(
                         </div>
                       </div>
                     </div>
+                    {eventInfo?.chain_type !== 'Ton' && eventInfo?.chain_type !== 'Solana' && (
+                      <div className="flex items-center justify-end">
+                        <span className="text-muted-foreground/60 text-sm">
+                          {t('service_fee')}: 10%
+                        </span>
+                      </div>
+                    )}
                     {/* {hasWithdrawn && (
                       <div className="bg-primary/5 flex flex-wrap items-center justify-between gap-2 rounded-lg p-1 sm:rounded-xl sm:p-2">
                         <span className="text-muted-foreground text-sm">{t('cost_points')}</span>

@@ -427,7 +427,7 @@ const EventDetail = memo(function EventDetail({
             )}
           </div>
           <div className="flex flex-col flex-wrap items-center justify-between gap-2 sm:flex-row">
-            <div className="flex items-center gap-4">
+            <div className="flex !w-full items-center gap-4 sm:!w-auto">
               {/* <div className="flex items-center gap-4">
                 <Button
                   variant="outline"
@@ -437,42 +437,48 @@ const EventDetail = memo(function EventDetail({
                   {t('invite_other_creators')}
                 </Button>
               </div> */}
-              <div className="flex items-center gap-4">
+              <div className="flex !w-full items-center gap-4 sm:!w-auto">
                 <Button
                   variant="outline"
-                  className="text-muted-foreground !h-full !rounded-xl"
+                  className="text-muted-foreground !h-full !w-full !rounded-xl sm:!w-auto"
                   onClick={() => setIsGuideDialogOpen(true)}
                 >
                   {t('guide')}
                 </Button>
               </div>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex !w-full flex-wrap items-center gap-4 sm:!w-auto">
               {todayJoin === 0 && (
-                <span className="text-muted-foreground sm:text-md text-sm">
+                <span className="text-muted-foreground sm:text-md hidden text-sm sm:block">
                   {t('today')} {todayJoin}
                 </span>
               )}
               {todayJoin > 0 && (
-                <div className="text-primary sm:text-md flex items-center gap-2 text-sm">
+                <div className="text-primary sm:text-md flex !w-full items-center justify-center gap-2 text-sm sm:!w-auto sm:justify-start">
                   <span>{t('till_next_post', { time: countdown.formatted })}</span>
                   <BellRing className="!h-4 min-h-4 !w-4 min-w-4 sm:!h-6 sm:!w-6" />
                 </div>
               )}
               {eventInfo?.status === 'wait' && (
-                <Button variant="secondary" className="text-muted-foreground !rounded-xl">
+                <Button
+                  variant="secondary"
+                  className="text-muted-foreground !w-full !rounded-xl sm:!w-auto"
+                >
                   {t('not_started')}
                 </Button>
               )}
               {eventInfo?.status === 'ended' && (
-                <Button variant="secondary" className="text-muted-foreground !rounded-xl">
+                <Button
+                  variant="secondary"
+                  className="text-muted-foreground !w-full !rounded-xl sm:!w-auto"
+                >
                   {t('ended')}
                 </Button>
               )}
               {
                 eventInfo?.status === 'progress' && (
                   <Button
-                    className="h-10 !rounded-2xl !px-4 font-light sm:!h-12"
+                    className="h-10 !w-full !rounded-2xl !px-4 font-light sm:!h-12 sm:!w-auto"
                     onClick={() => setIsPostTweetLinkOpen(true)}
                   >
                     <TwitterX className="!h-5 !w-5 text-white" />
