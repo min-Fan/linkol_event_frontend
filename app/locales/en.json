@@ -1205,6 +1205,7 @@
     "not_installed": "Not Installed",
     "mobile": "Mobile",
     "recommended": "Recommended",
-    "loading_installed_wallets": "Loading wallets..."
+    "loading_installed_wallets": "Loading wallets...",
+    "service_fee": "service fee"
   }
 }
