@@ -5,12 +5,14 @@ import React, { useState, useEffect } from 'react';
 import CompActiveList from './ActiveList';
 import { Button } from '@shadcn/components/ui/button';
 import { Input } from '@shadcn/components/ui/input';
-import { Search, X } from 'lucide-react';
+import { ArrowLeft, Search, X } from 'lucide-react';
 import { Verified } from '@assets/svg';
 import { Checkbox } from '@shadcn/components/ui/checkbox';
 import { cn } from '@shadcn/lib/utils';
 import { useTranslations } from 'next-intl';
 import { Label } from '@shadcn/components/ui/label';
+import { Link } from '@libs/i18n/navigation';
+import PagesRoute from '@constants/routes';
 
 export default function TweetRecord() {
   const [search, setSearch] = useState<string>('');
@@ -60,8 +62,14 @@ export default function TweetRecord() {
   };
 
   return (
-    <div className="bg-background box-border space-y-4 rounded-3xl p-4 backdrop-blur-sm sm:p-6">
+    <div className="bg-background box-border space-y-4 rounded-3xl p-2 backdrop-blur-sm sm:p-6">
       <div className="flex items-center justify-between gap-2">
+        <Link href={PagesRoute.HOME}>
+          <Button variant="ghost" size="sm" className="flex items-center gap-2">
+            <ArrowLeft className="size-4" />
+            <span className="sm:block hidden text-sm sm:text-base">Back</span>
+          </Button>
+        </Link>
         {/* 搜索输入框 */}
         <div className="relative ml-auto">
           <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
