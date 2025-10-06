@@ -67,7 +67,7 @@ export default function TweetRecord() {
         <Link href={PagesRoute.HOME}>
           <Button variant="ghost" size="sm" className="flex items-center gap-2">
             <ArrowLeft className="size-4" />
-            <span className="sm:block hidden text-sm sm:text-base">Back</span>
+            <span className="hidden text-sm sm:block sm:text-base">Back</span>
           </Button>
         </Link>
         {/* 搜索输入框 */}
