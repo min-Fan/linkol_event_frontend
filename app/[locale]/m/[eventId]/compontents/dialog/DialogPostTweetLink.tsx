@@ -1201,12 +1201,18 @@ export default function DialogPostTweetLink({
                             }`}
                             placeholder={t('enter_tweet_content') || 'Enter tweet content...'}
                           />
+                          <p className="text-muted-foreground/60 w-full text-right text-xs">
+                            {t('will_follow_twitter')}
+                          </p>
                         </div>
                       ) : (
                         <div className="min-h-[100px] text-sm text-gray-800">
                           {tweetContent ? (
                             <div>
                               <p>{tweetContent}</p>
+                              <p className="text-muted-foreground/60 w-full text-right text-xs">
+                                {t('will_follow_twitter')}
+                              </p>
                               {/* 显示图片媒体或生成中的占位符 */}
                               {(tweetMedias.length > 0 ||
                                 (imageTemplate &&
