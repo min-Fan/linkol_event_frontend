@@ -1209,6 +1209,7 @@
     "recommended": "推荐",
     "loading_installed_wallets": "加载钱包中...",
     "service_fee": "服务费",
-    "nav_my_agent": "我的代理"
+    "nav_my_agent": "我的代理",
+    "will_follow_twitter": "将会关注推特"
   }
 }
