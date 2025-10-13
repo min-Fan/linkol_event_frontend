@@ -41,6 +41,11 @@ export default function Footer() {
                   Market Events
                 </Link>
               </li>
+              <li>
+                <Link href={PagesRoute.MY_AGENT} className="hover:text-foreground hover:underline">
+                  My Agent
+                </Link>
+              </li>
             </ul>
           </div>
         </div>

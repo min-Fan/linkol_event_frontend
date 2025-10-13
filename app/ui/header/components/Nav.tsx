@@ -19,6 +19,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/components/ui/p
 import { NavigationItem } from '../index';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { updateNavCache } from '@store/reducers/userSlice';
+import PagesRoute from '@constants/routes';
 
 interface NavProps {
   className?: string;
@@ -41,6 +42,16 @@ export default function Nav(props: NavProps) {
         lastCalculatedAt: 0,
       }
   );
+
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY;
+      setScrolled(scrollPosition > 100);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const measureRef = useRef<HTMLDivElement>(null);
@@ -192,6 +203,8 @@ export default function Nav(props: NavProps) {
         data-nav-item={forMeasurement ? 'true' : undefined}
         className={clsx(
           'relative rounded-lg px-3 py-2 whitespace-nowrap',
+          pathname === PagesRoute.HOME && !scrolled && 'text-white',
+          pathname === PagesRoute.HOME && scrolled && '!text-black dark:!text-white',
           isActive && !isComingSoon && 'bg-primary/5 text-primary',
           isComingSoon && 'cursor-not-allowed opacity-60'
         )}
