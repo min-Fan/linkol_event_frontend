@@ -8,9 +8,7 @@ import { CheckCircle } from 'lucide-react';
 import { useAppSelector } from '@store/hooks';
 import { Verified } from '@assets/svg';
 
-interface ProfileCardProps {}
-
-export default function ProfileCard({}: ProfileCardProps) {
+export default function ProfileCard() {
   const twitterFullProfile = useAppSelector((state) => state.userReducer?.twitter_full_profile);
   return (
     <Card className="rounded-lg border-1 p-4 shadow-none">
