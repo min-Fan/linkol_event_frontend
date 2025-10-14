@@ -32,7 +32,7 @@ export default function ProfileCard() {
                 <h3 className="max-w-40 truncate text-lg font-bold sm:max-w-20">
                   {twitterFullProfile?.name}
                 </h3>
-                {!twitterFullProfile?.verified && <Verified className="h-5 w-5 text-blue-500" />}
+                {twitterFullProfile?.verified && <Verified className="h-5 w-5 text-blue-500" />}
               </div>
               <p className="w-full max-w-40 truncate text-sm sm:w-auto sm:max-w-20">
                 {twitterFullProfile?.screen_name}
