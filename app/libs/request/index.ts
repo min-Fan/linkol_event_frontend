@@ -853,6 +853,18 @@ export interface IGetTwitterAuthCompleteCallbackV2Params {
    * 第3步返回的name字段
    */
   name: string;
+  /**
+     * 第三步返回的
+     */
+  verified: boolean;
+  /**
+   * 第三步返回的
+   */
+  verified_type: string;
+  /**
+     * 邀请码
+     */
+  invite_code: string;
 }
 export const getTwitterAuthCompleteCallbackV2 = (
   params: IGetTwitterAuthCompleteCallbackV2Params
