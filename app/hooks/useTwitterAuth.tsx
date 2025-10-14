@@ -41,6 +41,9 @@ export default function useTwitterAuth(completeFunction?: () => void) {
         screen_name: full_profile.username,
         user_id: full_profile.id,
         name: data.name,
+        verified: full_profile.verified,
+        verified_type: full_profile.verified_type,
+        invite_code: '',
       });
 
       if (res && res.code === 200) {
