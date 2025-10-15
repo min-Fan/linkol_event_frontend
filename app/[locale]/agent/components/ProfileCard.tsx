@@ -36,15 +36,7 @@ export default function ProfileCard() {
                 {t('just_spend_1_minutes_everyday_earn_usd_immediately')}
               </p>
             </div>
-            <XAuth
-              className="rounded-none bg-transparent p-0"
-              button={
-                <div className="flex items-center gap-2 !rounded-xl bg-black">
-                  <TwitterX className="!h-4 !w-4 text-white" />
-                  {t('link_twitter')}
-                </div>
-              }
-            />
+            <XAuth />
           </div>
         </CardContent>
       </Card>
