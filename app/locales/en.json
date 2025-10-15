@@ -1208,6 +1208,15 @@
     "loading_installed_wallets": "Loading wallets...",
     "service_fee": "service fee",
     "nav_my_agent": "My Agent",
-    "will_follow_twitter": "will follow twitter"
+    "will_follow_twitter": "will follow twitter",
+    "points_earned": "Points earned",
+    "ranking": "Ranking",
+    "login_to_generate_invite_link": "Login to generate your exclusive invitation link",
+    "invite_link_generating": "Invitation link is generating, please try again later",
+    "invite_rule_1": "Invite <count>{count}</count> friend = <points>{points}</points>",
+    "invite_rule_2": "Invitee grants endorsement = extra <points>{points}</points>",
+    "invite_rule_3": "Get <points>{points}</points> for each interaction",
+    "invitation_links": "Invitation Links",
+    "invitation_rules": "Invitation Rules"
   }
 }

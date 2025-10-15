@@ -41,7 +41,14 @@ export default function MyInviteeSection({ invitees = defaultInvitees }: MyInvit
             <Users className="h-4 w-4" />
             <span className="text-md font-semibold">My Invitee</span>
           </div>
-          <BarChart className="text-primary h-5 w-5" />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="bg-primary/5 hover:bg-primary/10 flex w-auto items-center gap-1 !rounded-xl px-2"
+          >
+            <BarChart className="text-primary h-5 w-5" />
+            <span className="text-primary text-sm">Ranking</span>
+          </Button>
         </div>
         <div className="border-primary/10 h-full max-h-[350px] min-h-[300px] rounded-xl border sm:min-h-auto">
           <BouncingAvatars avatars={invitees} speed={1} />

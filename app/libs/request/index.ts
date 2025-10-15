@@ -854,16 +854,16 @@ export interface IGetTwitterAuthCompleteCallbackV2Params {
    */
   name: string;
   /**
-     * 第三步返回的
-     */
+   * 第三步返回的
+   */
   verified: boolean;
   /**
    * 第三步返回的
    */
   verified_type: string;
   /**
-     * 邀请码
-     */
+   * 邀请码
+   */
   invite_code: string;
 }
 export const getTwitterAuthCompleteCallbackV2 = (
@@ -2373,4 +2373,27 @@ export interface IGetTonClaimRewardParams {
 }
 export const getTonClaimReward = (params: IGetTonClaimRewardParams) => {
   return kolRequest.post('/kol/api/v6/claim_reward/ton/pay/', params);
+};
+
+// Agent详情
+export interface IGetAgentDetailsData {
+  /**
+   * 邀请码
+   */
+  invite_code: string;
+  /**
+   * 积分
+   */
+  point: number;
+  /**
+   * 排名
+   */
+  rank: number;
+  /**
+   * 总奖励
+   */
+  total_reward: number;
+}
+export const getAgentDetails = () => {
+  return kolRequest.get<IGetAgentDetailsData>('/kol/api/v8/agent/detail/');
 };

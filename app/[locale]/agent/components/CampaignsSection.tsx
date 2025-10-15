@@ -1,15 +1,19 @@
 'use client';
 
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Card, CardContent } from '@shadcn/components/ui/card';
 import { Button } from '@shadcn/components/ui/button';
 import { Badge } from '@shadcn/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@shadcn/components/ui/avatar';
-import { Users, DollarSign } from 'lucide-react';
+import { Checkbox } from '@shadcn/components/ui/checkbox';
+import { Users, DollarSign, ChevronLeft, ChevronRight } from 'lucide-react';
 import defaultAvatar from '@assets/image/avatar.png';
 import { usePayTokenInfo } from '@hooks/usePayTokenInfo';
 import { useTranslations } from 'next-intl';
 import TokenIcon from 'app/components/TokenIcon';
+import { Label } from '@shadcn/components/ui/label';
+import { Switch } from '@shadcn/components/ui/switch';
+import { cn } from '@shadcn/lib/utils';
 
 interface Campaign {
   id: string;
@@ -102,10 +106,113 @@ const defaultCampaigns: Campaign[] = [
 export default function CampaignsSection({ campaigns = defaultCampaigns }: CampaignsSectionProps) {
   const { tokenInfo } = usePayTokenInfo(campaigns[0]?.chain_type, campaigns[0]?.token_type);
   const t = useTranslations('common');
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isAutoPlay, setIsAutoPlay] = useState(true);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScrollPosition = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1);
+    }
+  };
+
+  const scrollLeft = () => {
+    if (scrollContainerRef.current && canScrollLeft) {
+      scrollContainerRef.current.scrollBy({
+        left: -300,
+        behavior: 'smooth',
+      });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current && canScrollRight) {
+      scrollContainerRef.current.scrollBy({
+        left: 300,
+        behavior: 'smooth',
+      });
+    }
+  };
+
+  useEffect(() => {
+    const scrollContainer = scrollContainerRef.current;
+    if (scrollContainer) {
+      // 初始检查
+      checkScrollPosition();
+
+      // 添加滚动事件监听
+      scrollContainer.addEventListener('scroll', checkScrollPosition);
+
+      // 添加resize事件监听，以防容器大小变化
+      window.addEventListener('resize', checkScrollPosition);
+
+      return () => {
+        scrollContainer.removeEventListener('scroll', checkScrollPosition);
+        window.removeEventListener('resize', checkScrollPosition);
+      };
+    }
+  }, [campaigns]);
 
   return (
-    <Card className="rounded-lg border-1 p-4 shadow-none">
-      <CardContent className="scrollbar-hide flex gap-4 overflow-x-auto p-0 pb-1">
+    <Card className="gap-2 rounded-lg border-1 p-4 shadow-none">
+      {/* 控制按钮区域 */}
+      <div className="flex items-center justify-between">
+        {/* 左右滑动按钮 */}
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={scrollLeft}
+            disabled={!canScrollLeft}
+            className={cn(
+              'h-5 w-5 p-0',
+              canScrollLeft
+                ? 'bg-muted-foreground/5 hover:bg-primary/10 text-muted-foreground hover:text-primary'
+                : 'bg-muted-foreground/5 text-muted-foreground/50 cursor-not-allowed'
+            )}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={scrollRight}
+            disabled={!canScrollRight}
+            className={cn(
+              'h-5 w-5 p-0',
+              canScrollRight
+                ? 'bg-muted-foreground/5 hover:bg-primary/10 text-muted-foreground hover:text-primary'
+                : 'bg-muted-foreground/5 text-muted-foreground/50 cursor-not-allowed'
+            )}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Auto-play All 滑块 */}
+        <div className="flex items-center gap-2">
+          <Label
+            htmlFor="airplane-mode"
+            className={cn('text-sm', isAutoPlay ? 'text-primary' : 'text-muted-foreground')}
+          >
+            Auto-play All
+          </Label>
+          <Switch
+            defaultChecked={isAutoPlay}
+            id="airplane-mode"
+            checked={isAutoPlay}
+            onCheckedChange={(checked) => setIsAutoPlay(checked === true)}
+          />
+        </div>
+      </div>
+
+      <CardContent
+        ref={scrollContainerRef}
+        className="scrollbar-hide flex gap-4 overflow-x-auto p-0 pb-1"
+      >
         {campaigns.map((campaign) => (
           <div
             key={campaign.id}

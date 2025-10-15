@@ -1210,6 +1210,15 @@
     "loading_installed_wallets": "加载钱包中...",
     "service_fee": "服务费",
     "nav_my_agent": "我的代理",
-    "will_follow_twitter": "将会关注推特"
+    "will_follow_twitter": "将会关注推特",
+    "points_earned": "积分获得",
+    "ranking": "排名",
+    "login_to_generate_invite_link": "登录后即可生成您的专属邀请链接",
+    "invite_link_generating": "邀请链接生成中，请稍后再试",
+    "invite_rule_1": "邀请 <count>{count}</count> 位朋友 = <points>{points}</points>",
+    "invite_rule_2": "被邀请人给予认可 = 额外 <points>{points}</points>",
+    "invite_rule_3": "每次互动获得 <points>{points}</points>",
+    "invitation_links": "邀请链接",
+    "invitation_rules": "邀请规则"
   }
 }

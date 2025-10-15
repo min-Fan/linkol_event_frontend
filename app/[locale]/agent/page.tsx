@@ -23,7 +23,7 @@ export default function MyAgentPage() {
           <div className="flex flex-col gap-2 lg:col-span-1">
             <ProfileCard />
 
-            <InvitationLinks invitationLink="https://linkol.com/InvitationLink" />
+            <InvitationLinks />
 
             <RewardsHistory />
           </div>
