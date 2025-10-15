@@ -16,6 +16,8 @@ import { Switch } from '@shadcn/components/ui/switch';
 import { Skeleton } from '@shadcn/components/ui/skeleton';
 import { cn } from '@shadcn/lib/utils';
 import { marketEventsGetActivesLogin, IMarketEventsGetActivesLoginList } from '@libs/request';
+import PagesRoute from '@constants/routes';
+import { Link } from '@libs/i18n/navigation';
 
 interface Campaign {
   id: string;
@@ -133,16 +135,7 @@ export default function CampaignsSection({
 
       // 检查是否需要加载更多数据（当滚动到接近右侧时）
       const scrollPercentage = (scrollLeft + clientWidth) / scrollWidth;
-      console.log('滚动检测:', {
-        scrollPercentage,
-        hasMore,
-        loadingMore,
-        isLoadingMoreTriggered,
-        campaignsLength: campaigns.length,
-        currentPage,
-        totalPages
-      });
-      
+
       if (
         scrollPercentage > 0.6 && // 降低阈值，更容易触发
         hasMore &&
@@ -150,7 +143,6 @@ export default function CampaignsSection({
         !isLoadingMoreTriggered &&
         campaigns.length > 0
       ) {
-        console.log('触发加载更多数据');
         loadMoreData();
       }
     }
@@ -158,30 +150,13 @@ export default function CampaignsSection({
 
   // 加载更多数据
   const loadMoreData = async () => {
-    console.log('loadMoreData 调用:', {
-      hasMore,
-      loadingMore,
-      isLoadingMoreTriggered,
-      currentPage,
-      totalPages
-    });
-    
     if (hasMore && !loadingMore && !isLoadingMoreTriggered && currentPage < totalPages) {
-      console.log('开始加载更多数据，下一页:', currentPage + 1);
       setIsLoadingMoreTriggered(true);
       const nextPage = currentPage + 1;
       setCurrentPage(nextPage);
       await fetchCampaigns(nextPage, true);
       setIsLoadingMoreTriggered(false);
     } else {
-      console.log('加载更多数据被阻止:', {
-        hasMore,
-        loadingMore,
-        isLoadingMoreTriggered,
-        currentPage,
-        totalPages,
-        canLoad: hasMore && !loadingMore && !isLoadingMoreTriggered && currentPage < totalPages
-      });
     }
   };
 
@@ -203,7 +178,6 @@ export default function CampaignsSection({
 
       // 如果还有更多数据且没有在加载，直接触发加载更多
       if (hasMore && !loadingMore && !isLoadingMoreTriggered) {
-        console.log('右按钮直接触发加载更多');
         loadMoreData();
       } else {
         // 延迟检查滚动位置，确保滚动动画完成
@@ -211,15 +185,8 @@ export default function CampaignsSection({
           if (scrollContainerRef.current) {
             const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
             const scrollPercentage = (scrollLeft + clientWidth) / scrollWidth;
-            console.log('右按钮点击后检查:', {
-              scrollPercentage,
-              hasMore,
-              loadingMore,
-              isLoadingMoreTriggered
-            });
-            
+
             if (scrollPercentage > 0.7 && hasMore && !loadingMore && !isLoadingMoreTriggered) {
-              console.log('右按钮触发加载更多');
               loadMoreData();
             }
           }
@@ -326,6 +293,15 @@ export default function CampaignsSection({
     </div>
   );
 
+  const openAutoPostModal = (
+    e: React.MouseEvent<HTMLButtonElement>,
+    campaign: IMarketEventsGetActivesLoginList
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('自动发布按钮点击', campaign);
+  };
+
   return (
     <Card className="gap-2 rounded-lg border-1 p-4 shadow-none">
       {/* 控制按钮区域 */}
@@ -403,117 +379,117 @@ export default function CampaignsSection({
           // 正常数据渲染
           <>
             {campaigns.map((campaign) => (
-              <div
-                key={campaign.id}
-                className="bg-background border-primary/10 hover:shadow-primary/20 min-w-[280px] rounded-xl border hover:shadow-sm"
-              >
-                <div className="p-0">
-                  {/* 活动头部图片区域 */}
-                  <div className="relative h-32 overflow-hidden rounded-t-lg">
-                    <img
-                      src={campaign.cover_img}
-                      alt={campaign.title}
-                      className="h-full w-full object-cover"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = '/placeholder-image.png'; // 设置默认图片
-                      }}
-                    />
-                    {/* 参与人数标签 */}
-                    <div className="bg-background/80 absolute top-3 right-3 rounded-full px-2 py-1 backdrop-blur-sm">
-                      <div className="text-muted-foreground flex items-center gap-1 pl-2 text-xs">
-                        {Array.from({ length: Math.min(5, campaign.joins.length) }).map(
-                          (_, index) => (
-                            <Avatar
-                              className="border-background -ml-3 size-3 min-w-3 overflow-hidden rounded-full border-[1px] sm:size-4 sm:min-w-4"
-                              key={index}
-                            >
-                              <AvatarImage
-                                src={campaign.joins[index] || ''}
-                                alt={t('avatar')}
-                                className="size-full"
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  target.src = defaultAvatar.src;
-                                }}
-                              />
-                              <AvatarFallback className="bg-muted text-foreground text-xs">
-                                {campaign.project.name.charAt(0)}
-                              </AvatarFallback>
-                            </Avatar>
-                          )
-                        )}
-                        <span>
-                          {campaign.participants} {t('participants')}
-                        </span>
+              <>
+                <div className="bg-background border-primary/10 hover:shadow-primary/20 min-w-[280px] rounded-xl border hover:shadow-sm">
+                  <div className="p-0">
+                    {/* 活动头部图片区域 */}
+                    <div className="relative h-32 overflow-hidden rounded-t-lg">
+                      <img
+                        src={campaign.cover_img}
+                        alt={campaign.title}
+                        className="h-full w-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = '/placeholder-image.png'; // 设置默认图片
+                        }}
+                      />
+                      {/* 参与人数标签 */}
+                      <div className="bg-background/80 absolute top-3 right-3 rounded-full px-2 py-1 backdrop-blur-sm">
+                        <div className="text-muted-foreground flex items-center gap-1 pl-2 text-xs">
+                          {Array.from({ length: Math.min(5, campaign.joins.length) }).map(
+                            (_, index) => (
+                              <Avatar
+                                className="border-background -ml-3 size-3 min-w-3 overflow-hidden rounded-full border-[1px] sm:size-4 sm:min-w-4"
+                                key={index}
+                              >
+                                <AvatarImage
+                                  src={campaign.joins[index] || ''}
+                                  alt={t('avatar')}
+                                  className="size-full"
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.src = defaultAvatar.src;
+                                  }}
+                                />
+                                <AvatarFallback className="bg-muted text-foreground text-xs">
+                                  {campaign.project.name.charAt(0)}
+                                </AvatarFallback>
+                              </Avatar>
+                            )
+                          )}
+                          <span>
+                            {campaign.participants} {t('participants')}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* 活动内容 */}
-                  <div className="space-y-3 p-3">
-                    <div className="flex flex-col gap-2">
-                      <dl className="flex items-center justify-between gap-x-3 text-base font-medium">
-                        <dt className="truncate">{campaign.title}</dt>
-                        <dd className="bg-accent sm:text-md flex h-7 items-center gap-x-1 rounded-full px-2 text-sm">
-                          {campaign.is_verified ? `$${campaign.reward_amount}` : t('unverified')}
-                          {campaign.is_verified && tokenInfo?.iconType && (
+                    {/* 活动内容 */}
+                    <div className="space-y-3 p-3">
+                      <div className="flex flex-col gap-2">
+                        <dl className="flex items-center justify-between gap-x-3 text-base font-medium">
+                          <dt className="truncate">{campaign.title}</dt>
+                          <dd className="bg-accent sm:text-md flex h-7 items-center gap-x-1 rounded-full px-2 text-sm">
+                            {campaign.is_verified ? `$${campaign.reward_amount}` : t('unverified')}
+                            {campaign.token_type && campaign.chain_type && (
+                              <TokenIcon
+                                chainType={campaign.chain_type}
+                                tokenType={campaign.token_type}
+                                type={campaign.token_type as string}
+                                className="size-4"
+                              />
+                            )}
+                          </dd>
+                        </dl>
+                        <p className="text-muted-foreground/80 line-clamp-3 text-sm">
+                          {campaign.description}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-2">
+                        {/* 品牌信息 */}
+                        <div className="flex items-center gap-2">
+                          <Avatar className="h-6 w-6">
+                            <AvatarImage src={campaign.project.logo} alt={campaign.project.name} />
+                            <AvatarFallback className="bg-gray-200 text-xs">
+                              {campaign.project.name.charAt(0)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="max-w-[100px] truncate text-sm">
+                            {campaign.project.name}
+                          </span>
+                        </div>
+
+                        {/* 自动发布按钮 */}
+                        <Button
+                          variant={campaign.is_auto_join ? 'default' : 'outline'}
+                          size="sm"
+                          className="h-auto w-auto !rounded-xl px-2 py-0.5"
+                          onClick={(e) => openAutoPostModal(e, campaign)}
+                        >
+                          {t('auto_post')} {campaign.is_auto_join ? t('on') : t('off')}
+                        </Button>
+                      </div>
+
+                      {/* 奖励信息 */}
+                      <div className="bg-primary/5 flex items-center justify-center gap-2 rounded-full p-3">
+                        <span className="text-md flex items-center gap-1">
+                          {campaign.reward_amount}
+                          {campaign.token_type && campaign.chain_type && (
                             <TokenIcon
                               chainType={campaign.chain_type}
                               tokenType={campaign.token_type}
-                              type={tokenInfo?.iconType as string}
+                              type={campaign.token_type as string}
                               className="size-4"
                             />
                           )}
-                        </dd>
-                      </dl>
-                      <p className="text-muted-foreground/80 line-clamp-3 text-sm">
-                        {campaign.description}
-                      </p>
-                    </div>
-
-                    <div className="flex items-center justify-between gap-2">
-                      {/* 品牌信息 */}
-                      <div className="flex items-center gap-2">
-                        <Avatar className="h-6 w-6">
-                          <AvatarImage src={campaign.project.logo} alt={campaign.project.name} />
-                          <AvatarFallback className="bg-gray-200 text-xs">
-                            {campaign.project.name.charAt(0)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="max-w-[100px] truncate text-sm">
-                          {campaign.project.name}
                         </span>
+                        <span className="text-sm">{t('rewards')}</span>
                       </div>
-
-                      {/* 自动发布按钮 */}
-                      <Button
-                        variant={campaign.is_auto_join ? 'default' : 'outline'}
-                        size="sm"
-                        className="h-auto w-auto !rounded-xl px-2 py-0.5"
-                      >
-                        {t('auto_post')} {campaign.is_auto_join ? t('on') : t('off')}
-                      </Button>
-                    </div>
-
-                    {/* 奖励信息 */}
-                    <div className="bg-primary/5 flex items-center justify-center gap-2 rounded-full p-3">
-                      <span className="text-md flex items-center gap-1">
-                        {campaign.reward_amount}
-                        {tokenInfo?.iconType && (
-                          <TokenIcon
-                            chainType={campaign.chain_type}
-                            tokenType={campaign.token_type}
-                            type={tokenInfo?.iconType as string}
-                            className="size-4"
-                          />
-                        )}
-                      </span>
-                      <span className="text-sm">{t('rewards')}</span>
                     </div>
                   </div>
                 </div>
-              </div>
+              </>
             ))}
 
             {/* 加载更多骨架屏 */}

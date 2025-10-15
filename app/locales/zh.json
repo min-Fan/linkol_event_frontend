@@ -1233,7 +1233,7 @@
     "no_more_campaigns": "没有更多活动了",
     "page_info": "第 {current} 页，共 {total} 页",
     "total_items": "共 {count} 项活动",
-    "auto_play_all": "自动播放全部",
+    "auto_play_all": "已自动发布",
     "click_to_load_more": "点击加载更多",
     "auto_post": "自动发布",
     "on": "开启",
@@ -1242,10 +1242,17 @@
     "participants": "参与者",
     "campaign_title": "活动标题",
     "campaign_description": "活动描述",
-    "project_name": "项目名称",
-    "reward_amount": "奖励金额",
-    "verified": "已验证",
-    "unverified": "未验证",
-    "avatar": "头像"
+    "avatar": "头像",
+    "my_invitee": "我的邀请者",
+    "ranking": "排行榜",
+    "available_rewards": "可用奖励",
+    "redeem": "兑换",
+    "loading_invitees": "加载中...",
+    "load_invitees_failed": "获取邀请者列表失败，请稍后重试",
+    "no_invitees": "暂无邀请者",
+    "no_invitees_description": "您还没有邀请任何用户加入。分享您的邀请链接，邀请更多朋友参与活动！",
+    "invite_friends": "邀请朋友",
+    "retry": "重试",
+    "load_failed": "加载失败"
   }
 }

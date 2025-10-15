@@ -8,15 +8,19 @@ import {
   CampaignsSection,
   MyInviteeSection,
 } from './components';
+import { useAgentDetails } from '@hooks/useAgentDetails';
 
 export default function MyAgentPage() {
-  const handleRedeem = () => {
-    // 处理兑换奖励逻辑
-    console.log('兑换奖励');
+  const { refreshAgentDetails, invalidateAgentDetails, totalReward, points, rank } =
+    useAgentDetails();
+
+  const handleRefresh = () => {
+    // 手动刷新所有数据
+    invalidateAgentDetails();
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen w-full">
       <div className="mx-auto max-w-7xl">
         <div className="grid grid-cols-1 gap-2 lg:grid-cols-3">
           {/* 左侧列 */}

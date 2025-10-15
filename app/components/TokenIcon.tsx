@@ -14,7 +14,6 @@ const svgIconMap = {
 // 图片组件映射
 const imgIconMap = {
   usd1: Usd1,
-  // 可以在这里添加更多图片类型的token
 };
 
 interface TokenIconProps {

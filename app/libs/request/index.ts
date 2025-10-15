@@ -2588,3 +2588,61 @@ export const getAgentRewardList = (params: IGetAgentRewardListParams) => {
     ...params,
   });
 };
+
+// 用户的邀请列表,前20
+export interface IGetAgentInviteeListData {
+  current_page: number;
+  list: IGetAgentInviteeListItem[];
+  page_range: number[];
+  total: number;
+}
+export interface IGetAgentInviteeListItem {
+  /**
+   * 时间
+   */
+  created_at?: string;
+  /**
+   * 因为谁给的
+   */
+  from_user?: FromUser;
+  /**
+   * 奖励ID
+   */
+  id?: number;
+  /**
+   * 积分数
+   */
+  point?: number;
+  /**
+   * 奖励来源
+   */
+  reason?: string;
+}
+
+export const getAgentInviteeList = () => {
+  return kolRequest.get<IGetAgentInviteeListData>('/kol/api/v8/user/invites/');
+};
+
+// 积分排行榜top15
+export interface IGetAgentRankingListItem {
+  id?: number;
+  /**
+   * 邀请人数
+   */
+  invitee_count?: number;
+  /**
+   * 积分
+   */
+  point?: number;
+  /**
+   * 头像
+   */
+  profile_image_url?: string;
+  /**
+   * 推特名
+   */
+  screen_name?: string;
+}
+export const getAgentRankingList = () => {
+  return kolRequest.get<IGetAgentRankingListItem[]>('/kol/api/v8/points/top/');
+};

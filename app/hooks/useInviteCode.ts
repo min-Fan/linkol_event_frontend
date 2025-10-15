@@ -15,4 +15,3 @@ export function useInviteCode(): string | null {
 
   return inviteCode;
 }
-

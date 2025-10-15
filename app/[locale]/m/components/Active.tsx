@@ -41,11 +41,11 @@ export default function Active(props: { data: IActive }) {
             <dt className="truncate">{data?.title}</dt>
             <dd className="bg-accent flex h-8 items-center gap-x-1 rounded-full px-2">
               {data?.is_verified ? `$${data?.reward_amount}` : t('unverified')}
-              {data?.is_verified && tokenInfo?.iconType && (
+              {data?.token_type && data?.chain_type && (
                 <TokenIcon
                   chainType={data?.chain_type}
                   tokenType={data?.token_type}
-                  type={tokenInfo?.iconType as string}
+                  type={data?.token_type as string}
                   className="size-5"
                 />
               )}

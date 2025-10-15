@@ -9,10 +9,9 @@ import { Skeleton } from '@shadcn/components/ui/skeleton';
 import { Twitter } from 'lucide-react';
 import { useAppSelector } from '@store/hooks';
 import { TwitterX, Verified } from '@assets/svg';
-import { useQuery } from '@tanstack/react-query';
-import { getAgentDetails } from '@libs/request';
 import XAuth from '@ui/profile/components/XAuth';
 import { useTranslations } from 'next-intl';
+import { useAgentDetails } from '@hooks/useAgentDetails';
 
 export default function ProfileCard() {
   const twitterFullProfile = useAppSelector((state) => state.userReducer?.twitter_full_profile);
@@ -20,11 +19,7 @@ export default function ProfileCard() {
   const t = useTranslations('common');
 
   // 获取agent详情
-  const { data: agentDetails, isLoading: isAgentDetailsLoading } = useQuery({
-    queryKey: ['agentDetails'],
-    queryFn: getAgentDetails,
-    enabled: isLoggedIn,
-  });
+  const { agentDetails, isLoading: isAgentDetailsLoading, points, rank } = useAgentDetails();
 
   // 如果未登录，显示登录按钮
   if (!isLoggedIn) {
@@ -125,15 +120,11 @@ export default function ProfileCard() {
             <div className="flex w-full items-center gap-3">
               <div className="bg-primary/5 flex flex-1 flex-col items-center justify-center rounded-2xl px-3 py-4">
                 <p className="text-primary text-sm">{t('points_earned')}</p>
-                <p className="text-primary text-md font-semibold">
-                  {agentDetails?.data?.point || 0}
-                </p>
+                <p className="text-primary text-md font-semibold">{points}</p>
               </div>
               <div className="bg-primary/5 flex flex-1 flex-col items-center justify-center rounded-2xl px-3 py-4">
                 <p className="text-primary text-sm">{t('ranking')}</p>
-                <p className="text-primary text-md font-semibold">
-                  #{agentDetails?.data?.rank || '-'}
-                </p>
+                <p className="text-primary text-md font-semibold">#{rank || '-'}</p>
               </div>
             </div>
           </div>

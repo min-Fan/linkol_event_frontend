@@ -1240,10 +1240,17 @@
     "participants": "Participants",
     "campaign_title": "Campaign Title",
     "campaign_description": "Campaign Description",
-    "project_name": "Project Name",
-    "reward_amount": "Reward Amount",
-    "verified": "Verified",
-    "unverified": "Unverified",
-    "avatar": "Avatar"
+    "avatar": "Avatar",
+    "my_invitee": "My Invitee",
+    "ranking": "Ranking",
+    "available_rewards": "Available Rewards",
+    "redeem": "Redeem",
+    "loading_invitees": "Loading...",
+    "load_invitees_failed": "Failed to load invitee list, please try again later",
+    "no_invitees": "No Invitees",
+    "no_invitees_description": "You haven't invited any users yet. Share your invitation link to invite more friends to participate in activities!",
+    "invite_friends": "Invite Friends",
+    "retry": "Retry",
+    "load_failed": "Load Failed"
   }
 }
