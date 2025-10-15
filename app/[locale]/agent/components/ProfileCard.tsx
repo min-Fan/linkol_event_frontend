@@ -39,10 +39,10 @@ export default function ProfileCard() {
             <XAuth
               className="rounded-none bg-transparent p-0"
               button={
-                <Button className="flex items-center gap-2 !rounded-xl bg-black">
+                <div className="flex items-center gap-2 !rounded-xl bg-black">
                   <TwitterX className="!h-4 !w-4 text-white" />
                   {t('link_twitter')}
-                </Button>
+                </div>
               }
             />
           </div>

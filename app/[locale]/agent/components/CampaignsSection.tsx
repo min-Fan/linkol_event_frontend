@@ -18,6 +18,7 @@ import { cn } from '@shadcn/lib/utils';
 import { marketEventsGetActivesLogin, IMarketEventsGetActivesLoginList } from '@libs/request';
 import PagesRoute from '@constants/routes';
 import { Link } from '@libs/i18n/navigation';
+import { useAppSelector } from '@store/hooks';
 
 interface Campaign {
   id: string;
@@ -53,6 +54,7 @@ export default function CampaignsSection({
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [size, setSize] = useState(2);
+  const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
 
   // 数据状态
   const [campaigns, setCampaigns] = useState<IMarketEventsGetActivesLoginList[]>([]);
@@ -365,12 +367,12 @@ export default function CampaignsSection({
         {loading ? (
           // 骨架屏加载状态
           Array.from({ length: 3 }).map((_, index) => <CampaignSkeleton key={index} />)
-        ) : error ? (
+        ) : error && isLoggedIn ? (
           // 错误状态
           <div className="w-full">
             <ErrorState />
           </div>
-        ) : campaigns.length === 0 ? (
+        ) : campaigns.length === 0 || !isLoggedIn ? (
           // 无数据状态
           <div className="w-full">
             <EmptyState />

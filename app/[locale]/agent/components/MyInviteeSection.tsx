@@ -11,6 +11,7 @@ import InviteeSkeleton from './InviteeSkeleton';
 import InviteeEmptyState from './InviteeEmptyState';
 import { getAgentInviteeList, IGetAgentInviteeListItem } from '../../../libs/request';
 import { useAgentDetails } from '../../../hooks/useAgentDetails';
+import { useAppSelector } from '@store/hooks';
 
 interface Invitee {
   id: string;
@@ -29,6 +30,7 @@ export default function MyInviteeSection({ invitees: propInvitees }: MyInviteeSe
   const [invitees, setInvitees] = useState<Invitee[]>(propInvitees || []);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
 
   // 将接口数据转换为组件需要的格式
   const transformInviteeData = (data: IGetAgentInviteeListItem[]): Invitee[] => {
@@ -101,7 +103,7 @@ export default function MyInviteeSection({ invitees: propInvitees }: MyInviteeSe
         <div className="border-primary/10 h-full max-h-[350px] min-h-[300px] rounded-xl border sm:min-h-auto">
           {loading ? (
             <InviteeSkeleton count={6} />
-          ) : error ? (
+          ) : error && isLoggedIn ? (
             <div className="flex h-full flex-col items-center justify-center p-8 text-center">
               <div className="mb-4 rounded-full bg-red-100 p-6">
                 <Users className="h-12 w-12 text-red-400" />
@@ -112,7 +114,7 @@ export default function MyInviteeSection({ invitees: propInvitees }: MyInviteeSe
                 {t('retry')}
               </Button>
             </div>
-          ) : invitees.length === 0 ? (
+          ) : invitees.length === 0 || !isLoggedIn ? (
             <InviteeEmptyState onInvite={handleInvite} />
           ) : (
             <BouncingAvatars avatars={invitees} speed={1} />
@@ -120,7 +122,7 @@ export default function MyInviteeSection({ invitees: propInvitees }: MyInviteeSe
         </div>
         <div className="bg-primary/5 mt-auto flex items-center justify-between rounded-3xl p-4">
           <div className="flex items-center gap-4">
-            <div className="text-xl font-semibold">{totalReward} USDC</div>
+            <div className="text-xl font-semibold">{isLoggedIn ? totalReward : 0} USDC</div>
             <div className="text-md">{t('available_rewards')}</div>
           </div>
           {/* <Button onClick={handleRedeem} className="!rounded-full px-2 py-0.5">
