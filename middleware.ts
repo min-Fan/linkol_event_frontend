@@ -10,8 +10,8 @@ export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // 处理邀请码路由: /[locale]/[inviteCode] 或 /[locale]/[inviteCode]/*
-  // 邀请码格式：6位大写字母和数字的组合
-  const inviteCodeMatch = pathname.match(/^\/([a-z]{2})\/([A-Z0-9]{6})(?:\/(.*))?$/);
+  // 邀请码格式：6-8位大写字母和数字的组合
+  const inviteCodeMatch = pathname.match(/^\/([a-z]{2})\/([A-Z0-9]{6,8})(?:\/(.*))?$/);
   
   if (inviteCodeMatch) {
     const [, locale, inviteCode, restPath] = inviteCodeMatch;

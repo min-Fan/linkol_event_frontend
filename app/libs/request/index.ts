@@ -1189,10 +1189,141 @@ export const marketEventsGetActives = (params: {
   page: number;
   page_size: number;
   kw: string;
-  data_type: 'new' | 'hot' | 'hig' | 'deadline';
+  data_type: 'new' | 'hot' | 'hig' | 'deadline' | '';
   active_type_id?: number;
 }) => {
   return request.get('/kol/api/v3/index/actives/', { ...params });
+};
+
+// 活动广场的活动列表 -用户登录
+export interface IMarketEventsGetActivesLoginParams {
+  /**
+   * 活动类型ID
+   */
+  active_type_id?: number;
+  /**
+   * new表示最新发布，hot表示热门推荐，high表示高奖励，deadline表示即将到期
+   */
+  data_type?: string;
+  /**
+   * 1表示已经验证的 0表示未验证
+   */
+  is_verify?: number;
+  /**
+   * 搜索关键字
+   */
+  kw?: string;
+  page?: number;
+  size?: number;
+  is_on?: 0 | 1;
+}
+export interface IMarketEventsGetActivesLoginData {
+  current_page: number;
+  list: IMarketEventsGetActivesLoginList[];
+  page_range: number[];
+  total: number;
+}
+
+export interface IMarketEventsGetActivesLoginList {
+  a_type: string;
+  /**
+   * 活动类型
+   */
+  active_type: IMarketEventsGetActivesLoginActiveType;
+  /**
+   * 代币网络
+   */
+  chain_type: string;
+  /**
+   * 海报
+   */
+  cover_img: string;
+  /**
+   * 剩余天数
+   */
+  days_remaining: number;
+  /**
+   * 描述
+   */
+  description: string;
+  /**
+   * 结束时间
+   */
+  end: string;
+  id: number;
+  /**
+   * Agent是否是自动参与
+   */
+  is_auto_join: boolean;
+  /**
+   * 是否已经认证
+   */
+  is_verified: boolean;
+  /**
+   * 参与数
+   */
+  join_count: number;
+  /**
+   * 参与人列表
+   */
+  joins: string[];
+  /**
+   * 参与人数
+   */
+  participants: number;
+  /**
+   * 关联的项目
+   */
+  project: IMarketEventsGetActivesLoginProject;
+  /**
+   * 未领取奖励
+   */
+  receive_amount: number | number;
+  /**
+   * 推文要求
+   */
+  requirement: string;
+  /**
+   * 奖励
+   */
+  reward_amount: number;
+  short_desc: null | string;
+  /**
+   * 开始时间
+   */
+  start: string;
+  /**
+   * 标题
+   */
+  title: string;
+  /**
+   * 代币类型
+   */
+  token_type: string;
+}
+
+/**
+ * 活动类型
+ */
+export interface IMarketEventsGetActivesLoginActiveType {
+  code: string;
+  en_name: string;
+  id: number;
+  zh_name: string;
+}
+
+/**
+ * 关联的项目
+ */
+export interface IMarketEventsGetActivesLoginProject {
+  id: number;
+  logo: string;
+  name: string;
+}
+export const marketEventsGetActivesLogin = (params: IMarketEventsGetActivesLoginParams) => {
+  return kolRequest.get<IMarketEventsGetActivesLoginData>('/kol/api/v3/index/actives/login/', {
+    ...params,
+  });
 };
 
 // 普通用户未登录状态下的活动详情
@@ -2396,4 +2527,64 @@ export interface IGetAgentDetailsData {
 }
 export const getAgentDetails = () => {
   return kolRequest.get<IGetAgentDetailsData>('/kol/api/v8/agent/detail/');
+};
+
+// reward列表
+export interface IGetAgentRewardListParams {
+  /**
+   * 页码
+   */
+  page: number;
+  /**
+   * 每页数量
+   */
+  size: number;
+}
+export interface IGetAgentRewardListData {
+  current_page: number;
+  list: IGetAgentRewardListItem[];
+  page_range: number[];
+  total: number;
+}
+export interface IGetAgentRewardListItem {
+  /**
+   * 时间
+   */
+  created_at?: string;
+  /**
+   * 因为谁给的
+   */
+  from_user?: FromUser;
+  /**
+   * 奖励ID
+   */
+  id?: number;
+  /**
+   * 积分数
+   */
+  point?: number;
+  /**
+   * 奖励来源
+   */
+  reason?: string;
+}
+/**
+ * 因为谁给的
+ */
+export interface FromUser {
+  /**
+   * 头像
+   */
+  profile_image_url: string;
+  /**
+   * 推特名
+   */
+  screen_name: string;
+  [property: string]: any;
+}
+
+export const getAgentRewardList = (params: IGetAgentRewardListParams) => {
+  return kolRequest.get<IGetAgentRewardListData>('/kol/api/v8/agent/rewards/', {
+    ...params,
+  });
 };
