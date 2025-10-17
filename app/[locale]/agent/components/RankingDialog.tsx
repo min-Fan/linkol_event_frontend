@@ -83,7 +83,7 @@ export default function RankingDialog({ isOpen, onClose }: RankingDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogClose asChild></DialogClose>
-      <DialogContent className="border-border flex max-h-[90vh] w-96 max-w-full flex-col gap-0 overflow-hidden bg-transparent p-4 shadow-none sm:w-[450px] sm:max-w-full sm:p-0">
+      <DialogContent className="border-border flex max-h-[90vh] w-96 max-w-full flex-col gap-0 overflow-hidden bg-transparent p-4 shadow-none sm:w-[450px] sm:max-w-full sm:p-0" nonClosable>
         {/* Header */}
         <DialogHeader className="bg-primary gap-0 rounded-t-xl p-2 text-center text-white sm:rounded-t-2xl sm:p-4">
           <DialogTitle className="text-center text-base font-semibold text-white">
