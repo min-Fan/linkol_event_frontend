@@ -45,14 +45,14 @@ export default function HomeScreenBanner() {
         </p>
         <div className="mt-6 rounded-full shadow-[0_1px_40px_0_rgba(242,242,242,0.80)]">
           <Link
-            href={`${PagesRoute.MARKET_EVENTS}/5`}
-            title={t('join_campaign')}
+            href={`${PagesRoute.MY_AGENT}`}
+            title={t('join_agent')}
             onClick={() => {
-              track('Join Campaign Button ==> MarketEvents Detail Page', { active_id: '5' });
+              track('Join Agent Button ==> Agent Page');
             }}
           >
             <Button className="text-primary !h-11 gap-x-1 !rounded-full bg-white !px-6 !text-base font-medium">
-              <span>{t('join_campaign')}</span>
+              <span>{t('join_agent')}</span>
               <ArrowRight className="size-5" />
             </Button>
           </Link>

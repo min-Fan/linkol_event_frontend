@@ -15,6 +15,7 @@ import {
 import { useAppDispatch } from '@store/hooks';
 import { updateIsLoggedIn, updateTwitterFullProfile } from '@store/reducers/userSlice';
 import { ChannelEventType, postEvent } from '@libs/utils/broadcast';
+import { getInviteCodeFromCookie } from '@libs/utils/inviteCode';
 
 export default function useTwitterAuth(completeFunction?: () => void) {
   const t = useTranslations('common');
@@ -31,6 +32,7 @@ export default function useTwitterAuth(completeFunction?: () => void) {
 
   const getLoginInfo = async (full_profile: any, data: any) => {
     try {
+      const inviteCode = getInviteCodeFromCookie() || '';
       const res: any = await getTwitterAuthCompleteCallbackV2({
         x_id: localStorage.getItem('twitter_x_id') || '',
         access_token: data.access_token,
@@ -41,6 +43,9 @@ export default function useTwitterAuth(completeFunction?: () => void) {
         screen_name: full_profile.username,
         user_id: full_profile.id,
         name: data.name,
+        verified: full_profile.verified,
+        verified_type: full_profile.verified_type,
+        invite_code: inviteCode,
       });
 
       if (res && res.code === 200) {

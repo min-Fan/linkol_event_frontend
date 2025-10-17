@@ -147,7 +147,7 @@ export async function generateMetadata({ params }: { params: Params }) {
     twitter: {
       card: 'summary_large_image',
       title: 'LinKol Event',
-      description: 'https://x.com/linkol_ai',
+      description: 'https://x.com/linkolfun',
       images: ['https://www.app.linkol.fun/linkol.png'],
     },
     robots: { index: true, follow: true },
