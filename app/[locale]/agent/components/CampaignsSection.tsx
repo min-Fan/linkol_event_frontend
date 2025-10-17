@@ -19,6 +19,7 @@ import { marketEventsGetActivesLogin, IMarketEventsGetActivesLoginList } from '@
 import PagesRoute from '@constants/routes';
 import { Link } from '@libs/i18n/navigation';
 import { useAppSelector } from '@store/hooks';
+import DialogAutoParticipate from './DialogAutoParticipate';
 
 interface Campaign {
   id: string;
@@ -65,6 +66,10 @@ export default function CampaignsSection({
   const [hasMore, setHasMore] = useState(true);
   const [totalPages, setTotalPages] = useState(0);
   const [isLoadingMoreTriggered, setIsLoadingMoreTriggered] = useState(false);
+
+  // 弹窗状态
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedCampaign, setSelectedCampaign] = useState<IMarketEventsGetActivesLoginList | null>(null);
 
   // 获取活动数据
   const fetchCampaigns = async (page: number = 1, append: boolean = false) => {
@@ -301,7 +306,28 @@ export default function CampaignsSection({
   ) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('自动发布按钮点击', campaign);
+    setSelectedCampaign(campaign);
+    setIsDialogOpen(true);
+  };
+
+  // 处理弹窗关闭
+  const handleDialogClose = () => {
+    setIsDialogOpen(false);
+    setSelectedCampaign(null);
+  };
+
+  // 处理操作成功后的回调
+  const handleOperationSuccess = () => {
+    // 更新对应活动的状态
+    if (selectedCampaign) {
+      setCampaigns(prevCampaigns => 
+        prevCampaigns.map(campaign => 
+          campaign.id === selectedCampaign.id 
+            ? { ...campaign, is_auto_join: !campaign.is_auto_join }
+            : campaign
+        )
+      );
+    }
   };
 
   return (
@@ -476,7 +502,7 @@ export default function CampaignsSection({
                       {/* 奖励信息 */}
                       <div className="bg-primary/5 flex items-center justify-center gap-2 rounded-full p-3">
                         <span className="text-md flex items-center gap-1">
-                          {campaign.reward_amount}
+                          {campaign.receive_amount}
                           {campaign.token_type && campaign.chain_type && (
                             <TokenIcon
                               chainType={campaign.chain_type}
@@ -514,6 +540,14 @@ export default function CampaignsSection({
           </>
         )}
       </CardContent>
+
+      {/* 自动参与确认弹窗 */}
+      <DialogAutoParticipate
+        isOpen={isDialogOpen}
+        onClose={handleDialogClose}
+        onSuccess={handleOperationSuccess}
+        campaign={selectedCampaign}
+      />
     </Card>
   );
 }

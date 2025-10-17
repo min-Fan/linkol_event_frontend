@@ -2646,3 +2646,20 @@ export interface IGetAgentRankingListItem {
 export const getAgentRankingList = () => {
   return kolRequest.get<IGetAgentRankingListItem[]>('/kol/api/v8/points/top/');
 };
+
+// 修改活动是不是要自动参与
+export interface IUpdateActivityAutoParticipateParams {
+  /**
+   * 活动ID
+   */
+  active_id: number;
+  /**
+   * 要修改成啥状态，on表示开启， off表示关闭
+   */
+  option: string;
+}
+export const updateActivityAutoParticipate = (params: IUpdateActivityAutoParticipateParams) => {
+  return kolRequest.post('/kol/api/v8/active/status/', {
+    ...params,
+  });
+};
