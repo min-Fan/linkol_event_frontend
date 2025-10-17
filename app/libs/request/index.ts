@@ -2663,3 +2663,27 @@ export const updateActivityAutoParticipate = (params: IUpdateActivityAutoPartici
     ...params,
   });
 };
+
+// 积分排行榜top15
+export interface IGetPointsTopListItem {
+  id?: number;
+  /**
+   * 邀请人数
+   */
+  invitee_count?: number;
+  /**
+   * 积分
+   */
+  point?: number;
+  /**
+   * 头像
+   */
+  profile_image_url?: string;
+  /**
+   * 推特名
+   */
+  screen_name?: string;
+}
+export const getPointsTopList = () => {
+  return kolRequest.get<IGetPointsTopListItem[]>('/kol/api/v8/points/top/');
+};

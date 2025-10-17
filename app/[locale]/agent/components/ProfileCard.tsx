@@ -116,7 +116,7 @@ export default function ProfileCard() {
               </div>
               <div className="bg-primary/5 flex flex-1 flex-col items-center justify-center rounded-2xl px-3 py-4">
                 <p className="text-primary text-sm">{t('ranking')}</p>
-                <p className="text-primary text-md font-semibold">#{rank || '-'}</p>
+                <p className="text-primary text-md font-semibold"># {rank || '-'}</p>
               </div>
             </div>
           </div>

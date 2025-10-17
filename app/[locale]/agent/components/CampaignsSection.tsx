@@ -69,7 +69,9 @@ export default function CampaignsSection({
 
   // 弹窗状态
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedCampaign, setSelectedCampaign] = useState<IMarketEventsGetActivesLoginList | null>(null);
+  const [selectedCampaign, setSelectedCampaign] = useState<IMarketEventsGetActivesLoginList | null>(
+    null
+  );
 
   // 获取活动数据
   const fetchCampaigns = async (page: number = 1, append: boolean = false) => {
@@ -320,9 +322,9 @@ export default function CampaignsSection({
   const handleOperationSuccess = () => {
     // 更新对应活动的状态
     if (selectedCampaign) {
-      setCampaigns(prevCampaigns => 
-        prevCampaigns.map(campaign => 
-          campaign.id === selectedCampaign.id 
+      setCampaigns((prevCampaigns) =>
+        prevCampaigns.map((campaign) =>
+          campaign.id === selectedCampaign.id
             ? { ...campaign, is_auto_join: !campaign.is_auto_join }
             : campaign
         )

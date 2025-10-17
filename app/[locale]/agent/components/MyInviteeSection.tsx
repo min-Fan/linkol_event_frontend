@@ -9,6 +9,7 @@ import { useTranslations } from 'next-intl';
 import BouncingAvatars from './BouncingAvatars';
 import InviteeSkeleton from './InviteeSkeleton';
 import InviteeEmptyState from './InviteeEmptyState';
+import RankingDialog from './RankingDialog';
 import { getAgentInviteeList, IGetAgentInviteeListItem } from '../../../libs/request';
 import { useAgentDetails } from '../../../hooks/useAgentDetails';
 import { useAppSelector } from '@store/hooks';
@@ -30,6 +31,7 @@ export default function MyInviteeSection({ invitees: propInvitees }: MyInviteeSe
   const [invitees, setInvitees] = useState<Invitee[]>(propInvitees || []);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isRankingDialogOpen, setIsRankingDialogOpen] = useState(false);
   const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
 
   // 将接口数据转换为组件需要的格式
@@ -83,6 +85,14 @@ export default function MyInviteeSection({ invitees: propInvitees }: MyInviteeSe
   const handleRetry = () => {
     fetchInviteeList();
   };
+
+  const handleOpenRankingDialog = () => {
+    setIsRankingDialogOpen(true);
+  };
+
+  const handleCloseRankingDialog = () => {
+    setIsRankingDialogOpen(false);
+  };
   return (
     <Card className="h-full rounded-lg border-1 p-4 shadow-none">
       <CardContent className="flex h-full flex-col gap-2 p-0">
@@ -95,6 +105,7 @@ export default function MyInviteeSection({ invitees: propInvitees }: MyInviteeSe
             variant="ghost"
             size="icon"
             className="bg-primary/5 hover:bg-primary/10 flex w-auto items-center gap-1 !rounded-xl px-2"
+            onClick={handleOpenRankingDialog}
           >
             <BarChart className="text-primary h-5 w-5" />
             <span className="text-primary text-sm">{t('ranking')}</span>
@@ -130,6 +141,9 @@ export default function MyInviteeSection({ invitees: propInvitees }: MyInviteeSe
           </Button> */}
         </div>
       </CardContent>
+
+      {/* 排行榜弹窗 */}
+      <RankingDialog isOpen={isRankingDialogOpen} onClose={handleCloseRankingDialog} />
     </Card>
   );
 }
