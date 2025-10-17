@@ -29,6 +29,7 @@ import {
   isFromTelegramHybrid,
   getAuthSourceHybrid,
 } from '@libs/utils/auth-source-utils';
+import { getInviteCodeFromCookie } from '@libs/utils/inviteCode';
 
 export default function TwitterPage() {
   const params = useSearchParams();
@@ -400,6 +401,7 @@ export default function TwitterPage() {
 
   const getLoginInfo = async (full_profile: any, data: any) => {
     try {
+      const inviteCode = getInviteCodeFromCookie() || '';
       const res: any = await getTwitterAuthCompleteCallbackV2({
         x_id: localStorage.getItem('twitter_x_id') || '',
         access_token: data.access_token,
@@ -412,7 +414,7 @@ export default function TwitterPage() {
         name: data.name,
         verified: full_profile.verified,
         verified_type: full_profile.verified_type,
-        invite_code: '',
+        invite_code: inviteCode,
       });
 
       if (res && res.code === 200) {

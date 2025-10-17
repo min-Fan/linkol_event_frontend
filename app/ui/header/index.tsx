@@ -51,6 +51,12 @@ export const navigationItems: NavigationItem[] = [
     shouldShow: () => false,
   },
   {
+    href: PagesRoute.MY_AGENT,
+    labelKey: 'nav_my_agent',
+    isActive: (pathname) => pathname.includes(PagesRoute.MY_AGENT),
+    shouldShow: () => true,
+  },
+  {
     href: PagesRoute.DASHBOARD,
     labelKey: 'nav_dashboard',
     isActive: (pathname) => pathname.includes(PagesRoute.DASHBOARD),

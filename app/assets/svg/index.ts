@@ -135,6 +135,7 @@ import FluentShare from './fluent_share.svg';
 import SolIcon from './sol-icon.svg';
 import LucideBot from './lucide_bot.svg';
 import TonIcon from './ton.svg';
+import BarChart from './bar_chart.svg';
 
 export {
   Share,
@@ -274,4 +275,5 @@ export {
   SolIcon,
   LucideBot,
   TonIcon,
+  BarChart,
 };
