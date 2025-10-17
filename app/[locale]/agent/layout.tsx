@@ -19,7 +19,6 @@ export default function MarketEventsLayout({ children }: { children: React.React
       >
         {children}
       </div>
-      <Footer />
     </div>
   );
 }

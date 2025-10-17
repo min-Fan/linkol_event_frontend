@@ -298,7 +298,7 @@ const EventDetail = memo(function EventDetail({
         )}
         {isLoggedIn && (
           <div className="my-1 flex flex-wrap items-center gap-2 sm:my-2 sm:gap-4">
-            {eventInfo?.a_type === 'normal' && (
+            {/* {eventInfo?.a_type === 'normal' && (
               <Button
                 variant="outline"
                 className={cn(
@@ -323,7 +323,7 @@ const EventDetail = memo(function EventDetail({
                 <Zap className="!h-6 !w-6" />
                 <span className="sm:text-md text-sm">{t('limited_rewards')}</span>
               </Button>
-            )}
+            )} */}
             {/* <Button
               variant="outline"
               className={cn(
