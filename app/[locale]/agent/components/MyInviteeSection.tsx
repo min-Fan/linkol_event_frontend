@@ -39,7 +39,7 @@ export default function MyInviteeSection({ invitees: propInvitees }: MyInviteeSe
     return data.map((item) => ({
       id: item.screen_name,
       name: item.screen_name || 'Unknown user',
-      avatar: item.profile_image_url,
+      avatar: item.profile_image_url.replace('_normal', ''),
       value: item.value || 0,
     }));
   };
@@ -108,7 +108,7 @@ export default function MyInviteeSection({ invitees: propInvitees }: MyInviteeSe
             onClick={handleOpenRankingDialog}
           >
             <BarChart className="text-primary h-5 w-5" />
-            <span className="text-primary text-sm">{t('ranking')}</span>
+            <span className="text-primary text-sm">{t('friends_ranking')}</span>
           </Button>
         </div>
         <div className="border-primary/10 h-full max-h-[350px] min-h-[300px] rounded-xl border sm:min-h-auto">
