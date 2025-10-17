@@ -1265,6 +1265,7 @@
     "reward_type_tweet_value_checker": "Brand Value Reward",
     "reward_type_self_tweet_value": "Self Tweet Value Reward",
     "join_agent": "Join Agent",
-    "auto_play_all_failed": "Failed to open all auto participate, please try again later"
+    "auto_play_all_failed": "Failed to open all auto participate, please try again later",
+    "friends_ranking": "Friends"
   }
 }

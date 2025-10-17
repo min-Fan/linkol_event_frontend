@@ -150,7 +150,7 @@ export default function RankingDialog({ isOpen, onClose }: RankingDialogProps) {
                             </div>
                             {item.profile_image_url ? (
                               <img
-                                src={item.profile_image_url}
+                                src={item.profile_image_url.replace('_normal', '')}
                                 alt={item.screen_name}
                                 className={cn(
                                   'h-8 min-h-8 w-8 min-w-8 rounded-full sm:h-10 sm:min-h-10 sm:w-10 sm:min-w-10',
