@@ -1258,6 +1258,11 @@
     "no_invitees": "No Invitees",
     "no_invitees_description": "You haven't invited any users yet. Share your invitation link to invite more friends to participate in activities!",
     "invite_friends": "Invite Friends",
-    "retry": "Retry"
+    "retry": "Retry",
+    "reward_type_invite": "Invitation Reward",
+    "reward_type_invited_post": "Tweet Reward",
+    "reward_type_tweet_value": "Tweet Value Reward",
+    "reward_type_tweet_value_checker": "Brand Value Reward",
+    "reward_type_self_tweet_value": "Self Tweet Value Reward"
   }
 }

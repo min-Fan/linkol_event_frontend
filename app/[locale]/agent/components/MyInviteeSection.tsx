@@ -37,10 +37,10 @@ export default function MyInviteeSection({ invitees: propInvitees }: MyInviteeSe
   // 将接口数据转换为组件需要的格式
   const transformInviteeData = (data: IGetAgentInviteeListItem[]): Invitee[] => {
     return data.map((item) => ({
-      id: item.id?.toString() || '',
-      name: item.from_user?.screen_name || 'Unknown',
-      avatar: item.from_user?.profile_image_url,
-      value: item.point || 0,
+      id: item.screen_name,
+      name: item.screen_name || 'Unknown user',
+      avatar: item.profile_image_url,
+      value: item.value || 0,
     }));
   };
 
@@ -50,8 +50,8 @@ export default function MyInviteeSection({ invitees: propInvitees }: MyInviteeSe
       setLoading(true);
       setError(null);
       const response = await getAgentInviteeList();
-      if (response.data && response.data.list) {
-        const transformedData = transformInviteeData(response.data.list);
+      if (response.data) {
+        const transformedData = transformInviteeData(response.data);
         setInvitees(transformedData);
       } else {
         setInvitees([]);

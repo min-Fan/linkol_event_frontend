@@ -146,6 +146,26 @@ export default function RewardsHistory({ className }: RewardsHistoryProps) {
     });
   };
 
+  // 获取奖励类型文案
+  const getRewardTypeText = (reason?: string) => {
+    if (!reason) return t('invitation_reward');
+
+    switch (reason) {
+      case 'invite':
+        return t('reward_type_invite');
+      case 'invited_post':
+        return t('reward_type_invited_post');
+      case 'tweet_value':
+        return t('reward_type_tweet_value');
+      case 'tweet_value_checker':
+        return t('reward_type_tweet_value_checker');
+      case 'self_tweet_value':
+        return t('reward_type_self_tweet_value');
+      default:
+        return reason;
+    }
+  };
+
   return (
     <Card className={cn('h-full rounded-lg border-1 p-4 shadow-none', className)}>
       <CardContent className="flex h-full flex-col gap-4 p-0">
@@ -215,7 +235,7 @@ export default function RewardsHistory({ className }: RewardsHistoryProps) {
                         {reward.from_user?.screen_name || t('unknown_user')}
                       </div>
                       <div className="text-xs text-gray-500">
-                        {reward.reason || t('invitation_reward')}
+                        {getRewardTypeText(reward.reason)}
                       </div>
                     </div>
                     <div className="text-right">

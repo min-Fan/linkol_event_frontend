@@ -2590,37 +2590,14 @@ export const getAgentRewardList = (params: IGetAgentRewardListParams) => {
 };
 
 // 用户的邀请列表,前20
-export interface IGetAgentInviteeListData {
-  current_page: number;
-  list: IGetAgentInviteeListItem[];
-  page_range: number[];
-  total: number;
-}
 export interface IGetAgentInviteeListItem {
-  /**
-   * 时间
-   */
-  created_at?: string;
-  /**
-   * 因为谁给的
-   */
-  from_user?: FromUser;
-  /**
-   * 奖励ID
-   */
-  id?: number;
-  /**
-   * 积分数
-   */
-  point?: number;
-  /**
-   * 奖励来源
-   */
-  reason?: string;
+  screen_name: string;
+  profile_image_url: string;
+  value: number;
 }
 
 export const getAgentInviteeList = () => {
-  return kolRequest.get<IGetAgentInviteeListData>('/kol/api/v8/user/invites/');
+  return kolRequest.get<IGetAgentInviteeListItem[]>('/kol/api/v8/user/invites/');
 };
 
 // 积分排行榜top15

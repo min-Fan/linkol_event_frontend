@@ -1260,6 +1260,11 @@
     "no_invitees": "暂无邀请者",
     "no_invitees_description": "您还没有邀请任何用户加入。分享您的邀请链接，邀请更多朋友参与活动！",
     "invite_friends": "邀请朋友",
-    "retry": "重试"
+    "retry": "重试",
+    "reward_type_invite": "邀请奖励",
+    "reward_type_invited_post": "发推奖励",
+    "reward_type_tweet_value": "推文价值奖励",
+    "reward_type_tweet_value_checker": "品牌价值奖励",
+    "reward_type_self_tweet_value": "自己推文价值奖励"
   }
 }
