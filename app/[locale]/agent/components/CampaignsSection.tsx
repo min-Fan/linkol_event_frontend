@@ -15,11 +15,17 @@ import { Label } from '@shadcn/components/ui/label';
 import { Switch } from '@shadcn/components/ui/switch';
 import { Skeleton } from '@shadcn/components/ui/skeleton';
 import { cn } from '@shadcn/lib/utils';
-import { marketEventsGetActivesLogin, IMarketEventsGetActivesLoginList } from '@libs/request';
+import {
+  marketEventsGetActivesLogin,
+  IMarketEventsGetActivesLoginList,
+  openAllActivityAutoParticipate,
+} from '@libs/request';
 import PagesRoute from '@constants/routes';
 import { Link } from '@libs/i18n/navigation';
 import { useAppSelector } from '@store/hooks';
 import DialogAutoParticipate from './DialogAutoParticipate';
+import { useAgentDetails } from '@hooks/useAgentDetails';
+import { toast } from 'sonner';
 
 interface Campaign {
   id: string;
@@ -57,6 +63,9 @@ export default function CampaignsSection({
   const [size, setSize] = useState(2);
   const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
 
+  // 使用详情接口的 is_all_auto 字段
+  const { isAllAutoPlay, updateAgentDetails, refreshAgentDetails } = useAgentDetails();
+
   // 数据状态
   const [campaigns, setCampaigns] = useState<IMarketEventsGetActivesLoginList[]>([]);
   const [loading, setLoading] = useState(true);
@@ -72,6 +81,9 @@ export default function CampaignsSection({
   const [selectedCampaign, setSelectedCampaign] = useState<IMarketEventsGetActivesLoginList | null>(
     null
   );
+
+  // 滑块加载状态
+  const [isSwitchLoading, setIsSwitchLoading] = useState(false);
 
   // 获取活动数据
   const fetchCampaigns = async (page: number = 1, append: boolean = false) => {
@@ -89,7 +101,7 @@ export default function CampaignsSection({
         page,
         size: size,
         is_verify: 1, // 只获取已验证的活动
-        is_on: isAutoPlay ? 1 : 0,
+        is_on: 0, // 始终传0，获取全部数据
       });
 
       if (response.data?.list) {
@@ -131,7 +143,7 @@ export default function CampaignsSection({
     setHasMore(true);
     setIsLoadingMoreTriggered(false);
     fetchCampaigns(1, false);
-  }, [dataType, activeTypeId, isAutoPlay]);
+  }, [dataType, activeTypeId]);
 
   // 使用第一个活动的代币信息
   const { tokenInfo } = usePayTokenInfo(campaigns[0]?.chain_type, campaigns[0]?.token_type);
@@ -319,7 +331,7 @@ export default function CampaignsSection({
   };
 
   // 处理操作成功后的回调
-  const handleOperationSuccess = () => {
+  const handleOperationSuccess = async () => {
     // 更新对应活动的状态
     if (selectedCampaign) {
       setCampaigns((prevCampaigns) =>
@@ -329,6 +341,37 @@ export default function CampaignsSection({
             : campaign
         )
       );
+      await refreshAgentDetails();
+    }
+  };
+
+  // 处理全局自动参与滑块变化
+  const handleAutoPlayChange = async (checked: boolean) => {
+    // 如果滑块是关闭状态，不允许操作
+    if (!checked) {
+      return;
+    }
+
+    setIsSwitchLoading(true);
+    try {
+      // 调用一键全部开启接口
+      await openAllActivityAutoParticipate();
+
+      // 更新所有活动的状态为自动参与
+      setCampaigns((prevCampaigns) =>
+        prevCampaigns.map((campaign) => ({
+          ...campaign,
+          is_auto_join: true,
+        }))
+      );
+
+      // 更新详情接口数据
+      await refreshAgentDetails();
+    } catch (error) {
+      toast.error(t('auto_play_all_failed'));
+      // 可以添加错误提示
+    } finally {
+      setIsSwitchLoading(false);
     }
   };
 
@@ -373,17 +416,23 @@ export default function CampaignsSection({
           <div className="flex items-center gap-2">
             <Label
               htmlFor="airplane-mode"
-              className={cn('text-sm', isAutoPlay ? 'text-primary' : 'text-muted-foreground')}
+              className={cn('text-sm', isAllAutoPlay ? 'text-primary' : 'text-muted-foreground')}
             >
               {t('auto_play_all')}
             </Label>
-            <Switch
-              defaultChecked={isAutoPlay}
-              id="airplane-mode"
-              checked={isAutoPlay}
-              onCheckedChange={(checked) => setIsAutoPlay(checked === true)}
-              disabled={loading}
-            />
+            <div className="relative">
+              <Switch
+                id="airplane-mode"
+                checked={isAllAutoPlay}
+                onCheckedChange={handleAutoPlayChange}
+                disabled={loading || isAllAutoPlay || isSwitchLoading}
+              />
+              {isSwitchLoading && (
+                <div className="absolute inset-0 flex items-center justify-start">
+                  <div className="border-t-primary ml-1 h-3 w-3 animate-spin rounded-full border-2 border-gray-300"></div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

@@ -51,5 +51,6 @@ export function useAgentDetails() {
     points: agentDetails?.data?.point || 0,
     rank: agentDetails?.data?.rank || 0,
     inviteCode: agentDetails?.data?.invite_code || '',
+    isAllAutoPlay: agentDetails?.data?.is_all_auto || false,
   };
 }

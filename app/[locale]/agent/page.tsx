@@ -22,7 +22,7 @@ export default function MyAgentPage() {
   };
 
   return (
-    <div className="min-h-screen w-full">
+    <div className="min-h-screen w-full pb-10 sm:pb-0">
       <div className="mx-auto h-full max-w-7xl">
         {isLoggedIn ? (
           <div className="grid grid-cols-1 gap-2 lg:grid-cols-3">

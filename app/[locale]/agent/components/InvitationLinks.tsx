@@ -20,22 +20,15 @@ export default function InvitationLinks({ invitationCode }: InvitationLinksProps
   const rules = [
     {
       id: '1',
-      text: t.rich('invite_rule_1', {
-        count: (chunks) => <span className="font-bold">1 pts</span>,
-        points: (chunks) => <span className="font-bold">10 pts</span>,
-      }),
+      text: t('invite_rule_1'),
     },
     {
       id: '2',
-      text: t.rich('invite_rule_2', {
-        points: (chunks) => <span className="font-bold">5 pts</span>,
-      }),
+      text: t('invite_rule_2'),
     },
     {
       id: '3',
-      text: t.rich('invite_rule_3', {
-        points: (chunks) => <span className="font-bold">1 pt</span>,
-      }),
+      text: t('invite_rule_3'),
     },
   ];
 

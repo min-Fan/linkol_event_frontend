@@ -1213,9 +1213,9 @@
     "ranking": "Ranking",
     "login_to_generate_invite_link": "Login to generate your exclusive invitation link",
     "invite_link_generating": "Invitation link is generating, please try again later",
-    "invite_rule_1": "Invite <count>{count}</count> friend = <points>{points}</points>",
-    "invite_rule_2": "Invitee grants endorsement = extra <points>{points}</points>",
-    "invite_rule_3": "Get <points>{points}</points> for each interaction",
+    "invite_rule_1": "Invite friends to earn pts.",
+    "invite_rule_2": "invitee post a tweet",
+    "invite_rule_3": "waiting airdrop",
     "invitation_links": "Invitation Links",
     "invitation_rules": "Invitation Rules",
     "rewards_history": "Rewards History",
@@ -1263,6 +1263,8 @@
     "reward_type_invited_post": "Tweet Reward",
     "reward_type_tweet_value": "Tweet Value Reward",
     "reward_type_tweet_value_checker": "Brand Value Reward",
-    "reward_type_self_tweet_value": "Self Tweet Value Reward"
+    "reward_type_self_tweet_value": "Self Tweet Value Reward",
+    "join_agent": "Join Agent",
+    "auto_play_all_failed": "Failed to open all auto participate, please try again later"
   }
 }

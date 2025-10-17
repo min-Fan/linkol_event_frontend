@@ -2524,6 +2524,10 @@ export interface IGetAgentDetailsData {
    * 总奖励
    */
   total_reward: number;
+  /**
+   * 是否所有活动都自动参与
+   */
+  is_all_auto: boolean;
 }
 export const getAgentDetails = () => {
   return kolRequest.get<IGetAgentDetailsData>('/kol/api/v8/agent/detail/');
@@ -2663,4 +2667,9 @@ export interface IGetPointsTopListItem {
 }
 export const getPointsTopList = () => {
   return kolRequest.get<IGetPointsTopListItem[]>('/kol/api/v8/points/top/');
+};
+
+// 一键全部开启
+export const openAllActivityAutoParticipate = () => {
+  return kolRequest.post('/kol/api/v8/openall/auto/');
 };

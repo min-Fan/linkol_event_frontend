@@ -25,11 +25,17 @@ interface RankingDialogProps {
 
 const getRankIcon = (rank: number) => {
   if (rank === 1) {
-    return <RankFirst className="h-8 w-8 rounded-full" />;
+    return (
+      <RankFirst className="h-6 min-h-6 w-6 min-w-6 rounded-full sm:h-8 sm:min-h-8 sm:w-8 sm:min-w-8" />
+    );
   } else if (rank === 2) {
-    return <RankSecond className="h-8 w-8 rounded-full" />;
+    return (
+      <RankSecond className="h-6 min-h-6 w-6 min-w-6 rounded-full sm:h-8 sm:min-h-8 sm:w-8 sm:min-w-8" />
+    );
   } else if (rank === 3) {
-    return <RankThird className="h-8 w-8 rounded-full" />;
+    return (
+      <RankThird className="h-6 min-h-6 w-6 min-w-6 rounded-full sm:h-8 sm:min-h-8 sm:w-8 sm:min-w-8" />
+    );
   }
   return <span className="text-md">{rank}</span>;
 };
@@ -135,8 +141,8 @@ export default function RankingDialog({ isOpen, onClose }: RankingDialogProps) {
                           key={item.id || index}
                           className="border-primary/5 hover:bg-primary/5 flex items-center justify-between border-b py-2 last:border-b-0"
                         >
-                          <div className="flex items-center gap-3">
-                            <div className="flex w-10 items-center justify-center">
+                          <div className="flex items-center gap-2 sm:gap-3">
+                            <div className="flex w-8 min-w-8 items-center justify-center sm:w-10 sm:min-w-10">
                               {getRankIcon(rank)}
                             </div>
                             {item.profile_image_url ? (
@@ -144,7 +150,7 @@ export default function RankingDialog({ isOpen, onClose }: RankingDialogProps) {
                                 src={item.profile_image_url}
                                 alt={item.screen_name}
                                 className={cn(
-                                  'h-10 min-h-10 w-10 min-w-10 rounded-full',
+                                  'h-8 min-h-8 w-8 min-w-8 rounded-full sm:h-10 sm:min-h-10 sm:w-10 sm:min-w-10',
                                   rank > 3 && 'h-6 min-h-6 w-6 min-w-6'
                                 )}
                                 onError={(e) => {
@@ -155,15 +161,15 @@ export default function RankingDialog({ isOpen, onClose }: RankingDialogProps) {
                             ) : (
                               <div
                                 className={cn(
-                                  'h-10 min-h-10 w-10 min-w-10 rounded-full bg-gradient-to-r from-orange-400 to-purple-600',
+                                  'h-8 min-h-8 w-8 min-w-8 rounded-full bg-gradient-to-r from-orange-400 to-purple-600 sm:h-10 sm:min-h-10 sm:w-10 sm:min-w-10',
                                   rank > 3 && 'h-6 min-h-6 w-6 min-w-6'
                                 )}
                               />
                             )}
                             <span
                               className={cn(
-                                'text-md max-w-[120px] truncate',
-                                rank <= 3 && 'text-base font-semibold'
+                                'sm:text-md max-w-[80px] truncate text-sm sm:max-w-[120px]',
+                                rank <= 3 && 'text-sm font-semibold sm:text-base'
                               )}
                             >
                               {item.screen_name || t('unknown_user')}
@@ -177,7 +183,7 @@ export default function RankingDialog({ isOpen, onClose }: RankingDialogProps) {
                           >
                             <span
                               className={cn(
-                                'text-md',
+                                'sm:text-md text-sm',
                                 rank <= 3 && 'text-primary text-base font-semibold'
                               )}
                             >
@@ -185,7 +191,7 @@ export default function RankingDialog({ isOpen, onClose }: RankingDialogProps) {
                             </span>
                             <span
                               className={cn(
-                                'text-md pr-1',
+                                'sm:text-md pr-1 text-sm',
                                 rank <= 3 && 'text-primary pr-0 text-sm'
                               )}
                             >
