@@ -83,7 +83,10 @@ export default function RankingDialog({ isOpen, onClose }: RankingDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogClose asChild></DialogClose>
-      <DialogContent className="border-border flex max-h-[90vh] w-96 max-w-full flex-col gap-0 overflow-hidden bg-transparent p-4 shadow-none sm:w-[450px] sm:max-w-full sm:p-0" nonClosable>
+      <DialogContent
+        className="border-border flex max-h-[90vh] w-96 max-w-full flex-col gap-0 overflow-hidden bg-transparent p-4 shadow-none sm:w-[450px] sm:max-w-full sm:p-0"
+        nonClosable
+      >
         {/* Header */}
         <DialogHeader className="bg-primary gap-0 rounded-t-xl p-2 text-center text-white sm:rounded-t-2xl sm:p-4">
           <DialogTitle className="text-center text-base font-semibold text-white">
@@ -128,7 +131,7 @@ export default function RankingDialog({ isOpen, onClose }: RankingDialogProps) {
               {/* 排行榜列表 */}
               <div>
                 <h3 className="mb-3 text-base font-semibold">{t('my_invitee')}</h3>
-                <div className="border-border rounded-md border p-3">
+                <div className="border-border max-h-80 overflow-y-auto rounded-md border p-3">
                   {rankingData.length === 0 ? (
                     <div className="text-muted-foreground py-8 text-center">
                       <p>{t('no_data')}</p>
@@ -147,7 +150,7 @@ export default function RankingDialog({ isOpen, onClose }: RankingDialogProps) {
                             </div>
                             {item.profile_image_url ? (
                               <img
-                                src={item.profile_image_url}
+                                src={item.profile_image_url.replace('_normal', '')}
                                 alt={item.screen_name}
                                 className={cn(
                                   'h-8 min-h-8 w-8 min-w-8 rounded-full sm:h-10 sm:min-h-10 sm:w-10 sm:min-w-10',

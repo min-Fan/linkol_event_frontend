@@ -1267,6 +1267,7 @@
     "reward_type_tweet_value_checker": "品牌价值奖励",
     "reward_type_self_tweet_value": "自己推文价值奖励",
     "join_agent": "加入代理",
-    "auto_play_all_failed": "开启全部自动参与失败，请稍后重试"
+    "auto_play_all_failed": "开启全部自动参与失败，请稍后重试",
+    "friends_ranking": "好友排名"
   }
 }
