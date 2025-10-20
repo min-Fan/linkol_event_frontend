@@ -1,5 +1,5 @@
 'use client';
-import { UsdcIcon, Usdt } from '@assets/svg';
+import { BNB, UsdcIcon, Usdt } from '@assets/svg';
 import Usd1 from '@assets/image/token/usd1.png';
 import Image from 'next/image';
 import { getTokenConfig } from '@constants/config';
@@ -9,6 +9,7 @@ import { useState } from 'react';
 const svgIconMap = {
   usdc: UsdcIcon,
   usdt: Usdt,
+  bnb: BNB,
 };
 
 // 图片组件映射

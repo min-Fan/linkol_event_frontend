@@ -1806,6 +1806,28 @@ export const getReceiveRewardSignature = (params: IGetReceiveRewardSignaturePara
   return kolRequest.post(`/kol/api/v6/claim_reward/sign/`, params);
 };
 
+// BSC获得领奖奖励签名
+export interface IGetReceiveRewardSignatureBSCParams {
+  /**
+   * 代币地址
+   */
+  tokenAddress: string;
+  /**
+   * 活动ID
+   */
+  activeId: string;
+  /**
+   * 钱包地址
+   */
+  receiver: string;
+  chainId: number;
+}
+export const getReceiveRewardSignatureBSC = (params: IGetReceiveRewardSignatureBSCParams) => {
+  return kolRequest.post(`/kol/api/v7/claim_reward/sign/`, params);
+};
+
+// 获得领奖奖励回调接口 BSC
+
 //某个活动的参与推文记录
 export interface IGetActivityPostsParams {
   /**
@@ -2254,6 +2276,21 @@ export interface IGetReceiveRewardCallbackParams {
 }
 export const getReceiveRewardCallback = (params: IGetReceiveRewardCallbackParams) => {
   return kolRequest.post(`/kol/api/v6/claim_reward/success/`, params);
+};
+
+// 获得领奖奖励回调接口 BSC
+export interface IGetReceiveRewardCallbackBSCParams {
+  /**
+   * 交易哈希
+   */
+  tx_hash: string;
+  /**
+   * 奖励ID
+   */
+  rewardIds: number[];
+}
+export const getReceiveRewardCallbackBSC = (params: IGetReceiveRewardCallbackBSCParams) => {
+  return kolRequest.post(`/kol/api/v7/claim_reward/success/`, params);
 };
 
 // Solana 领取奖励接口

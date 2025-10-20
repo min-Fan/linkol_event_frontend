@@ -1,6 +1,5 @@
-import { Chain, base, baseSepolia } from 'wagmi/chains';
+import { Chain, base, baseSepolia, bsc } from 'wagmi/chains';
 import { getSupportedChains, getDefaultChain } from './config';
-import { SolanaProvider } from 'app/solana/solana-provider';
 
 // 扩展 Chain 类型以包含 iconUrl
 interface ExtendedChain extends Chain {
@@ -44,6 +43,7 @@ export const ton_chain = {
 export const chain: { [key: string]: ExtendedChain | any } = {
   '8453': base,
   '84532': baseSepolia,
+  '56': bsc,
   '32383': {
     id: 32383,
     name: 'Agent Chain',

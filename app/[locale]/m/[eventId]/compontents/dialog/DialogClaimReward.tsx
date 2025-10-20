@@ -25,6 +25,8 @@ import {
   getReceiveRewardCallback,
   getSolanaClaimReward,
   getTonClaimReward,
+  getReceiveRewardSignatureBSC,
+  getReceiveRewardCallbackBSC,
 } from '@libs/request';
 import UIWallet from '@ui/wallet';
 import useUserInfo from '@hooks/useUserInfo';
@@ -173,7 +175,7 @@ const DialogClaimReward = memo(
       } else {
         setIsWrongChain(false);
       }
-    }, [chainId]);
+    }, [chainId, isOpen]);
 
     // 切换到默认链
     const handleSwitchChain = async () => {
@@ -229,16 +231,24 @@ const DialogClaimReward = memo(
 
       try {
         // 静默调用回调接口，不处理返回结果，只记录日志
-        const res: any = await getReceiveRewardCallback({
-          rewardIds: signatureData.rewardIds,
-          tx_hash: claimData,
-        });
+        if (eventInfo.chain_type === 'BASE') {
+          const res: any = await getReceiveRewardCallback({
+            rewardIds: signatureData.rewardIds,
+            tx_hash: claimData,
+          });
+          console.log('Callback reward result:', res);
+        } else if (eventInfo.chain_type === 'BSC') {
+          const res: any = await getReceiveRewardCallbackBSC({
+            rewardIds: signatureData.rewardIds,
+            tx_hash: claimData,
+          });
+          console.log('Callback reward result:', res);
+        }
         setIsClaiming(false);
         // 直接显示成功状态
         handleContractSuccess();
         // 刷新用户活动奖励数据和父组件数据
         refetchUserActivityReward();
-        console.log('Callback reward result:', res);
       } catch (error) {
         // 合约调用成功 回调无论是否成功都应该提示成功领取弹窗
         setIsClaiming(false);
@@ -352,6 +362,95 @@ const DialogClaimReward = memo(
           // amount: toContractAmount(String(availableRewards), decimals || 6).toString(),
           activeId: eventId as string,
           receiver: address,
+        });
+
+        if (signatureRes.code !== 200) {
+          toast.error(signatureRes.msg || t('failed_to_get_signature'));
+          setIsClaiming(false);
+          setIsClaimFailed(true);
+          setHasStartedClaim(false); // 重置状态以允许重试
+          isRequestingSignatureRef.current = false; // 重置签名请求标记
+          return;
+        }
+
+        if (signatureRes.data.code === 200) {
+          onRefresh?.();
+        }
+
+        const { tokenAddress, amounts, rewardIds, timestamp, signature } = signatureRes.data;
+
+        // 缓存领取时的奖励数量，用于成功弹窗显示
+        const claimAmount = Math.floor(Number(claimableAmount) * Math.pow(10, 6));
+        setClaimedAmount(Number(claimableAmount));
+        console.log('claimAmount:', claimAmount);
+
+        // 保存签名数据，用于后续回调
+        setSignatureData({ amounts, rewardIds, timestamp, signature, tokenAddress });
+
+        // 2. 调用合约方法
+        claimByReward({
+          address: contractAddress?.ActivityServiceAddress as `0x${string}`,
+          abi: Activityservice_abi,
+          functionName: 'claimByReward',
+          args: [tokenAddress, amounts, rewardIds, timestamp, signature],
+        });
+
+        // 合约调用已发起，重置签名请求标记
+        isRequestingSignatureRef.current = false;
+      } catch (error) {
+        console.error('Failed to claim reward:', error);
+        toast.error(error.response?.data?.msg || t('failed_to_claim_reward'));
+        setIsClaiming(false);
+        setIsClaimFailed(true);
+        setHasStartedClaim(false); // 重置状态以允许重试
+        hasProcessedSuccessRef.current = false; // 重置成功处理标记，允许重试
+        isRequestingSignatureRef.current = false; // 重置签名请求标记
+      }
+    }, [
+      address,
+      hasStartedClaim,
+      totalReceiveAmount,
+      eventInfo?.a_type,
+      t,
+      eventId,
+      onRefresh,
+      claimByReward,
+      decimals,
+    ]);
+
+    const handleClaimRewardBSC = useCallback(async () => {
+      if (!address) {
+        toast.error(t('please_connect_wallet'));
+        return;
+      }
+
+      // 如果已经开始了领取流程或正在请求签名，避免重复执行
+      if (hasStartedClaim || isRequestingSignatureRef.current || !chainId) {
+        return;
+      }
+
+      try {
+        setIsClaiming(true);
+        setHasStartedClaim(true); // 标记已经开始领取流程
+        isRequestingSignatureRef.current = true; // 标记正在请求签名
+
+        const availableRewards = totalReceiveAmount;
+        if (availableRewards === 0 && eventInfo?.a_type === 'normal') {
+          toast.error(t('no_rewards_to_claim'));
+          setIsClaiming(false);
+          setHasStartedClaim(false); // 重置状态以允许重试
+          isRequestingSignatureRef.current = false; // 重置签名请求标记
+          return;
+        }
+
+        // 1. 调用签名接口
+        const contractAddress = getContractAddress(eventInfo?.chain_type, eventInfo?.token_type);
+        const signatureRes: any = await getReceiveRewardSignatureBSC({
+          tokenAddress: contractAddress?.pay_member_token_address as `0x${string}`,
+          // amount: toContractAmount(String(availableRewards), decimals || 6).toString(),
+          activeId: eventId as string,
+          receiver: address,
+          chainId,
         });
 
         if (signatureRes.code !== 200) {
@@ -677,7 +776,9 @@ const DialogClaimReward = memo(
             )}
           >
             {(!isLogin && eventInfo?.chain_type === 'BASE') ||
+            (!isLogin && eventInfo?.chain_type === 'BSC') ||
             (isWrongChain && eventInfo?.chain_type === 'BASE') ||
+            (isWrongChain && eventInfo?.chain_type === 'BSC') ||
             (!isLoginSolana && eventInfo?.chain_type === 'Solana') ||
             (!isLoginTon && eventInfo?.chain_type === 'Ton') ? (
               // 未连接钱包状态
@@ -693,28 +794,30 @@ const DialogClaimReward = memo(
                 </div>
 
                 {/* 错误链提示 */}
-                {isWrongChain && eventInfo?.chain_type === 'BASE' && (
-                  <div className="flex w-full flex-col items-center justify-center rounded-md bg-yellow-100 p-4 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100">
-                    <p className="text-sm">
-                      {t('wrong_chain_message', {
-                        chainName: getChainConfig(eventInfo?.chain_type as ChainType).name,
-                      })}
-                    </p>
-                    <Button
-                      onClick={handleSwitchChain}
-                      className="mt-2 bg-yellow-800 text-white hover:bg-yellow-700 dark:bg-yellow-700 dark:hover:bg-yellow-600"
-                    >
-                      {t('switch_to_chain', {
-                        chainName: getChainConfig(eventInfo?.chain_type as ChainType).name,
-                      })}
-                    </Button>
-                  </div>
-                )}
-                {!isWrongChain && eventInfo?.chain_type === 'BASE' && (
-                  <div className="flex w-40">
-                    <UIWallet className="!h-auto flex-1 !rounded-lg" onSuccess={handleClose} />
-                  </div>
-                )}
+                {isWrongChain &&
+                  (eventInfo?.chain_type === 'BASE' || eventInfo?.chain_type === 'BSC') && (
+                    <div className="flex w-full flex-col items-center justify-center rounded-md bg-yellow-100 p-4 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100">
+                      <p className="text-sm">
+                        {t('wrong_chain_message', {
+                          chainName: getChainConfig(eventInfo?.chain_type as ChainType).name,
+                        })}
+                      </p>
+                      <Button
+                        onClick={handleSwitchChain}
+                        className="mt-2 bg-yellow-800 text-white hover:bg-yellow-700 dark:bg-yellow-700 dark:hover:bg-yellow-600"
+                      >
+                        {t('switch_to_chain', {
+                          chainName: getChainConfig(eventInfo?.chain_type as ChainType).name,
+                        })}
+                      </Button>
+                    </div>
+                  )}
+                {!isWrongChain &&
+                  (eventInfo?.chain_type === 'BASE' || eventInfo?.chain_type === 'BSC') && (
+                    <div className="flex w-40">
+                      <UIWallet className="!h-auto flex-1 !rounded-lg" onSuccess={handleClose} />
+                    </div>
+                  )}
                 {!isLoginSolana && eventInfo?.chain_type === 'Solana' && (
                   <div className="flex">
                     <Connect onSuccess={handleClose} onWalletModalOpen={handleClose} />
@@ -895,6 +998,8 @@ const DialogClaimReward = memo(
                             handleClaimRewardSolana();
                           } else if (eventInfo?.chain_type === 'Ton') {
                             handleClaimRewardTon();
+                          } else if (eventInfo?.chain_type === 'BSC') {
+                            handleClaimRewardBSC();
                           }
                         }
                       }}
@@ -932,9 +1037,13 @@ const DialogClaimReward = memo(
               setIsBindEmailDialogOpen(open);
               if (!open) {
                 // 如果邮箱绑定成功或取消，检查是否可以继续领取流程
-                if (eventInfo?.chain_type === 'BASE') {
+                if (eventInfo?.chain_type === 'BASE' || eventInfo?.chain_type === 'BSC') {
                   if (isEmailBound() && address && !isWrongChain && isLogin) {
-                    handleClaimReward();
+                    if (eventInfo?.chain_type === 'BASE') {
+                      handleClaimReward();
+                    } else if (eventInfo?.chain_type === 'BSC') {
+                      handleClaimRewardBSC();
+                    }
                   } else {
                     // 如果没有成功绑定邮箱，关闭主弹窗
                     handleClose();
