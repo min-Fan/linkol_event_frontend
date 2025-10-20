@@ -287,22 +287,7 @@ export const getExplorerUrl = (txHash: string, chainType: string): string => {
   const normalizedChainType = chainType?.toLowerCase();
 
   // 如果配置中没有找到，使用默认的映射
-  let getExplorerUrl = '';
-  switch (normalizedChainType) {
-    case 'solana':
-      getExplorerUrl = getChainConfig(normalizedChainType as ChainType).blockExplorerUrl;
-      break;
-    case 'base':
-      getExplorerUrl = getChainConfig(normalizedChainType as ChainType).blockExplorerUrl;
-      break;
-    case 'ton':
-      getExplorerUrl = getChainConfig(normalizedChainType as ChainType).blockExplorerUrl;
-      break;
-    default:
-      // 默认使用 Solana 浏览器
-      getExplorerUrl = getChainConfig(normalizedChainType as ChainType).blockExplorerUrl;
-      break;
-  }
+  let getExplorerUrl = getChainConfig(normalizedChainType as ChainType).blockExplorerUrl;
   const txType = normalizedChainType === 'ton' ? 'transaction' : 'tx';
   return `${getExplorerUrl}/${txType}/${txHash}`;
 };
