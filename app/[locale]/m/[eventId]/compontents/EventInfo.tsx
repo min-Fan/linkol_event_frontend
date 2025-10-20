@@ -167,25 +167,56 @@ const EventInfo = memo(function EventInfo({
       <div className="flex flex-col gap-2">
         {eventInfo?.project?.website && (
           <div className="bg-muted-foreground/5 flex flex-wrap items-center justify-between gap-2 rounded-xl p-2 sm:gap-1">
-            <span className="text-muted-foreground sm:text-md text-sm">{t('website')}</span>
+            {/* <span className="text-muted-foreground sm:text-md text-sm">{t('website')}</span> */}
             <div className="flex cursor-pointer flex-wrap items-center gap-1">
-              <div
-                className="bg-background flex items-center gap-1 rounded-full px-2 py-0.5"
-                onClick={() => {
-                  window.open(eventInfo?.project?.website, '_blank');
-                }}
-              >
-                <Globe className="h-3 w-3" />
-                <span className="sm:text-md text-sm font-semibold">{t('website')}</span>
-              </div>
-              {/* <div className="bg-background flex items-center gap-1 rounded-full px-2 py-0.5">
-              <Logo className="h-3 w-3" />
-              <span className="sm:text-md text-sm font-semibold">Linkol</span>
-              </div> */}
+              {eventInfo?.project?.website && (
+                <div
+                  className="bg-background flex items-center gap-1 rounded-full px-2 py-0.5"
+                  onClick={() => {
+                    window.open(eventInfo?.project?.website, '_blank');
+                  }}
+                >
+                  <Globe className="h-3 w-3" />
+                  <span className="sm:text-md text-sm font-semibold">{t('website')}</span>
+                </div>
+              )}
+              {eventInfo?.project?.link && (
+                <div
+                  className="bg-background flex items-center gap-1 rounded-full px-2 py-0.5"
+                  onClick={() => {
+                    window.open(eventInfo?.project?.link, '_blank');
+                  }}
+                >
+                  <TwIcon className="h-3 w-3" />
+                  <span className="sm:text-md text-sm font-semibold">{t('twitter')}</span>
+                </div>
+              )}
+              {eventInfo?.project?.telegram && (
+                <div
+                  className="bg-background flex items-center gap-1 rounded-full px-2 py-0.5"
+                  onClick={() => {
+                    window.open(eventInfo?.project?.telegram, '_blank');
+                  }}
+                >
+                  <Telegram className="h-3 w-3" />
+                  <span className="sm:text-md text-sm font-semibold">{t('telegram')}</span>
+                </div>
+              )}
+              {eventInfo?.project?.discord && (
+                <div
+                  className="bg-background flex items-center gap-1 rounded-full px-2 py-0.5"
+                  onClick={() => {
+                    window.open(eventInfo?.project?.discord, '_blank');
+                  }}
+                >
+                  <Discord className="h-3 w-3" />
+                  <span className="sm:text-md text-sm font-semibold">{t('discord')}</span>
+                </div>
+              )}
             </div>
           </div>
         )}
-        {(eventInfo?.project?.link ||
+        {/* {(eventInfo?.project?.link ||
           eventInfo?.project?.telegram ||
           eventInfo?.project?.discord) && (
           <div className="bg-muted-foreground/5 flex flex-wrap items-center justify-between gap-2 rounded-xl p-2 sm:gap-1">
@@ -226,7 +257,7 @@ const EventInfo = memo(function EventInfo({
               )}
             </div>
           </div>
-        )}
+        )} */}
       </div>
 
       {/* Share Project Dialog */}

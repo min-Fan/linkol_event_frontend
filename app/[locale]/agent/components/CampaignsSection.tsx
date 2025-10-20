@@ -26,6 +26,7 @@ import { useAppSelector } from '@store/hooks';
 import DialogAutoParticipate from './DialogAutoParticipate';
 import { useAgentDetails } from '@hooks/useAgentDetails';
 import { toast } from 'sonner';
+import { useRouter } from '@libs/i18n/navigation';
 
 interface Campaign {
   id: string;
@@ -56,6 +57,7 @@ export default function CampaignsSection({
   activeTypeId,
 }: CampaignsSectionProps) {
   const t = useTranslations('common');
+  const router = useRouter();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isAutoPlay, setIsAutoPlay] = useState(false);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -459,7 +461,14 @@ export default function CampaignsSection({
           <>
             {campaigns.map((campaign) => (
               <>
-                <div className="bg-background border-primary/10 hover:shadow-primary/20 min-w-[280px] rounded-xl border hover:shadow-sm">
+                <div
+                  className="bg-background border-primary/10 hover:shadow-primary/20 min-w-[280px] cursor-pointer rounded-xl border hover:shadow-sm"
+                  onClick={() => {
+                    router.push(`${PagesRoute.MARKET_EVENTS}/${campaign.id}`, {
+                      scroll: false,
+                    });
+                  }}
+                >
                   <div className="p-0">
                     {/* 活动头部图片区域 */}
                     <div className="relative h-32 overflow-hidden rounded-t-lg">
