@@ -287,7 +287,7 @@ export const getExplorerUrl = (txHash: string, chainType: string): string => {
   const normalizedChainType = chainType?.toLowerCase();
 
   // 如果配置中没有找到，使用默认的映射
-  let getExplorerUrl = getChainConfig(normalizedChainType as ChainType).blockExplorerUrl;
+  const explorerUrl = getChainConfig(normalizedChainType as ChainType).blockExplorerUrl;
   const txType = normalizedChainType === 'ton' ? 'transaction' : 'tx';
-  return `${getExplorerUrl}/${txType}/${txHash}`;
+  return `${explorerUrl}/${txType}/${txHash}`;
 };
