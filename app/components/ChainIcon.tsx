@@ -1,5 +1,5 @@
 'use client';
-import { Base, SOL, SolIcon, TonIcon } from '@assets/svg';
+import { Base, Binance, SOL, SolIcon, TonIcon } from '@assets/svg';
 import Image from 'next/image';
 import { getChainConfig } from '@constants/config';
 import { useState } from 'react';
@@ -10,6 +10,7 @@ const svgIconMap = {
   solana: SOL,
   sol: SolIcon,
   ton: TonIcon,
+  bsc: Binance
 };
 
 // 图片组件映射

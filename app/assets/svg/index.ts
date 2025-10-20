@@ -136,6 +136,8 @@ import SolIcon from './sol-icon.svg';
 import LucideBot from './lucide_bot.svg';
 import TonIcon from './ton.svg';
 import BarChart from './bar_chart.svg';
+import Binance from './binance-smart-chain.svg';
+import BNB from './bsc-fill.svg';
 
 export {
   Share,
@@ -276,4 +278,6 @@ export {
   LucideBot,
   TonIcon,
   BarChart,
+  Binance,
+  BNB
 };

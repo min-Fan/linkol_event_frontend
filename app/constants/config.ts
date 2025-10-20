@@ -1,8 +1,8 @@
 // 链类型定义
-export type ChainType = 'base' | 'solana' | 'ton';
+export type ChainType = 'base' | 'solana' | 'ton' | 'bsc';
 
 // Token类型定义
-export type TokenType = 'usdc' | 'usdt' | 'usd1' | string;
+export type TokenType = 'usdc' | 'usdt' | 'usd1' | 'bnb' | string;
 
 // Token配置接口
 export interface TokenConfig {
@@ -52,6 +52,23 @@ const DEVELOPMENT_CONFIG: Record<ChainType, ChainConfig> = {
         decimals: 6,
         iconType: 'usdt',
         contractAddress: '0x6909442C7572D06E28A9535AA99548d1279d1e44', // Base Sepolia USDT
+      },
+    },
+  },
+  bsc: {
+    chainId: '56',
+    name: 'BNB Smart Chain',
+    KOLServiceAddress: '',
+    ActivityServiceAddress: '0xf3E45cF29c86b92cc7CC8Ef68773162B53CB5C78',
+    defaultToken: 'bnb',
+    blockExplorerUrl: 'https://bscscan.com',
+    iconUrl: 'https://cryptologos.cc/logos/bnb-bnb-logo.svg?v=040',
+    tokens: {
+      bnb: {
+        symbol: 'BNB',
+        decimals: 18,
+        iconType: 'bnb',
+        contractAddress: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE', // BNB
       },
     },
   },
@@ -114,6 +131,23 @@ const PRODUCTION_CONFIG: Record<ChainType, ChainConfig> = {
         iconType: 'usdt',
         contractAddress: '0x50c5725949A6F0c72E6C4a641F24749F6b268E73',
         imageUrl: 'https://cryptologos.cc/logos/tether-usdt-logo.png',
+      },
+    },
+  },
+  bsc: {
+    chainId: '56',
+    name: 'BNB Smart Chain',
+    KOLServiceAddress: '', // 测试网地址
+    ActivityServiceAddress: '0xf3E45cF29c86b92cc7CC8Ef68773162B53CB5C78', // 测试网地址
+    defaultToken: 'bnb',
+    blockExplorerUrl: 'https://bscscan.com',
+    iconUrl: 'https://cryptologos.cc/logos/bnb-bnb-logo.svg?v=040',
+    tokens: {
+      bnb: {
+        symbol: 'BNB',
+        decimals: 18,
+        iconType: 'bnb',
+        contractAddress: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE', // BNB
       },
     },
   },
