@@ -279,5 +279,5 @@ export {
   TonIcon,
   BarChart,
   Binance,
-  BNB
+  BNB,
 };

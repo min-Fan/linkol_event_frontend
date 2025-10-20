@@ -10,7 +10,7 @@ const svgIconMap = {
   solana: SOL,
   sol: SolIcon,
   ton: TonIcon,
-  bsc: Binance
+  bsc: Binance,
 };
 
 // 图片组件映射
