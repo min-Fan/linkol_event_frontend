@@ -19,12 +19,15 @@ import {
   marketEventsGetActivesLogin,
   IMarketEventsGetActivesLoginList,
   openAllActivityAutoParticipate,
+  getUserIsAcceptedAgent,
 } from '@libs/request';
 import PagesRoute from '@constants/routes';
 import { Link } from '@libs/i18n/navigation';
 import { useAppSelector } from '@store/hooks';
 import DialogAutoParticipate from './DialogAutoParticipate';
+import DialogAgentAuth from './DialogAgentAuth';
 import { useAgentDetails } from '@hooks/useAgentDetails';
+import useAgentStatus from '@hooks/useAgentStatus';
 import { toast } from 'sonner';
 import { useRouter } from '@libs/i18n/navigation';
 
@@ -68,6 +71,10 @@ export default function CampaignsSection({
   // 使用详情接口的 is_all_auto 字段
   const { isAllAutoPlay, updateAgentDetails, refreshAgentDetails } = useAgentDetails();
 
+  // 使用 Agent 状态 hook（页面初始化时就已获取）
+  const { isAccepted: isAgentAccepted, refetch: refetchAgentStatus } = useAgentStatus();
+  const [isCheckingAgentStatus, setIsCheckingAgentStatus] = useState(false);
+
   // 数据状态
   const [campaigns, setCampaigns] = useState<IMarketEventsGetActivesLoginList[]>([]);
   const [loading, setLoading] = useState(true);
@@ -84,9 +91,27 @@ export default function CampaignsSection({
     null
   );
 
+  // 授权弹窗状态
+  const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
+  const [pendingAction, setPendingAction] = useState<'all' | 'single' | null>(null);
+
   // 滑块加载状态
   const [isSwitchLoading, setIsSwitchLoading] = useState(false);
 
+  const checkAgentStatus = async () => {
+    try {
+      const res = await getUserIsAcceptedAgent();
+      if (res.code === 200) {
+        setIsCheckingAgentStatus(res.data.is_accept);
+      }
+    } catch (error) {
+      console.error('获取 Agent 状态失败:', error);
+      setIsCheckingAgentStatus(false);
+    }
+  };
+  useEffect(() => {
+    checkAgentStatus();
+  }, []);
   // 获取活动数据
   const fetchCampaigns = async (page: number = 1, append: boolean = false) => {
     try {
@@ -322,8 +347,17 @@ export default function CampaignsSection({
   ) => {
     e.preventDefault();
     e.stopPropagation();
-    setSelectedCampaign(campaign);
-    setIsDialogOpen(true);
+
+    // 检查是否已接受 Agent（使用已缓存的状态）
+    if (isCheckingAgentStatus) {
+      // 检查中，直接打开弹窗
+      setSelectedCampaign(campaign);
+      setIsDialogOpen(true);
+    } else {
+      setSelectedCampaign(campaign);
+      setPendingAction('single');
+      setIsAuthDialogOpen(true);
+    }
   };
 
   // 处理弹窗关闭
@@ -347,6 +381,30 @@ export default function CampaignsSection({
     }
   };
 
+  // 处理授权成功后的回调
+  const handleAuthSuccess = async () => {
+    setIsAuthDialogOpen(false);
+
+    // 根据待执行的操作类型执行相应操作
+    if (pendingAction === 'all') {
+      // 执行一键开启全部
+      await executeAutoPlayAll();
+    } else if (pendingAction === 'single') {
+      // 打开单个活动的自动参与弹窗
+      if (selectedCampaign) {
+        setIsDialogOpen(true);
+      }
+    }
+
+    // 重置待执行操作
+    setPendingAction(null);
+  };
+
+  // 处理授权弹窗关闭
+  const handleAuthDialogClose = () => {
+    setIsAuthDialogOpen(false);
+  };
+
   // 处理全局自动参与滑块变化
   const handleAutoPlayChange = async (checked: boolean) => {
     // 如果滑块是关闭状态，不允许操作
@@ -354,6 +412,19 @@ export default function CampaignsSection({
       return;
     }
 
+    // 检查是否已接受 Agent（使用已缓存的状态）
+    if (!isCheckingAgentStatus) {
+      // 已接受 Agent，直接执行开启操作
+      await executeAutoPlayAll();
+    } else {
+      // 未接受 Agent，先打开授权弹窗
+      setPendingAction('all');
+      setIsAuthDialogOpen(true);
+    }
+  };
+
+  // 执行一键开启全部操作
+  const executeAutoPlayAll = async () => {
     setIsSwitchLoading(true);
     try {
       // 调用一键全部开启接口
@@ -369,9 +440,9 @@ export default function CampaignsSection({
 
       // 更新详情接口数据
       await refreshAgentDetails();
+      toast.success(t('auto_play_all_success'));
     } catch (error) {
       toast.error(t('auto_play_all_failed'));
-      // 可以添加错误提示
     } finally {
       setIsSwitchLoading(false);
     }
@@ -607,6 +678,13 @@ export default function CampaignsSection({
         onClose={handleDialogClose}
         onSuccess={handleOperationSuccess}
         campaign={selectedCampaign}
+      />
+
+      {/* Agent授权弹窗 */}
+      <DialogAgentAuth
+        isOpen={isAuthDialogOpen}
+        onClose={handleAuthDialogClose}
+        onSuccess={handleAuthSuccess}
       />
     </Card>
   );

@@ -1268,6 +1268,14 @@
     "reward_type_self_tweet_value": "自己推文价值奖励",
     "join_agent": "加入代理",
     "auto_play_all_failed": "开启全部自动参与失败，请稍后重试",
-    "friends_ranking": "好友排名"
+    "friends_ranking": "好友排名",
+    "agent_authorization": "Agent授权",
+    "check_auth_failed": "检查授权状态失败，请稍后重试",
+    "auto_play_all_success": "已成功开启全部自动参与",
+    "authorization_success": "授权成功",
+    "authorization_failed": "授权失败",
+    "agent_auth_required": "需要授权才能继续操作",
+    "agent_auth_description": "为了使用Agent自动参与功能，您需要先授权Twitter账号。授权后，Agent将能够代表您自动参与活动。",
+    "authorize_now": "立即授权"
   }
 }

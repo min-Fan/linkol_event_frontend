@@ -57,40 +57,13 @@ export default function TwitterPage() {
 
   const handleTwitterAuthCallback = async () => {
     try {
-      // 修复URL中可能存在的多个问号问题（Twitter可能添加额外的?而不是&）
-      const currentUrl = window.location.href;
-      let fixedUrl = currentUrl;
-
-      // 如果URL中有两个或以上的问号，将第二个及以后的问号替换为&
-      const questionMarkCount = (currentUrl.match(/\?/g) || []).length;
-      if (questionMarkCount > 1) {
-        console.log('检测到多个问号，正在修复 URL...');
-        const firstQuestionMarkIndex = currentUrl.indexOf('?');
-        const beforeFirstQuestionMark = currentUrl.substring(0, firstQuestionMarkIndex + 1);
-        const afterFirstQuestionMark = currentUrl.substring(firstQuestionMarkIndex + 1);
-        const fixedAfter = afterFirstQuestionMark.replace(/\?/g, '&');
-        fixedUrl = beforeFirstQuestionMark + fixedAfter;
-        console.log('原始 URL:', currentUrl);
-        console.log('修复后 URL:', fixedUrl);
-
-        // 使用修复后的URL更新浏览器历史记录（不刷新页面）
-        window.history.replaceState({}, '', fixedUrl);
-      }
-
-      // 重新获取 params（使用修复后的URL）
-      const url = new URL(fixedUrl);
-      const fixedParams = url.searchParams;
-
-      // 使用修复后的 params 进行后续处理
-      const useParams = questionMarkCount > 1 ? fixedParams : params;
-
       // 使用混合函数获取授权信息（优先URL参数，回退到localStorage）
-      const authSourceData = getAuthSourceHybrid(useParams);
-      const authSourceType = getAuthSourceTypeHybrid(useParams);
-      const isFromTG = isFromTelegramHybrid(useParams);
+      const authSourceData = getAuthSourceHybrid(params);
+      const authSourceType = getAuthSourceTypeHybrid(params);
+      const isFromTG = isFromTelegramHybrid(params);
 
       // 获取版本信息
-      const urlVersion = useParams.get('auth_version');
+      const urlVersion = params.get('auth_version');
       const localStorageVersion = localStorage.getItem('twitter_auth_version');
       const version = urlVersion || localStorageVersion || 'v2';
       const isV1 = version === 'v1';
@@ -115,7 +88,7 @@ export default function TwitterPage() {
         console.warn('Auth source is invalid or expired');
       }
 
-      const error = useParams.get('error');
+      const error = params.get('error');
       if (error == 'access_denied') {
         //推特授权失败
         postEvent(ChannelEventType.LOGIN_STATUS, {
@@ -129,11 +102,8 @@ export default function TwitterPage() {
 
       if (isV1) {
         // V1 版本处理
-        const oauth_token = useParams.get('oauth_token');
-        const oauth_verifier = useParams.get('oauth_verifier');
-
-        console.log('V1 OAuth Token:', oauth_token);
-        console.log('V1 OAuth Verifier:', oauth_verifier);
+        const oauth_token = params.get('oauth_token');
+        const oauth_verifier = params.get('oauth_verifier');
 
         if (!oauth_token || !oauth_verifier) {
           postEvent(ChannelEventType.LOGIN_STATUS, {
@@ -179,7 +149,7 @@ export default function TwitterPage() {
         });
       } else {
         // V2 版本处理（原有逻辑）
-        const code = useParams.get('code');
+        const code = params.get('code');
         if (!code) {
           //推特授权失败
           postEvent(ChannelEventType.LOGIN_STATUS, {
