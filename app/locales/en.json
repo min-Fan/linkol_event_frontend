@@ -1266,6 +1266,14 @@
     "reward_type_self_tweet_value": "Self Tweet Value Reward",
     "join_agent": "Join Agent",
     "auto_play_all_failed": "Failed to open all auto participate, please try again later",
-    "friends_ranking": "Friends"
+    "friends_ranking": "Friends",
+    "agent_authorization": "Agent Authorization",
+    "check_auth_failed": "Failed to check authorization status, please try again later",
+    "auto_play_all_success": "Successfully enabled auto-participate for all campaigns",
+    "authorization_success": "Authorization Successful",
+    "authorization_failed": "Authorization Failed",
+    "agent_auth_required": "Authorization Required to Continue",
+    "agent_auth_description": "To use the Agent auto-participate feature, you need to authorize your Twitter account first. Once authorized, the Agent will be able to automatically participate in campaigns on your behalf.",
+    "authorize_now": "Authorize Now"
   }
 }
