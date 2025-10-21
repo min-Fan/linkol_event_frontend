@@ -348,12 +348,20 @@ export default function CampaignsSection({
     e.preventDefault();
     e.stopPropagation();
 
-    // 检查是否已接受 Agent（使用已缓存的状态）
+    // 如果是关闭操作（当前已开启），不需要检查授权状态，直接打开弹窗
+    if (campaign.is_auto_join) {
+      setSelectedCampaign(campaign);
+      setIsDialogOpen(true);
+      return;
+    }
+
+    // 如果是开启操作，需要检查是否已接受 Agent
     if (isCheckingAgentStatus) {
-      // 检查中，直接打开弹窗
+      // 已接受 Agent，直接打开弹窗
       setSelectedCampaign(campaign);
       setIsDialogOpen(true);
     } else {
+      // 未接受 Agent，先打开授权弹窗
       setSelectedCampaign(campaign);
       setPendingAction('single');
       setIsAuthDialogOpen(true);
@@ -413,7 +421,7 @@ export default function CampaignsSection({
     }
 
     // 检查是否已接受 Agent（使用已缓存的状态）
-    if (!isCheckingAgentStatus) {
+    if (isCheckingAgentStatus) {
       // 已接受 Agent，直接执行开启操作
       await executeAutoPlayAll();
     } else {
