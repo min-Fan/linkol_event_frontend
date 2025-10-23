@@ -225,15 +225,11 @@ export const leadboardFetcher = async (): Promise<ILeadboardRecord[]> => {
 };
 
 export function useLeadboard() {
-  const { data, ...rest } = useSWR(
-    'points-top-list',
-    () => leadboardFetcher(),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      shouldRetryOnError: false,
-    }
-  );
+  const { data, ...rest } = useSWR('points-top-list', () => leadboardFetcher(), {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    shouldRetryOnError: false,
+  });
 
   return {
     data,
