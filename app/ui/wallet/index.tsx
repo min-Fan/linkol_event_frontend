@@ -10,7 +10,11 @@ import { toast } from 'sonner';
 import useUserInfo from '@hooks/useUserInfo';
 import clsx from 'clsx';
 
-export default function UIWallet(props: { className?: string; onSuccess?: () => void; chainId?: number }) {
+export default function UIWallet(props: {
+  className?: string;
+  onSuccess?: () => void;
+  chainId?: number;
+}) {
   const { className = '', onSuccess, chainId } = props;
   const t = useTranslations('common');
   const { isPending, isConnected, isLogin, connect, login, logout } = useUserInfo();
