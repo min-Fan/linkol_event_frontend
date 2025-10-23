@@ -21,6 +21,7 @@ import { LucideBot, Success, Fail } from '@assets/svg';
 import { useLocale } from 'next-intl';
 import LoaderCircle from '@ui/loading/loader-circle';
 import { useTelegram } from 'app/context/TgProvider';
+import { useParams } from 'next/navigation';
 
 interface DialogAgentAuthProps {
   isOpen: boolean;
@@ -45,12 +46,15 @@ export default function DialogAgentAuth({ isOpen, onClose, onSuccess }: DialogAg
   const locale = useLocale();
   const authTimeSec = 120; // 超时时间 s
   const { webApp, isTelegram } = useTelegram();
+  const { eventId } = useParams();
 
   // 调用接受Agent接口
   const handleAcceptAgent = useCallback(async () => {
     try {
       setIsAcceptingAgent(true);
-      const res: any = await acceptAgent();
+      const res: any = await acceptAgent({
+        active_id: eventId ? parseInt(eventId as string) : 0,
+      });
 
       if (res.code === 200) {
         // 接受成功，显示成功状态

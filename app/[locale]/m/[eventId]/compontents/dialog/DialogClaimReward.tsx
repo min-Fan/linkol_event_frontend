@@ -815,7 +815,13 @@ const DialogClaimReward = memo(
                 {!isWrongChain &&
                   (eventInfo?.chain_type === 'BASE' || eventInfo?.chain_type === 'BSC') && (
                     <div className="flex w-40">
-                      <UIWallet className="!h-auto flex-1 !rounded-lg" onSuccess={handleClose} />
+                      <UIWallet
+                        className="!h-auto flex-1 !rounded-lg"
+                        onSuccess={handleClose}
+                        chainId={parseInt(
+                          getChainConfig(eventInfo?.chain_type as ChainType).chainId
+                        )}
+                      />
                     </div>
                   )}
                 {!isLoginSolana && eventInfo?.chain_type === 'Solana' && (

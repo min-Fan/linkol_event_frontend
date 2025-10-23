@@ -2496,8 +2496,14 @@ export const getUserIsAcceptedAgent = () => {
 };
 
 // 接受Agent
-export const acceptAgent = () => {
-  return kolRequest.post('/kol/api/v7/accept_agent/');
+export interface IAcceptAgentParams {
+  /**
+   * 活动ID
+   */
+  active_id: number;
+}
+export const acceptAgent = (params: IAcceptAgentParams) => {
+  return kolRequest.post('/kol/api/v7/accept_agent/', params);
 };
 
 // Ton 领取奖励接口

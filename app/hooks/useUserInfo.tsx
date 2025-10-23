@@ -43,7 +43,7 @@ export default function useUserInfo() {
     openConnectModal?.();
   };
 
-  const login = async () => {
+  const login = async (chain_id?: number) => {
     if (isPending) {
       return;
     }
@@ -52,11 +52,11 @@ export default function useUserInfo() {
       setIsPending(true);
 
       // 检查是否在默认链上
-      const isOnDefaultChain = chainId === DEFAULT_CHAIN.id;
+      const isOnDefaultChain = chain_id ? chainId === chain_id : chainId === DEFAULT_CHAIN.id;
       // 如果不在默认链上，先切换到默认链
       if (!isOnDefaultChain) {
         // 获取默认链ID
-        const targetChainId = DEFAULT_CHAIN.id;
+        const targetChainId = chain_id ? chain_id : DEFAULT_CHAIN.id;
 
         // 尝试切换链
         try {
