@@ -8,9 +8,9 @@ import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
   getActivityLeaderboard,
-  getActivityVoicesTop10,
+  getDonateList,
   IGetActivityLeaderboardResponseDataItem,
-  IGetActivityVoicesTop10ResponseData,
+  IGetDonateListItem,
 } from '@libs/request';
 import { Skeleton } from '@shadcn/components/ui/skeleton';
 import CompSentimentTreemap from '../../../branding/components/SentimentTreemap';
@@ -174,9 +174,7 @@ const EventLeaderboard = memo(
       const [leaderboardData, setLeaderboardData] = useState<
         IGetActivityLeaderboardResponseDataItem[]
       >([]);
-      const [voicesTop10Data, setVoicesTop10Data] = useState<IGetActivityVoicesTop10ResponseData[]>(
-        []
-      );
+      const [voicesTop10Data, setVoicesTop10Data] = useState<IGetDonateListItem[]>([]);
       const [isLoading, setIsLoading] = useState(false);
       const [isVoicesLoading, setIsVoicesLoading] = useState(false);
       const [error, setError] = useState<string | null>(null);
@@ -228,7 +226,7 @@ const EventLeaderboard = memo(
         }
       };
 
-      // 获取Top 10 Voice数据
+      // 获取捐赠列表数据
       const fetchVoicesTop10Data = async () => {
         if (!eventId) return;
 
@@ -236,17 +234,18 @@ const EventLeaderboard = memo(
           setIsVoicesLoading(true);
           setVoicesError(null);
 
-          const response: any = await getActivityVoicesTop10({
+          const response: any = await getDonateList({
             active_id: eventId as string,
           });
 
           if (response.code === 200) {
-            setVoicesTop10Data(response.data || []);
+            // 获取捐赠列表，取前10条
+            setVoicesTop10Data(response.data?.list?.slice(0, 10) || []);
           } else {
             setVoicesError(response.msg);
           }
         } catch (err) {
-          console.error('Failed to fetch voices top 10 data:', err);
+          console.error('Failed to fetch donate list data:', err);
           setVoicesError(t('fetch_voices_failed'));
           setVoicesTop10Data([]);
         } finally {
@@ -350,7 +349,7 @@ const EventLeaderboard = memo(
             )}
           </div>
 
-          {/* Top 10 Voice 表格 */}
+          {/* Top 10 捐赠列表 */}
           <div className="flex flex-col gap-2">
             <h2 className="text-md font-bold sm:text-base">{t('top_10_voice')}</h2>
             {isVoicesLoading ? (
@@ -365,7 +364,7 @@ const EventLeaderboard = memo(
                 </div>
               </div>
             ) : voicesTop10Data.length > 0 ? (
-              <div className="bg-muted-foreground/5 rounded-2xl py-2">
+              <div className="from-primary/10 via-primary/5 rounded-2xl bg-gradient-to-b to-transparent py-2">
                 <Table>
                   <TableHeader>
                     <TableRow className="border-none">
@@ -373,10 +372,12 @@ const EventLeaderboard = memo(
                         <span className="sm:text-md text-sm font-[500]">{t('kol_name_short')}</span>
                       </TableHead>
                       <TableHead className="pb-2 text-center">
-                        <span className="sm:text-md text-sm font-[500]">{t('followers')}</span>
+                        <span className="sm:text-md text-sm font-[500]">
+                          {t('donation_amount')}
+                        </span>
                       </TableHead>
                       <TableHead className="pb-2 text-center">
-                        <span className="sm:text-md text-sm font-[500]">{t('brand_value')}</span>
+                        <span className="sm:text-md text-sm font-[500]">{t('token')}</span>
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -419,23 +420,22 @@ const EventLeaderboard = memo(
                             </div>
                             <div className="flex items-center gap-2">
                               <p className="sm:text-md max-w-[100px] truncate text-sm sm:text-base">
-                                {item.name || item.screen_name || t('unknown')}
+                                {item.screen_name || t('unknown')}
                               </p>
-                              {item.is_verified && <Verified className="size-4 min-w-4" />}
                             </div>
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center justify-center">
                             <span className="sm:text-md text-sm sm:text-base">
-                              {formatNumberKMB(item.followers_count || 0)}
+                              {item.amount || '0'}
                             </span>
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center justify-center">
                             <span className="sm:text-md text-sm sm:text-base">
-                              {item.brand_value}
+                              {item.token_name}
                             </span>
                           </div>
                         </TableCell>
