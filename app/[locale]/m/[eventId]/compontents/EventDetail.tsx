@@ -355,7 +355,7 @@ const EventDetail = memo(function EventDetail({
                   chainType={eventInfo?.chain_type}
                   tokenType={eventInfo?.token_type}
                   type={iconType}
-                  className="size-5"
+                  className="size-5 rounded-full"
                 />
               )}
               {symbol || ''}

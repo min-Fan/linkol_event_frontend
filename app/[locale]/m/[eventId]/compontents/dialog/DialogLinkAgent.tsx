@@ -134,7 +134,9 @@ export default function DialogLinkAgent({
     try {
       setIsCreatingAgent(true);
 
-      const res: any = await acceptAgent();
+      const res: any = await acceptAgent({
+        active_id: eventInfo.id,
+      });
 
       if (res.code === 200) {
         // toast.success(t('agent_created_successfully'));

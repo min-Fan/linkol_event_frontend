@@ -221,7 +221,7 @@ export default function DialogRaffleResult({
                       <Success className="w-16" />
                       <div className="absolute top-0 left-[-50%] z-[-1] h-[110%] w-[110%] rounded-full bg-[#D4F5D0] blur-xl" />
                     </div>
-                    <div className="relative z-0 -ml-4 h-14 w-14">
+                    <div className="relative z-0 -ml-4 h-14 w-14 rounded-full">
                       <TokenIcon
                         chainType={eventInfo?.chain_type}
                         tokenType={eventInfo?.token_type}

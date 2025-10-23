@@ -2496,8 +2496,14 @@ export const getUserIsAcceptedAgent = () => {
 };
 
 // 接受Agent
-export const acceptAgent = () => {
-  return kolRequest.post('/kol/api/v7/accept_agent/');
+export interface IAcceptAgentParams {
+  /**
+   * 活动ID
+   */
+  active_id: number;
+}
+export const acceptAgent = (params: IAcceptAgentParams) => {
+  return kolRequest.post('/kol/api/v7/accept_agent/', params);
 };
 
 // Ton 领取奖励接口
@@ -2709,4 +2715,69 @@ export const getPointsTopList = () => {
 // 一键全部开启
 export const openAllActivityAutoParticipate = () => {
   return kolRequest.post('/kol/api/v8/openall/auto/');
+};
+
+// 捐献列表
+export interface IGetDonateListParams {
+  /**
+   * 不传 就是全部排名，传了就是某个活动的排名
+   */
+  active_id?: string;
+  /**
+   * 页码
+   */
+  page?: number;
+  /**
+   * 每页最大条数
+   */
+  size?: number;
+}
+export interface IGetDonateListResponseData {
+  current_page: number;
+  list: IGetDonateListItem[];
+  page_range: number[];
+  total: number;
+}
+export interface IGetDonateListItem {
+  /**
+   * 活动ID
+   */
+  activity_id: number;
+  /**
+   * 金额
+   */
+  amount: string;
+  /**
+   * 创建时间
+   */
+  create_at: string;
+  /**
+   * id
+   */
+  id: number;
+  /**
+   * 对应的推特头像
+   */
+  profile_image_url: null | string;
+  /**
+   * 捐款人推特名
+   */
+  screen_name: null | string;
+  /**
+   * token地址
+   */
+  token_address: string;
+  /**
+   * token名
+   */
+  token_name: string;
+  /**
+   * 交易哈希
+   */
+  txid: string;
+}
+export const getDonateList = (params: IGetDonateListParams) => {
+  return kolRequest.get<IGetDonateListResponseData>('/kol/api/v7/active/donates/', {
+    ...params,
+  });
 };

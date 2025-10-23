@@ -46,7 +46,7 @@ export default function Active(props: { data: IActive }) {
                   chainType={data?.chain_type}
                   tokenType={data?.token_type}
                   type={data?.token_type as string}
-                  className="size-5"
+                  className="size-5 rounded-full"
                 />
               )}
             </dd>
