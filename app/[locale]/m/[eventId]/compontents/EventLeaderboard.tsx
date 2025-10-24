@@ -9,8 +9,10 @@ import { useTranslations } from 'next-intl';
 import {
   getActivityLeaderboard,
   getDonateList,
+  getActivityVoicesTop10,
   IGetActivityLeaderboardResponseDataItem,
   IGetDonateListItem,
+  IGetActivityVoicesTop10ResponseData,
 } from '@libs/request';
 import { Skeleton } from '@shadcn/components/ui/skeleton';
 import CompSentimentTreemap from '../../../branding/components/SentimentTreemap';
@@ -53,6 +55,54 @@ function ChartSkeleton() {
 
 // Top 10 Voice 表格骨架屏组件
 function VoicesTableSkeleton() {
+  return (
+    <div className="bg-muted-foreground/5 rounded-2xl py-2">
+      <Table>
+        <TableHeader>
+          <TableRow className="border-none">
+            <TableHead className="flex-1 pb-2 pl-6 text-left">
+              <Skeleton className="h-4 w-20" />
+            </TableHead>
+            <TableHead className="pb-2 text-center">
+              <Skeleton className="mx-auto h-4 w-16" />
+            </TableHead>
+            <TableHead className="pb-2 text-center">
+              <Skeleton className="mx-auto h-4 w-16" />
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {Array.from({ length: 10 }).map((_, index) => (
+            <TableRow className="border-none" key={index}>
+              <TableCell className="pb-4">
+                <div className="justify-left flex items-center gap-2 pl-2">
+                  <div className="flex w-10 items-center justify-center">
+                    <Skeleton className="h-6 w-6 rounded-full" />
+                  </div>
+                  <Skeleton className="size-6 min-w-6 rounded-full" />
+                  <Skeleton className="h-4 w-20" />
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className="flex items-center justify-center">
+                  <Skeleton className="h-4 w-12" />
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className="flex items-center justify-center">
+                  <Skeleton className="h-4 w-16" />
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
+// Top 10 Brand Value 表格骨架屏组件
+function BrandValueTableSkeleton() {
   return (
     <div className="bg-muted-foreground/5 rounded-2xl py-2">
       <Table>
@@ -175,10 +225,18 @@ const EventLeaderboard = memo(
         IGetActivityLeaderboardResponseDataItem[]
       >([]);
       const [voicesTop10Data, setVoicesTop10Data] = useState<IGetDonateListItem[]>([]);
+      const [brandValueTop10Data, setBrandValueTop10Data] = useState<
+        IGetActivityVoicesTop10ResponseData[]
+      >([]);
       const [isLoading, setIsLoading] = useState(false);
       const [isVoicesLoading, setIsVoicesLoading] = useState(false);
+      const [isBrandValueLoading, setIsBrandValueLoading] = useState(false);
       const [error, setError] = useState<string | null>(null);
       const [voicesError, setVoicesError] = useState<string | null>(null);
+      const [brandValueError, setBrandValueError] = useState<string | null>(null);
+      const [activeLeaderboardTab, setActiveLeaderboardTab] = useState<'donation' | 'brand_value'>(
+        'brand_value'
+      );
 
       // 将时间标签转换为小时数
       const getHourFromTab = (tab: string): number => {
@@ -253,10 +311,38 @@ const EventLeaderboard = memo(
         }
       };
 
+      // 获取品牌价值排行榜数据
+      const fetchBrandValueTop10Data = async () => {
+        if (!eventId) return;
+
+        try {
+          setIsBrandValueLoading(true);
+          setBrandValueError(null);
+
+          const response: any = await getActivityVoicesTop10({
+            active_id: eventId as string,
+          });
+
+          if (response.code === 200) {
+            // 获取品牌价值排行榜，取前10条
+            setBrandValueTop10Data(response.data?.slice(0, 10) || []);
+          } else {
+            setBrandValueError(response.msg);
+          }
+        } catch (err) {
+          console.error('Failed to fetch brand value top10 data:', err);
+          setBrandValueError(t('fetch_leaderboard_failed'));
+          setBrandValueTop10Data([]);
+        } finally {
+          setIsBrandValueLoading(false);
+        }
+      };
+
       // 刷新所有数据的函数
       const refreshAllData = async () => {
         await fetchLeaderboardData(activeTab);
         await fetchVoicesTop10Data();
+        await fetchBrandValueTop10Data();
       };
 
       // 使用 useImperativeHandle 暴露刷新函数
@@ -269,6 +355,7 @@ const EventLeaderboard = memo(
         if (eventId) {
           fetchLeaderboardData(activeTab);
           fetchVoicesTop10Data();
+          fetchBrandValueTop10Data();
         }
       }, [eventId]);
 
@@ -349,109 +436,261 @@ const EventLeaderboard = memo(
             )}
           </div>
 
-          {/* Top 10 捐赠列表 */}
+          {/* 排行榜区域 - 使用tabs切换 */}
           <div className="flex flex-col gap-2">
-            <h2 className="text-md font-bold sm:text-base">{t('top_10_voice')}</h2>
-            {isVoicesLoading ? (
-              <VoicesTableSkeleton />
-            ) : voicesError ? (
-              <div className="bg-muted-foreground/5 rounded-2xl py-8 text-center">
-                <div className="text-muted-foreground">
-                  <p className="text-sm">{voicesError}</p>
-                  <Button variant="outline" onClick={fetchVoicesTop10Data}>
-                    {t('btn_retry')}
-                  </Button>
+            <Tabs
+              value={activeLeaderboardTab}
+              onValueChange={(value) =>
+                setActiveLeaderboardTab(value as 'donation' | 'brand_value')
+              }
+            >
+              <TabsList className="bg-background shadow-muted-foreground/10 w-fit rounded-full p-1 shadow-lg">
+                <TabsTrigger
+                  value="brand_value"
+                  className={cn(
+                    activeLeaderboardTab === 'brand_value' &&
+                      '!bg-primary/5 !text-primary !border-primary sm:text-md !rounded-full text-sm'
+                  )}
+                >
+                  {t('top_10_voice')}
+                </TabsTrigger>
+                <TabsTrigger
+                  value="donation"
+                  className={cn(
+                    activeLeaderboardTab === 'donation' &&
+                      '!bg-primary/5 !text-primary !border-primary sm:text-md !rounded-full text-sm'
+                  )}
+                >
+                  {t('top_10_donation')}
+                </TabsTrigger>
+              </TabsList>
+
+              {/* 品牌价值排行榜 */}
+              {activeLeaderboardTab === 'brand_value' && (
+                <div className="mt-2">
+                  <>
+                    {isBrandValueLoading ? (
+                      <BrandValueTableSkeleton />
+                    ) : brandValueError ? (
+                      <div className="bg-muted-foreground/5 rounded-2xl py-8 text-center">
+                        <div className="text-muted-foreground">
+                          <p className="text-sm">{brandValueError}</p>
+                          <Button variant="outline" onClick={fetchBrandValueTop10Data}>
+                            {t('btn_retry')}
+                          </Button>
+                        </div>
+                      </div>
+                    ) : brandValueTop10Data.length > 0 ? (
+                      <div className="from-primary/10 via-primary/5 rounded-2xl bg-gradient-to-b to-transparent py-2">
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="border-none">
+                              <TableHead className="flex-1 pb-2 pl-6 text-left">
+                                <span className="sm:text-md text-sm font-[500]">
+                                  {t('kol_name_short')}
+                                </span>
+                              </TableHead>
+                              <TableHead className="pb-2 text-center">
+                                <span className="sm:text-md text-sm font-[500]">
+                                  {t('brand_value')}
+                                </span>
+                              </TableHead>
+                              <TableHead className="pb-2 text-center">
+                                <span className="sm:text-md text-sm font-[500]">
+                                  {t('followers')}
+                                </span>
+                              </TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {brandValueTop10Data.map((item, index) => (
+                              <TableRow className="border-none" key={item.id || index}>
+                                <TableCell className="pb-4">
+                                  <div className="justify-left flex items-center gap-2 pl-2">
+                                    <div className="flex w-10 items-center justify-center">
+                                      {index === 0 && (
+                                        <img
+                                          src={RankFirst.src}
+                                          className="size-6 sm:size-8 sm:min-h-8 sm:min-w-8"
+                                        />
+                                      )}
+                                      {index === 1 && (
+                                        <img
+                                          src={RankSecond.src}
+                                          className="size-6 sm:size-8 sm:min-h-8 sm:min-w-8"
+                                        />
+                                      )}
+                                      {index === 2 && (
+                                        <img
+                                          src={RankThird.src}
+                                          className="size-6 sm:size-8 sm:min-h-8 sm:min-w-8"
+                                        />
+                                      )}
+                                      {index > 2 && (
+                                        <span className="sm:text-md text-sm">{index + 1}</span>
+                                      )}
+                                    </div>
+                                    <div className="size-6 min-w-6 overflow-hidden rounded-full">
+                                      <img
+                                        src={item.profile_image_url || defaultAvatar.src}
+                                        alt="avatar"
+                                        className="size-full"
+                                        onError={(e) => {
+                                          const target = e.target as HTMLImageElement;
+                                          target.src = defaultAvatar.src;
+                                        }}
+                                      />
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <p className="sm:text-md max-w-[100px] truncate text-sm sm:text-base">
+                                        {item.screen_name || t('unknown')}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex items-center justify-center">
+                                    <span className="sm:text-md text-sm sm:text-base">
+                                      {formatNumberKMB(item.brand_value || 0)}
+                                    </span>
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex items-center justify-center">
+                                    <span className="sm:text-md text-sm sm:text-base">
+                                      {formatNumberKMB(item.followers_count || 0)}
+                                    </span>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    ) : (
+                      <div className="bg-muted-foreground/5 rounded-2xl py-8 text-center">
+                        <div className="text-muted-foreground flex flex-col items-center justify-center">
+                          <NullData className="h-14 w-14" />
+                          <p className="text-sm">{t('no_voices_data')}</p>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 </div>
-              </div>
-            ) : voicesTop10Data.length > 0 ? (
-              <div className="from-primary/10 via-primary/5 rounded-2xl bg-gradient-to-b to-transparent py-2">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-none">
-                      <TableHead className="flex-1 pb-2 pl-6 text-left">
-                        <span className="sm:text-md text-sm font-[500]">{t('kol_name_short')}</span>
-                      </TableHead>
-                      <TableHead className="pb-2 text-center">
-                        <span className="sm:text-md text-sm font-[500]">
-                          {t('donation_amount')}
-                        </span>
-                      </TableHead>
-                      <TableHead className="pb-2 text-center">
-                        <span className="sm:text-md text-sm font-[500]">{t('token')}</span>
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {voicesTop10Data.map((item, index) => (
-                      <TableRow className="border-none" key={item.id || index}>
-                        <TableCell className="pb-4">
-                          <div className="justify-left flex items-center gap-2 pl-2">
-                            <div className="flex w-10 items-center justify-center">
-                              {index === 0 && (
-                                <img
-                                  src={RankFirst.src}
-                                  className="size-6 sm:size-8 sm:min-h-8 sm:min-w-8"
-                                />
-                              )}
-                              {index === 1 && (
-                                <img
-                                  src={RankSecond.src}
-                                  className="size-6 sm:size-8 sm:min-h-8 sm:min-w-8"
-                                />
-                              )}
-                              {index === 2 && (
-                                <img
-                                  src={RankThird.src}
-                                  className="size-6 sm:size-8 sm:min-h-8 sm:min-w-8"
-                                />
-                              )}
-                              {index > 2 && <span className="sm:text-md text-sm">{index + 1}</span>}
-                            </div>
-                            <div className="size-6 min-w-6 overflow-hidden rounded-full">
-                              <img
-                                src={item.profile_image_url || defaultAvatar.src}
-                                alt="avatar"
-                                className="size-full"
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  target.src = defaultAvatar.src;
-                                }}
-                              />
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <p className="sm:text-md max-w-[100px] truncate text-sm sm:text-base">
-                                {item.screen_name || t('unknown')}
-                              </p>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center justify-center">
-                            <span className="sm:text-md text-sm sm:text-base">
-                              {item.amount || '0'}
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center justify-center">
-                            <span className="sm:text-md text-sm sm:text-base">
-                              {item.token_name}
-                            </span>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            ) : (
-              <div className="bg-muted-foreground/5 rounded-2xl py-8 text-center">
-                <div className="text-muted-foreground flex flex-col items-center justify-center">
-                  <NullData className="h-14 w-14" />
-                  <p className="text-sm">{t('no_voices_data')}</p>
+              )}
+
+              {/* 捐赠排行榜 */}
+              {activeLeaderboardTab === 'donation' && (
+                <div className="mt-2">
+                  <>
+                    {isVoicesLoading ? (
+                      <VoicesTableSkeleton />
+                    ) : voicesError ? (
+                      <div className="bg-muted-foreground/5 rounded-2xl py-8 text-center">
+                        <div className="text-muted-foreground">
+                          <p className="text-sm">{voicesError}</p>
+                          <Button variant="outline" onClick={fetchVoicesTop10Data}>
+                            {t('btn_retry')}
+                          </Button>
+                        </div>
+                      </div>
+                    ) : voicesTop10Data.length > 0 ? (
+                      <div className="from-primary/10 via-primary/5 rounded-2xl bg-gradient-to-b to-transparent py-2">
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="border-none">
+                              <TableHead className="flex-1 pb-2 pl-6 text-left">
+                                <span className="sm:text-md text-sm font-[500]">
+                                  {t('kol_name_short')}
+                                </span>
+                              </TableHead>
+                              <TableHead className="pb-2 text-center">
+                                <span className="sm:text-md text-sm font-[500]">
+                                  {t('donation_amount')}
+                                </span>
+                              </TableHead>
+                              <TableHead className="pb-2 text-center">
+                                <span className="sm:text-md text-sm font-[500]">{t('token')}</span>
+                              </TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {voicesTop10Data.map((item, index) => (
+                              <TableRow className="border-none" key={item.id || index}>
+                                <TableCell className="pb-4">
+                                  <div className="justify-left flex items-center gap-2 pl-2">
+                                    <div className="flex w-10 items-center justify-center">
+                                      {index === 0 && (
+                                        <img
+                                          src={RankFirst.src}
+                                          className="size-6 sm:size-8 sm:min-h-8 sm:min-w-8"
+                                        />
+                                      )}
+                                      {index === 1 && (
+                                        <img
+                                          src={RankSecond.src}
+                                          className="size-6 sm:size-8 sm:min-h-8 sm:min-w-8"
+                                        />
+                                      )}
+                                      {index === 2 && (
+                                        <img
+                                          src={RankThird.src}
+                                          className="size-6 sm:size-8 sm:min-h-8 sm:min-w-8"
+                                        />
+                                      )}
+                                      {index > 2 && (
+                                        <span className="sm:text-md text-sm">{index + 1}</span>
+                                      )}
+                                    </div>
+                                    <div className="size-6 min-w-6 overflow-hidden rounded-full">
+                                      <img
+                                        src={item.profile_image_url || defaultAvatar.src}
+                                        alt="avatar"
+                                        className="size-full"
+                                        onError={(e) => {
+                                          const target = e.target as HTMLImageElement;
+                                          target.src = defaultAvatar.src;
+                                        }}
+                                      />
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <p className="sm:text-md max-w-[100px] truncate text-sm sm:text-base">
+                                        {item.screen_name || t('unknown')}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex items-center justify-center">
+                                    <span className="sm:text-md text-sm sm:text-base">
+                                      {item.amount || '0'}
+                                    </span>
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex items-center justify-center">
+                                    <span className="sm:text-md text-sm sm:text-base">
+                                      {item.token_name}
+                                    </span>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    ) : (
+                      <div className="bg-muted-foreground/5 rounded-2xl py-8 text-center">
+                        <div className="text-muted-foreground flex flex-col items-center justify-center">
+                          <NullData className="h-14 w-14" />
+                          <p className="text-sm">{t('no_voices_data')}</p>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 </div>
-              </div>
-            )}
+              )}
+            </Tabs>
           </div>
         </div>
       );

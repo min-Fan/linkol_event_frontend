@@ -2283,11 +2283,19 @@ export interface IGetReceiveRewardCallbackBSCParams {
   /**
    * 交易哈希
    */
-  tx_hash: string;
+  txHash: string;
   /**
    * 奖励ID
    */
   rewardIds: number[];
+  /**
+   * 代币地址
+   */
+  tokenAddress: string;
+  /**
+   * 活动ID
+   */
+  activeId: string;
 }
 export const getReceiveRewardCallbackBSC = (params: IGetReceiveRewardCallbackBSCParams) => {
   return kolRequest.post(`/kol/api/v7/claim_reward/success/`, params);

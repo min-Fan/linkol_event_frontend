@@ -191,7 +191,7 @@ const ClaimRecordSwiper = memo(
                 chainType={record.chain_type}
                 tokenType={record.token_type}
                 type={getTokenConfig(record.chain_type, record.token_type).symbol}
-                className="size-5"
+                className="size-5 rounded-full"
               />
               <span className="text-muted-foreground hidden sm:block">
                 {getTokenConfig(record.chain_type, record.token_type).symbol}

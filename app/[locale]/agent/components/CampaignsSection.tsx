@@ -648,7 +648,7 @@ export default function CampaignsSection({
                               chainType={campaign.chain_type}
                               tokenType={campaign.token_type}
                               type={campaign.token_type as string}
-                              className="size-4"
+                              className="size-4 rounded-full"
                             />
                           )}
                         </span>

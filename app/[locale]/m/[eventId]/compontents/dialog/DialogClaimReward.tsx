@@ -230,6 +230,7 @@ const DialogClaimReward = memo(
       }
 
       try {
+        const contractAddress = getContractAddress(eventInfo?.chain_type, eventInfo?.token_type);
         // 静默调用回调接口，不处理返回结果，只记录日志
         if (eventInfo.chain_type === 'BASE') {
           const res: any = await getReceiveRewardCallback({
@@ -240,7 +241,9 @@ const DialogClaimReward = memo(
         } else if (eventInfo.chain_type === 'BSC') {
           const res: any = await getReceiveRewardCallbackBSC({
             rewardIds: signatureData.rewardIds,
-            tx_hash: claimData,
+            txHash: claimData,
+            tokenAddress: contractAddress?.pay_member_token_address as `0x${string}`,
+            activeId: eventId as string,
           });
           console.log('Callback reward result:', res);
         }
@@ -925,8 +928,8 @@ const DialogClaimReward = memo(
                       <TokenIcon
                         chainType={eventInfo?.chain_type}
                         tokenType={eventInfo?.token_type}
-                        type={symbol || ''}
-                        className="h-full w-full"
+                        type={eventInfo?.token_type || ''}
+                        className="h-full w-full rounded-full"
                       />
                       <div className="absolute top-0 left-[-55%] z-[-1] h-[110%] w-[110%] rounded-full bg-[#D4F5D0] blur-xl" />
                       <div className="absolute top-0 left-[55%] z-[-1] h-[110%] w-[110%] rounded-full bg-[#BFFF00] blur-xl" />
@@ -958,7 +961,7 @@ const DialogClaimReward = memo(
                             type={symbol || ''}
                             chainType={eventInfo?.chain_type}
                             tokenType={eventInfo?.token_type}
-                            className="h-5 w-5"
+                            className="h-5 w-5 rounded-full"
                           />
                           <span className="text-sm">{symbol || 'USDC'}</span>
                         </div>
