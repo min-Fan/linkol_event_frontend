@@ -134,10 +134,10 @@ export default function Leadboard() {
               </TableCell>
 
               <TableCell className="text-md text-right font-medium">
-                {formatNumberKMB(item.invitee_count || 0)}
+                {formatNumberKMB(item.point || 0)}
               </TableCell>
               <TableCell className="text-md text-right font-medium">
-                {formatNumberKMB(item.point || 0)}
+                {formatNumberKMB(item.invitee_count || 0)}
               </TableCell>
               {/* <TableCell className="text-right text-md font-medium">
                 {formatNumberKMB(item.brand_value)}
