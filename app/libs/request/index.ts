@@ -2296,6 +2296,10 @@ export interface IGetReceiveRewardCallbackBSCParams {
    * 活动ID
    */
   activeId: string;
+  /**
+   * 链ID
+   */
+  chainId: number;
 }
 export const getReceiveRewardCallbackBSC = (params: IGetReceiveRewardCallbackBSCParams) => {
   return kolRequest.post(`/kol/api/v7/claim_reward/success/`, params);

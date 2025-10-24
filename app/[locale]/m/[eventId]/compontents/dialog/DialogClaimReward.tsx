@@ -244,6 +244,7 @@ const DialogClaimReward = memo(
             txHash: claimData,
             tokenAddress: contractAddress?.pay_member_token_address as `0x${string}`,
             activeId: eventId as string,
+            chainId: chainId as number,
           });
           console.log('Callback reward result:', res);
         }
