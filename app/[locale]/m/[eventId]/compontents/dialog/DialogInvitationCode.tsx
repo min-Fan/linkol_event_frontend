@@ -117,7 +117,7 @@ export default function DialogInvitationCode({
   const handleShareToTwitter = () => {
     if (!invitationCode) return;
 
-    const text = `Join @linkol_ai and win amazing prizes! Use my invitation code: ${invitationCode} ${shareUrl}`;
+    const text = `Join @linkolfun and win amazing prizes! Use my invitation code: ${invitationCode} ${shareUrl}`;
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
     window.open(twitterUrl, '_blank');
   };
