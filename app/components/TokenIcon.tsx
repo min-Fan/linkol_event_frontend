@@ -17,6 +17,7 @@ const svgIconMap = {
 const imgIconMap = {
   usd1: Usd1,
   bianrensheng: BianRenSheng,
+  币安人生: BianRenSheng,
 };
 
 interface TokenIconProps {

@@ -35,6 +35,7 @@ import html2canvas from 'html2canvas';
 import DownloadCard from './compontents/canvasToImg/DownloadCard';
 import { useEventData } from '@hooks/useEventData';
 import { useDebounce } from '@hooks/useDebounce';
+import EventDonate from './compontents/EventDonate';
 
 export default function MarketEventsPage() {
   const { eventId } = useParams();
@@ -56,13 +57,19 @@ export default function MarketEventsPage() {
   const preGenerateRef = useRef<HTMLDivElement>(null);
 
   // 添加 ref 来引用 EventLeaderboard 组件
-  const leaderboardRef = useRef<{ refreshAllData: () => Promise<void> }>(null);
+  const leaderboardRef = useRef<{
+    refreshAllData: () => Promise<void>;
+    refreshDonationList: () => Promise<void>;
+  }>(null);
 
   // 添加 ref 来引用 EventPosts 组件
   const postsRef = useRef<{ refreshPosts: () => Promise<void> }>(null);
 
   // 添加 ref 来引用 EventParticipant 组件
   const participantRef = useRef<{ refreshParticipants: () => Promise<void> }>(null);
+
+  // 添加 ref 来引用 EventDonate 组件
+  const donateRef = useRef<{ refreshDonateData: () => Promise<void> }>(null);
 
   // 使用防抖优化刷新函数
   const debouncedRefresh = useDebounce(refreshAllData, 300);
@@ -251,6 +258,7 @@ export default function MarketEventsPage() {
       leaderboardRef,
       postsRef,
       participantRef,
+      donateRef,
     }),
     [
       eventInfo,
@@ -259,6 +267,7 @@ export default function MarketEventsPage() {
       leaderboardRef,
       postsRef,
       participantRef,
+      donateRef,
     ]
   );
 
@@ -291,6 +300,14 @@ export default function MarketEventsPage() {
             <div className="border-border bg-background hidden rounded-xl border sm:block">
               <EventLeaderboard ref={leaderboardRef} eventInfo={eventInfo} />
             </div>
+            <div className="border-border bg-background hidden rounded-xl border sm:block">
+              <EventDonate
+                ref={donateRef}
+                eventInfo={eventInfo}
+                onRefresh={handleRefreshEventInfo}
+                leaderboardRef={leaderboardRef}
+              />
+            </div>
             <div className="border-border bg-background block rounded-xl border sm:hidden">
               <EventInfo {...eventInfoProps} />
             </div>
@@ -301,6 +318,14 @@ export default function MarketEventsPage() {
             {/* 第一行第二个元素 */}
             <div className="border-border bg-background hidden rounded-xl border sm:block">
               <EventDetail {...eventDetailProps} />
+            </div>
+            <div className="border-border bg-background block rounded-xl border sm:hidden">
+              <EventDonate
+                ref={donateRef}
+                eventInfo={eventInfo}
+                onRefresh={handleRefreshEventInfo}
+                leaderboardRef={leaderboardRef}
+              />
             </div>
             <div className="border-border bg-background block rounded-xl border sm:hidden">
               <EventLeaderboard ref={leaderboardRef} eventInfo={eventInfo} />

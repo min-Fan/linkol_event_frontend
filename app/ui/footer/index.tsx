@@ -6,7 +6,7 @@ import React from 'react';
 export default function Footer() {
   return (
     <footer className="dark:bg-background relative z-[20] w-full bg-[#F9F9F9] backdrop-blur-sm">
-      <section className="mx-auto flex max-w-[960px] flex-col items-start justify-between gap-4 px-2 py-10 sm:flex-row lg:max-w-[1100px]">
+      <section className="mx-auto flex max-w-[960px] flex-row items-center justify-between gap-4 px-2 py-10 sm:flex-row lg:max-w-[1100px]">
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-4">
             <LinkolLight className="!block !h-8 dark:!hidden" />

@@ -2793,3 +2793,44 @@ export const getDonateList = (params: IGetDonateListParams) => {
     ...params,
   });
 };
+
+// 获取活动捐献支持的代币信息
+export interface IGetActivityDonateTokenInfoParams {
+  active_id: number;
+}
+export interface IGetActivityDonateTokenInfoResponseDataItem {
+  /**
+   * 代币地址
+   */
+  coin_address?: string;
+  /**
+   * 代币名字
+   */
+  coin_name?: string;
+  /**
+   * 网络
+   */
+  coin_network?: string;
+  id?: number;
+}
+export const getActivityDonateTokenInfo = (params: IGetActivityDonateTokenInfoParams) => {
+  return kolRequest.get<IGetActivityDonateTokenInfoResponseDataItem[]>(
+    '/kol/api/v9/active/donates/',
+    {
+      ...params,
+    }
+  );
+};
+
+// donate成功接口
+export interface IGetDonateSuccessParams {
+  activeId: number;
+  tokenAddress: string;
+  amount: string;
+  txid: string;
+}
+export const getDonateSuccess = (params: IGetDonateSuccessParams) => {
+  return kolRequest.post('/kol/api/v7/donate/success/', {
+    ...params,
+  });
+};
