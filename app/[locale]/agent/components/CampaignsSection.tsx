@@ -392,6 +392,7 @@ export default function CampaignsSection({
   // 处理授权成功后的回调
   const handleAuthSuccess = async () => {
     setIsAuthDialogOpen(false);
+    checkAgentStatus();
 
     // 根据待执行的操作类型执行相应操作
     if (pendingAction === 'all') {
@@ -647,7 +648,7 @@ export default function CampaignsSection({
                               chainType={campaign.chain_type}
                               tokenType={campaign.token_type}
                               type={campaign.token_type as string}
-                              className="size-4"
+                              className="size-4 rounded-full"
                             />
                           )}
                         </span>

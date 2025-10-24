@@ -10,8 +10,12 @@ import { toast } from 'sonner';
 import useUserInfo from '@hooks/useUserInfo';
 import clsx from 'clsx';
 
-export default function UIWallet(props: { className?: string; onSuccess?: () => void }) {
-  const { className = '', onSuccess } = props;
+export default function UIWallet(props: {
+  className?: string;
+  onSuccess?: () => void;
+  chainId?: number;
+}) {
+  const { className = '', onSuccess, chainId } = props;
   const t = useTranslations('common');
   const { isPending, isConnected, isLogin, connect, login, logout } = useUserInfo();
 
@@ -23,7 +27,7 @@ export default function UIWallet(props: { className?: string; onSuccess?: () => 
 
   const handleLogin = async () => {
     try {
-      await login();
+      await login(chainId);
     } catch (error) {
       toast.error(t('login_failed'));
     }

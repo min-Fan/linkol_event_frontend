@@ -26,7 +26,8 @@ const LeadboardSkeleton = () => {
         <TableHeader>
           <TableRow>
             <TableHead className="text-left">KOL</TableHead>
-            <TableHead className="text-right">{t('followers')}</TableHead>
+            <TableHead className="text-right">{t('points')}</TableHead>
+            <TableHead className="text-right">{t('invitee_count')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -38,6 +39,9 @@ const LeadboardSkeleton = () => {
                 <div className="flex flex-1 flex-col gap-1 overflow-hidden">
                   <Skeleton className="h-4 w-3/4" />
                 </div>
+              </TableCell>
+              <TableCell className="text-right">
+                <Skeleton className="ml-auto h-4 w-16" />
               </TableCell>
               <TableCell className="text-right">
                 <Skeleton className="ml-auto h-4 w-16" />
@@ -76,7 +80,8 @@ export default function Leadboard() {
           <TableHeader>
             <TableRow>
               <TableHead className="text-left">KOL</TableHead>
-              <TableHead className="text-right">{t('followers')}</TableHead>
+              <TableHead className="text-right">{t('points')}</TableHead>
+              <TableHead className="text-right">{t('invitee_count')}</TableHead>
               {/* <TableHead className="text-right">{t('brand_value')}</TableHead> */}
             </TableRow>
           </TableHeader>
@@ -95,7 +100,8 @@ export default function Leadboard() {
         <TableHeader>
           <TableRow>
             <TableHead className="text-md text-left">KOL</TableHead>
-            <TableHead className="text-md text-right">{t('followers')}</TableHead>
+            <TableHead className="text-md text-right">{t('points')}</TableHead>
+            <TableHead className="text-md text-right">{t('invitee_count')}</TableHead>
             {/* <TableHead className="text-md text-right">{t('brand_value')}</TableHead> */}
           </TableRow>
         </TableHeader>
@@ -110,12 +116,14 @@ export default function Leadboard() {
                   {index > 2 && <span className="text-md font-medium">{index + 1}</span>}
                 </div>
                 <img
-                  src={item.profile_image_url}
-                  alt={item.screen_name}
+                  src={item.profile_image_url || '/default-avatar.png'}
+                  alt={item.screen_name || 'avatar'}
                   className="h-6 w-6 rounded-full object-cover"
                 />
                 <dl className="flex max-w-[100px] flex-1 flex-col overflow-hidden">
-                  <span className="text-md truncate font-medium">{item.name}</span>
+                  <span className="text-md truncate font-medium">
+                    {item.screen_name || 'Unknown'}
+                  </span>
                   {/* <span
                     className="cursor-pointer truncate text-sm"
                     onClick={() => handleCopy(item.screen_name)}
@@ -124,8 +132,12 @@ export default function Leadboard() {
                   </span> */}
                 </dl>
               </TableCell>
+
               <TableCell className="text-md text-right font-medium">
-                {formatNumberKMB(item.followers)}
+                {formatNumberKMB(item.invitee_count || 0)}
+              </TableCell>
+              <TableCell className="text-md text-right font-medium">
+                {formatNumberKMB(item.point || 0)}
               </TableCell>
               {/* <TableCell className="text-right text-md font-medium">
                 {formatNumberKMB(item.brand_value)}

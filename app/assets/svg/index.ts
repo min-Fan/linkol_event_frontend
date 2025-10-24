@@ -1,6 +1,5 @@
 import Logo from './logo.svg';
 import Linkol from './linkol.svg';
-import Slogan from './slogan.svg';
 import BSC from './bsc.svg';
 import SOL from './sol.svg';
 import RankFirst from './rank-1.svg';
@@ -186,7 +185,6 @@ export {
   AI,
   Logo,
   Linkol,
-  Slogan,
   BSC,
   SOL,
   RankFirst,

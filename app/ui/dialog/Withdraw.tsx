@@ -188,7 +188,7 @@ export default function UIDialogWithdraw(props: {
             <div className="bg-secondary flex items-center justify-between rounded-md p-3">
               <span>$ {amount}</span>
               <div className="flex items-center gap-x-0.5">
-                <TokenIcon type={''} className="size-4" />
+                <TokenIcon type={''} className="size-4 rounded-full" />
               </div>
             </div>
             <p className="text-muted-foreground">{t('withdraw_tips')}</p>

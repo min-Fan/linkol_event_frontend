@@ -2,7 +2,7 @@
 export type ChainType = 'base' | 'solana' | 'ton' | 'bsc';
 
 // Token类型定义
-export type TokenType = 'usdc' | 'usdt' | 'usd1' | 'bnb' | string;
+export type TokenType = 'usdc' | 'usdt' | 'usd1' | 'bnb' | 'bianrensheng' | string;
 
 // Token配置接口
 export interface TokenConfig {
@@ -69,6 +69,12 @@ const DEVELOPMENT_CONFIG: Record<ChainType, ChainConfig> = {
         decimals: 18,
         iconType: 'bnb',
         contractAddress: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE', // BNB
+      },
+      bianrensheng: {
+        symbol: '币安人生',
+        decimals: 18,
+        iconType: 'bianrensheng',
+        contractAddress: '0x924fa68a0FC644485b8df8AbfA0A41C2e7744444',
       },
     },
   },
@@ -148,6 +154,12 @@ const PRODUCTION_CONFIG: Record<ChainType, ChainConfig> = {
         decimals: 18,
         iconType: 'bnb',
         contractAddress: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE', // BNB
+      },
+      bianrensheng: {
+        symbol: '币安人生',
+        decimals: 18,
+        iconType: 'bianrensheng',
+        contractAddress: '0x924fa68a0FC644485b8df8AbfA0A41C2e7744444',
       },
     },
   },

@@ -2,7 +2,7 @@ import useSWR from 'swr';
 import useSWRInfinite from 'swr/infinite';
 
 import request from '@libs/request/request';
-import { IGetCampaignJoinListItem } from '@libs/request';
+import { IGetCampaignJoinListItem, getPointsTopList, IGetPointsTopListItem } from '@libs/request';
 
 const EndPoint = {
   BANNER: '/kol/api/v3/active/hot/',
@@ -206,41 +206,26 @@ export function useActivesInfinite(
   };
 }
 
-interface ILeadboardRecord {
-  id: number;
-  screen_name: string;
-  name: string;
-  profile_image_url: string;
-  brand_value: number;
-  increase_value: number;
-  followers_count: number;
-  followers: number;
-}
+// 使用 getPointsTopList 的返回类型
+type ILeadboardRecord = IGetPointsTopListItem;
 
-export const leadboardFetcher = async (url: string): Promise<ILeadboardRecord[]> => {
+export const leadboardFetcher = async (): Promise<ILeadboardRecord[]> => {
   try {
-    const res = await request.get(url, {
-      page: 1,
-      limit: 15,
-      kw: '',
-      order: 'desc',
-      is_verified: 1,
-    });
+    const res = await getPointsTopList();
 
     if (res.code !== 200) {
-      throw 'fetch banner error';
+      throw 'fetch points top list error';
     }
 
-    return res.data.list;
+    return res.data || [];
   } catch (error) {
     console.log(error);
-
     return [];
   }
 };
 
 export function useLeadboard() {
-  const { data, ...rest } = useSWR(EndPoint.LEADBOARD, () => leadboardFetcher(EndPoint.LEADBOARD), {
+  const { data, ...rest } = useSWR('points-top-list', () => leadboardFetcher(), {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     shouldRetryOnError: false,
