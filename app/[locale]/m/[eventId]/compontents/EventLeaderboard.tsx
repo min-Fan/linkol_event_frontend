@@ -24,12 +24,13 @@ import {
   TableBody,
   TableCell,
 } from '@shadcn/components/ui/table';
-import { formatNumberKMB } from '@libs/utils';
+import { copy, formatNumberKMB } from '@libs/utils';
 import { Button } from '@shadcn/components/ui/button';
 import { NullData, Verified } from '@assets/svg';
 import RankFirst from '@assets/image/rank-1.png';
 import RankSecond from '@assets/image/rank-2.png';
 import RankThird from '@assets/image/rank-3.png';
+import { toast } from 'sonner';
 
 // 图表区域骨架屏组件
 function ChartSkeleton() {
@@ -542,8 +543,19 @@ const EventLeaderboard = memo(
                                       />
                                     </div>
                                     <div className="flex items-center gap-2">
-                                      <p className="sm:text-md max-w-[100px] truncate text-sm sm:text-base">
-                                        {item.screen_name || t('unknown')}
+                                      <p
+                                        className="sm:text-md max-w-[100px] cursor-pointer truncate text-sm sm:text-base"
+                                        onClick={() =>
+                                          copy(item.screen_name).then((success) => {
+                                            if (success) {
+                                              toast(t('copy_success'));
+                                            } else {
+                                              toast(t('copy_failed'));
+                                            }
+                                          })
+                                        }
+                                      >
+                                        {item.name || t('unknown')}
                                       </p>
                                     </div>
                                   </div>
@@ -654,7 +666,18 @@ const EventLeaderboard = memo(
                                       />
                                     </div>
                                     <div className="flex items-center gap-2">
-                                      <p className="sm:text-md max-w-[100px] truncate text-sm sm:text-base">
+                                      <p
+                                        className="sm:text-md max-w-[100px] cursor-pointer truncate text-sm sm:text-base"
+                                        onClick={() =>
+                                          copy(item.screen_name || '').then((success) => {
+                                            if (success) {
+                                              toast(t('copy_success'));
+                                            } else {
+                                              toast(t('copy_failed'));
+                                            }
+                                          })
+                                        }
+                                      >
                                         {item.screen_name || t('unknown')}
                                       </p>
                                     </div>
