@@ -151,9 +151,11 @@ function BrandValueTableSkeleton() {
 
 // 标题和排行榜tabs组件
 function HeaderAndLeaderboardTabs({
+  isShowDonation = false,
   activeLeaderboardTab,
   onTabChange,
 }: {
+  isShowDonation?: boolean;
   activeLeaderboardTab: 'donation' | 'brand_value';
   onTabChange: (value: string) => void;
 }) {
@@ -178,15 +180,17 @@ function HeaderAndLeaderboardTabs({
           >
             {t('top_10_voice')}
           </TabsTrigger>
-          {/* <TabsTrigger
-            value="donation"
-            className={cn(
-              activeLeaderboardTab === 'donation' &&
-                '!bg-primary/5 !text-primary !border-primary sm:text-md !rounded-full text-sm'
-            )}
-          >
-            {t('top_10_donation')}
-          </TabsTrigger> */}
+          {isShowDonation && (
+            <TabsTrigger
+              value="donation"
+              className={cn(
+                activeLeaderboardTab === 'donation' &&
+                  '!bg-primary/5 !text-primary !border-primary sm:text-md !rounded-full text-sm'
+              )}
+            >
+              {t('top_10_donation')}
+            </TabsTrigger>
+          )}
         </TabsList>
       </Tabs>
     </div>
@@ -194,8 +198,8 @@ function HeaderAndLeaderboardTabs({
 }
 
 const EventLeaderboard = memo(
-  forwardRef<{ refreshAllData: () => Promise<void> }, { onRefresh?: () => Promise<void> }>(
-    function EventLeaderboard({ onRefresh }, ref) {
+  forwardRef<{ refreshAllData: () => Promise<void> }, { onRefresh?: () => Promise<void>; eventInfo?: any }>(
+    function EventLeaderboard({ onRefresh, eventInfo }, ref) {
       const t = useTranslations('common');
       const { eventId } = useParams();
       const [leaderboardData, setLeaderboardData] = useState<
@@ -211,6 +215,8 @@ const EventLeaderboard = memo(
       const [error, setError] = useState<string | null>(null);
       const [voicesError, setVoicesError] = useState<string | null>(null);
       const [brandValueError, setBrandValueError] = useState<string | null>(null);
+      // 根据活动认证状态决定是否显示捐赠排行榜
+      const isShowDonation = eventInfo?.is_verified === true;
       const [activeLeaderboardTab, setActiveLeaderboardTab] = useState<'donation' | 'brand_value'>(
         'brand_value'
       );
@@ -334,6 +340,7 @@ const EventLeaderboard = memo(
         return (
           <div className="flex h-full w-full flex-col gap-2 p-2 sm:gap-4 sm:p-4">
             <HeaderAndLeaderboardTabs
+              isShowDonation={isShowDonation}
               activeLeaderboardTab={activeLeaderboardTab}
               onTabChange={(value) => setActiveLeaderboardTab(value as 'donation' | 'brand_value')}
             />
@@ -355,6 +362,7 @@ const EventLeaderboard = memo(
       return (
         <div className="flex h-full w-full flex-col gap-2 p-2 sm:gap-4 sm:p-4">
           <HeaderAndLeaderboardTabs
+            isShowDonation={isShowDonation}
             activeLeaderboardTab={activeLeaderboardTab}
             onTabChange={(value) => setActiveLeaderboardTab(value as 'donation' | 'brand_value')}
           />

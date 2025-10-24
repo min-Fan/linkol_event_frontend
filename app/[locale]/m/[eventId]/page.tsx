@@ -289,7 +289,7 @@ export default function MarketEventsPage() {
 
             {/* 第二行第一个元素 */}
             <div className="border-border bg-background hidden rounded-xl border sm:block">
-              <EventLeaderboard ref={leaderboardRef} />
+              <EventLeaderboard ref={leaderboardRef} eventInfo={eventInfo} />
             </div>
             <div className="border-border bg-background block rounded-xl border sm:hidden">
               <EventInfo {...eventInfoProps} />
@@ -303,7 +303,7 @@ export default function MarketEventsPage() {
               <EventDetail {...eventDetailProps} />
             </div>
             <div className="border-border bg-background block rounded-xl border sm:hidden">
-              <EventLeaderboard ref={leaderboardRef} />
+              <EventLeaderboard ref={leaderboardRef} eventInfo={eventInfo} />
             </div>
 
             {/* 第二行第二个元素 */}
