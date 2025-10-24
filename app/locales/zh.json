@@ -1296,7 +1296,6 @@
     "approve_token": "授权代币",
     "approving": "授权中...",
     "donating": "捐赠中...",
-    "current_allowance": "当前授权额度",
     "chain_type": "链类型",
     "token_type": "代币类型",
     "donate_amount": "捐赠金额",

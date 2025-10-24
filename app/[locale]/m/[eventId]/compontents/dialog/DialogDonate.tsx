@@ -322,8 +322,6 @@ export default function DialogDonate({
       if (onDonateSuccess) {
         onDonateSuccess();
       }
-
-      toast.success(t('donate_success'));
     }
   }, [isDonateConfirmed, selectedToken, tokenList, donateAmount, onDonateSuccess, t]);
 
