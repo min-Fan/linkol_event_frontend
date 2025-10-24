@@ -18,7 +18,7 @@ export default function TweetRecord() {
   const [search, setSearch] = useState<string>('');
   const [searchInput, setSearchInput] = useState<string>(''); // 用于输入框的值
   const [pageSize] = useState<number>(9);
-  const [isVerify, setIsVerify] = useState<0 | 1>(0);
+  const [isVerify, setIsVerify] = useState<0 | 1>(1);
   const [total, setTotal] = useState<number>(0);
   const t = useTranslations('common');
 
