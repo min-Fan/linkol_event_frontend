@@ -178,7 +178,7 @@ function HeaderAndLeaderboardTabs({
           >
             {t('top_10_voice')}
           </TabsTrigger>
-          <TabsTrigger
+          {/* <TabsTrigger
             value="donation"
             className={cn(
               activeLeaderboardTab === 'donation' &&
@@ -186,7 +186,7 @@ function HeaderAndLeaderboardTabs({
             )}
           >
             {t('top_10_donation')}
-          </TabsTrigger>
+          </TabsTrigger> */}
         </TabsList>
       </Tabs>
     </div>

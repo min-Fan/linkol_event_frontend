@@ -59,6 +59,7 @@ import {
 } from 'ton-core';
 import nacl from 'tweetnacl';
 import { sha256, signVerify } from 'ton-crypto';
+import { formatPrecision } from '@libs/utils';
 interface DialogClaimRewardProps {
   isOpen: boolean;
   onClose: () => void;
@@ -77,6 +78,8 @@ const DialogClaimReward = memo(
     const [isBindEmailDialogOpen, setIsBindEmailDialogOpen] = useState(false); // 绑定邮箱弹窗状态
     const [isInvitationDialogOpen, setIsInvitationDialogOpen] = useState(false); // 邀请弹窗状态
     const [claimedAmount, setClaimedAmount] = useState<number>(0); // 缓存领取时的奖励数量
+    const [serviceFeeRate, setServiceFeeRate] = useState<number>(0.1); // 手续费率，默认10%
+    const [netClaimedAmount, setNetClaimedAmount] = useState<number>(0); // 扣除手续费后的净金额
     const hasProcessedSuccessRef = useRef(false); // 跟踪是否已经处理过成功状态
     const isRequestingSignatureRef = useRef(false); // 跟踪是否正在请求签名
     const [signatureData, setSignatureData] = useState<{
@@ -202,7 +205,7 @@ const DialogClaimReward = memo(
       await refetchUserActivityReward();
       toast.success(
         t.rich('reward_claimed_successfully', {
-          amount: (chunks) => <span className="text-primary">{claimedAmount}</span>,
+          amount: (chunks) => <span className="text-primary">{netClaimedAmount.toFixed(2)}</span>,
         }),
         {
           action: (
@@ -309,6 +312,7 @@ const DialogClaimReward = memo(
       setSignatureData(null);
       setHasStartedClaim(false); // 重置开始领取状态
       setClaimedAmount(0); // 重置缓存的奖励数量
+      setNetClaimedAmount(0); // 重置净金额
       setIsBindEmailDialogOpen(false); // 重置绑定邮箱弹窗状态
       setIsInvitationDialogOpen(false); // 重置邀请弹窗状态
       hasProcessedSuccessRef.current = false; // 重置成功处理标记
@@ -385,8 +389,22 @@ const DialogClaimReward = memo(
 
         // 缓存领取时的奖励数量，用于成功弹窗显示
         const claimAmount = Math.floor(Number(claimableAmount) * Math.pow(10, 6));
-        setClaimedAmount(Number(claimableAmount));
-        console.log('claimAmount:', claimAmount);
+        const grossAmount = Number(claimableAmount);
+        // 只有BASE和BSC链才扣除手续费
+        const netAmount =
+          eventInfo?.chain_type === 'BASE' || eventInfo?.chain_type === 'BSC'
+            ? grossAmount * (1 - serviceFeeRate)
+            : grossAmount;
+        setClaimedAmount(grossAmount);
+        setNetClaimedAmount(netAmount);
+        console.log(
+          'claimAmount:',
+          claimAmount,
+          'grossAmount:',
+          grossAmount,
+          'netAmount:',
+          netAmount
+        );
 
         // 保存签名数据，用于后续回调
         setSignatureData({ amounts, rewardIds, timestamp, signature, tokenAddress });
@@ -474,8 +492,22 @@ const DialogClaimReward = memo(
 
         // 缓存领取时的奖励数量，用于成功弹窗显示
         const claimAmount = Math.floor(Number(claimableAmount) * Math.pow(10, 6));
-        setClaimedAmount(Number(claimableAmount));
-        console.log('claimAmount:', claimAmount);
+        const grossAmount = Number(claimableAmount);
+        // 只有BASE和BSC链才扣除手续费
+        const netAmount =
+          eventInfo?.chain_type === 'BASE' || eventInfo?.chain_type === 'BSC'
+            ? grossAmount * (1 - serviceFeeRate)
+            : grossAmount;
+        setClaimedAmount(grossAmount);
+        setNetClaimedAmount(netAmount);
+        console.log(
+          'claimAmount:',
+          claimAmount,
+          'grossAmount:',
+          grossAmount,
+          'netAmount:',
+          netAmount
+        );
 
         // 保存签名数据，用于后续回调
         setSignatureData({ amounts, rewardIds, timestamp, signature, tokenAddress });
@@ -538,8 +570,22 @@ const DialogClaimReward = memo(
 
         // 缓存领取时的奖励数量，用于成功弹窗显示
         const claimAmount = Math.floor(Number(claimableAmount) * Math.pow(10, 6));
-        setClaimedAmount(Number(claimableAmount));
-        console.log('claimAmount:', claimAmount);
+        const grossAmount = Number(claimableAmount);
+        // 只有BASE和BSC链才扣除手续费
+        const netAmount =
+          eventInfo?.chain_type === 'BASE' || eventInfo?.chain_type === 'BSC'
+            ? grossAmount * (1 - serviceFeeRate)
+            : grossAmount;
+        setClaimedAmount(grossAmount);
+        setNetClaimedAmount(netAmount);
+        console.log(
+          'claimAmount:',
+          claimAmount,
+          'grossAmount:',
+          grossAmount,
+          'netAmount:',
+          netAmount
+        );
         // 1. 构建需要签名的消息：receive_amount,active_id,时间戳
         const timestamp = Math.floor(Date.now() / 1000);
         // 将 availableRewards 转换为正确的精度（乘以 10^6）
@@ -591,7 +637,9 @@ const DialogClaimReward = memo(
           setIsClaimSuccess(true);
           toast.success(
             t.rich('reward_claimed_successfully', {
-              amount: (chunks) => <span className="text-primary">{claimableAmount}</span>,
+              amount: (chunks) => (
+                <span className="text-primary">{netClaimedAmount.toFixed(2)}</span>
+              ),
             })
           );
           // 刷新用户活动奖励数据和父组件数据
@@ -650,8 +698,22 @@ const DialogClaimReward = memo(
 
         // 缓存领取时的奖励数量，用于成功弹窗显示
         const claimAmount = Math.floor(Number(claimableAmount) * Math.pow(10, 6));
-        setClaimedAmount(Number(claimableAmount));
-        console.log('claimAmount:', claimAmount);
+        const grossAmount = Number(claimableAmount);
+        // 只有BASE和BSC链才扣除手续费
+        const netAmount =
+          eventInfo?.chain_type === 'BASE' || eventInfo?.chain_type === 'BSC'
+            ? grossAmount * (1 - serviceFeeRate)
+            : grossAmount;
+        setClaimedAmount(grossAmount);
+        setNetClaimedAmount(netAmount);
+        console.log(
+          'claimAmount:',
+          claimAmount,
+          'grossAmount:',
+          grossAmount,
+          'netAmount:',
+          netAmount
+        );
         // 1. 构建需要签名的消息：receive_amount,active_id,时间戳
         const timestamp = Math.floor(Date.now() / 1000);
         // 将 availableRewards 转换为正确的精度（乘以 10^6）
@@ -721,7 +783,9 @@ const DialogClaimReward = memo(
           setIsClaimSuccess(true);
           toast.success(
             t.rich('reward_claimed_successfully', {
-              amount: (chunks) => <span className="text-primary">{claimableAmount}</span>,
+              amount: (chunks) => (
+                <span className="text-primary">{formatPrecision(netClaimedAmount)}</span>
+              ),
             })
           );
           // 刷新用户活动奖励数据和父组件数据
@@ -861,7 +925,7 @@ const DialogClaimReward = memo(
                   <p className="text-md">{t('congratulations')}</p>
                   <p className="text-sm">
                     {t('reward_sent_to_wallet', {
-                      amount: claimedAmount,
+                      amount: formatPrecision(netClaimedAmount),
                       symbol: symbol || 'USDC',
                     })}
                   </p>
@@ -968,10 +1032,10 @@ const DialogClaimReward = memo(
                         </div>
                       </div>
                     </div>
-                    {eventInfo?.chain_type !== 'Ton' && eventInfo?.chain_type !== 'Solana' && (
+                    {(eventInfo?.chain_type === 'BASE' || eventInfo?.chain_type === 'BSC') && (
                       <div className="flex items-center justify-end">
                         <span className="text-muted-foreground/60 text-sm">
-                          {t('service_fee')}: 10%
+                          {t('service_fee')}: {Math.round(serviceFeeRate * 100)}%
                         </span>
                       </div>
                     )}
