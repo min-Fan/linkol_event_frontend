@@ -51,7 +51,7 @@ export default function DialogRaffleTicketTasks({ isOpen, onClose }: DialogRaffl
 
   const handleFollowTwitter = useCallback(() => {
     // 打开 Twitter 关注页面
-    window.open('https://twitter.com/linkol_ai', '_blank');
+    window.open('https://twitter.com/linkolfun', '_blank');
     setTwitterFollowed(true);
   }, []);
 
