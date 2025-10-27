@@ -6,7 +6,6 @@ import { IEventInfoResponseData, raffle } from '@libs/request';
 import { Dices, Gift, HandCoins, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { useEventTokenInfo } from '@hooks/useEventTokenInfo';
 import DialogRaffleResult from './dialog/DialogRaffleResult';
 import useUserActivityReward from '@hooks/useUserActivityReward';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@shadcn/components/ui/tooltip';
@@ -30,10 +29,6 @@ export default function RaffleRewardCard({
   onRefreshUserReward,
 }: RaffleRewardCardProps) {
   const t = useTranslations('common');
-  const { symbol, iconType } = useEventTokenInfo({
-    chain_type: eventInfo?.chain_type,
-    token_type: eventInfo?.token_type,
-  });
   const [isRaffling, setIsRaffling] = useState(false);
   const [isRaffleResultDialogOpen, setIsRaffleResultDialogOpen] = useState(false);
   const [raffleResult, setRaffleResult] = useState<{
@@ -212,7 +207,7 @@ export default function RaffleRewardCard({
               </TooltipTrigger>
               <TooltipContent>
                 <div className="max-w-[150px] text-sm sm:max-w-[280px]">
-                  {t('reward_percent_tip', { symbol: symbol || '' })}
+                  {t('reward_percent_tip', { symbol: eventInfo?.token_type || '' })}
                 </div>
               </TooltipContent>
             </Tooltip>
@@ -241,7 +236,7 @@ export default function RaffleRewardCard({
               {t('available_rewards')}:
             </span>
             <span className="sm:text-md text-sm">
-              {totalReceiveAmount} {symbol || ''}
+              {totalReceiveAmount} {eventInfo?.token_type || ''}
             </span>
           </div>
           <div className="ml-auto rounded-full p-2 shadow-sm">

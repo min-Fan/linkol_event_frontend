@@ -12,7 +12,6 @@ import { Check, DollarSign } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@shadcn/lib/utils';
 import { IEventInfoResponseData } from '@libs/request';
-import { useEventTokenInfo } from '@hooks/useEventTokenInfo';
 import TokenIcon from 'app/components/TokenIcon';
 import { Success } from '@assets/svg';
 
@@ -30,10 +29,6 @@ export default function DialogAgentEarned({
   eventInfo,
 }: DialogAgentEarnedProps) {
   const t = useTranslations('common');
-  const { symbol, iconType } = useEventTokenInfo({
-    chain_type: eventInfo?.chain_type,
-    token_type: eventInfo?.token_type,
-  });
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -63,7 +58,8 @@ export default function DialogAgentEarned({
                 <TokenIcon
                   chainType={eventInfo?.chain_type}
                   tokenType={eventInfo?.token_type}
-                  type={iconType || ''}
+                  tokenIcon={eventInfo?.token_icon}
+                  type={eventInfo?.token_type || ''}
                   className="h-full w-full"
                 />
                 <div className="absolute top-0 left-[50%] z-[-1] h-[110%] w-[110%] rounded-full bg-[#BFFF00] blur-xl" />
@@ -75,7 +71,7 @@ export default function DialogAgentEarned({
               <p className="text-sm font-bold sm:text-base">
                 {t('your_agent_earned_for_you', {
                   amount: earnedAmount,
-                  symbol: symbol,
+                  symbol: eventInfo?.token_type || '',
                 })}
               </p>
             </div>

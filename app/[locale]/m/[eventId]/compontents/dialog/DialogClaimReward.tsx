@@ -35,7 +35,6 @@ import useUserActivityReward from '@hooks/useUserActivityReward';
 import UIDialogBindEmail from '@ui/dialog/BindEmail';
 import Connect from '@ui/solanaConnect/connect';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { useEventTokenInfo } from '@hooks/useEventTokenInfo';
 import { IEventInfoResponseData } from '@libs/request';
 import {
   TonConnectButton,
@@ -90,10 +89,6 @@ const DialogClaimReward = memo(
       tokenAddress: string;
     } | null>(null);
     const { eventId } = useParams();
-    const { symbol, decimals } = useEventTokenInfo({
-      chain_type: eventInfo?.chain_type,
-      token_type: eventInfo?.token_type,
-    });
     const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
     const twInfo = useAppSelector((state) => state.userReducer?.twitter_full_profile);
     const isLoginSolana = useAppSelector((state) => state.userReducer?.isLoginSolana);
@@ -366,7 +361,7 @@ const DialogClaimReward = memo(
         // 1. 调用签名接口
         const contractAddress = getContractAddress(eventInfo?.chain_type, eventInfo?.token_type);
         const signatureRes: any = await getReceiveRewardSignature({
-          tokenAddress: contractAddress?.pay_member_token_address as `0x${string}`,
+          tokenAddress: eventInfo?.token_address as `0x${string}`,
           // amount: toContractAmount(String(availableRewards), decimals || 6).toString(),
           activeId: eventId as string,
           receiver: address,
@@ -437,7 +432,7 @@ const DialogClaimReward = memo(
       eventId,
       onRefresh,
       claimByReward,
-      decimals,
+      eventInfo?.token_type,
     ]);
 
     const handleClaimRewardBSC = useCallback(async () => {
@@ -468,7 +463,7 @@ const DialogClaimReward = memo(
         // 1. 调用签名接口
         const contractAddress = getContractAddress(eventInfo?.chain_type, eventInfo?.token_type);
         const signatureRes: any = await getReceiveRewardSignatureBSC({
-          tokenAddress: contractAddress?.pay_member_token_address as `0x${string}`,
+          tokenAddress: eventInfo?.token_address as `0x${string}`,
           // amount: toContractAmount(String(availableRewards), decimals || 6).toString(),
           activeId: eventId as string,
           receiver: address,
@@ -540,7 +535,7 @@ const DialogClaimReward = memo(
       eventId,
       onRefresh,
       claimByReward,
-      decimals,
+      eventInfo?.token_type,
     ]);
 
     const handleClaimRewardSolana = useCallback(async () => {
@@ -926,7 +921,7 @@ const DialogClaimReward = memo(
                   <p className="text-sm">
                     {t('reward_sent_to_wallet', {
                       amount: formatPrecision(netClaimedAmount),
-                      symbol: symbol || 'USDC',
+                      symbol: eventInfo?.token_type || '',
                     })}
                   </p>
                 </div>
@@ -993,6 +988,7 @@ const DialogClaimReward = memo(
                       <TokenIcon
                         chainType={eventInfo?.chain_type}
                         tokenType={eventInfo?.token_type}
+                        tokenIcon={eventInfo?.token_icon}
                         type={eventInfo?.token_type || ''}
                         className="h-full w-full rounded-full"
                       />
@@ -1023,12 +1019,12 @@ const DialogClaimReward = memo(
                         <div className="flex items-center gap-1">
                           <span className="text-lg font-bold">{claimableAmount}</span>
                           <TokenIcon
-                            type={symbol || ''}
+                            type={eventInfo?.token_type || ''}
                             chainType={eventInfo?.chain_type}
                             tokenType={eventInfo?.token_type}
                             className="h-5 w-5 rounded-full"
                           />
-                          <span className="text-sm">{symbol || 'USDC'}</span>
+                          <span className="text-sm">{eventInfo?.token_type || ''}</span>
                         </div>
                       </div>
                     </div>

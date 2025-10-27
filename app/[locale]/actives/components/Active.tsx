@@ -6,7 +6,6 @@ import { IActive } from '@hooks/marketEvents';
 import TokenIcon from 'app/components/TokenIcon';
 import defaultAvatar from '@assets/image/avatar.png';
 import defaultCover from '@assets/image/default-cover.png';
-import { usePayTokenInfo } from '@hooks/usePayTokenInfo';
 import { track } from '@vercel/analytics';
 
 export default function Active(props: { data: IActive }) {
@@ -16,7 +15,6 @@ export default function Active(props: { data: IActive }) {
   const t = useTranslations('common');
   const now = useNow();
   const format = useFormatter();
-  const { tokenInfo } = usePayTokenInfo(data?.chain_type, data?.token_type);
 
   return (
     <Link
@@ -45,11 +43,12 @@ export default function Active(props: { data: IActive }) {
             <dt className="truncate">{data?.title}</dt>
             <dd className="bg-accent sm:text-md flex h-8 items-center gap-x-1 rounded-full px-2 text-sm">
               {data?.is_verified ? `$${data?.reward_amount}` : t('unverified')}
-              {data?.is_verified && tokenInfo?.iconType && (
+              {data?.is_verified && data?.token_icon && (
                 <TokenIcon
                   chainType={data?.chain_type}
                   tokenType={data?.token_type}
-                  type={tokenInfo?.iconType as string}
+                  tokenIcon={data?.token_icon}
+                  type={data?.token_type as string}
                   className="size-5 rounded-full"
                 />
               )}

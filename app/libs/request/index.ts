@@ -1300,6 +1300,14 @@ export interface IMarketEventsGetActivesLoginList {
    * 代币类型
    */
   token_type: string;
+  /**
+   * 代币图片
+   */
+  token_icon: string;
+  /**
+   * 代币精度
+   */
+  token_decimals: string;
 }
 
 /**
@@ -1406,8 +1414,26 @@ export interface IEventInfoResponseData {
    * 用户奖励
    */
   user_reward?: number;
-  chain_type?: string;
-  token_type?: string;
+  /**
+   * 代币网络
+   */
+  chain_type: string;
+  /**
+   * 代币地址
+   */
+  token_address: string;
+  /**
+   * 代币类型 symbol
+   */
+  token_type: string;
+  /**
+   * 代币图片
+   */
+  token_icon: string;
+  /**
+   * 代币精度
+   */
+  token_decimals: string;
   /**
    * 是否认证
    */
@@ -2480,6 +2506,14 @@ export interface IGetActivityWithdrawRecordData {
    * 代币类型
    */
   token_type: string;
+  /**
+   * 代币图标
+   */
+  token_icon: string;
+  /**
+   * 代币精度
+   */
+  token_decimals: string;
   /**
    * 用户头像
    */

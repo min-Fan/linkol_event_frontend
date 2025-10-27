@@ -5,6 +5,7 @@ import BianRenSheng from '@assets/image/token/BianRenSheng.png';
 import Image from 'next/image';
 import { getTokenConfig } from '@constants/config';
 import { useState } from 'react';
+import Ping from '@assets/image/token/ping-logo.jpg';
 
 // SVG组件映射
 const svgIconMap = {
@@ -16,14 +17,15 @@ const svgIconMap = {
 // 图片组件映射
 const imgIconMap = {
   usd1: Usd1,
-  bianrensheng: BianRenSheng,
   币安人生: BianRenSheng,
+  ping: Ping,
 };
 
 interface TokenIconProps {
   type: string;
   chainType?: string;
   tokenType?: string;
+  tokenIcon?: string;
   className?: string;
   width?: number;
   height?: number;
@@ -33,11 +35,16 @@ export default function TokenIcon({
   type,
   chainType,
   tokenType,
+  tokenIcon,
   className,
   width = 24,
   height = 24,
 }: TokenIconProps) {
   const [imageError, setImageError] = useState(false);
+
+  if (tokenIcon) {
+    return <img src={tokenIcon} alt={type} className={className} width={width} height={height} />;
+  }
 
   // 如果提供了 chainType 和 tokenType，尝试从配置中获取 imageUrl
   if (chainType && tokenType && !imageError) {
