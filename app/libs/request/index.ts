@@ -1848,7 +1848,7 @@ export interface IGetReceiveRewardSignatureBSCParams {
   receiver: string;
   chainId: number;
 }
-export const getReceiveRewardSignatureBSC = (params: IGetReceiveRewardSignatureBSCParams) => {
+export const getReceiveRewardSignatureV7 = (params: IGetReceiveRewardSignatureBSCParams) => {
   return kolRequest.post(`/kol/api/v7/claim_reward/sign/`, params);
 };
 
@@ -2305,7 +2305,7 @@ export const getReceiveRewardCallback = (params: IGetReceiveRewardCallbackParams
 };
 
 // 获得领奖奖励回调接口 BSC
-export interface IGetReceiveRewardCallbackBSCParams {
+export interface IGetReceiveRewardCallbackV7Params {
   /**
    * 交易哈希
    */
@@ -2327,7 +2327,7 @@ export interface IGetReceiveRewardCallbackBSCParams {
    */
   chainId: number;
 }
-export const getReceiveRewardCallbackBSC = (params: IGetReceiveRewardCallbackBSCParams) => {
+export const getReceiveRewardCallbackV7 = (params: IGetReceiveRewardCallbackV7Params) => {
   return kolRequest.post(`/kol/api/v7/claim_reward/success/`, params);
 };
 
