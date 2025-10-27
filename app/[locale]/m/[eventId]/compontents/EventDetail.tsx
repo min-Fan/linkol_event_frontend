@@ -47,7 +47,6 @@ import PlatformRewardCard from './PlatformRewardCard';
 import TokenIcon from 'app/components/TokenIcon';
 import useUserActivityReward from '@hooks/useUserActivityReward';
 import useCountdownToMidnight from '@hooks/useCountdownToMidnight';
-import { useEventTokenInfo } from '@hooks/useEventTokenInfo';
 
 // 骨架屏组件
 function EventDetailSkeleton() {
@@ -151,14 +150,6 @@ const EventDetail = memo(function EventDetail({
   const [isPostTweetLinkOpen, setIsPostTweetLinkOpen] = useState(false);
   const [isGuideDialogOpen, setIsGuideDialogOpen] = useState(false);
   const [isClaimRewardDialogOpen, setIsClaimRewardDialogOpen] = useState(false);
-  const {
-    tokenInfo: payTokenInfo,
-    symbol,
-    iconType,
-  } = useEventTokenInfo({
-    chain_type: eventInfo?.chain_type,
-    token_type: eventInfo?.token_type,
-  });
   const router = useRouter();
   const { data: joinList, isLoading: isJoinListLoading } = useQuery({
     queryKey: ['joinList', eventInfo?.id],
@@ -350,15 +341,16 @@ const EventDetail = memo(function EventDetail({
             <span className="text-muted-foreground sm:text-md text-sm">{t('reward_pool')}</span>
             <span className="sm:text-md flex items-center gap-1 text-sm font-semibold">
               {eventInfo?.is_verified && `$${eventInfo?.reward_amount?.toLocaleString()}`}
-              {iconType && (
+              {eventInfo?.token_type && (
                 <TokenIcon
                   chainType={eventInfo?.chain_type}
                   tokenType={eventInfo?.token_type}
-                  type={iconType}
+                  tokenIcon={eventInfo?.token_icon}
+                  type={eventInfo?.token_type}
                   className="size-5 rounded-full"
                 />
               )}
-              {symbol || ''}
+              {eventInfo?.token_type || ''}
             </span>
           </div>
           <div className="bg-muted-foreground/5 flex w-full flex-wrap items-center justify-between gap-4 rounded-lg p-3 px-4 sm:w-auto sm:flex-1">

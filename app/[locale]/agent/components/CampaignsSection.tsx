@@ -8,7 +8,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@shadcn/components/ui/avata
 import { Checkbox } from '@shadcn/components/ui/checkbox';
 import { Users, DollarSign, ChevronLeft, ChevronRight } from 'lucide-react';
 import defaultAvatar from '@assets/image/avatar.png';
-import { usePayTokenInfo } from '@hooks/usePayTokenInfo';
 import { useTranslations } from 'next-intl';
 import TokenIcon from 'app/components/TokenIcon';
 import { Label } from '@shadcn/components/ui/label';
@@ -171,9 +170,6 @@ export default function CampaignsSection({
     setIsLoadingMoreTriggered(false);
     fetchCampaigns(1, false);
   }, [dataType, activeTypeId]);
-
-  // 使用第一个活动的代币信息
-  const { tokenInfo } = usePayTokenInfo(campaigns[0]?.chain_type, campaigns[0]?.token_type);
 
   const checkScrollPosition = () => {
     if (scrollContainerRef.current) {
@@ -599,12 +595,13 @@ export default function CampaignsSection({
                           <dt className="truncate">{campaign.title}</dt>
                           <dd className="bg-accent sm:text-md flex h-7 items-center gap-x-1 rounded-full px-2 text-sm">
                             {campaign.is_verified ? `$${campaign.reward_amount}` : t('unverified')}
-                            {campaign.token_type && campaign.chain_type && (
+                            {campaign.token_type && campaign.chain_type && campaign.token_icon && (
                               <TokenIcon
                                 chainType={campaign.chain_type}
                                 tokenType={campaign.token_type}
+                                tokenIcon={campaign.token_icon}
                                 type={campaign.token_type as string}
-                                className="size-4"
+                                className="size-4 rounded-full"
                               />
                             )}
                           </dd>
@@ -647,6 +644,7 @@ export default function CampaignsSection({
                             <TokenIcon
                               chainType={campaign.chain_type}
                               tokenType={campaign.token_type}
+                              tokenIcon={campaign.token_icon}
                               type={campaign.token_type as string}
                               className="size-4 rounded-full"
                             />
