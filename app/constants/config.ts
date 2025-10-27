@@ -2,7 +2,7 @@
 export type ChainType = 'base' | 'solana' | 'ton' | 'bsc';
 
 // Token类型定义
-export type TokenType = 'usdc' | 'usdt' | 'usd1' | 'bnb' | 'bianrensheng' | string;
+export type TokenType = 'usdc' | 'usdt' | 'usd1' | 'bnb' | '币安人生' | string;
 
 // Token配置接口
 export interface TokenConfig {
@@ -32,26 +32,28 @@ const isDevelopment = process.env.NEXT_PUBLIC_NODE_ENV === 'development';
 // 开发环境配置
 const DEVELOPMENT_CONFIG: Record<ChainType, ChainConfig> = {
   base: {
-    chainId: '84532', // Base Sepolia 测试网
-    name: 'Base Sepolia',
-    KOLServiceAddress: '0x68Fab9e02bD60a1F9EBDD5bb192eE2C59Fb16970', // 测试网地址
-    ActivityServiceAddress: '0xd1CF4991BA007f1743eD5F51CF73c42f18E304Bd', // 测试网地址
+    chainId: '8453', // Base 主网
+    name: 'Base',
+    KOLServiceAddress: '0xD562135D926763d4132a3E7d55a536850E03bcA9',
+    ActivityServiceAddress: '0xf3E45cF29c86b92cc7CC8Ef68773162B53CB5C78',
     defaultToken: 'usdc',
-    blockExplorerUrl: 'https://sepolia.basescan.org',
+    blockExplorerUrl: 'https://basescan.org',
     iconUrl:
       'https://cdn.brandfetch.io/id6XsSOVVS/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1757929784005',
     tokens: {
       usdc: {
-        symbol: 'USDT',
+        symbol: 'USDC',
         decimals: 6,
-        iconType: 'usdt',
-        contractAddress: '0x6909442C7572D06E28A9535AA99548d1279d1e44', // Base Sepolia USDC
+        iconType: 'usdc',
+        contractAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+        imageUrl: 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png',
       },
       usdt: {
         symbol: 'USDT',
         decimals: 6,
         iconType: 'usdt',
-        contractAddress: '0x6909442C7572D06E28A9535AA99548d1279d1e44', // Base Sepolia USDT
+        contractAddress: '0x50c5725949A6F0c72E6C4a641F24749F6b268E73',
+        imageUrl: 'https://cryptologos.cc/logos/tether-usdt-logo.png',
       },
       ping: {
         symbol: 'PING',
@@ -77,10 +79,10 @@ const DEVELOPMENT_CONFIG: Record<ChainType, ChainConfig> = {
         iconType: 'bnb',
         contractAddress: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE', // BNB
       },
-      bianrensheng: {
+      币安人生: {
         symbol: '币安人生',
         decimals: 18,
-        iconType: 'bianrensheng',
+        iconType: '币安人生',
         contractAddress: '0x924fa68a0FC644485b8df8AbfA0A41C2e7744444',
       },
     },
@@ -169,10 +171,10 @@ const PRODUCTION_CONFIG: Record<ChainType, ChainConfig> = {
         iconType: 'bnb',
         contractAddress: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE', // BNB
       },
-      bianrensheng: {
+      币安人生: {
         symbol: '币安人生',
         decimals: 18,
-        iconType: 'bianrensheng',
+        iconType: '币安人生',
         contractAddress: '0x924fa68a0FC644485b8df8AbfA0A41C2e7744444',
       },
     },

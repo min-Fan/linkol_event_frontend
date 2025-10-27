@@ -14,7 +14,6 @@ import DialogPostTweetLink from './dialog/DialogPostTweetLink';
 import { MoneyBag } from '@assets/svg';
 import DialogClaimReward from './dialog/DialogClaimReward';
 import useUserActivityReward from '@hooks/useUserActivityReward';
-import { useEventTokenInfo } from '@hooks/useEventTokenInfo';
 
 interface PlatformRewardCardProps {
   eventInfo: IEventInfoResponseData;
@@ -27,10 +26,6 @@ export default function PlatformRewardCard({ eventInfo, onRefresh }: PlatformRew
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPostTweetDialogOpen, setIsPostTweetDialogOpen] = useState(false);
   const [isClaimRewardDialogOpen, setIsClaimRewardDialogOpen] = useState(false);
-  const { symbol } = useEventTokenInfo({
-    chain_type: eventInfo?.chain_type,
-    token_type: eventInfo?.token_type,
-  });
   const isLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
   const redemptionCode = useAppSelector((state) => state.userReducer?.redemptionCode || '');
 
@@ -112,7 +107,7 @@ export default function PlatformRewardCard({ eventInfo, onRefresh }: PlatformRew
               {t('tweet_now_to_claim_reward')}
             </h3>
             <p className="text-primary/40 sm:text-md text-sm">
-              {t('receive_usdt_instantly', { symbol: symbol || '' })}
+              {t('receive_usdt_instantly', { symbol: eventInfo?.token_type || '' })}
             </p>
           </div>
         </div>

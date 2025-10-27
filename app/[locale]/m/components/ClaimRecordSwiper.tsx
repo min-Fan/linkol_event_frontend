@@ -4,7 +4,7 @@ import { Link } from '@libs/i18n/navigation';
 import { getActivityWithdrawRecord, IGetActivityWithdrawRecordData } from '@libs/request';
 import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { getExplorerUrl, getTokenConfig } from '@constants/config';
+import { getExplorerUrl } from '@constants/config';
 import TokenIcon from 'app/components/TokenIcon';
 import { useTranslations } from 'next-intl';
 import { X } from 'lucide-react';
@@ -190,11 +190,12 @@ const ClaimRecordSwiper = memo(
               <TokenIcon
                 chainType={record.chain_type}
                 tokenType={record.token_type}
-                type={getTokenConfig(record.chain_type, record.token_type).symbol}
+                tokenIcon={record.token_icon}
+                type={record.token_type}
                 className="size-5 rounded-full"
               />
               <span className="text-muted-foreground hidden sm:block">
-                {getTokenConfig(record.chain_type, record.token_type).symbol}
+                {record.token_type}
               </span>
               <span className="text-muted-foreground text-xs">txs:</span>
               <span className="">

@@ -104,6 +104,14 @@ export interface IActive {
    */
   token_type: string;
   /**
+   * 代币图片
+   */
+  token_icon: string;
+  /**
+   * 代币精度
+   */
+  token_decimals: string;
+  /**
    * 是否已经认证
    */
   is_verified: boolean;
