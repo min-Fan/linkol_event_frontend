@@ -25,8 +25,8 @@ import {
   getReceiveRewardCallback,
   getSolanaClaimReward,
   getTonClaimReward,
-  getReceiveRewardSignatureBSC,
-  getReceiveRewardCallbackBSC,
+  getReceiveRewardSignatureV7,
+  getReceiveRewardCallbackV7,
 } from '@libs/request';
 import UIWallet from '@ui/wallet';
 import useUserInfo from '@hooks/useUserInfo';
@@ -228,24 +228,23 @@ const DialogClaimReward = memo(
       }
 
       try {
-        const contractAddress = getContractAddress(eventInfo?.chain_type, eventInfo?.token_type);
         // 静默调用回调接口，不处理返回结果，只记录日志
-        if (eventInfo.chain_type === 'BASE') {
-          const res: any = await getReceiveRewardCallback({
-            rewardIds: signatureData.rewardIds,
-            tx_hash: claimData,
-          });
-          console.log('Callback reward result:', res);
-        } else if (eventInfo.chain_type === 'BSC') {
-          const res: any = await getReceiveRewardCallbackBSC({
-            rewardIds: signatureData.rewardIds,
-            txHash: claimData,
-            tokenAddress: contractAddress?.pay_member_token_address as `0x${string}`,
-            activeId: eventId as string,
-            chainId: chainId as number,
-          });
-          console.log('Callback reward result:', res);
-        }
+        // if (eventInfo.chain_type === 'BASE') {
+        //   const res: any = await getReceiveRewardCallback({
+        //     rewardIds: signatureData.rewardIds,
+        //     tx_hash: claimData,
+        //   });
+        //   console.log('Callback reward result:', res);
+        // } else if (eventInfo.chain_type === 'BSC') {
+        const res: any = await getReceiveRewardCallbackV7({
+          rewardIds: signatureData.rewardIds,
+          txHash: claimData,
+          tokenAddress: eventInfo?.token_address as `0x${string}`,
+          activeId: eventId as string,
+          chainId: chainId as number,
+        });
+        console.log('Callback reward result:', res);
+        // }
         setIsClaiming(false);
         // 直接显示成功状态
         handleContractSuccess();
@@ -261,7 +260,7 @@ const DialogClaimReward = memo(
 
         console.error('Failed to create activity callback reward (silent):', error);
       }
-    }, [claimData, signatureData]);
+    }, [claimData, signatureData, chainId]);
 
     // 监听交易确认状态
     useEffect(() => {
@@ -435,7 +434,7 @@ const DialogClaimReward = memo(
       eventInfo?.token_type,
     ]);
 
-    const handleClaimRewardBSC = useCallback(async () => {
+    const handleClaimRewardV7 = useCallback(async () => {
       if (!address) {
         toast.error(t('please_connect_wallet'));
         return;
@@ -462,7 +461,7 @@ const DialogClaimReward = memo(
 
         // 1. 调用签名接口
         const contractAddress = getContractAddress(eventInfo?.chain_type, eventInfo?.token_type);
-        const signatureRes: any = await getReceiveRewardSignatureBSC({
+        const signatureRes: any = await getReceiveRewardSignatureV7({
           tokenAddress: eventInfo?.token_address as `0x${string}`,
           // amount: toContractAmount(String(availableRewards), decimals || 6).toString(),
           activeId: eventId as string,
@@ -536,6 +535,7 @@ const DialogClaimReward = memo(
       onRefresh,
       claimByReward,
       eventInfo?.token_type,
+      chainId,
     ]);
 
     const handleClaimRewardSolana = useCallback(async () => {
@@ -1062,14 +1062,12 @@ const DialogClaimReward = memo(
                           setIsBindEmailDialogOpen(true);
                         } else {
                           // 根据链类型调用相应的领取函数
-                          if (eventInfo?.chain_type === 'BASE') {
-                            handleClaimReward();
+                          if (eventInfo?.chain_type === 'BASE' || eventInfo?.chain_type === 'BSC') {
+                            handleClaimRewardV7();
                           } else if (eventInfo?.chain_type === 'Solana') {
                             handleClaimRewardSolana();
                           } else if (eventInfo?.chain_type === 'Ton') {
                             handleClaimRewardTon();
-                          } else if (eventInfo?.chain_type === 'BSC') {
-                            handleClaimRewardBSC();
                           }
                         }
                       }}
@@ -1109,11 +1107,7 @@ const DialogClaimReward = memo(
                 // 如果邮箱绑定成功或取消，检查是否可以继续领取流程
                 if (eventInfo?.chain_type === 'BASE' || eventInfo?.chain_type === 'BSC') {
                   if (isEmailBound() && address && !isWrongChain && isLogin) {
-                    if (eventInfo?.chain_type === 'BASE') {
-                      handleClaimReward();
-                    } else if (eventInfo?.chain_type === 'BSC') {
-                      handleClaimRewardBSC();
-                    }
+                    handleClaimRewardV7();
                   } else {
                     // 如果没有成功绑定邮箱，关闭主弹窗
                     handleClose();
