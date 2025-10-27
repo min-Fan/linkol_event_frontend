@@ -194,9 +194,7 @@ const ClaimRecordSwiper = memo(
                 type={record.token_type}
                 className="size-5 rounded-full"
               />
-              <span className="text-muted-foreground hidden sm:block">
-                {record.token_type}
-              </span>
+              <span className="text-muted-foreground hidden sm:block">{record.token_type}</span>
               <span className="text-muted-foreground text-xs">txs:</span>
               <span className="">
                 <Link
