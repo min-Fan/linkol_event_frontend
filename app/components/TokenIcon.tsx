@@ -5,6 +5,7 @@ import BianRenSheng from '@assets/image/token/BianRenSheng.png';
 import Image from 'next/image';
 import { getTokenConfig } from '@constants/config';
 import { useState } from 'react';
+import Ping from '@assets/image/token/ping-logo.jpg';
 
 // SVG组件映射
 const svgIconMap = {
@@ -17,6 +18,7 @@ const svgIconMap = {
 const imgIconMap = {
   usd1: Usd1,
   bianrensheng: BianRenSheng,
+  ping: Ping,
 };
 
 interface TokenIconProps {

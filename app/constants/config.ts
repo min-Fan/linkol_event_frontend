@@ -53,6 +53,13 @@ const DEVELOPMENT_CONFIG: Record<ChainType, ChainConfig> = {
         iconType: 'usdt',
         contractAddress: '0x6909442C7572D06E28A9535AA99548d1279d1e44', // Base Sepolia USDT
       },
+      ping: {
+        symbol: 'PING',
+        decimals: 18,
+        iconType: 'ping',
+        contractAddress: '0xd85c31854c2B0Fb40aaA9E2Fc4Da23C21f829d46',
+        imageUrl: '/assets/image/token/ping-logo.jpg',
+      },
     },
   },
   bsc: {
@@ -137,6 +144,13 @@ const PRODUCTION_CONFIG: Record<ChainType, ChainConfig> = {
         iconType: 'usdt',
         contractAddress: '0x50c5725949A6F0c72E6C4a641F24749F6b268E73',
         imageUrl: 'https://cryptologos.cc/logos/tether-usdt-logo.png',
+      },
+      ping: {
+        symbol: 'PING',
+        decimals: 18,
+        iconType: 'ping',
+        contractAddress: '0xd85c31854c2B0Fb40aaA9E2Fc4Da23C21f829d46',
+        imageUrl: '/assets/image/token/ping-logo.jpg',
       },
     },
   },
