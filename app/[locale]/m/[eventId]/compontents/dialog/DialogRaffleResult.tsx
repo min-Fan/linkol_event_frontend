@@ -21,7 +21,6 @@ import { getTwitterShareCallback } from '@libs/request';
 import { toast } from 'sonner';
 import useUserActivityReward from '@hooks/useUserActivityReward';
 import DialogRaffleTicketTasks from './DialogRaffleTicketTasks';
-import { useEventTokenInfo } from '@hooks/useEventTokenInfo';
 import { IEventInfoResponseData } from '@libs/request';
 interface DialogRaffleResultProps {
   isOpen: boolean;
@@ -42,10 +41,6 @@ export default function DialogRaffleResult({
   eventInfo,
 }: DialogRaffleResultProps) {
   const t = useTranslations('common');
-  const { symbol, iconType } = useEventTokenInfo({
-    chain_type: eventInfo?.chain_type,
-    token_type: eventInfo?.token_type,
-  });
   const { eventId } = useParams();
 
   // 分享相关状态
@@ -85,12 +80,12 @@ export default function DialogRaffleResult({
   }, []);
 
   const handleShareOnX = useCallback(() => {
-    const tweetText = `I just won ${raffleResult?.receive_amount} ${symbol || ''} in the raffle! Check it out: ${window.location.origin}/market_events/${eventId}`;
+    const tweetText = `I just won ${raffleResult?.receive_amount} ${eventInfo?.token_type || ''} in the raffle! Check it out: ${window.location.origin}/market_events/${eventId}`;
     window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(tweetText)}`, '_blank');
     // 分享后设置为已分享状态
     setIsShared(true);
     handleVerifyShare();
-  }, [raffleResult?.receive_amount, symbol, eventId]);
+  }, [raffleResult?.receive_amount, eventInfo?.token_type, eventId]);
 
   const handleVerifyShare = useCallback(async () => {
     if (!eventId) return;
@@ -225,7 +220,8 @@ export default function DialogRaffleResult({
                       <TokenIcon
                         chainType={eventInfo?.chain_type}
                         tokenType={eventInfo?.token_type}
-                        type={iconType || ''}
+                        tokenIcon={eventInfo?.token_icon}
+                        type={eventInfo?.token_type || ''}
                         className="h-full w-full rounded-full"
                       />
                       <div className="absolute top-0 left-[50%] z-[-1] h-[110%] w-[110%] rounded-full bg-[#BFFF00] blur-xl" />
@@ -233,11 +229,11 @@ export default function DialogRaffleResult({
                   </div>
                   <div className="text-center">
                     <p className="text-xl font-bold">
-                      {raffleResult?.receive_amount} {symbol || ''}
+                      {raffleResult?.receive_amount} {eventInfo?.token_type || ''}
                     </p>
                     <p className="text-md font-semibold">{t('congratulations')}</p>
                     <p className="mt-2 text-sm">
-                      {t('congratulations_description', { symbol: symbol || '' })}
+                      {t('congratulations_description', { symbol: eventInfo?.token_type || '' })}
                     </p>
                   </div>
                   <div className="flex w-full gap-2">
