@@ -1280,6 +1280,8 @@
     "authorization_failed": "授权失败",
     "agent_auth_required": "需要授权才能继续操作",
     "agent_auth_description": "为了使用Agent自动参与功能，您需要先授权Twitter账号。授权后，Agent将能够代表您自动参与活动。",
-    "authorize_now": "立即授权"
+    "authorize_now": "立即授权",
+    "x402_events": "X402 活动",
+    "buy_now": "立即购买"
   }
 }
