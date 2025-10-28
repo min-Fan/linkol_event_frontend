@@ -319,3 +319,26 @@ export const getExplorerUrl = (txHash: string, chainType: string): string => {
   const txType = normalizedChainType === 'ton' ? 'transaction' : 'tx';
   return `${explorerUrl}/${txType}/${txHash}`;
 };
+
+// Uniswap 链名映射
+const UNISWAP_CHAIN_MAP: Record<ChainType, string> = {
+  bsc: 'bnb',
+  base: 'base',
+  solana: 'solana',
+  ton: 'ton',
+};
+
+// 获取 Uniswap 链名
+export const getUniswapChainName = (chainType: ChainType | string): string => {
+  const normalizedChainType = chainType?.toLowerCase() as ChainType;
+  return UNISWAP_CHAIN_MAP[normalizedChainType] || normalizedChainType;
+};
+
+// 生成 Uniswap 交换链接
+export const getUniswapUrl = (chainType: string, tokenAddress: string): string => {
+  if (!chainType || !tokenAddress) {
+    return '';
+  }
+  const uniswapChain = getUniswapChainName(chainType);
+  return `https://app.uniswap.org/swap?chain=${uniswapChain}&inputCurrency=NATIVE&outputCurrency=${tokenAddress}`;
+};
