@@ -35,6 +35,7 @@ import html2canvas from 'html2canvas';
 import DownloadCard from './compontents/canvasToImg/DownloadCard';
 import { useEventData } from '@hooks/useEventData';
 import { useDebounce } from '@hooks/useDebounce';
+import EventVote from './compontents/EventVote';
 
 export default function MarketEventsPage() {
   const { eventId } = useParams();
@@ -285,6 +286,9 @@ export default function MarketEventsPage() {
             </div>
             <div className="border-border bg-background block rounded-xl border sm:hidden">
               <EventDetail {...eventDetailProps} />
+            </div>
+            <div className="rounded-xl">
+              <EventVote {...eventDetailProps} />
             </div>
 
             {/* 第二行第一个元素 */}

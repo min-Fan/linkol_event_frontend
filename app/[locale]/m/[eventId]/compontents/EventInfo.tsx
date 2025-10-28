@@ -153,7 +153,7 @@ const EventInfo = memo(function EventInfo({
         <div className="flex w-full items-start justify-between">
           <div className="flex items-center gap-1">
             <div className="rounded-full bg-[#BFFF00] p-1">
-              <Shrub className="h-3 w-3 sm:h-4 sm:w-4" />
+              <Shrub className="h-4 w-4 sm:h-6 sm:w-6" />
             </div>
             <span className="text-sm font-semibold sm:text-base">{t('brand_value')}</span>
           </div>
@@ -180,7 +180,7 @@ const EventInfo = memo(function EventInfo({
       </div>
       <div className="flex flex-col gap-2">
         {eventInfo?.project?.website && (
-          <div className="bg-muted-foreground/5 flex h-full w-full flex-col items-center justify-between gap-2 rounded-xl p-2 sm:flex-row sm:gap-1">
+          <div className="bg-muted-foreground/5 flex h-full w-full flex-row items-center justify-between gap-0 rounded-xl p-2 sm:flex-row sm:gap-1">
             {/* <span className="text-muted-foreground sm:text-md text-sm">{t('website')}</span> */}
             <div className="flex h-full cursor-pointer flex-wrap items-center gap-1">
               {eventInfo?.project?.website && (
@@ -230,7 +230,7 @@ const EventInfo = memo(function EventInfo({
             </div>
             <Button
               size="sm"
-              className="sm:!text-md ml-auto !h-8 w-full rounded-md bg-gradient-to-r from-[#007AFF] from-0% via-[#D4F5D0] via-30% to-[#007AFF] to-80% bg-[length:200%_100%] bg-[position:100%_50%] !px-2 text-sm transition-[background-position] duration-200 ease-in-out hover:bg-[position:-60%_50%] disabled:cursor-not-allowed disabled:opacity-50 sm:!h-8 sm:w-auto sm:!rounded-full sm:!px-4"
+              className="sm:!text-md ml-auto !h-7 w-auto rounded-md bg-gradient-to-r from-[#007AFF] from-0% via-[#D4F5D0] via-30% to-[#007AFF] to-80% bg-[length:200%_100%] bg-[position:100%_50%] !px-2 text-sm transition-[background-position] duration-200 ease-in-out hover:bg-[position:-60%_50%] disabled:cursor-not-allowed disabled:opacity-50 sm:!h-8 sm:w-auto sm:!rounded-full sm:!px-4"
               onClick={toUniswap}
             >
               {t('buy_now')}
