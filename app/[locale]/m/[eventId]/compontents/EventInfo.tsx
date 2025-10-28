@@ -153,7 +153,7 @@ const EventInfo = memo(function EventInfo({
         <div className="flex w-full items-start justify-between">
           <div className="flex items-center gap-1">
             <div className="rounded-full bg-[#BFFF00] p-1">
-              <Shrub className="h-3 w-3 sm:h-4 sm:w-4" />
+              <Shrub className="h-4 w-4 sm:h-6 sm:w-6" />
             </div>
             <span className="text-sm font-semibold sm:text-base">{t('brand_value')}</span>
           </div>

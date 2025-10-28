@@ -1280,6 +1280,9 @@
     "agent_auth_description": "To use the Agent auto-participate feature, you need to authorize your Twitter account first. Once authorized, the Agent will be able to automatically participate in campaigns on your behalf.",
     "authorize_now": "Authorize Now",
     "x402_events": "X402 Event",
-    "buy_now": "Buy Now"
+    "buy_now": "Buy Now",
+    "pump_progress": "Pump progress",
+    "vote_yes": "Yes",
+    "vote_no": "No"
   }
 }

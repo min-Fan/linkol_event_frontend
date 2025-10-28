@@ -1282,6 +1282,9 @@
     "agent_auth_description": "为了使用Agent自动参与功能，您需要先授权Twitter账号。授权后，Agent将能够代表您自动参与活动。",
     "authorize_now": "立即授权",
     "x402_events": "X402 活动",
-    "buy_now": "立即购买"
+    "buy_now": "立即购买",
+    "pump_progress": "上涨进度",
+    "vote_yes": "支持",
+    "vote_no": "反对"
   }
 }

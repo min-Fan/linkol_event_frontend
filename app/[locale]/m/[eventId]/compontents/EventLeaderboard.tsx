@@ -162,7 +162,7 @@ function HeaderAndLeaderboardTabs({
   return (
     <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-0">
       <div className="flex items-center gap-2">
-        <div className="flex h-4 w-4 items-center justify-center rounded-full bg-[#BFFF00] text-sm font-bold sm:h-5 sm:w-5 sm:text-base">
+        <div className="flex h-4 w-4 items-center justify-center rounded-full bg-[#BFFF00] p-1 text-sm font-bold sm:h-7 sm:w-7 sm:text-base">
           X
         </div>
         <span className="text-md font-bold sm:text-base">{t('leaderboard')}</span>
