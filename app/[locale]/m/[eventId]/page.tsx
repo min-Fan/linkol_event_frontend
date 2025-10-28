@@ -36,6 +36,7 @@ import DownloadCard from './compontents/canvasToImg/DownloadCard';
 import { useEventData } from '@hooks/useEventData';
 import { useDebounce } from '@hooks/useDebounce';
 import EventDonate from './compontents/EventDonate';
+import EventVote from './compontents/EventVote';
 
 export default function MarketEventsPage() {
   const { eventId } = useParams();
@@ -296,6 +297,10 @@ export default function MarketEventsPage() {
               <EventDetail {...eventDetailProps} />
             </div>
 
+            <div className="hidden rounded-xl sm:block">
+              <EventVote {...eventDetailProps} />
+            </div>
+
             {/* 第二行第一个元素 */}
             <div className="border-border bg-background hidden rounded-xl border sm:block">
               <EventLeaderboard ref={leaderboardRef} eventInfo={eventInfo} />
@@ -319,6 +324,9 @@ export default function MarketEventsPage() {
             <div className="border-border bg-background hidden rounded-xl border sm:block">
               <EventDetail {...eventDetailProps} />
             </div>
+            <div className="block rounded-xl sm:hidden">
+              <EventVote {...eventDetailProps} />
+            </div>
             <div className="border-border bg-background block rounded-xl border sm:hidden">
               <EventDonate
                 ref={donateRef}
@@ -328,7 +336,7 @@ export default function MarketEventsPage() {
               />
             </div>
             <div className="border-border bg-background block rounded-xl border sm:hidden">
-              <EventLeaderboard ref={leaderboardRef} eventInfo={eventInfo} />
+              <EventLeaderboard ref={leaderboardRef} />
             </div>
 
             {/* 第二行第二个元素 */}

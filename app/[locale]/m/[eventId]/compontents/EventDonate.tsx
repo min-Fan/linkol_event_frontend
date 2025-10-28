@@ -1,6 +1,5 @@
 'use client';
 import { getTokenConfig } from '@constants/config';
-import { useEventTokenInfo } from '@hooks/useEventTokenInfo';
 import { Button } from '@shadcn/components/ui/button';
 import TokenIcon from 'app/components/TokenIcon';
 import React, { useState, forwardRef, useImperativeHandle } from 'react';
@@ -20,10 +19,6 @@ interface EventDonateProps {
 const EventDonate = forwardRef<{ refreshDonateData: () => Promise<void> }, EventDonateProps>(
   function EventDonate({ eventInfo, onRefresh, leaderboardRef }, ref) {
     const t = useTranslations('common');
-    const { symbol } = useEventTokenInfo({
-      chain_type: eventInfo?.chain_type,
-      token_type: eventInfo?.token_type,
-    });
     const [isDonateDialogOpen, setIsDonateDialogOpen] = useState(false);
 
     const handleDonateDialogOpen = () => {
@@ -73,7 +68,7 @@ const EventDonate = forwardRef<{ refreshDonateData: () => Promise<void> }, Event
               onClick={handleBuy}
               className="h-10 flex-1 !rounded-full !px-4 font-bold sm:!h-12"
             >
-              {t('buy_token')} {symbol}
+              {t('buy_token')} {eventInfo?.token_type}
             </Button>
           )}
         </div>

@@ -2868,3 +2868,63 @@ export const getDonateSuccess = (params: IGetDonateSuccessParams) => {
     ...params,
   });
 };
+
+// 获取投票信息
+export interface IGetVoteInfoResponseData {
+  /**
+   * id
+   */
+  id: number;
+  /**
+   * no的人数
+   */
+  no_count: number;
+  /**
+   * 投票内容
+   */
+  title: string;
+  /**
+   * 英文投票内容
+   */
+  en_title: string;
+  /**
+   * yes的人数
+   */
+  yes_count: number;
+  /**
+   * 用户投票详情
+   */
+  vote_detail: VoteDetail;
+}
+
+export interface VoteDetail {
+  /**
+   * false表示没投票
+   */
+  is_vote: boolean;
+  /**
+   * true表示yes false 表示NO
+   */
+  is_yes: null;
+}
+
+export const getVoteInfo = () => {
+  return kolRequest.get<IGetVoteInfoResponseData>('/kol/api/v9/vote/content/');
+};
+
+// 投票
+export interface IVoteParams {
+  /**
+   * yes的话传1 NO的话传0
+   */
+  is_yes: number;
+  /**
+   * 投票内容的ID
+   */
+  vote_content_id: number;
+}
+export const vote = (params: IVoteParams) => {
+  return kolRequest.post('/kol/api/v9/vote/', {
+    ...params,
+  });
+};

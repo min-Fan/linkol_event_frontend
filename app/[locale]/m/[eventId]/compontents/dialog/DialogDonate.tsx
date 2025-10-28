@@ -24,7 +24,6 @@ import {
   IGetActivityDonateTokenInfoResponseDataItem,
 } from '@libs/request';
 import { ChainType, getChainConfig } from '@constants/config';
-import { useEventTokenInfo } from '@hooks/useEventTokenInfo';
 import { Input } from '@shadcn/components/ui/input';
 import { Label } from '@shadcn/components/ui/label';
 import {
@@ -108,12 +107,6 @@ export default function DialogDonate({
   const [currentAllowance, setCurrentAllowance] = useState('0');
   const [needsApproval, setNeedsApproval] = useState(false);
   const [isWrongChain, setIsWrongChain] = useState(false);
-
-  // 获取代币信息
-  const { symbol: eventTokenSymbol, iconType } = useEventTokenInfo({
-    chain_type: eventInfo?.chain_type,
-    token_type: eventInfo?.token_type,
-  });
 
   // 获取链配置
   const chainConfig = getChainConfig((eventInfo?.chain_type as ChainType) || '');
