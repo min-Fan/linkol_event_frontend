@@ -20,6 +20,7 @@ import { NavigationItem } from '../index';
 import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { updateNavCache } from '@store/reducers/userSlice';
 import PagesRoute from '@constants/routes';
+import { track } from '@vercel/analytics';
 
 interface NavProps {
   className?: string;
@@ -209,7 +210,18 @@ export default function Nav(props: NavProps) {
           isComingSoon && 'cursor-not-allowed opacity-60'
         )}
       >
-        {isComingSoon ? content : <Link href={item.href}>{t(item.labelKey)}</Link>}
+        {isComingSoon ? (
+          content
+        ) : (
+          <Link
+            href={item.href}
+            onClick={() =>
+              track(`Nav Item Click ==> ${item.labelKey}`, { path: location.pathname })
+            }
+          >
+            {t(item.labelKey)}
+          </Link>
+        )}
       </div>
     );
   };
@@ -253,6 +265,9 @@ export default function Nav(props: NavProps) {
                     popoverTimeoutRef.current = setTimeout(() => {
                       setIsPopoverOpen(false);
                     }, 150);
+                  }}
+                  onClick={() => {
+                    track('Nav Item Click ==> More', { path: location.pathname });
                   }}
                 >
                   <MoreHorizontal className="h-4 w-4" />
@@ -312,7 +327,12 @@ export default function Nav(props: NavProps) {
                           <Link
                             href={item.href}
                             className="block w-full"
-                            onClick={() => setIsPopoverOpen(false)}
+                            onClick={() => {
+                              setIsPopoverOpen(false);
+                              track(`Nav Item Click ==> ${item.labelKey}`, {
+                                path: location.pathname,
+                              });
+                            }}
                           >
                             {t(item.labelKey)}
                           </Link>
