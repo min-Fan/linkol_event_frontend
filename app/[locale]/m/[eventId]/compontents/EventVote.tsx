@@ -6,6 +6,8 @@ import { Loader2, Rocket } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { Skeleton } from '@shadcn/components/ui/skeleton';
 import { Button } from '@shadcn/components/ui/button';
+import { track } from '@vercel/analytics';
+import { useAppSelector } from '@store/hooks';
 
 // 骨架屏组件
 function EventVoteSkeleton() {
@@ -35,6 +37,7 @@ export default function EventVote({ eventInfo }: { eventInfo: IEventInfoResponse
   const [loading, setLoading] = useState(true);
   const [voting, setVoting] = useState(false);
   const [votingType, setVotingType] = useState<'yes' | 'no' | null>(null);
+  const twInfo = useAppSelector((state) => state.userReducer?.twitter_full_profile);
 
   useEffect(() => {
     const fetchVoteInfo = async () => {
@@ -89,6 +92,15 @@ export default function EventVote({ eventInfo }: { eventInfo: IEventInfoResponse
         const updatedRes = await getVoteInfo();
         if (updatedRes.code === 200 && updatedRes.data) {
           setVoteInfo(updatedRes.data);
+
+          // 埋点：投票成功
+          track('Vote Success', {
+            vote_type: type,
+            vote_content_id: voteInfo.id,
+            event_id: eventInfo.id,
+            user_name: twInfo?.name,
+            user_screen_name: twInfo?.screen_name,
+          });
         }
       }
     } catch (error) {
@@ -144,8 +156,8 @@ export default function EventVote({ eventInfo }: { eventInfo: IEventInfoResponse
             {/* No 按钮 */}
             {votingType !== 'yes' && (
               <Button
-                variant="ghost"
-                className={`border-border text-muted-foreground/60 hover:bg-muted hover:text-foreground/80 rounded-full border bg-transparent font-medium transition-all duration-300 ease-in-out disabled:opacity-50 ${
+                variant="outline"
+                className={`border-border text-muted-foreground/80 rounded-full border bg-transparent font-medium transition-all duration-300 ease-in-out hover:border-[#BFFF00] hover:bg-[#BFFF00]/40 disabled:opacity-50 ${
                   votingType === 'no' ? 'w-full' : 'flex-1'
                 }`}
                 onClick={() => handleVote('no')}
@@ -165,7 +177,7 @@ export default function EventVote({ eventInfo }: { eventInfo: IEventInfoResponse
             {votingType !== 'no' && (
               <Button
                 variant="outline"
-                className={`rounded-full border-2 border-[#BFFF00] bg-[#BFFF00]/20 font-semibold transition-all duration-300 ease-in-out hover:border-[#BFFF00] hover:bg-[#BFFF00]/40 disabled:opacity-50 ${
+                className={`border-border text-muted-foreground/80 rounded-full border bg-transparent font-medium transition-all duration-300 ease-in-out hover:border-[#BFFF00] hover:bg-[#BFFF00]/40 disabled:opacity-50 ${
                   votingType === 'yes' ? 'w-full' : 'flex-1'
                 }`}
                 onClick={() => handleVote('yes')}
