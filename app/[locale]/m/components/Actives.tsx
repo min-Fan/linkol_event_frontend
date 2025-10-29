@@ -11,7 +11,11 @@ import { Link } from '@libs/i18n/navigation';
 import PagesRoute from '@constants/routes';
 import { track } from '@vercel/analytics';
 
-export default function TweetRecord() {
+interface IActivesListPageProps {
+  tag: 'X402' | 'X-Launch';
+}
+export default function ActivesListPage(props: IActivesListPageProps) {
+  const { tag } = props;
   const [type, setType] = useState<ACTIVE_TYPE>(ACTIVE_TYPE.ALL);
   const [search, setSearch] = useState<string>('');
   const [page, setPage] = useState<number>(1);
@@ -27,7 +31,7 @@ export default function TweetRecord() {
   return (
     <div className="bg-background box-border space-y-4 rounded-3xl p-4 backdrop-blur-sm sm:p-6">
       <div className="flex items-center justify-between">
-        <CompActiveTypeTab defaultType={type} onChangeAction={onChangeType} />
+        <CompActiveTypeTab defaultType={type} onChangeAction={onChangeType} tag={tag} />
         {/* <CompActiveSearch onSearchAction={onSearch} /> */}
         <Link
           href={PagesRoute.ACTIVES}
@@ -41,7 +45,7 @@ export default function TweetRecord() {
           </Button>
         </Link>
       </div>
-      <CompActiveList search={search} type={type} page={page} />
+      <CompActiveList search={search} type={type} page={page} tag={tag} />
     </div>
   );
 }

@@ -61,10 +61,15 @@ const ActiveSkeleton = () => {
   );
 };
 
-export default function ActiveList(props: { search: string; type: ACTIVE_TYPE; page: number }) {
-  const { search, type, page } = props;
+export default function ActiveList(props: {
+  search: string;
+  type: ACTIVE_TYPE;
+  page: number;
+  tag: 'X402' | 'X-Launch';
+}) {
+  const { search, type, page, tag } = props;
   const t = useTranslations('common');
-  const { data, isLoading } = useActives(type as string, page, search);
+  const { data, isLoading } = useActives(type as string, page, search, undefined, undefined, tag);
 
   useEffect(() => {
     console.log('ActiveList', data);
