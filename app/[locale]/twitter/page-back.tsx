@@ -415,6 +415,7 @@ export default function TwitterPage() {
         verified: full_profile.verified,
         verified_type: full_profile.verified_type,
         invite_code: inviteCode,
+        created_at: full_profile.created_at || '',
       });
 
       if (res && res.code === 200) {

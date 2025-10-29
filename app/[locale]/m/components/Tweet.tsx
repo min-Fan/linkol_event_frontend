@@ -40,7 +40,7 @@ function mapTweetLangToLocale(lang?: string): string {
   }
 }
 
-function formatMonthShortDay(input?: string, lang?: string): string {
+export function formatMonthShortDay(input?: string, lang?: string): string {
   if (!input) return '';
   try {
     const normalized = input.replace(' ', 'T');
@@ -68,7 +68,7 @@ export default function Tweet(props: { data: ITweet }) {
     <div className="border-primary/15 bg-background flex h-full flex-col justify-between gap-y-3 rounded-2xl border-2 p-6">
       <div className="space-y-3">
         <div className="flex justify-between gap-x-3">
-          <div className="flex flex-1 items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2">
             <img
               src={data.profile_image_url}
               alt={data.screen_name}
