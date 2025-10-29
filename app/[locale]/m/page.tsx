@@ -63,7 +63,7 @@ export default function MarketEventsPage() {
     <div className="mx-auto box-border w-full max-w-[1100px] space-y-5 p-0">
       {/* <CompBanner /> */}
       <CompActives tag="X402" />
-      <CompActives tag="X-Launch" />
+      {/* <CompActives tag="X-Launch" /> */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-stretch">
         <div className="w-full sm:w-96 sm:min-w-96">
           <CompLeadboard />
