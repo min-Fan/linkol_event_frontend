@@ -1284,6 +1284,8 @@
     "pump_progress": "Pump progress",
     "vote_yes": "Yes",
     "vote_no": "No",
-    "people": "people"
+    "people": "people",
+    "brand_value_short": "Brand Value",
+    "x_launch_events": "X-Launch Event"
   }
 }

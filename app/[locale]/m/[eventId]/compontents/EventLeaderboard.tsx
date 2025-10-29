@@ -416,7 +416,7 @@ const EventLeaderboard = memo(
                           </TableHead>
                           <TableHead className="pb-2 text-center">
                             <span className="sm:text-md text-sm font-[500]">
-                              {t('brand_value')}
+                              {t('brand_value_short')}
                             </span>
                           </TableHead>
                           <TableHead className="pb-2 text-center">

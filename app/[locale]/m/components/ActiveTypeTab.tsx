@@ -44,8 +44,9 @@ const ActiveTypeTabItem = (props: {
 export default function ActiveTypeTab(props: {
   defaultType: ACTIVE_TYPE;
   onChangeAction: (type: ACTIVE_TYPE) => void;
+  tag: 'X402' | 'X-Launch';
 }) {
-  const { defaultType, onChangeAction } = props;
+  const { defaultType, onChangeAction, tag } = props;
   const t = useTranslations('common');
 
   const [type, setType] = useState(defaultType);
@@ -57,7 +58,9 @@ export default function ActiveTypeTab(props: {
 
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <h1 className="text-foreground text-xl font-bold">{t('x402_events')}</h1>
+      <h1 className="text-foreground text-xl font-bold">
+        {tag === 'X402' ? t('x402_events') : t('x_launch_events')}
+      </h1>
       {/* <ActiveTypeTabItem
         type={ACTIVE_TYPE.ALL}
         currentType={type}
