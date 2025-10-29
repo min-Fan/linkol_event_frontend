@@ -865,6 +865,10 @@ export interface IGetTwitterAuthCompleteCallbackV2Params {
    * 邀请码
    */
   invite_code: string;
+  /**
+   * 创建时间
+   */
+  created_at: string;
 }
 export const getTwitterAuthCompleteCallbackV2 = (
   params: IGetTwitterAuthCompleteCallbackV2Params

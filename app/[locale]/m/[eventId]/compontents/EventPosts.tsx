@@ -24,7 +24,7 @@ import {
   LanguageCodeShort,
 } from '@libs/request';
 import { PostNull } from '@assets/svg';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,6 +36,7 @@ import Link from 'next/link';
 import PagesRoute from '@constants/routes';
 import ClaimRecordSwiper from '../../components/ClaimRecordSwiper';
 import { Badge } from '@shadcn/components/ui/badge';
+import { formatMonthShortDay } from '../../components/Tweet';
 
 // 推文卡片骨架屏组件
 const PostItemSkeleton = () => {
@@ -98,12 +99,7 @@ const PostItem = ({
   isFirst?: boolean;
 }) => {
   const t = useTranslations('common');
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  };
-
+  const locale = useLocale();
   return (
     <div
       className={cn(
@@ -131,7 +127,7 @@ const PostItem = ({
                   </span>
                   {post.is_verified && <Verified className="size-4 min-w-4" />}
                   <span className="ml-auto text-xs whitespace-nowrap sm:text-base">
-                    {formatDate(post.tweet_created_at)}
+                    {formatMonthShortDay(post.tweet_created_at, locale)}
                   </span>
                 </div>
               </div>
