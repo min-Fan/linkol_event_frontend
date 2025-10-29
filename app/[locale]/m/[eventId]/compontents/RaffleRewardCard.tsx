@@ -189,7 +189,7 @@ export default function RaffleRewardCard({
               </Button>
             )}
           </div>
-          {usedMustWinTimes < mustWinLimit && (
+          {/* {usedMustWinTimes < mustWinLimit && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="ml-auto flex items-center justify-center">
@@ -211,7 +211,7 @@ export default function RaffleRewardCard({
                 </div>
               </TooltipContent>
             </Tooltip>
-          )}
+          )} */}
           <Button
             onClick={handleRaffle}
             disabled={!eventInfo?.is_verified || isRaffling || isCooldown || ticketNumber === 0}
@@ -258,13 +258,14 @@ export default function RaffleRewardCard({
         </div>
 
         <div className="bg-background flex flex-wrap items-center justify-between gap-2 rounded-xl p-2 pl-2 sm:rounded-3xl sm:pl-4">
-          <div className="flex h-9 items-center gap-1">
+          {/* <div className="flex h-9 items-center gap-1">
             <span className="sm:text-md text-muted-foreground/80 text-sm">{t('my_points')}:</span>
             <span className="sm:text-md text-sm">{points}</span>
-          </div>
+          </div> */}
+
           <SpaceButton
             onClick={handleInvitationCodeDialogOpen}
-            className="!h-12 w-full min-w-24 px-4 sm:!w-auto"
+            className="!h-12 w-full min-w-24 px-4 sm:!w-auto ml-auto"
           >
             <span className="sm:text-md text-sm">{t('invitation')}</span>
           </SpaceButton>
