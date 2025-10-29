@@ -148,7 +148,9 @@ export default function EventVote({ eventInfo }: { eventInfo: IEventInfoResponse
             </div>
 
             {/* 百分比显示 */}
-            <span className="text-primary sm:text-md text-sm">{voteInfo.yes_count || 0} {t('people')}</span>
+            <span className="text-primary sm:text-md text-sm">
+              {voteInfo.yes_count || 0} {t('people')}
+            </span>
           </div>
         ) : (
           // 未投票状态 - 只显示按钮

@@ -1220,6 +1220,10 @@ export interface IMarketEventsGetActivesLoginParams {
   page?: number;
   size?: number;
   is_on?: 0 | 1;
+  /**
+   * 活动标签 X402是搜索X402相关的，X-Launch是搜索x-launch活动
+   */
+  tag?: 'X402' | 'X-Launch';
 }
 export interface IMarketEventsGetActivesLoginData {
   current_page: number;
