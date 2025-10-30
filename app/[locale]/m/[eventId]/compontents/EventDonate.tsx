@@ -82,7 +82,10 @@ const EventDonate = forwardRef<{ refreshDonateData: () => Promise<void> }, Event
 
     return (
       <>
-        <div className="flex w-full items-center justify-center cursor-pointer" onClick={handleDonateDialogOpen}>
+        <div
+          className="flex w-full cursor-pointer items-center justify-center"
+          onClick={handleDonateDialogOpen}
+        >
           <img src={DonateBg.src} alt="donate" className="w-full object-cover" />
         </div>
 

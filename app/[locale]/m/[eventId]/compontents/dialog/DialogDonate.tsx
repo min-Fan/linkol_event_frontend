@@ -22,6 +22,7 @@ import {
   IEventInfoResponseData,
   getActivityDonateTokenInfo,
   IGetActivityDonateTokenInfoResponseDataItem,
+  getDonateSuccess,
 } from '@libs/request';
 import { ChainType, getChainConfig } from '@constants/config';
 import { Input } from '@shadcn/components/ui/input';
@@ -241,21 +242,33 @@ export default function DialogDonate({
       return;
     }
 
+    // 输入金额校验
+    if (!donateAmount || parseFloat(donateAmount) <= 0) {
+      toast.error(t('donate_amount_invalid'));
+      return;
+    }
+
+    // 母币不需要授权
+    if (selectedToken === ethers.ZeroAddress) {
+      setNeedsApproval(false);
+      return;
+    }
+
     try {
-      // 使用最大数量进行授权
-      const maxAmount = ethers.MaxUint256;
+      // 授权为用户输入金额
+      const approveAmount = ethers.parseEther(donateAmount);
 
       writeApproveContract({
         address: selectedToken as `0x${string}`,
         abi: erc20Abi,
         functionName: 'approve',
-        args: [chainConfig.ActivityServiceAddress as `0x${string}`, maxAmount],
+        args: [chainConfig.ActivityServiceAddress as `0x${string}`, approveAmount],
       });
     } catch (error: any) {
       console.error('Approve failed:', error);
       toast.error(error.message || t('donate_approve_failed'));
     }
-  }, [selectedToken, selectedChain, chainConfig?.ActivityServiceAddress, writeApproveContract, t]);
+  }, [selectedToken, selectedChain, chainConfig?.ActivityServiceAddress, donateAmount, writeApproveContract, t]);
 
   // 检查链是否正确
   const checkChain = useCallback(() => {
@@ -327,12 +340,29 @@ export default function DialogDonate({
         tokenSymbol,
       });
 
+      // 静默上报 donate 成功
+      (async () => {
+        try {
+          if (donateTxHash && eventId && selectedToken && donateAmount) {
+            await getDonateSuccess({
+              activeId: parseInt(eventId as string),
+              tokenAddress: selectedToken,
+              amount: donateAmount,
+              txid: donateTxHash as string,
+            });
+          }
+        } catch (e) {
+          // 静默失败不提示
+          console.error('getDonateSuccess failed silently:', e);
+        }
+      })();
+
       // 调用成功回调
       if (onDonateSuccess) {
         onDonateSuccess();
       }
     }
-  }, [isDonateConfirmed, selectedToken, tokenList, donateAmount, onDonateSuccess, t]);
+  }, [isDonateConfirmed, selectedToken, tokenList, donateAmount, onDonateSuccess, donateTxHash, eventId, t]);
 
   // 监听交易错误
   useEffect(() => {
