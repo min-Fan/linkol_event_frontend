@@ -1,11 +1,11 @@
 'use client';
 import { getTokenConfig } from '@constants/config';
-import { Button } from '@shadcn/components/ui/button';
-import TokenIcon from 'app/components/TokenIcon';
-import React, { useState, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, forwardRef, useImperativeHandle, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import SpaceButton from 'app/components/SpaceButton/SpaceButton';
 import DialogDonate from './dialog/DialogDonate';
+import Image from 'next/image';
+import DonateBg from '@assets/image/donate-bg.png';
+import { getActivityDonateTokenInfo } from '@libs/request';
 
 interface EventDonateProps {
   eventInfo: any;
@@ -20,6 +20,7 @@ const EventDonate = forwardRef<{ refreshDonateData: () => Promise<void> }, Event
   function EventDonate({ eventInfo, onRefresh, leaderboardRef }, ref) {
     const t = useTranslations('common');
     const [isDonateDialogOpen, setIsDonateDialogOpen] = useState(false);
+    const [shouldShow, setShouldShow] = useState(true);
 
     const handleDonateDialogOpen = () => {
       setIsDonateDialogOpen(true);
@@ -56,21 +57,33 @@ const EventDonate = forwardRef<{ refreshDonateData: () => Promise<void> }, Event
       },
     }));
 
+    // 检查是否有可捐赠代币列表
+    useEffect(() => {
+      const checkTokens = async () => {
+        if (!eventInfo?.id) return;
+        try {
+          const res: any = await getActivityDonateTokenInfo({ active_id: Number(eventInfo.id) });
+          if (res?.code === 200) {
+            if (!res.data || res.data.length === 0) {
+              setShouldShow(false);
+            } else {
+              setShouldShow(true);
+            }
+          }
+        } catch (e) {
+          // 请求失败时保持默认展示，避免误伤
+          setShouldShow(true);
+        }
+      };
+      checkTokens();
+    }, [eventInfo?.id]);
+
+    if (!shouldShow) return null;
+
     return (
       <>
-        <div className="flex h-full w-full items-center gap-2 p-2 sm:gap-4 sm:p-4">
-          <SpaceButton onClick={handleDonateDialogOpen} className="!h-12 min-w-24 flex-1 px-4">
-            <span className="sm:text-md text-sm">{t('donate')}</span>
-          </SpaceButton>
-          {eventInfo?.token_type && (
-            <Button
-              variant="outline"
-              onClick={handleBuy}
-              className="h-10 flex-1 !rounded-full !px-4 font-bold sm:!h-12"
-            >
-              {t('buy_token')} {eventInfo?.token_type}
-            </Button>
-          )}
+        <div className="flex w-full items-center justify-center cursor-pointer" onClick={handleDonateDialogOpen}>
+          <img src={DonateBg.src} alt="donate" className="w-full object-cover" />
         </div>
 
         {/* 捐赠弹窗 */}

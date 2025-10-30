@@ -1313,6 +1313,10 @@
     "support_activity_message": "支持这个活动，让社区更美好",
     "please_select_token": "请先选择代币",
     "fetch_token_list_failed": "获取代币列表失败",
-    "balance": "余额"
+    "balance": "余额",
+    "donate_rules": "捐赠规则",
+    "donate_rule_1": "您的名字将出现在捐赠排行榜上",
+    "donate_rule_2": "捐赠记录在链上，未来可能根据捐赠金额进行空投",
+    "donate_rule_3": "连接超过2000用户"
   }
 }

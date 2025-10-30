@@ -1311,6 +1311,10 @@
     "support_activity_message": "Support this activity and make the community better",
     "please_select_token": "Please select a token first",
     "fetch_token_list_failed": "Failed to fetch token list",
-    "balance": "Balance"
+    "balance": "Balance",
+    "donate_rules": "Donate Rules",
+    "donate_rule_1": "Your name will appear on the donation leaderboard",
+    "donate_rule_2": "Donations are recorded on-chain and may be used for future airdrops based on donation amount",
+    "donate_rule_3": "Connect with over 2000 users"
   }
 }

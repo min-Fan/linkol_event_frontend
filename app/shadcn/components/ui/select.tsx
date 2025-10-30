@@ -22,9 +22,11 @@ function SelectTrigger({
   className,
   size = 'default',
   children,
+  icon,
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Trigger> & {
   size?: 'sm' | 'default';
+  icon?: React.ReactNode; // custom right-side icon
 }) {
   return (
     <SelectPrimitive.Trigger
@@ -38,7 +40,13 @@ function SelectTrigger({
     >
       {children}
       <SelectPrimitive.Icon asChild>
-        <ChevronDownIcon className="size-4 opacity-50" />
+        {icon ? (
+          <span className="inline-flex items-center justify-center">
+            {icon}
+          </span>
+        ) : (
+          <ChevronDownIcon className="size-4 opacity-50" />
+        )}
       </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>
   );

@@ -2854,6 +2854,10 @@ export interface IGetActivityDonateTokenInfoResponseDataItem {
    */
   coin_network?: string;
   id?: number;
+  /**
+   * 代币图标
+   */
+  icon?: string;
 }
 export const getActivityDonateTokenInfo = (params: IGetActivityDonateTokenInfoParams) => {
   return kolRequest.get<IGetActivityDonateTokenInfoResponseDataItem[]>(

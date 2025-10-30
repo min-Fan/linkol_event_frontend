@@ -12,7 +12,7 @@ import { Success, Fail, MoneyBag } from '@assets/svg';
 import { useTranslations } from 'next-intl';
 import { useAppSelector } from '@store/hooks';
 import { cn } from '@shadcn/lib/utils';
-import { Loader2, HandCoins } from 'lucide-react';
+import { Loader2, HandCoins, Gift, ArrowRightLeft, Wallet } from 'lucide-react';
 import Loader from '@ui/loading/loader';
 import TokenIcon from 'app/components/TokenIcon';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
@@ -141,6 +141,22 @@ export default function DialogDonate({
 
   // 获取选中的代币信息
   const selectedTokenInfo = tokenList.find((token) => token.coin_address === selectedToken);
+
+  // 余额充足校验（母币或代币）
+  const donateAmountNum = parseFloat(donateAmount || '0');
+  const availableBalance = tokenBalance ? parseFloat(tokenBalance.formatted) : 0;
+  const hasSufficientBalance = donateAmountNum > 0 && availableBalance >= donateAmountNum;
+
+  // 捐赠按钮文案（根据错误/状态动态展示）
+  const donateButtonText = (() => {
+    if (isDonatePending || isDonateConfirming) return t('donating');
+    if (isWrongChain) return t('wrong_chain');
+    if (!donateAmount) return t('donate_amount_invalid');
+    if (!selectedToken) return t('donate_token_required');
+    if (!!donateAmount && !!tokenBalance && !hasSufficientBalance) return t('insufficient_balance');
+    if (needsApproval) return t('donate_approve_required');
+    return t('donate');
+  })();
 
   // 获取代币列表
   const fetchTokenList = useCallback(async () => {
@@ -380,6 +396,12 @@ export default function DialogDonate({
       return;
     }
 
+    // 余额不足拦截（母币或代币）
+    if (!hasSufficientBalance) {
+      toast.error(t('insufficient_balance'));
+      return;
+    }
+
     // 检查是否需要授权
     if (needsApproval) {
       toast.error(t('donate_approve_required'));
@@ -411,11 +433,27 @@ export default function DialogDonate({
     selectedChain,
     chainConfig?.ActivityServiceAddress,
     eventId,
+    hasSufficientBalance,
     needsApproval,
     writeDonateContract,
     selectedTokenInfo?.coin_name,
     t,
   ]);
+
+  const rules = [
+    {
+      id: '1',
+      text: t('donate_rule_1'),
+    },
+    {
+      id: '2',
+      text: t('donate_rule_2'),
+    },
+    {
+      id: '3',
+      text: t('donate_rule_3'),
+    },
+  ];
 
   // 处理max按钮点击
   const handleMaxClick = useCallback(() => {
@@ -538,7 +576,7 @@ export default function DialogDonate({
               </div>
               <div className="text-center">
                 <p className="text-md">{t('donate_failed')}</p>
-                <p className="text-muted-foreground text-sm">{donateErrorState}</p>
+                {/* <p className="text-muted-foreground text-sm">{donateErrorState}</p> */}
               </div>
               <div className="flex w-full gap-3">
                 <Button onClick={handleRetry} variant="outline" className="flex-1">
@@ -553,50 +591,51 @@ export default function DialogDonate({
             // 初始状态 - 显示捐赠表单
             <div className="flex w-full flex-col items-center justify-center">
               {/* 标题 */}
-              <div className="bg-primary w-full rounded-t-xl p-4 text-center text-white sm:rounded-t-2xl sm:p-4">
-                <h2 className="text-lg font-semibold">{t('donate')}</h2>
-                <p className="text-sm opacity-90">{t('support_activity_message')}</p>
-              </div>
 
-              <div className="flex w-full flex-col items-center justify-center space-y-4 p-4 sm:p-6">
+              <div className="flex w-full flex-col items-center justify-center space-y-2 p-4 sm:p-6">
                 {/* 代币图标 */}
                 <div className="relative z-10 flex w-full items-center justify-center py-4">
-                  <div className="relative z-0 h-16 w-16">
-                    <TokenIcon
-                      chainType={eventInfo?.chain_type}
-                      tokenType={eventInfo?.token_type}
-                      type={eventInfo?.token_type || ''}
-                      className="h-full w-full rounded-full"
-                    />
-                    <div className="absolute top-0 left-[-55%] z-[-1] h-[110%] w-[110%] rounded-full bg-[#D4F5D0] blur-xl" />
+                  <div className="relative z-0 flex h-16 w-16 items-center justify-center">
+                    <Gift className="text-primary h-12 w-12" />
+                    <div className="bg-primary/30 absolute top-0 left-[-55%] z-[-1] h-[110%] w-[110%] rounded-full blur-xl" />
                     <div className="absolute top-0 left-[55%] z-[-1] h-[110%] w-[110%] rounded-full bg-[#BFFF00] blur-xl" />
                   </div>
                 </div>
 
                 {/* 代币类型选择器 */}
-                <div className="w-full space-y-2">
-                  <Label htmlFor="token-select">{t('token_type')}</Label>
+                <div className="border-border flex w-full items-center justify-between gap-2 space-y-2 rounded-xl border">
+                  <Input
+                    id="amount"
+                    type="number"
+                    placeholder={t('donate_amount_placeholder')}
+                    value={donateAmount}
+                    onChange={(e) => setDonateAmount(e.target.value)}
+                    min="0"
+                    className="m-0 flex-1 border-none !bg-transparent"
+                  />
                   <Select
                     value={selectedToken}
                     onValueChange={setSelectedToken}
                     disabled={isLoadingTokens}
                   >
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger
+                      className="flex justify-end rounded-xl border-none !bg-transparent"
+                      icon={<ArrowRightLeft className="text-muted-foreground h-4 w-4" />}
+                    >
                       <SelectValue
                         placeholder={isLoadingTokens ? t('loading_tokens') : t('select_token_type')}
                       />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="w-full">
                       {tokenList.map((token) => (
                         <SelectItem key={token.id} value={token.coin_address || ''}>
-                          <div className="flex items-center gap-2">
+                          <div className="border-border flex w-full items-center justify-end gap-2 border-r pr-2">
+                            <span className="text-muted-foreground text-sm">{token.coin_name}</span>
                             <TokenIcon
-                              chainType={selectedChain}
-                              tokenType={token.coin_name || ''}
                               type={token.coin_name || ''}
-                              className="h-4 w-4"
+                              tokenIcon={token.icon || ''}
+                              className="h-5 w-5 rounded-full"
                             />
-                            <span>{token.coin_name}</span>
                           </div>
                         </SelectItem>
                       ))}
@@ -605,13 +644,47 @@ export default function DialogDonate({
                 </div>
 
                 {/* 捐赠金额输入 */}
-                <div className="w-full space-y-2">
+                <div className="mb-5 w-full space-y-2">
+                  <div className="itemcenter flex justify-between gap-1">
+                    <Button
+                      variant="outline"
+                      className="dark:bg-muted hidden flex-1 !rounded-lg border-none bg-gray-200 !py-1 text-xs sm:block"
+                      onClick={() => setDonateAmount('0.5')}
+                    >
+                      0.5 {selectedTokenInfo?.coin_name}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="dark:bg-muted flex-1 !rounded-lg border-none bg-gray-200 !py-1 text-xs"
+                      onClick={() => setDonateAmount('1')}
+                    >
+                      1 {selectedTokenInfo?.coin_name}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="dark:bg-muted flex-1 !rounded-lg border-none bg-gray-200 !py-1 text-xs"
+                      onClick={() => setDonateAmount('5')}
+                    >
+                      5 {selectedTokenInfo?.coin_name}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="dark:bg-muted flex-1 !rounded-lg border-none bg-gray-200 !py-1 text-xs"
+                      onClick={() => setDonateAmount('10')}
+                    >
+                      10 {selectedTokenInfo?.coin_name}
+                    </Button>
+                  </div>
+
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="amount">{t('donate_amount')}</Label>
                     {tokenBalance && selectedTokenInfo && (
-                      <div className="text-muted-foreground flex items-center gap-2 text-sm">
-                        <span>
-                          {t('balance')}: {formatPrecision(tokenBalance.formatted)}
+                      <div className="text-muted-foreground ml-auto flex items-center gap-2 text-sm">
+                        <Wallet className="text-muted-foreground h-3 w-3" />
+                        <span className="text-muted-foreground text-sm">
+                          {formatPrecision(tokenBalance.formatted)}
+                        </span>
+                        <span className="text-muted-foreground text-sm">
+                          {selectedTokenInfo.coin_name}
                         </span>
                         <Button
                           variant="link"
@@ -623,24 +696,17 @@ export default function DialogDonate({
                       </div>
                     )}
                   </div>
-                  <Input
-                    id="amount"
-                    type="number"
-                    placeholder={t('donate_amount_placeholder')}
-                    value={donateAmount}
-                    onChange={(e) => setDonateAmount(e.target.value)}
-                    min="0"
-                  />
-                  {needsApproval && donateAmount && (
+
+                  {/* {needsApproval && donateAmount && (
                     <p className="text-muted-foreground text-xs">
                       {t('current_allowance')}: {formatPrecision(currentAllowance)}{' '}
                       {selectedTokenInfo?.coin_name}
                     </p>
-                  )}
+                  )} */}
                 </div>
 
                 {/* 操作按钮 */}
-                <div className="flex w-full gap-3">
+                <div className="border-border flex w-full gap-3 border-b pb-5">
                   {needsApproval && (
                     <Button
                       onClick={handleApprove}
@@ -670,17 +736,18 @@ export default function DialogDonate({
                       isDonateConfirming ||
                       !donateAmount ||
                       !selectedToken ||
+                      (!!donateAmount && !!tokenBalance && !hasSufficientBalance) ||
                       needsApproval ||
                       isWrongChain
                     }
-                    className="h-9 w-full flex-1 rounded-full bg-gradient-to-r from-[#01CF7F] from-0% via-[#D4F5D0] via-30% to-[#01CF7F] to-80% bg-[length:200%_100%] bg-[position:100%_50%] !px-2 text-sm transition-[background-position] duration-200 ease-in-out hover:bg-[position:-60%_50%] disabled:cursor-not-allowed disabled:opacity-50 sm:!h-auto sm:w-auto sm:!rounded-full sm:!px-4 sm:!text-base"
+                    className="h-9 w-full flex-1 !rounded-xl bg-gradient-to-r from-[#007AFF] from-0% via-[#D4F5D0] via-30% to-[#007AFF] to-80% bg-[length:200%_100%] bg-[position:100%_50%] !px-2 text-sm transition-[background-position] duration-200 ease-in-out hover:bg-[position:-60%_50%] disabled:cursor-not-allowed disabled:opacity-50 sm:!h-auto sm:w-auto sm:!rounded-xl sm:!px-4 sm:!text-base"
                   >
                     {isDonatePending || isDonateConfirming ? (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : (
-                      <HandCoins className="mr-2 h-4 w-4" />
+                      <></>
                     )}
-                    {t('donate')}
+                    {donateButtonText}
                   </Button>
                 </div>
 
@@ -689,6 +756,18 @@ export default function DialogDonate({
                     {t('donate_approve_required')}
                   </p>
                 )}
+
+                <div className="flex w-full flex-col gap-2 rounded-2xl p-2">
+                  <span>{t('donate_rules')}</span>
+                  <ul className="space-y-2 pl-2">
+                    {rules.map((rule) => (
+                      <li key={rule.id} className="flex items-start gap-2">
+                        <div className="bg-primary mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full" />
+                        <span className="text-sm font-medium">{rule.text}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </div>
           )}
