@@ -404,126 +404,128 @@ const EventLeaderboard = memo(
           )}
         </div>
 
-        {/* 排行榜区域 */}
-        <div className="flex flex-col gap-2">
-          {/* 品牌价值排行榜 */}
-          {activeLeaderboardTab === 'brand_value' && (
-            <>
-              {isBrandValueLoading ? (
-                <BrandValueTableSkeleton />
-              ) : brandValueError ? (
-                <div className="bg-muted-foreground/5 rounded-2xl py-8 text-center">
-                  <div className="text-muted-foreground">
-                    <p className="text-sm">{brandValueError}</p>
-                    <Button variant="outline" onClick={fetchBrandValueTop10Data}>
-                      {t('btn_retry')}
-                    </Button>
+          {/* 排行榜区域 */}
+          <div className="flex flex-col gap-2">
+            {/* 品牌价值排行榜 */}
+            {activeLeaderboardTab === 'brand_value' && (
+              <>
+                {isBrandValueLoading ? (
+                  <BrandValueTableSkeleton />
+                ) : brandValueError ? (
+                  <div className="bg-muted-foreground/5 rounded-2xl py-8 text-center">
+                    <div className="text-muted-foreground">
+                      <p className="text-sm">{brandValueError}</p>
+                      <Button variant="outline" onClick={fetchBrandValueTop10Data}>
+                        {t('btn_retry')}
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              ) : brandValueTop10Data.length > 0 ? (
-                <div className="from-primary/10 via-primary/5 rounded-2xl bg-gradient-to-b to-transparent py-2">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="border-none">
-                        <TableHead className="flex-1 pb-2 pl-6 text-left">
-                          <span className="sm:text-md text-sm font-[500]">
-                            {t('kol_name_short')}
-                          </span>
-                        </TableHead>
-                        <TableHead className="pb-2 text-center">
-                          <span className="sm:text-md text-sm font-[500]">{t('brand_value')}</span>
-                        </TableHead>
-                        <TableHead className="pb-2 text-center">
-                          <span className="sm:text-md text-sm font-[500]">{t('followers')}</span>
-                        </TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {brandValueTop10Data.map((item, index) => (
-                        <TableRow className="border-none" key={item.id || index}>
-                          <TableCell className="pb-4">
-                            <div className="justify-left flex items-center gap-2 pl-2">
-                              <div className="flex w-10 items-center justify-center">
-                                {index === 0 && (
-                                  <img
-                                    src={RankFirst.src}
-                                    className="size-6 sm:size-8 sm:min-h-8 sm:min-w-8"
-                                  />
-                                )}
-                                {index === 1 && (
-                                  <img
-                                    src={RankSecond.src}
-                                    className="size-6 sm:size-8 sm:min-h-8 sm:min-w-8"
-                                  />
-                                )}
-                                {index === 2 && (
-                                  <img
-                                    src={RankThird.src}
-                                    className="size-6 sm:size-8 sm:min-h-8 sm:min-w-8"
-                                  />
-                                )}
-                                {index > 2 && (
-                                  <span className="sm:text-md text-sm">{index + 1}</span>
-                                )}
-                              </div>
-                              <div className="size-6 min-w-6 overflow-hidden rounded-full">
-                                <img
-                                  src={item.profile_image_url || defaultAvatar.src}
-                                  alt="avatar"
-                                  className="size-full"
-                                  onError={(e) => {
-                                    const target = e.target as HTMLImageElement;
-                                    target.src = defaultAvatar.src;
-                                  }}
-                                />
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <p
-                                  className="sm:text-md max-w-[100px] cursor-pointer truncate text-sm sm:text-base"
-                                  onClick={() =>
-                                    copy(item.screen_name).then((success) => {
-                                      if (success) {
-                                        toast(t('copy_success'));
-                                      } else {
-                                        toast(t('copy_failed'));
-                                      }
-                                    })
-                                  }
-                                >
-                                  {item.name || t('unknown')}
-                                </p>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center justify-center">
-                              <span className="sm:text-md text-sm sm:text-base">
-                                {formatNumberKMB(item.brand_value || 0)}
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center justify-center">
-                              <span className="sm:text-md text-sm sm:text-base">
-                                {formatNumberKMB(item.followers_count || 0)}
-                              </span>
-                            </div>
-                          </TableCell>
+                ) : brandValueTop10Data.length > 0 ? (
+                  <div className="from-primary/10 via-primary/5 rounded-2xl bg-gradient-to-b to-transparent py-2">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="border-none">
+                          <TableHead className="flex-1 pb-2 pl-6 text-left">
+                            <span className="sm:text-md text-sm font-[500]">
+                              {t('kol_name_short')}
+                            </span>
+                          </TableHead>
+                          <TableHead className="pb-2 text-center">
+                            <span className="sm:text-md text-sm font-[500]">
+                              {t('brand_value_short')}
+                            </span>
+                          </TableHead>
+                          <TableHead className="pb-2 text-center">
+                            <span className="sm:text-md text-sm font-[500]">{t('followers')}</span>
+                          </TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              ) : (
-                <div className="bg-muted-foreground/5 rounded-2xl py-8 text-center">
-                  <div className="text-muted-foreground flex flex-col items-center justify-center">
-                    <NullData className="h-14 w-14" />
-                    <p className="text-sm">{t('no_voices_data')}</p>
+                      </TableHeader>
+                      <TableBody>
+                        {brandValueTop10Data.map((item, index) => (
+                          <TableRow className="border-none" key={item.id || index}>
+                            <TableCell className="pb-4">
+                              <div className="justify-left flex items-center gap-2 pl-2">
+                                <div className="flex w-10 items-center justify-center">
+                                  {index === 0 && (
+                                    <img
+                                      src={RankFirst.src}
+                                      className="size-6 sm:size-8 sm:min-h-8 sm:min-w-8"
+                                    />
+                                  )}
+                                  {index === 1 && (
+                                    <img
+                                      src={RankSecond.src}
+                                      className="size-6 sm:size-8 sm:min-h-8 sm:min-w-8"
+                                    />
+                                  )}
+                                  {index === 2 && (
+                                    <img
+                                      src={RankThird.src}
+                                      className="size-6 sm:size-8 sm:min-h-8 sm:min-w-8"
+                                    />
+                                  )}
+                                  {index > 2 && (
+                                    <span className="sm:text-md text-sm">{index + 1}</span>
+                                  )}
+                                </div>
+                                <div className="size-6 min-w-6 overflow-hidden rounded-full">
+                                  <img
+                                    src={item.profile_image_url || defaultAvatar.src}
+                                    alt="avatar"
+                                    className="size-full"
+                                    onError={(e) => {
+                                      const target = e.target as HTMLImageElement;
+                                      target.src = defaultAvatar.src;
+                                    }}
+                                  />
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <p
+                                    className="sm:text-md max-w-[100px] cursor-pointer truncate text-sm sm:text-base"
+                                    onClick={() =>
+                                      copy(item.screen_name).then((success) => {
+                                        if (success) {
+                                          toast(t('copy_success'));
+                                        } else {
+                                          toast(t('copy_failed'));
+                                        }
+                                      })
+                                    }
+                                  >
+                                    {item.name || t('unknown')}
+                                  </p>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center justify-center">
+                                <span className="sm:text-md text-sm sm:text-base">
+                                  {formatNumberKMB(item.brand_value || 0)}
+                                </span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center justify-center">
+                                <span className="sm:text-md text-sm sm:text-base">
+                                  {formatNumberKMB(item.followers_count || 0)}
+                                </span>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
                   </div>
-                </div>
-              )}
-            </>
-          )}
+                ) : (
+                  <div className="bg-muted-foreground/5 rounded-2xl py-8 text-center">
+                    <div className="text-muted-foreground flex flex-col items-center justify-center">
+                      <NullData className="h-14 w-14" />
+                      <p className="text-sm">{t('no_voices_data')}</p>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
 
           {/* 捐赠排行榜 */}
           {activeLeaderboardTab === 'donation' && (

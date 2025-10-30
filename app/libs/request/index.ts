@@ -865,6 +865,10 @@ export interface IGetTwitterAuthCompleteCallbackV2Params {
    * 邀请码
    */
   invite_code: string;
+  /**
+   * 创建时间
+   */
+  created_at: string;
 }
 export const getTwitterAuthCompleteCallbackV2 = (
   params: IGetTwitterAuthCompleteCallbackV2Params
@@ -1216,6 +1220,10 @@ export interface IMarketEventsGetActivesLoginParams {
   page?: number;
   size?: number;
   is_on?: 0 | 1;
+  /**
+   * 活动标签 X402是搜索X402相关的，X-Launch是搜索x-launch活动
+   */
+  tag?: 'X402' | 'X-Launch';
 }
 export interface IMarketEventsGetActivesLoginData {
   current_page: number;

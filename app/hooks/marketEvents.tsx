@@ -143,11 +143,13 @@ export function useActives(
   page: number,
   search: string = '',
   size: number = PAGE_SIZE,
-  is_verify?: number
+  is_verify?: number,
+  tag?: 'X402' | 'X-Launch'
 ) {
   const { data, ...rest } = useSWR(
     `${EndPoint.ACTIVES}?data_type=${type}&page=${page}&size=${size}&kw=${search}` +
-      (is_verify !== undefined ? `&is_verify=${is_verify}` : ''),
+      (is_verify !== undefined ? `&is_verify=${is_verify}` : '') +
+      (tag !== undefined ? `&tag=${tag}` : ''),
     (url) => activesFetcher(url),
     {
       revalidateOnFocus: false,
@@ -167,7 +169,8 @@ export function useActivesInfinite(
   type: string,
   search: string = '',
   size: number = PAGE_SIZE,
-  is_verify?: number
+  is_verify?: number,
+  tag?: 'X402' | 'X-Launch'
 ) {
   const {
     data,
@@ -180,7 +183,8 @@ export function useActivesInfinite(
   } = useSWRInfinite(
     (index) =>
       `${EndPoint.ACTIVES}?data_type=${type}&page=${index + 1}&size=${size}&kw=${search}` +
-      (is_verify !== undefined ? `&is_verify=${is_verify}` : ''),
+      (is_verify !== undefined ? `&is_verify=${is_verify}` : '') +
+      (tag !== undefined ? `&tag=${tag}` : ''),
     (url) => activesFetcher(url),
     {
       revalidateOnFocus: false,
