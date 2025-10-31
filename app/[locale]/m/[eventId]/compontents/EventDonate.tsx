@@ -31,13 +31,17 @@ const EventDonate = forwardRef<{ refreshDonateData: () => Promise<void> }, Event
     };
 
     const handleDonateSuccess = async () => {
-      // 捐赠成功后刷新数据
-      if (onRefresh) {
-        await onRefresh();
-      }
-      // 刷新捐赠列表
-      if (leaderboardRef?.current) {
-        await leaderboardRef.current.refreshDonationList();
+      try {
+        // 捐赠成功后刷新数据
+        if (onRefresh) {
+          await onRefresh();
+        }
+        // 刷新捐赠排行榜数据
+        if (leaderboardRef?.current) {
+          await leaderboardRef.current.refreshDonationList();
+        }
+      } catch (error) {
+        console.error('Failed to refresh data after donation:', error);
       }
     };
 
