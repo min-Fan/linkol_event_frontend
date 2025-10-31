@@ -2,7 +2,13 @@
 
 import { Button } from '@shadcn/components/ui/button';
 import { useTranslations } from 'next-intl';
-import { IEventInfoResponseData, raffle } from '@libs/request';
+import {
+  IEventInfoResponseData,
+  raffle,
+  getUserInviteRealUserCount,
+  IGetUserInviteRealUserCountResponseData,
+  RealUser,
+} from '@libs/request';
 import { Dices, Gift, HandCoins, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
@@ -16,6 +22,8 @@ import DialogInvitationCode from './dialog/DialogInvitationCode';
 import SpaceButton from 'app/components/SpaceButton/SpaceButton';
 import { ChainType, getChainConfig } from '@constants/config';
 import ChainIcon from 'app/components/ChainIcon';
+import defaultAvatar from '@assets/image/avatar.png';
+import Image from 'next/image';
 
 interface RaffleRewardCardProps {
   eventInfo: IEventInfoResponseData;
@@ -40,6 +48,7 @@ export default function RaffleRewardCard({
   const raffleSeconds = 0;
   const [isRaffleTasksDialogOpen, setIsRaffleTasksDialogOpen] = useState(false);
   const [isInvitationCodeDialogOpen, setIsInvitationCodeDialogOpen] = useState(false);
+  const [invitedUsers, setInvitedUsers] = useState<RealUser[]>([]);
 
   // 使用新的 hook 从 store 中获取用户活动奖励数据
   const {
@@ -81,6 +90,28 @@ export default function RaffleRewardCard({
       if (timer) clearTimeout(timer);
     };
   }, [cooldownSeconds, isCooldown]);
+
+  // 获取邀请的真实用户数据
+  useEffect(() => {
+    const fetchInvitedUsers = async () => {
+      if (!eventInfo?.id) return;
+
+      try {
+        const response = await getUserInviteRealUserCount({
+          active_id: eventInfo.id,
+        });
+
+        if (response.code === 200 && response.data) {
+          setInvitedUsers(response.data.users || []);
+        }
+      } catch (error) {
+        console.error('Failed to fetch invited users:', error);
+        // 静默失败，不显示错误提示
+      }
+    };
+
+    fetchInvitedUsers();
+  }, [eventInfo?.id]);
 
   const handleRaffle = async () => {
     if (!eventInfo?.id || isRaffling || isCooldown) return;
@@ -257,15 +288,65 @@ export default function RaffleRewardCard({
           </Button>
         </div>
 
-        <div className="bg-background flex flex-wrap items-center justify-between gap-2 rounded-xl p-2 pl-2 sm:rounded-3xl sm:pl-4">
-          {/* <div className="flex h-9 items-center gap-1">
-            <span className="sm:text-md text-muted-foreground/80 text-sm">{t('my_points')}:</span>
-            <span className="sm:text-md text-sm">{points}</span>
-          </div> */}
+        <div className="bg-background flex flex-col items-center justify-between gap-4 rounded-xl p-4 sm:flex-row sm:rounded-3xl">
+          {/* 奖励倍数展示 */}
+          <div className="flex items-center justify-center gap-3 sm:gap-0">
+            {/* 1x Rewards */}
+            <div className="flex flex-col items-center gap-0.5">
+              <div className="border-primary/20 relative flex h-6 w-6 items-center justify-center rounded-sm border-1 bg-[#F2F8FF] shadow-[0_2px_7px_0_rgba(0,122,255,0.10)]">
+                {invitedUsers.length > 0 && invitedUsers[0].avatar && (
+                  <img
+                    src={invitedUsers[0].avatar}
+                    alt="avatar"
+                    className="h-full w-full rounded-sm object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = defaultAvatar.src;
+                    }}
+                  />
+                )}
+              </div>
+              <span className="text-primary/50 text-sm font-medium">1x {t('rewards')}</span>
+            </div>
+
+            {/* 连接虚线 */}
+            <div className="border-primary/20 w-15 border-t-2 border-dashed" />
+
+            {/* 2x Rewards */}
+            <div className="flex flex-col items-center gap-0.5">
+              <div className="border-primary/20 relative flex h-6 w-6 items-center justify-center rounded-sm border-1 bg-[#F2F8FF] shadow-[0_2px_7px_0_rgba(0,122,255,0.10)]">
+                {invitedUsers.length > 0 && invitedUsers[1].avatar && (
+                  <img
+                    src={invitedUsers[1].avatar}
+                    alt="avatar"
+                    className="h-full w-full rounded-sm object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = defaultAvatar.src;
+                    }}
+                  />
+                )}
+              </div>
+              <div className="border-primary/20 absolute flex h-6 w-6 translate-x-[50%] items-center justify-center rounded-sm border-1 bg-[#F2F8FF] shadow-[0_2px_7px_0_rgba(0,122,255,0.10)]">
+                {invitedUsers.length > 0 && invitedUsers[2].avatar && (
+                  <img
+                    src={invitedUsers[2].avatar}
+                    alt="avatar"
+                    className="h-full w-full rounded-sm object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = defaultAvatar.src;
+                    }}
+                  />
+                )}
+              </div>
+              <span className="text-primary/50 text-sm font-medium">2x {t('rewards')}</span>
+            </div>
+          </div>
 
           <SpaceButton
             onClick={handleInvitationCodeDialogOpen}
-            className="ml-auto !h-12 w-full min-w-24 px-4 sm:!w-auto"
+            className="!h-12 w-full min-w-24 px-4 sm:!w-auto"
           >
             <span className="sm:text-md text-sm">{t('invitation')}</span>
           </SpaceButton>

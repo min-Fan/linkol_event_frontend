@@ -2940,3 +2940,38 @@ export const vote = (params: IVoteParams) => {
     ...params,
   });
 };
+
+// 获取用户在三天内某个活动邀请的Real user人数
+export interface IGetUserInviteRealUserCountParams {
+  active_id: number;
+}
+export interface IGetUserInviteRealUserCountResponseData {
+  /**
+   * 数量，最多不超过3
+   */
+  count: number;
+  /**
+   * 三天之内的邀请人
+   */
+  users: RealUser[];
+}
+
+export interface RealUser {
+  /**
+   * 头像
+   */
+  avatar: string;
+  /**
+   * 推特昵称
+   */
+  name: string;
+  /**
+   * 推特用户名
+   */
+  screen_name: string;
+}
+export const getUserInviteRealUserCount = (params: IGetUserInviteRealUserCountParams) => {
+  return kolRequest.get<IGetUserInviteRealUserCountResponseData>(`/kol/api/v6/user/active/invites/`, {
+    ...params,
+  });
+};
