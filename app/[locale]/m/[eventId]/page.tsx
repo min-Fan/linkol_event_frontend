@@ -304,14 +304,14 @@ export default function MarketEventsPage() {
             <div className="border-border bg-background hidden rounded-xl border sm:block">
               <EventLeaderboard ref={leaderboardRef} eventInfo={eventInfo} />
             </div>
-            <div className="hidden rounded-xl sm:block">
+            {/* <div className="hidden rounded-xl sm:block">
               <EventDonate
                 ref={donateRef}
                 eventInfo={eventInfo}
                 onRefresh={handleRefreshEventInfo}
                 leaderboardRef={leaderboardRef}
               />
-            </div>
+            </div> */}
             <div className="border-border bg-background block rounded-xl border sm:hidden">
               <EventInfo {...eventInfoProps} />
             </div>
@@ -323,14 +323,14 @@ export default function MarketEventsPage() {
             <div className="border-border bg-background hidden rounded-xl border sm:block">
               <EventDetail {...eventDetailProps} />
             </div>
-            <div className="block rounded-xl sm:hidden">
+            {/* <div className="block rounded-xl sm:hidden">
               <EventDonate
                 ref={donateRef}
                 eventInfo={eventInfo}
                 onRefresh={handleRefreshEventInfo}
                 leaderboardRef={leaderboardRef}
               />
-            </div>
+            </div> */}
             <div className="border-border bg-background block rounded-xl border sm:hidden">
               <EventLeaderboard ref={leaderboardRef} />
             </div>
