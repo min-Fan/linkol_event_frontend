@@ -294,7 +294,7 @@ export default function RaffleRewardCard({
             {/* 1x Rewards */}
             <div className="flex flex-col items-center gap-0.5">
               <div className="border-primary/20 relative flex h-6 w-6 items-center justify-center rounded-sm border-1 bg-[#F2F8FF] shadow-[0_2px_7px_0_rgba(0,122,255,0.10)]">
-                {invitedUsers.length > 0 && invitedUsers[0].avatar && (
+                {invitedUsers.length >= 1 && invitedUsers[0].avatar && (
                   <img
                     src={invitedUsers[0].avatar}
                     alt="avatar"
@@ -315,7 +315,7 @@ export default function RaffleRewardCard({
             {/* 2x Rewards */}
             <div className="flex flex-col items-center gap-0.5">
               <div className="border-primary/20 relative flex h-6 w-6 items-center justify-center rounded-sm border-1 bg-[#F2F8FF] shadow-[0_2px_7px_0_rgba(0,122,255,0.10)]">
-                {invitedUsers.length > 0 && invitedUsers[1].avatar && (
+                {invitedUsers.length >= 2 && invitedUsers[1].avatar && (
                   <img
                     src={invitedUsers[1].avatar}
                     alt="avatar"
@@ -328,7 +328,7 @@ export default function RaffleRewardCard({
                 )}
               </div>
               <div className="border-primary/20 absolute flex h-6 w-6 translate-x-[50%] items-center justify-center rounded-sm border-1 bg-[#F2F8FF] shadow-[0_2px_7px_0_rgba(0,122,255,0.10)]">
-                {invitedUsers.length > 0 && invitedUsers[2].avatar && (
+                {invitedUsers.length >= 3 && invitedUsers[2].avatar && (
                   <img
                     src={invitedUsers[2].avatar}
                     alt="avatar"
