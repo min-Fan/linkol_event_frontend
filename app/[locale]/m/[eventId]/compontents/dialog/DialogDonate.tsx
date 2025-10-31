@@ -403,10 +403,15 @@ export default function DialogDonate({
   // 监听捐赠交易状态
   useEffect(() => {
     // 只在弹窗打开、交易确认成功且未处理过该交易时才处理
-    if (isDonateConfirmed && isOpen && donateTxHash && processedTxHashRef.current !== donateTxHash) {
+    if (
+      isDonateConfirmed &&
+      isOpen &&
+      donateTxHash &&
+      processedTxHashRef.current !== donateTxHash
+    ) {
       // 标记该交易已处理，避免重复处理
       processedTxHashRef.current = donateTxHash as string;
-      
+
       setIsDonateSuccess(true);
 
       // 静默上报 donate 成功
