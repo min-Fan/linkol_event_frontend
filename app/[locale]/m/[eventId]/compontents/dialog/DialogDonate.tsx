@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@shadcn/components/ui/button';
 import {
   Dialog,
@@ -53,7 +53,7 @@ interface DialogDonateProps {
   isOpen: boolean;
   onClose: () => void;
   eventInfo?: IEventInfoResponseData;
-  onDonateSuccess?: () => void;
+  onDonateSuccess?: () => void | Promise<void>;
 }
 
 export default function DialogDonate({
@@ -86,11 +86,17 @@ export default function DialogDonate({
   const { isLoading: isDonateConfirming, isSuccess: isDonateConfirmed } =
     useWaitForTransactionReceipt({
       hash: donateTxHash,
+      query: {
+        enabled: isOpen && !!donateTxHash,
+      },
     });
 
   const { isLoading: isApproveConfirming, isSuccess: isApproveConfirmed } =
     useWaitForTransactionReceipt({
       hash: approveTxHash,
+      query: {
+        enabled: isOpen && !!approveTxHash,
+      },
     });
 
   // 状态管理
@@ -98,16 +104,16 @@ export default function DialogDonate({
   const [selectedChain, setSelectedChain] = useState('');
   const [selectedToken, setSelectedToken] = useState('');
   const [tokenList, setTokenList] = useState<IGetActivityDonateTokenInfoResponseDataItem[]>([]);
-  const [donateResult, setDonateResult] = useState<{
-    isSuccess: boolean;
-    amount: number;
-    tokenSymbol: string;
-  } | null>(null);
+  const [loadedEventId, setLoadedEventId] = useState<string | null>(null); // 记录已加载的活动ID
+  const [isDonateSuccess, setIsDonateSuccess] = useState(false);
   const [donateErrorState, setDonateErrorState] = useState<string | null>(null);
   const [isLoadingTokens, setIsLoadingTokens] = useState(false);
   const [currentAllowance, setCurrentAllowance] = useState('0');
   const [needsApproval, setNeedsApproval] = useState(false);
   const [isWrongChain, setIsWrongChain] = useState(false);
+
+  // 使用 ref 跟踪已处理的交易哈希，避免重复处理
+  const processedTxHashRef = useRef<string | null>(null);
 
   // 获取链配置
   const chainConfig = getChainConfig((eventInfo?.chain_type as ChainType) || '');
@@ -124,7 +130,12 @@ export default function DialogDonate({
         : undefined,
     query: {
       enabled:
-        !!selectedToken && !!address && !!chainConfig?.ActivityServiceAddress && !isWrongChain,
+        isOpen &&
+        !!selectedToken &&
+        !!address &&
+        !!chainConfig?.ActivityServiceAddress &&
+        !isWrongChain &&
+        selectedToken !== ethers.ZeroAddress, // 母币不需要查询授权
     },
   });
 
@@ -136,7 +147,7 @@ export default function DialogDonate({
         ? (selectedToken as `0x${string}`)
         : undefined,
     query: {
-      enabled: !!address && !!selectedToken && !isWrongChain,
+      enabled: isOpen && !!address && !!selectedToken && !isWrongChain,
     },
   });
 
@@ -163,6 +174,11 @@ export default function DialogDonate({
   const fetchTokenList = useCallback(async () => {
     if (!eventId) return;
 
+    // 如果已经加载过该活动的代币列表，则不再重新加载
+    if (loadedEventId === eventId && tokenList.length > 0) {
+      return;
+    }
+
     try {
       setIsLoadingTokens(true);
       const response = await getActivityDonateTokenInfo({
@@ -171,6 +187,7 @@ export default function DialogDonate({
 
       if (response.code === 200 && response.data) {
         setTokenList(response.data);
+        setLoadedEventId(eventId as string); // 记录已加载的活动ID
         // 默认选择第一个代币
         if (response.data.length > 0) {
           setSelectedToken(response.data[0].coin_address || '');
@@ -182,7 +199,7 @@ export default function DialogDonate({
     } finally {
       setIsLoadingTokens(false);
     }
-  }, [eventId]);
+  }, [eventId, loadedEventId, tokenList.length, t]);
 
   // 检查代币授权额度
   const checkAllowance = useCallback(() => {
@@ -268,7 +285,14 @@ export default function DialogDonate({
       console.error('Approve failed:', error);
       toast.error(error.message || t('donate_approve_failed'));
     }
-  }, [selectedToken, selectedChain, chainConfig?.ActivityServiceAddress, donateAmount, writeApproveContract, t]);
+  }, [
+    selectedToken,
+    selectedChain,
+    chainConfig?.ActivityServiceAddress,
+    donateAmount,
+    writeApproveContract,
+    t,
+  ]);
 
   // 检查链是否正确
   const checkChain = useCallback(() => {
@@ -296,13 +320,61 @@ export default function DialogDonate({
     }
   }, [expectedChainId, switchChain, t]);
 
-  // 初始化
+  // 监听弹窗关闭，重置状态
+  useEffect(() => {
+    if (!isOpen) {
+      // 弹窗关闭时，清空所有状态，确保重新打开时显示初始表单
+      setDonateAmount('');
+      setSelectedChain(eventInfo?.chain_type || '');
+      setSelectedToken('');
+      setIsDonateSuccess(false);
+      setDonateErrorState(null);
+      setCurrentAllowance('0');
+      setNeedsApproval(false);
+      setIsWrongChain(false);
+      setIsLoadingTokens(false);
+      // 清空已处理的交易记录
+      processedTxHashRef.current = null;
+    }
+  }, [isOpen, eventInfo?.chain_type]);
+
+  // 监听活动ID变化，清空旧的列表
+  useEffect(() => {
+    if (eventId && loadedEventId && loadedEventId !== eventId) {
+      // 活动ID变化时，清空旧的代币列表
+      setTokenList([]);
+      setLoadedEventId(null);
+      setSelectedToken('');
+      setIsDonateSuccess(false); // 清空捐赠结果
+      setDonateErrorState(null); // 清空错误状态
+    }
+  }, [eventId, loadedEventId]);
+
+  // 初始化 - 只在活动ID变化或列表为空时加载
   useEffect(() => {
     if (isOpen && eventId) {
+      // 弹窗打开时，确保重置成功/失败状态
+      setIsDonateSuccess(false);
+      setDonateErrorState(null);
+
       setSelectedChain(eventInfo?.chain_type || '');
-      fetchTokenList();
+      // 只在活动ID变化或还未加载过该活动的列表时才加载
+      if (loadedEventId !== eventId || tokenList.length === 0) {
+        fetchTokenList();
+      } else if (tokenList.length > 0 && !selectedToken) {
+        // 如果已有列表但没有选中代币，默认选择第一个
+        setSelectedToken(tokenList[0].coin_address || '');
+      }
     }
-  }, [isOpen, eventId, eventInfo?.chain_type, fetchTokenList]);
+  }, [
+    isOpen,
+    eventId,
+    eventInfo?.chain_type,
+    loadedEventId,
+    tokenList,
+    selectedToken,
+    fetchTokenList,
+  ]);
 
   // 监听代币和金额变化，检查授权额度
   useEffect(() => {
@@ -330,20 +402,22 @@ export default function DialogDonate({
 
   // 监听捐赠交易状态
   useEffect(() => {
-    if (isDonateConfirmed) {
-      const selectedTokenInfo = tokenList.find((token) => token.coin_address === selectedToken);
-      const tokenSymbol = selectedTokenInfo?.coin_name || 'Token';
+    // 只在弹窗打开、交易确认成功且未处理过该交易时才处理
+    if (
+      isDonateConfirmed &&
+      isOpen &&
+      donateTxHash &&
+      processedTxHashRef.current !== donateTxHash
+    ) {
+      // 标记该交易已处理，避免重复处理
+      processedTxHashRef.current = donateTxHash as string;
 
-      setDonateResult({
-        isSuccess: true,
-        amount: parseFloat(donateAmount),
-        tokenSymbol,
-      });
+      setIsDonateSuccess(true);
 
       // 静默上报 donate 成功
       (async () => {
         try {
-          if (donateTxHash && eventId && selectedToken && donateAmount) {
+          if (eventId && selectedToken && donateAmount) {
             await getDonateSuccess({
               activeId: parseInt(eventId as string),
               tokenAddress: selectedToken,
@@ -357,12 +431,22 @@ export default function DialogDonate({
         }
       })();
 
-      // 调用成功回调
+      // 调用成功回调，确保异步执行并刷新排行榜数据
       if (onDonateSuccess) {
-        onDonateSuccess();
+        Promise.resolve(onDonateSuccess()).catch((error) => {
+          console.error('onDonateSuccess callback failed:', error);
+        });
       }
     }
-  }, [isDonateConfirmed, selectedToken, tokenList, donateAmount, onDonateSuccess, donateTxHash, eventId, t]);
+  }, [
+    isDonateConfirmed,
+    isOpen,
+    donateTxHash,
+    selectedToken,
+    donateAmount,
+    onDonateSuccess,
+    eventId,
+  ]);
 
   // 监听交易错误
   useEffect(() => {
@@ -384,13 +468,14 @@ export default function DialogDonate({
     setDonateAmount('');
     setSelectedChain(eventInfo?.chain_type || '');
     setSelectedToken('');
-    setDonateResult(null);
+    setIsDonateSuccess(false);
     setDonateErrorState(null);
     setCurrentAllowance('0');
     setNeedsApproval(false);
     setIsWrongChain(false);
-    setTokenList([]);
     setIsLoadingTokens(false);
+    // 清空已处理的交易记录
+    processedTxHashRef.current = null;
   }, [eventInfo?.chain_type]);
 
   // 关闭弹窗
@@ -496,7 +581,7 @@ export default function DialogDonate({
   // 重试捐赠
   const handleRetry = useCallback(() => {
     setDonateErrorState(null);
-    setDonateResult(null);
+    setIsDonateSuccess(false);
   }, []);
 
   return (
@@ -569,7 +654,7 @@ export default function DialogDonate({
                 </p>
               </div>
             </div>
-          ) : donateResult?.isSuccess ? (
+          ) : isDonateSuccess ? (
             // 捐赠成功状态
             <div className="relative">
               <DotLottieReact
