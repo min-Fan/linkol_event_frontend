@@ -802,7 +802,7 @@ const EventPosts = memo(
         {posts.length === 0 ? (
           <EmptyState />
         ) : (
-          <div className="flex min-h-[64rem] flex-col gap-4 p-2 sm:p-4">
+          <div className="flex min-h-auto flex-col gap-4 p-2 sm:min-h-[64rem] sm:p-4">
             {/* 推文列表 - 移动端单列，桌面端多列 */}
             <div
               className={cn('grid grid-cols-1 gap-4 sm:grid-cols-2', col && `sm:grid-cols-${col}`)}

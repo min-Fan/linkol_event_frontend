@@ -2836,6 +2836,51 @@ export const getDonateList = (params: IGetDonateListParams) => {
   });
 };
 
+// 获取活动捐献支持的代币信息
+export interface IGetActivityDonateTokenInfoParams {
+  active_id: number;
+}
+export interface IGetActivityDonateTokenInfoResponseDataItem {
+  /**
+   * 代币地址
+   */
+  coin_address?: string;
+  /**
+   * 代币名字
+   */
+  coin_name?: string;
+  /**
+   * 网络
+   */
+  coin_network?: string;
+  id?: number;
+  /**
+   * 代币图标
+   */
+  icon?: string;
+}
+export const getActivityDonateTokenInfo = (params: IGetActivityDonateTokenInfoParams) => {
+  return kolRequest.get<IGetActivityDonateTokenInfoResponseDataItem[]>(
+    '/kol/api/v9/active/donates/',
+    {
+      ...params,
+    }
+  );
+};
+
+// donate成功接口
+export interface IGetDonateSuccessParams {
+  activeId: number;
+  tokenAddress: string;
+  amount: string;
+  txid: string;
+}
+export const getDonateSuccess = (params: IGetDonateSuccessParams) => {
+  return kolRequest.post('/kol/api/v7/donate/success/', {
+    ...params,
+  });
+};
+
 // 获取投票信息
 export interface IGetVoteInfoResponseData {
   /**
@@ -2892,6 +2937,41 @@ export interface IVoteParams {
 }
 export const vote = (params: IVoteParams) => {
   return kolRequest.post('/kol/api/v9/vote/', {
+    ...params,
+  });
+};
+
+// 获取用户在三天内某个活动邀请的Real user人数
+export interface IGetUserInviteRealUserCountParams {
+  active_id: number;
+}
+export interface IGetUserInviteRealUserCountResponseData {
+  /**
+   * 数量，最多不超过3
+   */
+  count: number;
+  /**
+   * 三天之内的邀请人
+   */
+  users: RealUser[];
+}
+
+export interface RealUser {
+  /**
+   * 头像
+   */
+  avatar: string;
+  /**
+   * 推特昵称
+   */
+  name: string;
+  /**
+   * 推特用户名
+   */
+  screen_name: string;
+}
+export const getUserInviteRealUserCount = (params: IGetUserInviteRealUserCountParams) => {
+  return kolRequest.get<IGetUserInviteRealUserCountResponseData>(`/kol/api/v6/user/active/invites/`, {
     ...params,
   });
 };
