@@ -2971,7 +2971,25 @@ export interface RealUser {
   screen_name: string;
 }
 export const getUserInviteRealUserCount = (params: IGetUserInviteRealUserCountParams) => {
-  return kolRequest.get<IGetUserInviteRealUserCountResponseData>(`/kol/api/v6/user/active/invites/`, {
+  return kolRequest.get<IGetUserInviteRealUserCountResponseData>(
+    `/kol/api/v6/user/active/invites/`,
+    {
+      ...params,
+    }
+  );
+};
+
+// 捐献热力图
+export interface IGetDonateHeatmapParams {
+  active_id: number;
+}
+export interface IGetDonateHeatmapResponseData {
+  amount?: number;
+  icon?: string;
+  name?: string;
+}
+export const getDonateHeatmap = (params: IGetDonateHeatmapParams) => {
+  return kolRequest.get<IGetDonateHeatmapResponseData>(`/kol/api/v9/donate/summary/`, {
     ...params,
   });
 };

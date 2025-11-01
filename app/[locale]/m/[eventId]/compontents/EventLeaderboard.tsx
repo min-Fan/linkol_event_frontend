@@ -9,9 +9,11 @@ import {
   getActivityLeaderboard,
   getDonateList,
   getActivityVoicesTop10,
+  getDonateHeatmap,
   IGetActivityLeaderboardResponseDataItem,
   IGetDonateListItem,
   IGetActivityVoicesTop10ResponseData,
+  IGetDonateHeatmapResponseData,
 } from '@libs/request';
 import { Skeleton } from '@shadcn/components/ui/skeleton';
 import CompSentimentTreemap from '../../../branding/components/SentimentTreemap';
@@ -180,7 +182,7 @@ function HeaderAndLeaderboardTabs({
           >
             {t('top_10_voice')}
           </TabsTrigger>
-          {/* {isShowDonation && (
+          {isShowDonation && (
             <TabsTrigger
               value="donation"
               className={cn(
@@ -190,7 +192,7 @@ function HeaderAndLeaderboardTabs({
             >
               {t('top_10_donation')}
             </TabsTrigger>
-          )} */}
+          )}
         </TabsList>
       </Tabs>
     </div>
@@ -207,14 +209,17 @@ const EventLeaderboard = memo(
     const [leaderboardData, setLeaderboardData] = useState<
       IGetActivityLeaderboardResponseDataItem[]
     >([]);
+    const [donateHeatmapData, setDonateHeatmapData] = useState<IGetDonateHeatmapResponseData[]>([]);
     const [voicesTop10Data, setVoicesTop10Data] = useState<IGetDonateListItem[]>([]);
     const [brandValueTop10Data, setBrandValueTop10Data] = useState<
       IGetActivityVoicesTop10ResponseData[]
     >([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [isDonateHeatmapLoading, setIsDonateHeatmapLoading] = useState(false);
     const [isVoicesLoading, setIsVoicesLoading] = useState(false);
     const [isBrandValueLoading, setIsBrandValueLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [donateHeatmapError, setDonateHeatmapError] = useState<string | null>(null);
     const [voicesError, setVoicesError] = useState<string | null>(null);
     const [brandValueError, setBrandValueError] = useState<string | null>(null);
     // 根据活动认证状态决定是否显示捐赠排行榜
@@ -304,15 +309,63 @@ const EventLeaderboard = memo(
       }
     };
 
+    // 获取捐赠热力图数据
+    const fetchDonateHeatmapData = async () => {
+      if (!eventId) return;
+
+      try {
+        setIsDonateHeatmapLoading(true);
+        setDonateHeatmapError(null);
+
+        const response: any = await getDonateHeatmap({
+          active_id: Number(eventId),
+        });
+
+        if (response.code === 200) {
+          // 处理返回的数据，确保是数组格式
+          let data = response.data;
+
+          // 如果数据在嵌套结构中（如 data.list 或 data.data）
+          if (data && typeof data === 'object' && !Array.isArray(data)) {
+            if (Array.isArray(data.list)) {
+              data = data.list;
+            } else if (Array.isArray(data.data)) {
+              data = data.data;
+            }
+          }
+
+          // 最终处理：确保是数组格式
+          if (Array.isArray(data)) {
+            setDonateHeatmapData(data || []);
+          } else if (data && typeof data === 'object') {
+            // 如果是单个对象，转换为数组
+            setDonateHeatmapData([data]);
+          } else {
+            setDonateHeatmapData([]);
+          }
+        } else {
+          setDonateHeatmapError(response.msg);
+        }
+      } catch (err) {
+        console.error('Failed to fetch donate heatmap data:', err);
+        setDonateHeatmapError(t('fetch_leaderboard_failed'));
+        setDonateHeatmapData([]);
+      } finally {
+        setIsDonateHeatmapLoading(false);
+      }
+    };
+
     // 刷新所有数据的函数
     const refreshAllData = async () => {
       await fetchLeaderboardData();
+      await fetchDonateHeatmapData();
       await fetchVoicesTop10Data();
       await fetchBrandValueTop10Data();
     };
 
     // 刷新捐赠列表的函数
     const refreshDonationList = async () => {
+      await fetchDonateHeatmapData();
       await fetchVoicesTop10Data();
     };
 
@@ -326,10 +379,22 @@ const EventLeaderboard = memo(
     useEffect(() => {
       if (eventId) {
         fetchLeaderboardData();
+        fetchDonateHeatmapData();
         fetchVoicesTop10Data();
         fetchBrandValueTop10Data();
       }
     }, [eventId]);
+
+    // 当切换 tab 时，获取对应的热力图数据
+    useEffect(() => {
+      if (eventId) {
+        if (activeLeaderboardTab === 'donation') {
+          fetchDonateHeatmapData();
+        } else {
+          fetchLeaderboardData();
+        }
+      }
+    }, [activeLeaderboardTab, eventId]);
 
     // 监听外部刷新请求
     useEffect(() => {
@@ -343,30 +408,6 @@ const EventLeaderboard = memo(
       }
     }, [onRefresh]);
 
-    // 如果有错误，显示错误信息
-    if (error) {
-      return (
-        <div className="flex h-full w-full flex-col gap-2 p-2 sm:gap-4 sm:p-4">
-          <HeaderAndLeaderboardTabs
-            isShowDonation={isShowDonation}
-            activeLeaderboardTab={activeLeaderboardTab}
-            onTabChange={(value) => setActiveLeaderboardTab(value as 'donation' | 'brand_value')}
-          />
-          <div className="flex h-[300px] w-full items-center justify-center sm:h-[400px]">
-            <div className="text-muted-foreground text-center">
-              <p className="text-sm">{error}</p>
-              <button
-                onClick={() => fetchLeaderboardData()}
-                className="text-primary mt-2 text-xs hover:underline"
-              >
-                {t('btn_retry')}
-              </button>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
     return (
       <div className="flex h-full w-full flex-col gap-2 p-2 sm:gap-4 sm:p-4">
         <HeaderAndLeaderboardTabs
@@ -377,11 +418,57 @@ const EventLeaderboard = memo(
 
         {/* 图表区域 */}
         <div className="flex h-full min-h-0 flex-1 flex-col gap-2 sm:gap-4">
-          {isLoading ? (
+          {activeLeaderboardTab === 'donation' ? (
+            // 捐赠热力图
+            isDonateHeatmapLoading ? (
+              <div className="bg-muted-foreground/5 min-h-[300px] w-full flex-1 rounded-2xl sm:min-h-[400px]">
+                <ChartSkeleton />
+              </div>
+            ) : donateHeatmapError ? (
+              <div className="bg-muted-foreground/5 flex w-full flex-1 items-center justify-center rounded-2xl py-8 sm:min-h-64">
+                <div className="text-muted-foreground text-center">
+                  <p className="text-sm">{donateHeatmapError}</p>
+                  <Button variant="outline" onClick={fetchDonateHeatmapData} className="mt-2">
+                    {t('btn_retry')}
+                  </Button>
+                </div>
+              </div>
+            ) : donateHeatmapData.length > 0 ? (
+              <div className="h-[300px] w-full sm:h-[400px]">
+                <CompSentimentTreemap
+                  data={donateHeatmapData
+                    .filter((item) => (item.amount || 0) !== 0)
+                    .map((item) => ({
+                      name: item.name || t('unknown'),
+                      amount: item.amount || 0,
+                      icon: item.icon || defaultAvatar.src,
+                    }))}
+                  type="good"
+                />
+              </div>
+            ) : (
+              <div className="bg-muted-foreground/5 flex w-full flex-1 items-center justify-center rounded-2xl py-8 sm:min-h-64">
+                <div className="text-muted-foreground text-center">
+                  <NullData className="h-14 w-14" />
+                  <p className="text-sm">{t('no_data')}</p>
+                </div>
+              </div>
+            )
+          ) : // 品牌价值热力图
+          isLoading ? (
             <div className="bg-muted-foreground/5 min-h-[300px] w-full flex-1 rounded-2xl sm:min-h-[400px]">
               <ChartSkeleton />
             </div>
-          ) : leaderboardData.length >= 7 ? (
+          ) : error ? (
+            <div className="bg-muted-foreground/5 flex w-full flex-1 items-center justify-center rounded-2xl py-8 sm:min-h-64">
+              <div className="text-muted-foreground text-center">
+                <p className="text-sm">{error}</p>
+                <Button variant="outline" onClick={fetchLeaderboardData} className="mt-2">
+                  {t('btn_retry')}
+                </Button>
+              </div>
+            </div>
+          ) : leaderboardData.length > 0 ? (
             <div className="h-[300px] w-full sm:h-[400px]">
               <CompSentimentTreemap
                 data={leaderboardData
@@ -404,10 +491,10 @@ const EventLeaderboard = memo(
           )}
         </div>
 
-        {/* 排行榜区域 */}
-        <div className="flex flex-col gap-2">
-          {/* 品牌价值排行榜 */}
-          {activeLeaderboardTab === 'brand_value' && (
+        {/* 排行榜区域 - 只在品牌价值 tab 时显示 */}
+        {activeLeaderboardTab === 'brand_value' && (
+          <div className="flex flex-col gap-2">
+            {/* 品牌价值排行榜 */}
             <>
               {isBrandValueLoading ? (
                 <BrandValueTableSkeleton />
@@ -525,129 +612,124 @@ const EventLeaderboard = memo(
                 </div>
               )}
             </>
-          )}
+          </div>
+        )}
 
-          {/* 捐赠排行榜 */}
-          {activeLeaderboardTab === 'donation' && (
-            <>
-              {isVoicesLoading ? (
-                <VoicesTableSkeleton />
-              ) : voicesError ? (
-                <div className="bg-muted-foreground/5 rounded-2xl py-8 text-center">
-                  <div className="text-muted-foreground">
-                    <p className="text-sm">{voicesError}</p>
-                    <Button variant="outline" onClick={fetchVoicesTop10Data}>
-                      {t('btn_retry')}
-                    </Button>
-                  </div>
+        {/* {activeLeaderboardTab === 'donation' && (
+          <>
+            {isVoicesLoading ? (
+              <VoicesTableSkeleton />
+            ) : voicesError ? (
+              <div className="bg-muted-foreground/5 rounded-2xl py-8 text-center">
+                <div className="text-muted-foreground">
+                  <p className="text-sm">{voicesError}</p>
+                  <Button variant="outline" onClick={fetchVoicesTop10Data}>
+                    {t('btn_retry')}
+                  </Button>
                 </div>
-              ) : voicesTop10Data.length > 0 ? (
-                <div className="from-primary/10 via-primary/5 rounded-2xl bg-gradient-to-b to-transparent py-2">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="border-none">
-                        <TableHead className="flex-1 pb-2 pl-6 text-left">
-                          <span className="sm:text-md text-sm font-[500]">
-                            {t('kol_name_short')}
-                          </span>
-                        </TableHead>
-                        <TableHead className="pb-2 text-center">
-                          <span className="sm:text-md text-sm font-[500]">
-                            {t('donation_amount')}
-                          </span>
-                        </TableHead>
-                        <TableHead className="pb-2 text-center">
-                          <span className="sm:text-md text-sm font-[500]">{t('token')}</span>
-                        </TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {voicesTop10Data.map((item, index) => (
-                        <TableRow className="border-none" key={item.id || index}>
-                          <TableCell className="pb-4">
-                            <div className="justify-left flex items-center gap-2 pl-2">
-                              <div className="flex w-10 items-center justify-center">
-                                {index === 0 && (
-                                  <img
-                                    src={RankFirst.src}
-                                    className="size-6 sm:size-8 sm:min-h-8 sm:min-w-8"
-                                  />
-                                )}
-                                {index === 1 && (
-                                  <img
-                                    src={RankSecond.src}
-                                    className="size-6 sm:size-8 sm:min-h-8 sm:min-w-8"
-                                  />
-                                )}
-                                {index === 2 && (
-                                  <img
-                                    src={RankThird.src}
-                                    className="size-6 sm:size-8 sm:min-h-8 sm:min-w-8"
-                                  />
-                                )}
-                                {index > 2 && (
-                                  <span className="sm:text-md text-sm">{index + 1}</span>
-                                )}
-                              </div>
-                              <div className="size-6 min-w-6 overflow-hidden rounded-full">
+              </div>
+            ) : voicesTop10Data.length > 0 ? (
+              <div className="from-primary/10 via-primary/5 rounded-2xl bg-gradient-to-b to-transparent py-2">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-none">
+                      <TableHead className="flex-1 pb-2 pl-6 text-left">
+                        <span className="sm:text-md text-sm font-[500]">{t('kol_name_short')}</span>
+                      </TableHead>
+                      <TableHead className="pb-2 text-center">
+                        <span className="sm:text-md text-sm font-[500]">
+                          {t('donation_amount')}
+                        </span>
+                      </TableHead>
+                      <TableHead className="pb-2 text-center">
+                        <span className="sm:text-md text-sm font-[500]">{t('token')}</span>
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {voicesTop10Data.map((item, index) => (
+                      <TableRow className="border-none" key={item.id || index}>
+                        <TableCell className="pb-4">
+                          <div className="justify-left flex items-center gap-2 pl-2">
+                            <div className="flex w-10 items-center justify-center">
+                              {index === 0 && (
                                 <img
-                                  src={item.profile_image_url || defaultAvatar.src}
-                                  alt="avatar"
-                                  className="size-full"
-                                  onError={(e) => {
-                                    const target = e.target as HTMLImageElement;
-                                    target.src = defaultAvatar.src;
-                                  }}
+                                  src={RankFirst.src}
+                                  className="size-6 sm:size-8 sm:min-h-8 sm:min-w-8"
                                 />
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <p
-                                  className="sm:text-md max-w-[100px] cursor-pointer truncate text-sm sm:text-base"
-                                  onClick={() =>
-                                    copy(item.screen_name || '').then((success) => {
-                                      if (success) {
-                                        toast(t('copy_success'));
-                                      } else {
-                                        toast(t('copy_failed'));
-                                      }
-                                    })
-                                  }
-                                >
-                                  {item.screen_name || t('unknown')}
-                                </p>
-                              </div>
+                              )}
+                              {index === 1 && (
+                                <img
+                                  src={RankSecond.src}
+                                  className="size-6 sm:size-8 sm:min-h-8 sm:min-w-8"
+                                />
+                              )}
+                              {index === 2 && (
+                                <img
+                                  src={RankThird.src}
+                                  className="size-6 sm:size-8 sm:min-h-8 sm:min-w-8"
+                                />
+                              )}
+                              {index > 2 && <span className="sm:text-md text-sm">{index + 1}</span>}
                             </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center justify-center">
-                              <span className="sm:text-md text-sm sm:text-base">
-                                {item.amount || '0'}
-                              </span>
+                            <div className="size-6 min-w-6 overflow-hidden rounded-full">
+                              <img
+                                src={item.profile_image_url || defaultAvatar.src}
+                                alt="avatar"
+                                className="size-full"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.src = defaultAvatar.src;
+                                }}
+                              />
                             </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center justify-center">
-                              <span className="sm:text-md text-sm sm:text-base">
-                                {item.token_name}
-                              </span>
+                            <div className="flex items-center gap-2">
+                              <p
+                                className="sm:text-md max-w-[100px] cursor-pointer truncate text-sm sm:text-base"
+                                onClick={() =>
+                                  copy(item.screen_name || '').then((success) => {
+                                    if (success) {
+                                      toast(t('copy_success'));
+                                    } else {
+                                      toast(t('copy_failed'));
+                                    }
+                                  })
+                                }
+                              >
+                                {item.screen_name || t('unknown')}
+                              </p>
                             </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center justify-center">
+                            <span className="sm:text-md text-sm sm:text-base">
+                              {item.amount || '0'}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center justify-center">
+                            <span className="sm:text-md text-sm sm:text-base">
+                              {item.token_name}
+                            </span>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            ) : (
+              <div className="bg-muted-foreground/5 rounded-2xl py-8 text-center">
+                <div className="text-muted-foreground flex flex-col items-center justify-center">
+                  <NullData className="h-14 w-14" />
+                  <p className="text-sm">{t('no_voices_data')}</p>
                 </div>
-              ) : (
-                <div className="bg-muted-foreground/5 rounded-2xl py-8 text-center">
-                  <div className="text-muted-foreground flex flex-col items-center justify-center">
-                    <NullData className="h-14 w-14" />
-                    <p className="text-sm">{t('no_voices_data')}</p>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-        </div>
+              </div>
+            )}
+          </>
+        )} */}
       </div>
     );
   })
