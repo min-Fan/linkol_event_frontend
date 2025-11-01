@@ -280,7 +280,7 @@ export default function RaffleRewardCard({
           </div>
           <Button
             onClick={onClaim}
-            disabled={totalReceiveAmount === 0}
+            disabled={!eventInfo?.withdrawable || totalReceiveAmount === 0}
             className="h-9 w-full rounded-md bg-gradient-to-r from-[#01CF7F] from-0% via-[#D4F5D0] via-30% to-[#01CF7F] to-80% bg-[length:200%_100%] bg-[position:100%_50%] !px-2 text-sm transition-[background-position] duration-200 ease-in-out hover:bg-[position:-60%_50%] disabled:cursor-not-allowed disabled:opacity-50 sm:!h-auto sm:w-auto sm:!rounded-full sm:!px-4 sm:!text-base"
           >
             <HandCoins className="!h-4 !w-4 sm:!h-6 sm:!w-6" />

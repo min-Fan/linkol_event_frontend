@@ -1446,6 +1446,10 @@ export interface IEventInfoResponseData {
    * 是否认证
    */
   is_verified?: boolean;
+  /**
+   * 是否可提现，true表示可以
+   */
+  withdrawable: boolean;
 }
 
 /**
@@ -2971,7 +2975,10 @@ export interface RealUser {
   screen_name: string;
 }
 export const getUserInviteRealUserCount = (params: IGetUserInviteRealUserCountParams) => {
-  return kolRequest.get<IGetUserInviteRealUserCountResponseData>(`/kol/api/v6/user/active/invites/`, {
-    ...params,
-  });
+  return kolRequest.get<IGetUserInviteRealUserCountResponseData>(
+    `/kol/api/v6/user/active/invites/`,
+    {
+      ...params,
+    }
+  );
 };
