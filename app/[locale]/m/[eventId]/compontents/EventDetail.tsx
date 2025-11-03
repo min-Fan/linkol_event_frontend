@@ -332,7 +332,11 @@ const EventDetail = memo(function EventDetail({
             '-'
           ) : (
             <>
-              <p>{eventInfo?.description}</p>
+              <p>
+                {locale === 'zh' && eventInfo?.en_description
+                  ? eventInfo?.description
+                  : eventInfo?.en_description}
+              </p>
             </>
           )}
         </div>

@@ -358,7 +358,7 @@ const DialogClaimReward = memo(
         }
 
         // 1. 调用签名接口
-        const contractAddress = getContractAddress(eventInfo?.chain_type, eventInfo?.token_type);
+        const contractAddress = getContractAddress(eventInfo?.chain_type);
         const signatureRes: any = await getReceiveRewardSignature({
           tokenAddress: eventInfo?.token_address as `0x${string}`,
           // amount: toContractAmount(String(availableRewards), decimals || 6).toString(),
@@ -460,7 +460,7 @@ const DialogClaimReward = memo(
         }
 
         // 1. 调用签名接口
-        const contractAddress = getContractAddress(eventInfo?.chain_type, eventInfo?.token_type);
+        const contractAddress = getContractAddress(eventInfo?.chain_type);
         const signatureRes: any = await getReceiveRewardSignatureV7({
           tokenAddress: eventInfo?.token_address as `0x${string}`,
           // amount: toContractAmount(String(availableRewards), decimals || 6).toString(),
