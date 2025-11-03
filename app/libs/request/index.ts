@@ -1450,6 +1450,10 @@ export interface IEventInfoResponseData {
    * 是否可提现，true表示可以
    */
   withdrawable: boolean;
+  /**
+   * 英文的description
+   */
+  en_description: string;
 }
 
 /**
@@ -2976,9 +2980,8 @@ export interface RealUser {
 }
 export const getUserInviteRealUserCount = (params: IGetUserInviteRealUserCountParams) => {
   return kolRequest.get<IGetUserInviteRealUserCountResponseData>(
-    
     `/kol/api/v6/user/active/invites/`,
-   
+
     {
       ...params,
     }
@@ -2996,7 +2999,6 @@ export interface IGetDonateHeatmapResponseData {
 }
 export const getDonateHeatmap = (params: IGetDonateHeatmapParams) => {
   return kolRequest.get<IGetDonateHeatmapResponseData>(`/kol/api/v9/donate/summary/`, {
-      ...params,
-    }
-  );
+    ...params,
+  });
 };

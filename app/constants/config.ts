@@ -273,22 +273,15 @@ export const getTokenConfigByEventInfo = ({
 };
 
 // 根据链类型和token类型获取合约地址
-export const getContractAddress = (chainType?: string, tokenType?: string) => {
+export const getContractAddress = (chainType?: string) => {
   const normalizedChainType = (chainType?.toLowerCase() as ChainType) || 'base';
-  const normalizedTokenType = tokenType?.toLowerCase() || 'usdc';
 
   const chainConfig = CHAIN_CONFIG[normalizedChainType];
   if (!chainConfig) {
     return null;
   }
 
-  const tokenConfig = chainConfig.tokens[normalizedTokenType as TokenType];
-  if (!tokenConfig) {
-    return null;
-  }
-
   return {
-    pay_member_token_address: tokenConfig.contractAddress || '',
     KOLServiceAddress: chainConfig.KOLServiceAddress || '',
     ActivityServiceAddress: chainConfig.ActivityServiceAddress || '',
   };
