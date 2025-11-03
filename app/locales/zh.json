@@ -989,6 +989,8 @@
     "connect_wallet_description": "连接您的钱包以查看完整的活动信息和参与活动名单，并分发奖励",
     "connect_wallet_to_claim": "连接钱包领取奖励",
     "connect_wallet_to_claim_description": "请先连接您的钱包以领取奖励",
+    "connect_wallet_to_donate": "连接钱包进行捐赠",
+    "connect_wallet_to_donate_description": "请先连接您的钱包以进行捐赠",
     "failed_to_get_signature": "获取签名失败",
     "failed_to_claim_reward": "领取奖励失败",
     "reward_claimed_successfully": "奖励 <amount>amount</amount> 已成功领取",

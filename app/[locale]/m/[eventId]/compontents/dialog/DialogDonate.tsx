@@ -610,9 +610,9 @@ export default function DialogDonate({
                 <MoneyBag className="text-primary h-10 w-10" />
               </div>
               <div className="text-center">
-                <p className="text-md">{t('connect_wallet_to_claim')}</p>
+                <p className="text-md">{t('connect_wallet_to_donate')}</p>
                 <p className="text-muted-foreground text-sm">
-                  {t('connect_wallet_to_claim_description')}
+                  {t('connect_wallet_to_donate_description')}
                 </p>
               </div>
 
@@ -828,7 +828,7 @@ export default function DialogDonate({
                       disabled={
                         isApprovePending || isApproveConfirming || !selectedToken || isWrongChain
                       }
-                      className="h-9 w-full flex-1 rounded-full bg-gradient-to-r from-[#01CF7F] from-0% via-[#D4F5D0] via-30% to-[#01CF7F] to-80% bg-[length:200%_100%] bg-[position:100%_50%] !px-2 text-sm transition-[background-position] duration-200 ease-in-out hover:bg-[position:-60%_50%] disabled:cursor-not-allowed disabled:opacity-50 sm:!h-auto sm:w-auto sm:!rounded-full sm:!px-4 sm:!text-base"
+                      className="h-9 w-full flex-1 gap-1 !rounded-xl bg-gradient-to-r from-[#01CF7F] from-0% via-[#D4F5D0] via-30% to-[#01CF7F] to-80% bg-[length:200%_100%] bg-[position:100%_50%] !px-2 text-sm transition-[background-position] duration-200 ease-in-out hover:bg-[position:-60%_50%] disabled:cursor-not-allowed disabled:opacity-50 sm:!h-auto sm:w-auto sm:!rounded-xl sm:!px-4 sm:!text-base"
                     >
                       {isApprovePending || isApproveConfirming ? (
                         <>
@@ -837,7 +837,7 @@ export default function DialogDonate({
                         </>
                       ) : (
                         <>
-                          <HandCoins className="mr-2 h-4 w-4" />
+                          <HandCoins className="h-4 w-4" />
                           {t('approve_token')}
                         </>
                       )}
