@@ -988,6 +988,8 @@
     "connect_wallet_description": "Connect your wallet to view the full content of the event and the list of participants, and distribute rewards",
     "connect_wallet_to_claim": "Connect Wallet to Claim Reward",
     "connect_wallet_to_claim_description": "Please connect your wallet first to claim the reward",
+    "connect_wallet_to_donate": "Connect Wallet to Donate",
+    "connect_wallet_to_donate_description": "Please connect your wallet first to donate",
     "failed_to_get_signature": "Failed to get signature",
     "failed_to_claim_reward": "Failed to claim reward",
     "reward_claimed_successfully": "Reward <amount>amount</amount> claimed successfully",
