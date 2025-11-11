@@ -57,6 +57,12 @@ export const navigationItems: NavigationItem[] = [
     shouldShow: () => true,
   },
   {
+    href: PagesRoute.OPINIONS,
+    labelKey: 'nav_predict',
+    isActive: (pathname) => pathname.includes(PagesRoute.OPINIONS),
+    shouldShow: () => true,
+  },
+  {
     href: PagesRoute.DASHBOARD,
     labelKey: 'nav_dashboard',
     isActive: (pathname) => pathname.includes(PagesRoute.DASHBOARD),
@@ -92,7 +98,7 @@ export default function Header(props: { hasLogin?: boolean }) {
           <Link className="flex items-center gap-x-2" href={PagesRoute.HOME}>
             {/* <Logo className="size-4" />
             <Linkol className="h-4 w-14" /> */}
-            {pathname === PagesRoute.HOME && !scrolled ? (
+            {(pathname === PagesRoute.HOME || pathname === PagesRoute.OPINIONS) && !scrolled ? (
               <LinkolDark className="!h-10" />
             ) : (
               <>
