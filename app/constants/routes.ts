@@ -15,6 +15,7 @@ const BRANDING = '/branding';
 const CHAT_VIEW = '/chat/view';
 const ACTIVES = '/actives';
 const MY_AGENT = '/agent';
+const OPINIONS = '/opinions';
 
 const PagesRoute = {
   HOME,
@@ -34,6 +35,7 @@ const PagesRoute = {
   CHAT_VIEW,
   ACTIVES,
   MY_AGENT,
+  OPINIONS,
 };
 
 export default PagesRoute;

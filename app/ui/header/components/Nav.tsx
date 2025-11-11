@@ -204,8 +204,8 @@ export default function Nav(props: NavProps) {
         data-nav-item={forMeasurement ? 'true' : undefined}
         className={clsx(
           'relative rounded-lg px-3 py-2 whitespace-nowrap',
-          pathname === PagesRoute.HOME && !scrolled && 'text-white',
-          pathname === PagesRoute.HOME && scrolled && '!text-black dark:!text-white',
+          (pathname === PagesRoute.HOME || pathname === PagesRoute.OPINIONS) && !scrolled && 'text-white',
+          (pathname === PagesRoute.HOME || pathname === PagesRoute.OPINIONS) && scrolled && '!text-black dark:!text-white',
           isActive && !isComingSoon && 'bg-primary/5 text-primary',
           isComingSoon && 'cursor-not-allowed opacity-60'
         )}

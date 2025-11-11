@@ -1319,6 +1319,13 @@
     "donate_rules": "捐赠规则",
     "donate_rule_1": "您的名字将出现在捐赠排行榜上",
     "donate_rule_2": "捐赠记录在链上，未来可能根据捐赠金额进行空投",
-    "donate_rule_3": "连接超过2000用户"
+    "donate_rule_3": "连接超过2000用户",
+    "post_to_predict": "发布预测",
+    "predict_the_future": "预测未来",
+    "join_predict": "加入预测",
+    "nav_predict": "预测",
+    "hot_opinions": "热门观点",
+    "share_your_views_to_earn_usdt": "分享您的观点以赚取 USDT",
+    "vol": "交易量"
   }
 }

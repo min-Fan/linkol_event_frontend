@@ -1317,6 +1317,14 @@
     "donate_rules": "Donate Rules",
     "donate_rule_1": "Your name will appear on the donation leaderboard",
     "donate_rule_2": "Donations are recorded on-chain and may be used for future airdrops based on donation amount",
-    "donate_rule_3": "Connect with over 2000 users"
+    "donate_rule_3": "Connect with over 2000 users",
+    "post_to_predict": "Post to Predict",
+    "predict_the_future": "Place a bet on your opinion",
+    "join_predict": "Join to Predict",
+    "nav_predict": "Predict",
+    "hot_opinions": "Hot Opinions",
+    "share_your_views_to_earn_usdt": "Share your views to earn USDT",
+    "vol": "Vol."
+
   }
 }
