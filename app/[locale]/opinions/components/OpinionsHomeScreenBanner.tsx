@@ -45,7 +45,7 @@ export default function OpinionsHomeScreenBanner() {
         </p>
         <div className="mt-6 rounded-full shadow-[0_1px_40px_0_rgba(242,242,242,0.80)]">
           <Link
-            href={`${PagesRoute.OPINIONS}`}
+            href={`${PagesRoute.OPINIONS}/1`}
             title={t('join_predict')}
             onClick={() => {
               track('Predict the Future Button ==> Opinions Page');
