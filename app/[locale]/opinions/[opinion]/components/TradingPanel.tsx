@@ -25,7 +25,7 @@ export default function TradingPanel({ dateRange, yesPrice, noPrice }: TradingPa
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 sticky top-24">
       <TradingCard
         dateRange={dateRange}
         selectedOption={selectedOption}

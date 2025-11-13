@@ -80,7 +80,6 @@ export default function OpinionsPage() {
 
         {/* 右侧交易面板 - 占据 1/3 宽度 */}
         <div className="lg:col-span-1">
-          <h1>Trading Card</h1>
           <TradingPanel
             dateRange={mockData.trading.dateRange}
             yesPrice={mockData.trading.yesPrice}
