@@ -84,21 +84,52 @@ export function formatDateYMDHMS(timestamp: number): string {
   });
 }
 
-export function formatTimeAgo(input: number | string | Date): string {
+/**
+ * 格式化相对时间
+ * @param input - 日期字符串、Date 对象或时间戳
+ * @param short - 是否使用简化格式（默认 false，完整格式：22 seconds ago；true 时简化格式：22s ago）
+ * @returns 格式化后的相对时间字符串
+ */
+export function formatTimeAgo(input: number | string | Date, short: boolean = false): string {
   const date = new Date(input).getTime();
   const now = Date.now();
   const diff = Math.floor((now - date) / 1000); // 单位：秒
 
-  if (diff < 60) return `${diff} second${diff !== 1 ? 's' : ''} ago`;
-  if (diff < 3600)
-    return `${Math.floor(diff / 60)} minute${Math.floor(diff / 60) !== 1 ? 's' : ''} ago`;
-  if (diff < 86400)
-    return `${Math.floor(diff / 3600)} hour${Math.floor(diff / 3600) !== 1 ? 's' : ''} ago`;
-  if (diff < 2592000)
-    return `${Math.floor(diff / 86400)} day${Math.floor(diff / 86400) !== 1 ? 's' : ''} ago`;
-  if (diff < 31536000)
-    return `${Math.floor(diff / 2592000)} month${Math.floor(diff / 2592000) !== 1 ? 's' : ''} ago`;
-  return `${Math.floor(diff / 31536000)} year${Math.floor(diff / 31536000) !== 1 ? 's' : ''} ago`;
+  if (diff < 60) {
+    return short ? `${diff}s ago` : `${diff} second${diff !== 1 ? 's' : ''} ago`;
+  }
+
+  const minutes = Math.floor(diff / 60);
+  if (diff < 3600) {
+    return short ? `${minutes}m ago` : `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
+  }
+
+  const hours = Math.floor(diff / 3600);
+  if (diff < 86400) {
+    return short ? `${hours}h ago` : `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+  }
+
+  const days = Math.floor(diff / 86400);
+  if (diff < 2592000) {
+    return short ? `${days}d ago` : `${days} day${days !== 1 ? 's' : ''} ago`;
+  }
+
+  const months = Math.floor(diff / 2592000);
+  if (diff < 31536000) {
+    return short ? `${months}mo ago` : `${months} month${months !== 1 ? 's' : ''} ago`;
+  }
+
+  const years = Math.floor(diff / 31536000);
+  return short ? `${years}y ago` : `${years} year${years !== 1 ? 's' : ''} ago`;
+}
+
+/**
+ * 格式化相对时间（简化版：22s ago, 1h ago, 2h ago）
+ * @param input - 日期字符串、Date 对象或时间戳
+ * @returns 格式化后的相对时间字符串
+ */
+export function formatTimeAgoShort(input: number | string | Date): string {
+  return formatTimeAgo(input, true);
 }
 
 export function formatMoney(value: number): string {

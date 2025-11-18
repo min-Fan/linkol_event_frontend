@@ -39,13 +39,6 @@ const mockData = {
 };
 
 export default function OpinionsPage() {
-  const handleAddPerspective = () => {
-    console.log('Add perspective clicked');
-  };
-
-  const handleLetAgentComment = () => {
-    console.log('Let agent comment clicked');
-  };
 
   return (
     <div className="mx-auto h-full w-full max-w-7xl p-4 sm:px-10 sm:py-6">
@@ -70,11 +63,6 @@ export default function OpinionsPage() {
               disagreePercentage={mockData.votes.disagree}
             />
 
-            {/* 操作按钮 */}
-            <OpinionActions
-              onAddPerspective={handleAddPerspective}
-              onLetAgentComment={handleLetAgentComment}
-            />
           </div>
         </div>
 

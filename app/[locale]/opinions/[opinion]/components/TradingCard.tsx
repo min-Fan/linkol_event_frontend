@@ -125,7 +125,7 @@ export default function TradingCard({
               type="number"
               value={amount}
               onChange={handleAmountChange}
-              className="w-auto border-none bg-transparent text-right !text-3xl font-bold outline-none focus:ring-0"
+              className="w-auto border-none bg-transparent text-right !text-3xl font-bold outline-none focus:ring-0 dark:bg-transparent"
               placeholder="$0"
             />
           </div>

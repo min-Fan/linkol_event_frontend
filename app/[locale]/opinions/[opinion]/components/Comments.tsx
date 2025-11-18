@@ -4,87 +4,67 @@ import { Skeleton } from '@shadcn/components/ui/skeleton';
 import { Like, Message, ReTwet, Verified } from '@assets/svg';
 import { Badge } from '@shadcn/components/ui/badge';
 import { cn } from '@shadcn/lib/utils';
-import { useLocale, useTranslations } from 'next-intl';
-import { formatMonthShortDay } from '../../../m/components/Tweet';
+import { useTranslations } from 'next-intl';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import defaultAvatar from '@assets/image/avatar.png';
+import { formatTimeAgoShort } from '@libs/utils';
 
-// 推文数据类型定义
-interface PostItem {
+// 评论数据类型定义
+interface CommentItem {
   id: string;
   name: string;
   screen_name: string;
   profile_image_url?: string;
   is_verified?: boolean;
-  tweet_text: string;
-  tweet_created_at: string;
+  comment_text: string;
+  created_at: string;
   like_count: number;
   retweet_count: number;
   reply_count: number;
-  is_real_user?: boolean;
-  join_type?: string;
+  position?: number; // 持仓数量，如 200 或 420
+  position_type?: 'yes' | 'no'; // 持仓类型：yes 或 no
 }
 
-// 推文卡片骨架屏组件
-const PostItemSkeleton = () => {
+// 评论卡片骨架屏组件
+const CommentItemSkeleton = () => {
   return (
-    <div className="bg-background border-primary/10 shadow-primary/5 flex h-full w-full flex-col gap-2 rounded-2xl border-2 p-2 shadow-sm sm:gap-4 sm:rounded-3xl sm:p-4">
+    <div className="bg-background border-border flex w-full flex-col gap-3 rounded-2xl border p-4">
       <div className="flex w-full items-start justify-between">
         <div className="flex w-full flex-1 items-center gap-2">
           <Skeleton className="size-10 min-w-10 rounded-full sm:size-12 sm:min-w-12" />
-          <div className="flex min-w-0 flex-1 flex-col gap-1">
-            <div className="flex w-full flex-1 items-center justify-between gap-2">
-              <div className="flex w-full items-center gap-2">
-                <Skeleton className="h-4 w-24 sm:h-5 sm:w-32" />
-                <Skeleton className="h-4 w-4" />
-                <div className="ml-auto">
-                  <Skeleton className="h-3 w-16 sm:h-4 sm:w-20" />
-                </div>
-              </div>
-            </div>
-            <Skeleton className="h-3 w-20 sm:h-4 sm:w-24" />
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            <Skeleton className="h-4 w-24 sm:h-5 sm:w-32" />
+            <Skeleton className="h-4 w-4" />
+            <Skeleton className="h-5 w-20 sm:h-6 sm:w-24" />
           </div>
         </div>
+        <Skeleton className="h-3 w-16 sm:h-4 sm:w-20" />
       </div>
-      <div className="space-y-2">
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-5/6" />
-        <Skeleton className="h-4 w-4/5" />
-        <Skeleton className="h-4 w-3/5" />
-      </div>
-      <div className="border-border mt-auto w-full border-t"></div>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 sm:gap-4">
-          <div className="flex items-center gap-1">
-            <Skeleton className="h-3 w-3" />
-            <Skeleton className="h-3 w-6" />
-          </div>
-          <div className="flex items-center gap-1">
-            <Skeleton className="h-3 w-3" />
-            <Skeleton className="h-3 w-6" />
-          </div>
-          <div className="flex items-center gap-1">
-            <Skeleton className="h-3 w-3" />
-            <Skeleton className="h-3 w-6" />
-          </div>
-        </div>
+      <Skeleton className="h-4 w-full" />
+      <Skeleton className="h-4 w-5/6" />
+      <div className="border-border mt-2 w-full border-t"></div>
+      <div className="flex items-center gap-4">
+        <Skeleton className="h-3 w-12" />
+        <Skeleton className="h-3 w-12" />
+        <Skeleton className="h-3 w-12" />
       </div>
     </div>
   );
 };
 
-// 单个推文卡片组件
-const PostItem = ({ post }: { post: PostItem }) => {
+// 单个评论卡片组件
+const CommentItem = ({ comment }: { comment: CommentItem }) => {
   const t = useTranslations('common');
-  const locale = useLocale();
+  const badgeText = comment.position ? `${comment.position} No change` : '';
+
   return (
-    <div className="border-primary/10 shadow-primary/5 hover:border-primary/20 flex h-full w-full flex-col gap-2 rounded-2xl border-2 p-2 shadow-sm hover:shadow-md sm:gap-4 sm:rounded-3xl sm:p-4">
+    <div className="bg-background border-border flex w-full flex-col gap-3 rounded-2xl border p-4">
       <div className="flex w-full items-start justify-between">
         <div className="flex w-full flex-1 items-center gap-2">
-          <div className="bg-muted-foreground/10 size-10 min-w-10 overflow-hidden rounded-full sm:size-12 sm:min-w-12">
+          <div className="bg-muted-foreground/10 size-9 min-w-9 overflow-hidden rounded-full sm:size-12 sm:min-w-12">
             <img
-              src={post.profile_image_url || defaultAvatar.src}
-              alt={post.name || 'Profile'}
+              src={comment.profile_image_url || defaultAvatar.src}
+              alt={comment.name || 'Profile'}
               className="h-full w-full object-cover"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
@@ -92,60 +72,50 @@ const PostItem = ({ post }: { post: PostItem }) => {
               }}
             />
           </div>
-          <div className="flex min-w-0 flex-1 flex-col gap-0 sm:gap-0">
-            <div className="flex w-full flex-1 items-center justify-between gap-2 text-sm sm:text-base">
-              <div className="flex w-full items-center">
-                <div className="flex w-full flex-1 items-center gap-2">
-                  <span className="text-md line-clamp-1 truncate sm:text-base">
-                    {post.name || 'Unknown User'}
-                  </span>
-                  {post.is_verified && <Verified className="size-4 min-w-4" />}
-                  <span className="ml-auto text-xs whitespace-nowrap sm:text-base">
-                    {formatMonthShortDay(post.tweet_created_at, locale)}
-                  </span>
-                </div>
-              </div>
-            </div>
-            <span className="text-muted-foreground sm:text-md line-clamp-1 truncate text-sm">
-              @{post.screen_name || 'unknown'}
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            <span className="sm:text-md line-clamp-1 truncate text-sm font-medium">
+              {comment.name || 'Unknown User'}
             </span>
+            {comment.is_verified && <Verified className="size-4 min-w-4" />}
+            {badgeText && (
+              <Badge
+                variant="outline"
+                className={cn(
+                  'rounded-sm border-none text-xs font-medium sm:text-sm',
+                  comment.position_type === 'yes'
+                    ? 'bg-green-500/10 !text-green-500'
+                    : 'bg-red-500/10 !text-red-600'
+                )}
+              >
+                {badgeText}
+              </Badge>
+            )}
           </div>
         </div>
+        <span className="text-xs whitespace-nowrap sm:text-sm">
+          {formatTimeAgoShort(comment.created_at)}
+        </span>
       </div>
-      <p className="sm:text-md text-muted-foreground/90 line-clamp-4 text-sm">{post.tweet_text}</p>
-      <div className="border-border mt-auto w-full border-t"></div>
-      <div className="flex items-center justify-between">
-        <div className="sm:text-md flex items-center gap-2 text-sm sm:gap-4">
-          <div className="text-muted-foreground/90 flex items-center gap-0.5 sm:gap-1">
-            <Like className="size-3" />
-            <span>{post.like_count || 0}</span>
-          </div>
-          <div className="text-muted-foreground/90 flex items-center gap-0.5 sm:gap-1">
-            <ReTwet className="size-3" />
-            <span>{post.retweet_count || 0}</span>
-          </div>
-          <div className="text-muted-foreground/90 flex items-center gap-0.5 sm:gap-1">
-            <Message className="size-3" />
-            <span>{post.reply_count || 0}</span>
-          </div>
+      <p className="sm:text-md text-muted-foreground/60 line-clamp-2 text-sm">
+        {comment.comment_text}
+      </p>
+      <div className="border-border/60 mt-2 w-full border-t"></div>
+      <div className="sm:text-md flex items-center justify-end gap-2 text-sm sm:gap-4">
+        <div className="text-muted-foreground/60 flex items-center gap-0.5 sm:gap-1">
+          <Like className="size-3" />
+          <span>{comment.like_count || 0}</span>
         </div>
-        <div className="sm:text-md flex items-center gap-0.5 text-sm sm:gap-1">
-          {post.is_real_user && (
-            <Badge
-              variant="outline"
-              className="sm:text-md flex items-center gap-0.5 rounded-xl border-none text-sm sm:gap-1"
-            >
-              {t('real_user')}
-            </Badge>
-          )}
-          {post.join_type === 'agent' && (
-            <Badge
-              variant="outline"
-              className="sm:text-md flex items-center gap-0.5 rounded-xl border-none !border-green-500 !bg-green-500/10 text-sm !text-green-500 sm:gap-1"
-            >
-              {t('link_agent')}
-            </Badge>
-          )}
+        <div className="text-muted-foreground/60 flex items-center gap-0.5 sm:gap-1">
+          <ReTwet className="size-3" />
+          <span>
+            {comment.retweet_count >= 1000
+              ? `${(comment.retweet_count / 1000).toFixed(1)}k`
+              : comment.retweet_count || 0}
+          </span>
+        </div>
+        <div className="text-muted-foreground/60 flex items-center gap-0.5 sm:gap-1">
+          <Message className="size-3" />
+          <span>{comment.reply_count || 0}</span>
         </div>
       </div>
     </div>
@@ -157,15 +127,13 @@ const EmptyState = () => {
   const t = useTranslations('common');
   return (
     <div className="flex h-80 w-full flex-col items-center justify-center px-4 py-16 text-center">
-      <h3 className="text-muted-foreground/60 mb-2 text-xl font-semibold">
-        {t('no_tweets_found')}
-      </h3>
-      <p className="text-md text-muted-foreground/60 mb-2 max-w-md">{t('no_tweets_description')}</p>
+      <h3 className="text-muted-foreground/60 mb-2 text-xl font-semibold">No comments found</h3>
+      <p className="text-md text-muted-foreground/60 mb-2 max-w-md">Be the first to comment!</p>
     </div>
   );
 };
 
-// 分页组件
+// 分页组件（复用 PostToEarn 的逻辑）
 const Pagination = ({
   currentPage,
   totalPages,
@@ -254,20 +222,21 @@ const Pagination = ({
 };
 
 // 模拟数据 - 实际使用时应该从 API 获取
-const mockPosts: PostItem[] = [
+const mockComments: CommentItem[] = [
   {
     id: '1',
     name: 'Crypto Analyst',
     screen_name: 'crypto_analyst',
     profile_image_url: defaultAvatar.src,
     is_verified: true,
-    tweet_text:
+    comment_text:
       "As global macroeconomic uncertainty grows, more investors are turning to safe-haven assets. Bitcoin's status as 'digital gold' continues to solidify.",
-    tweet_created_at: '2024-10-22',
+    created_at: new Date(Date.now() - 22 * 60 * 1000).toISOString(), // 22 minutes ago
     like_count: 634,
     retweet_count: 1700,
     reply_count: 523,
-    is_real_user: true,
+    position: 200,
+    position_type: 'no',
   },
   {
     id: '2',
@@ -275,13 +244,14 @@ const mockPosts: PostItem[] = [
     screen_name: 'crypto_analyst',
     profile_image_url: defaultAvatar.src,
     is_verified: true,
-    tweet_text:
+    comment_text:
       "As global macroeconomic uncertainty grows, more investors are turning to safe-haven assets. Bitcoin's status as 'digital gold' continues to solidify.",
-    tweet_created_at: '2024-10-22',
+    created_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(), // 1 hour ago
     like_count: 634,
     retweet_count: 1700,
     reply_count: 523,
-    is_real_user: true,
+    position: 420,
+    position_type: 'no',
   },
   {
     id: '3',
@@ -289,13 +259,14 @@ const mockPosts: PostItem[] = [
     screen_name: 'crypto_analyst',
     profile_image_url: defaultAvatar.src,
     is_verified: true,
-    tweet_text:
+    comment_text:
       "As global macroeconomic uncertainty grows, more investors are turning to safe-haven assets. Bitcoin's status as 'digital gold' continues to solidify.",
-    tweet_created_at: '2024-10-22',
+    created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
     like_count: 634,
     retweet_count: 1700,
     reply_count: 523,
-    is_real_user: true,
+    position: 200,
+    position_type: 'no',
   },
   {
     id: '4',
@@ -303,86 +274,115 @@ const mockPosts: PostItem[] = [
     screen_name: 'crypto_analyst',
     profile_image_url: defaultAvatar.src,
     is_verified: true,
-    tweet_text:
+    comment_text:
       "As global macroeconomic uncertainty grows, more investors are turning to safe-haven assets. Bitcoin's status as 'digital gold' continues to solidify.",
-    tweet_created_at: '2024-10-22',
+    created_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
     like_count: 634,
     retweet_count: 1700,
     reply_count: 523,
-    is_real_user: true,
+    position: 200,
+    position_type: 'yes',
+  },
+  {
+    id: '5',
+    name: 'Crypto Analyst',
+    screen_name: 'crypto_analyst',
+    profile_image_url: defaultAvatar.src,
+    is_verified: true,
+    comment_text:
+      "As global macroeconomic uncertainty grows, more investors are turning to safe-haven assets. Bitcoin's status as 'digital gold' continues to solidify.",
+    created_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+    like_count: 634,
+    retweet_count: 1700,
+    reply_count: 523,
+    position: 420,
+    position_type: 'yes',
+  },
+  {
+    id: '6',
+    name: 'Crypto Analyst',
+    screen_name: 'crypto_analyst',
+    profile_image_url: defaultAvatar.src,
+    is_verified: true,
+    comment_text:
+      "As global macroeconomic uncertainty grows, more investors are turning to safe-haven assets. Bitcoin's status as 'digital gold' continues to solidify.",
+    created_at: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+    like_count: 634,
+    retweet_count: 1700,
+    reply_count: 523,
+    position: 200,
+    position_type: 'no',
   },
 ];
 
-interface PostToEarnProps {
-  posts?: PostItem[];
-  onFetchPosts?: (
+interface CommentsProps {
+  comments?: CommentItem[];
+  onFetchComments?: (
     page: number
-  ) => Promise<{ list: PostItem[]; total: number; current_page: number }>;
+  ) => Promise<{ list: CommentItem[]; total: number; current_page: number }>;
 }
 
-export default function PostToEarn({ posts: propPosts, onFetchPosts }: PostToEarnProps) {
-  const [posts, setPosts] = useState<PostItem[]>(propPosts || []);
+export default function Comments({ comments: propComments, onFetchComments }: CommentsProps) {
+  const [comments, setComments] = useState<CommentItem[]>(propComments || []);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const itemsPerPage = 4; // 每页显示4个推文
+  const itemsPerPage = 10; // 每页显示10个评论
 
-  // 获取推文数据
-  const fetchPosts = useCallback(
+  // 获取评论数据
+  const fetchComments = useCallback(
     async (page: number = 1) => {
       try {
         setLoading(true);
         setError(null);
 
-        if (onFetchPosts) {
+        if (onFetchComments) {
           // 如果有传入的获取函数，使用它
-          const response = await onFetchPosts(page);
-          setPosts(response.list || []);
+          const response = await onFetchComments(page);
+          setComments(response.list || []);
           setCurrentPage(response.current_page || 1);
           setTotalPages(Math.ceil((response.total || 0) / itemsPerPage));
         } else {
           // 否则使用模拟数据
-          // 模拟分页：从 mockPosts 中取对应页的数据
+          // 模拟分页：从 mockComments 中取对应页的数据
           const startIndex = (page - 1) * itemsPerPage;
           const endIndex = startIndex + itemsPerPage;
-          const pagePosts = mockPosts.slice(startIndex, endIndex);
-          setPosts(pagePosts);
+          const pageComments = mockComments.slice(startIndex, endIndex);
+          setComments(pageComments);
           setCurrentPage(page);
-          // 假设总共有足够的数据，这里用 mockPosts 的长度模拟
-          setTotalPages(Math.ceil(mockPosts.length / itemsPerPage));
+          // 假设总共有足够的数据，这里用 mockComments 的长度模拟
+          setTotalPages(Math.ceil(mockComments.length / itemsPerPage));
         }
       } catch (err) {
-        console.error('Failed to fetch posts:', err);
-        setError('Failed to fetch posts');
-        setPosts([]);
+        console.error('Failed to fetch comments:', err);
+        setError('Failed to fetch comments');
+        setComments([]);
         setTotalPages(0);
       } finally {
         setLoading(false);
       }
     },
-    [onFetchPosts]
+    [onFetchComments]
   );
 
   useEffect(() => {
-    fetchPosts(1);
+    fetchComments(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handlePageChange = (page: number) => {
     if (page !== currentPage) {
-      fetchPosts(page);
+      fetchComments(page);
     }
   };
 
   if (loading) {
     return (
-      <div className="flex flex-col gap-4 p-2 sm:p-4">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {Array.from({ length: itemsPerPage }).map((_, index) => (
-            <PostItemSkeleton key={index} />
-          ))}
-        </div>
+      <div className="flex flex-col gap-4">
+        {Array.from({ length: itemsPerPage }).map((_, index) => (
+          <CommentItemSkeleton key={index} />
+        ))}
       </div>
     );
   }
@@ -398,15 +398,15 @@ export default function PostToEarn({ posts: propPosts, onFetchPosts }: PostToEar
   }
 
   return (
-    <div className="flex min-h-auto flex-col gap-4 p-0">
-      {posts.length === 0 ? (
+    <div className="flex min-h-auto flex-col gap-4">
+      {comments.length === 0 ? (
         <EmptyState />
       ) : (
         <>
-          {/* 推文列表 - 2x2 网格布局 */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {posts.map((post) => (
-              <PostItem key={post.id} post={post} />
+          {/* 评论列表 */}
+          <div className="flex flex-col gap-4">
+            {comments.map((comment) => (
+              <CommentItem key={comment.id} comment={comment} />
             ))}
           </div>
 
