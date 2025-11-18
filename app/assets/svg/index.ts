@@ -137,6 +137,7 @@ import TonIcon from './ton.svg';
 import BarChart from './bar_chart.svg';
 import Binance from './binance-smart-chain.svg';
 import BNB from './bsc-fill.svg';
+import ScreenShareIcon from './screen-share.svg';
 
 export {
   Share,
@@ -278,4 +279,5 @@ export {
   BarChart,
   Binance,
   BNB,
+  ScreenShareIcon,
 };

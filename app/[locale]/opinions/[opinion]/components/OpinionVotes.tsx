@@ -4,6 +4,7 @@ import TopVoice from './TopVoice';
 import PostToEarn from './PostToEarn';
 import Activity from './Activity';
 import Prospective from './Prospective';
+import Comments from './Comments';
 
 interface OpinionVotesProps {
   agreeVotes: number;
@@ -14,7 +15,7 @@ interface OpinionVotesProps {
   disagreeAvatars?: string[];
 }
 
-const tabs = ['Prospective', 'Top Voice', 'Post to Earn', 'Activity'];
+const tabs = ['Prospective', 'Top Voice', 'Post to Earn', 'Comments (48)', 'Activity'];
 
 export default function OpinionVotes({
   agreeVotes,
@@ -64,6 +65,12 @@ export default function OpinionVotes({
       )}
 
       {activeTab === 3 && (
+        <>
+          <Comments />
+        </>
+      )}
+
+      {activeTab === 4 && (
         <>
           <Activity />
         </>

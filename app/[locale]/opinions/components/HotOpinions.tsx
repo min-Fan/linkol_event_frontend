@@ -199,17 +199,17 @@ function OpinionCard({ data }: { data: OpinionCardData }) {
 
         {/* Poll Results */}
         <div className="space-y-2">
-          <div className="relative h-6 overflow-hidden rounded-2xl bg-red-500">
+          <div className="relative h-6 overflow-hidden rounded-2xl bg-foreground dark:bg-muted">
             {/* No 作为底部背景 */}
             <div className="absolute inset-0 flex items-center justify-end pr-4">
               <span className="text-xs font-medium text-white">No</span>
             </div>
             {/* Yes 作为绿色进度条覆盖在上面 */}
             <div
-              className="absolute top-0 left-0 flex h-full items-center justify-start rounded-2xl bg-green-500 pl-4 transition-all"
+              className="absolute top-0 left-0 flex h-full items-center justify-start rounded-2xl bg-primary pl-4 transition-all"
               style={{ width: `${yesPercentage}%` }}
             >
-              {yesPercentage > 15 && <span className="text-md font-medium text-black">Yes</span>}
+              {yesPercentage > 15 && <span className="text-md font-medium text-white">Yes</span>}
             </div>
           </div>
           <div className="text-muted-foreground text-xs">
