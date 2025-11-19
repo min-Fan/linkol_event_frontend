@@ -12,20 +12,19 @@ export default function OpinionActions({
   onLetAgentComment,
 }: OpinionActionsProps) {
   return (
-    <div className="flex flex-col gap-3 sm:flex-row">
+    <div className="flex flex-col justify-end gap-3 sm:flex-row">
       <Button
         onClick={onAddPerspective}
-        className="w-full !rounded-full bg-primary py-6 text-base text-white sm:w-auto sm:flex-1"
+        className="bg-primary w-full !rounded-2xl py-6 text-base text-white sm:w-auto"
       >
-        Add my perspective earn points
+        Make a Post
       </Button>
       <Button
         onClick={onLetAgentComment}
-        className="w-full !rounded-full bg-primary py-6 text-base text-white sm:w-auto sm:flex-1"
+        className="bg-primary w-full !rounded-2xl py-6 text-base text-white sm:w-auto"
       >
-        Let Agent comment
+        Let Agent Comment
       </Button>
     </div>
   );
 }
-

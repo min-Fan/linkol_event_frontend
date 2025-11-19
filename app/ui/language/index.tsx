@@ -63,7 +63,7 @@ export default function UILanguage() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          className={`size-6 md:size-8 ${pathname === PagesRoute.HOME && !scrolled ? 'text-white' : 'text-muted-foreground'}`}
+          className={`size-6 md:size-8 text-white`}
           variant="ghost"
           size="icon"
         >

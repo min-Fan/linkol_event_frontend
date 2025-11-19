@@ -41,7 +41,7 @@ const mockData = {
 export default function OpinionsPage() {
 
   return (
-    <div className="mx-auto h-full w-full max-w-7xl p-4 sm:px-10 sm:py-6">
+    <div className="mx-auto h-full w-full max-w-7xl px-0 py-4 sm:px-10 sm:py-6">
       <div className="bg-background border-border grid grid-cols-1 gap-6 rounded-2xl border p-4 sm:rounded-3xl sm:p-8 lg:grid-cols-3">
         {/* 左侧内容区 - 占据 2/3 宽度 */}
         <div className="space-y-6 lg:col-span-2">
