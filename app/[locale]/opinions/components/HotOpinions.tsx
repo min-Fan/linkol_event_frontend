@@ -2,11 +2,11 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
-import { CheckCircle2, MessageSquare, BarChart2, MoreHorizontal } from 'lucide-react';
 import { Skeleton } from '@shadcn/components/ui/skeleton';
 import { getBetList, IBetListItem } from '@libs/request';
 import { Link } from '@libs/i18n/navigation';
 import PagesRoute from '@constants/routes';
+import { Verified } from '@assets/svg';
 
 interface OpinionCardData {
   id: string;
@@ -42,7 +42,7 @@ const transformBetDataToOpinionData = (betItem: IBetListItem, index: number): Op
   };
 
   return {
-    id: `bet-${index}`,
+    id: betItem.id?.toString() || `1`,
     author: {
       name: betItem.topic.name,
       handle: betItem.topic.screen_name,
@@ -110,7 +110,7 @@ function OpinionCard({ data }: { data: OpinionCardData }) {
               </div>
             )}
             {data.author.verified && (
-              <CheckCircle2 className="bg-card text-primary absolute -right-1 -bottom-1 h-4 w-4 rounded-full" />
+              <Verified className="text-primary absolute -right-1 -bottom-1 h-4 w-4" />
             )}
           </div>
           <div>

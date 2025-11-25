@@ -84,6 +84,7 @@ export const ENDPOINT_URL = {
   UPDATE_ACTIVITY: '/kol/api/v3/actives/',
   GET_PRICE: '/kol/api/v4/price/',
   GET_BET_LIST: '/kol/api/v10/bet_list/',
+  GET_BET_DETAIL: '/kol/api/v10/bet_detail/',
 };
 
 // 获取OTP码
@@ -3013,6 +3014,7 @@ export interface IGetBetListResponseData {
 }
 
 export interface IBetListItem {
+  id?: string | number;
   topic: {
     icon: string;
     name: string;
@@ -3032,4 +3034,33 @@ export interface IBetListItem {
 
 export const getBetList = () => {
   return kolRequest.get<IGetBetListResponseData>(ENDPOINT_URL.GET_BET_LIST);
+};
+
+// 获取 bet 详情
+export interface IGetBetDetailParams {
+  bet_id: string | number;
+}
+
+export interface IGetBetDetailResponseData {
+  topic: {
+    icon: string;
+    name: string;
+    screen_name: string;
+    content: string;
+  };
+  attitude: {
+    icon: string;
+    name: string;
+    screen_name: string;
+    content: string;
+    tweet_url?: string;
+    token_address?: string;
+  };
+  yes_brand_value: number;
+  no_brand_value: number;
+  commission: number;
+}
+
+export const getBetDetail = (params: IGetBetDetailParams) => {
+  return kolRequest.get<IGetBetDetailResponseData>(ENDPOINT_URL.GET_BET_DETAIL, { ...params });
 };

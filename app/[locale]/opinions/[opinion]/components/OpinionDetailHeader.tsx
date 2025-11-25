@@ -1,54 +1,44 @@
 'use client';
 import React from 'react';
-import { Verified } from '@assets/svg';
-import { TrophyIcon } from 'lucide-react';
 import avatar from '@assets/image/avatar.png';
+import { Verified } from '@assets/svg';
 
 interface OpinionDetailHeaderProps {
   author: {
     name: string;
     handle: string;
     avatar?: string;
-    verified: boolean;
+    verified?: boolean;
   };
-  volume: string;
+  volume: number;
 }
 
 export default function OpinionDetailHeader({ author, volume }: OpinionDetailHeaderProps) {
   return (
-    <div className="flex items-center justify-between gap-4">
-      <div className="flex min-w-0 flex-1 items-center gap-3">
-        <div className="relative flex-shrink-0">
-          <div className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-black dark:bg-gray-900">
-            {author.avatar ? (
-              <img
-                src={author.avatar}
-                alt={author.name}
-                className="h-full w-full object-cover"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src = avatar.src;
-                }}
-              />
-            ) : (
-              <>
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-700 via-gray-600 to-gray-800 opacity-60 blur-sm"></div>
-                <div className="relative h-full w-full rounded-full bg-gray-700 ring-1 ring-gray-500 dark:bg-gray-600 dark:ring-gray-400"></div>
-              </>
-            )}
+    <div className="rounded-2xl border border-border bg-card p-6">
+      <div className="flex items-center gap-4">
+        <img
+          src={author.avatar || avatar.src}
+          className="h-16 w-16 rounded-full border-2 border-border object-cover"
+          alt={author.name}
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = avatar.src;
+          }}
+        />
+        <div>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-foreground">{author.name}</h1>
+            {author.verified && <Verified className="h-5 w-5 text-primary" />}
           </div>
+          <p className="text-primary">{author.handle}</p>
         </div>
-        <div className="flex min-w-0 flex-1 items-center gap-1">
-          <div className="flex items-center gap-1.5">
-            <span className="truncate text-base font-semibold">{author.name}</span>
-            {author.verified && <Verified className="h-5 w-5 flex-shrink-0 text-blue-500" />}
-          </div>
-          <div className="text-muted-foreground/80 text-md truncate">{author.handle}</div>
+        <div className="ml-auto text-right">
+          <p className="text-sm text-muted-foreground">Volume</p>
+          <p className="text-lg font-mono font-bold text-primary">
+            ${volume.toLocaleString()}
+          </p>
         </div>
-      </div>
-      <div className="text-primary flex flex-shrink-0 items-center gap-2">
-        <TrophyIcon className="text-primary h-5 w-5" />
-        <span className="text-md">{volume} Vol.</span>
       </div>
     </div>
   );

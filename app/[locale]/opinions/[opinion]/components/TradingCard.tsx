@@ -46,7 +46,7 @@ export default function TradingCard({
   };
 
   return (
-    <div className="border-border space-y-4 rounded-3xl border px-4 py-5">
+    <div className="border-border space-y-4 rounded-3xl border px-4 py-5 bg-background">
       {/* 日期范围 */}
       <div className="text-base font-bold">{dateRange}</div>
 
