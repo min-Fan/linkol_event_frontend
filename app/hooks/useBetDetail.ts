@@ -6,6 +6,7 @@ import {
   getBetDetail,
   getBetChart,
   getBetProspective,
+  getBetTopVoice,
   IGetBetDetailResponseData,
 } from '@libs/request';
 
@@ -77,6 +78,61 @@ export function useBetDetail(betId: string | string[] | undefined) {
   });
 
   const prospectiveData = betProspectiveResponse?.data;
+
+  // 获取 top voice 数据
+  const {
+    data: betTopVoiceResponse,
+    isLoading: isTopVoiceLoading,
+    refetch: refetchTopVoice,
+  } = useQuery({
+    queryKey: ['betTopVoice', betId],
+    queryFn: async () => {
+      if (!betId) return null;
+      const response = await getBetTopVoice({ bet_id: betId as string });
+      return response;
+    },
+    enabled: !!betId,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 2,
+  });
+
+  const topVoiceData = betTopVoiceResponse?.data;
+
+  // 转换 top voice 数据格式
+  const transformedTopVoiceData = useMemo(() => {
+    if (!topVoiceData?.list) return { yesHolders: [], noHolders: [] };
+
+    const yesHolders: Array<{ id: string; name: string; avatar?: string; shares: number; brandVoice: number }> = [];
+    const noHolders: Array<{ id: string; name: string; avatar?: string; shares: number; brandVoice: number }> = [];
+
+    topVoiceData.list.forEach((item, index) => {
+      if (item.yes && item.yes.length > 0) {
+        item.yes.forEach((user, userIndex) => {
+          yesHolders.push({
+            id: `yes-${index}-${userIndex}`,
+            name: user.name,
+            avatar: user.icon,
+            shares: user.amount,
+            brandVoice: user.brand_value,
+          });
+        });
+      }
+      if (item.no && item.no.length > 0) {
+        item.no.forEach((user, userIndex) => {
+          noHolders.push({
+            id: `no-${index}-${userIndex}`,
+            name: user.name,
+            avatar: user.icon,
+            shares: user.amount,
+            brandVoice: user.brand_value,
+          });
+        });
+      }
+    });
+
+    return { yesHolders, noHolders };
+  }, [topVoiceData]);
 
   // 转换图表数据格式以匹配组件需求
   const transformedChartData = useMemo(() => {
@@ -179,6 +235,10 @@ export function useBetDetail(betId: string | string[] | undefined) {
     prospectiveData,
     isProspectiveLoading,
     refreshProspective: refetchProspective,
+    // Top Voice 数据
+    topVoiceData: transformedTopVoiceData,
+    isTopVoiceLoading,
+    refreshTopVoice: refetchTopVoice,
   };
 }
 

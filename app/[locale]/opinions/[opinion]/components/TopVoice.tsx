@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 import defaultAvatar from '@assets/image/avatar.png';
+import { Skeleton } from '@shadcn/components/ui/skeleton';
 
 interface UserItem {
   id: string;
@@ -13,32 +14,13 @@ interface UserItem {
 interface TopVoiceProps {
   yesHolders?: UserItem[];
   noHolders?: UserItem[];
+  isLoading?: boolean;
 }
 
-// 模拟数据 - 实际使用时应该从 props 传入
-const mockYesHolders: UserItem[] = [
-  { id: '1', name: 'Violet-Stepaunt', shares: 18692, brandVoice: 13000 },
-  { id: '2', name: 'classified', shares: 15716, brandVoice: 2000 },
-  { id: '3', name: 'Violet-Stepaunt', shares: 18692, brandVoice: 13000 },
-  { id: '4', name: 'classified', shares: 0, brandVoice: 2000 },
-  { id: '5', name: 'Violet-Stepaunt', shares: 18692, brandVoice: 13000 },
-  { id: '6', name: 'classified', shares: 15716, brandVoice: 2000 },
-  { id: '7', name: 'classified', shares: 15716, brandVoice: 2000 },
-];
-
-const mockNoHolders: UserItem[] = [
-  { id: '1', name: 'Violet-Stepaunt', shares: 18692, brandVoice: 13000 },
-  { id: '2', name: 'classified', shares: 15716, brandVoice: 2000 },
-  { id: '3', name: 'Violet-Stepaunt', shares: 0, brandVoice: 13000 },
-  { id: '4', name: 'classified', shares: 15716, brandVoice: 2000 },
-  { id: '5', name: 'Violet-Stepaunt', shares: 18692, brandVoice: 13000 },
-  { id: '6', name: 'classified', shares: 15716, brandVoice: 2000 },
-  { id: '7', name: 'classified', shares: 15716, brandVoice: 2000 },
-];
-
 export default function TopVoice({
-  yesHolders = mockYesHolders,
-  noHolders = mockNoHolders,
+  yesHolders = [],
+  noHolders = [],
+  isLoading = false,
 }: TopVoiceProps) {
   const formatShares = (shares: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -77,11 +59,48 @@ export default function TopVoice({
         </div>
         <div className="flex-1 truncate text-sm font-medium">{user.name}</div>
         <div className={`text-sm font-medium ${textColor}`}>
-          {formatShares(user.shares)} / {formatBrandVoice(user.brandVoice)}
+          {user.shares} / {formatBrandVoice(user.brandVoice)}
         </div>
       </div>
     );
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex gap-4">
+        <div className="border-border flex-1 space-y-3 rounded-2xl border p-4">
+          <div className="flex items-center justify-between">
+            <Skeleton className="h-5 w-24" />
+            <Skeleton className="h-4 w-32" />
+          </div>
+          <div className="space-y-2">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="flex items-center gap-3 rounded-lg p-3">
+                <Skeleton className="h-8 w-8 rounded-full" />
+                <Skeleton className="h-4 flex-1" />
+                <Skeleton className="h-4 w-24" />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="border-border flex-1 space-y-3 rounded-2xl border p-4">
+          <div className="flex items-center justify-between">
+            <Skeleton className="h-5 w-24" />
+            <Skeleton className="h-4 w-32" />
+          </div>
+          <div className="space-y-2">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="flex items-center gap-3 rounded-lg p-3">
+                <Skeleton className="h-8 w-8 rounded-full" />
+                <Skeleton className="h-4 flex-1" />
+                <Skeleton className="h-4 w-24" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="">
@@ -93,9 +112,11 @@ export default function TopVoice({
             <p className="text-muted-foreground/60 text-sm">Shares / Brand voice</p>
           </div>
           <div className="space-y-2">
-            {yesHolders.map((user) => (
-              <UserRow key={user.id} user={user} isYes={true} />
-            ))}
+            {yesHolders.length > 0 ? (
+              yesHolders.map((user) => <UserRow key={user.id} user={user} isYes={true} />)
+            ) : (
+              <div className="text-center text-muted-foreground py-8 text-sm">暂无数据</div>
+            )}
           </div>
         </div>
 
@@ -106,9 +127,11 @@ export default function TopVoice({
             <p className="text-muted-foreground/60 text-sm">Shares / Brand voice</p>
           </div>
           <div className="space-y-2">
-            {noHolders.map((user) => (
-              <UserRow key={user.id} user={user} isYes={false} />
-            ))}
+            {noHolders.length > 0 ? (
+              noHolders.map((user) => <UserRow key={user.id} user={user} isYes={false} />)
+            ) : (
+              <div className="text-center text-muted-foreground py-8 text-sm">暂无数据</div>
+            )}
           </div>
         </div>
       </div>

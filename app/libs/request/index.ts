@@ -87,6 +87,7 @@ export const ENDPOINT_URL = {
   GET_BET_DETAIL: '/kol/api/v10/bet_detail/',
   GET_BET_CHART: '/kol/api/v10/bet_chart/',
   GET_BET_PROSPECTIVE: '/kol/api/v10/bet_prospective/',
+  GET_BET_TOP_VOICE: '/kol/api/v10/bet_top_voice/',
 };
 
 // 获取OTP码
@@ -3114,6 +3115,39 @@ export interface IGetBetProspectiveResponseData {
 
 export const getBetProspective = (params: IGetBetProspectiveParams) => {
   return kolRequest.get<IGetBetProspectiveResponseData>(ENDPOINT_URL.GET_BET_PROSPECTIVE, {
+    ...params,
+  });
+};
+
+// 获取 bet top voice 数据
+export interface IGetBetTopVoiceParams {
+  bet_id: string | number;
+}
+
+export interface IBetTopVoiceUser {
+  icon: string;
+  name: string;
+  amount: number;
+  brand_value: number;
+}
+
+export interface IBetTopVoiceListItem {
+  yes?: IBetTopVoiceUser[];
+  no?: IBetTopVoiceUser[];
+}
+
+export interface IGetBetTopVoiceResponseData {
+  yes_total: number;
+  no_total: number;
+  current_page: number;
+  page_size: number;
+  yes_total_pages: number;
+  no_total_pages: number;
+  list: IBetTopVoiceListItem[];
+}
+
+export const getBetTopVoice = (params: IGetBetTopVoiceParams) => {
+  return kolRequest.get<IGetBetTopVoiceResponseData>(ENDPOINT_URL.GET_BET_TOP_VOICE, {
     ...params,
   });
 };

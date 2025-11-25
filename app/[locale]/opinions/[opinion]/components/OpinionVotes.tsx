@@ -16,6 +16,11 @@ interface OpinionVotesProps {
   disagreeAvatars?: string[];
   prospectiveData?: any;
   issueScreenName?: string;
+  topVoiceData?: {
+    yesHolders: Array<{ id: string; name: string; avatar?: string; shares: number; brandVoice: number }>;
+    noHolders: Array<{ id: string; name: string; avatar?: string; shares: number; brandVoice: number }>;
+  };
+  isTopVoiceLoading?: boolean;
 }
 
 const tabs = ['Prospective', 'Top Voice', 'Post to Earn', 'Comments (48)', 'Activity'];
@@ -29,6 +34,8 @@ export default function OpinionVotes({
   disagreeAvatars = [],
   prospectiveData,
   issueScreenName,
+  topVoiceData,
+  isTopVoiceLoading = false,
 }: OpinionVotesProps) {
   const [activeTab, setActiveTab] = useState(0);
 
@@ -73,7 +80,11 @@ export default function OpinionVotes({
 
       {activeTab === 1 && (
         <>
-          <TopVoice />
+          <TopVoice
+            yesHolders={topVoiceData?.yesHolders}
+            noHolders={topVoiceData?.noHolders}
+            isLoading={isTopVoiceLoading}
+          />
         </>
       )}
 

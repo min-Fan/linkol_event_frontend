@@ -35,7 +35,6 @@ const CommentItemSkeleton = () => {
           <div className="flex min-w-0 flex-1 items-center gap-2">
             <Skeleton className="h-4 w-24 sm:h-5 sm:w-32" />
             <Skeleton className="h-4 w-4" />
-            <Skeleton className="h-5 w-20 sm:h-6 sm:w-24" />
           </div>
         </div>
         <Skeleton className="h-3 w-16 sm:h-4 sm:w-20" />
@@ -77,19 +76,6 @@ const CommentItem = ({ comment }: { comment: CommentItem }) => {
               {comment.name || 'Unknown User'}
             </span>
             {comment.is_verified && <Verified className="size-4 min-w-4" />}
-            {badgeText && (
-              <Badge
-                variant="outline"
-                className={cn(
-                  'rounded-sm border-none text-xs font-medium sm:text-sm',
-                  comment.position_type === 'yes'
-                    ? 'bg-green-500/10 !text-green-500'
-                    : 'bg-red-500/10 !text-red-600'
-                )}
-              >
-                {badgeText}
-              </Badge>
-            )}
           </div>
         </div>
         <span className="text-xs whitespace-nowrap sm:text-sm">

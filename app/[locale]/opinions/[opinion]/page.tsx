@@ -31,6 +31,8 @@ export default function OpinionsPage() {
     commission,
     chartData,
     prospectiveData,
+    topVoiceData,
+    isTopVoiceLoading,
   } = useBetDetail(opinionId);
 
   if (isLoading) {
@@ -141,6 +143,8 @@ export default function OpinionsPage() {
                 disagreePercentage={noPercentage}
                 prospectiveData={prospectiveData?.list}
                 issueScreenName={topic?.screen_name}
+                topVoiceData={topVoiceData}
+                isTopVoiceLoading={isTopVoiceLoading}
               />
             )}
           </div>
