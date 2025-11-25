@@ -5,6 +5,7 @@ import PostToEarn from './PostToEarn';
 import Activity from './Activity';
 import Prospective from './Prospective';
 import Comments from './Comments';
+import BrandVoiceComparison from './BrandVoiceComparison';
 
 interface OpinionVotesProps {
   agreeVotes: number;
@@ -13,6 +14,8 @@ interface OpinionVotesProps {
   disagreePercentage: number;
   agreeAvatars?: string[];
   disagreeAvatars?: string[];
+  prospectiveData?: any;
+  issueScreenName?: string;
 }
 
 const tabs = ['Prospective', 'Top Voice', 'Post to Earn', 'Comments (48)', 'Activity'];
@@ -24,11 +27,27 @@ export default function OpinionVotes({
   disagreePercentage,
   agreeAvatars = [],
   disagreeAvatars = [],
+  prospectiveData,
+  issueScreenName,
 }: OpinionVotesProps) {
   const [activeTab, setActiveTab] = useState(0);
 
+  // 计算品牌价值（从 prospective 数据中获取，如果没有则使用详情数据）
+  const yesVoice = prospectiveData?.[0]?.yes?.total_brand_value || agreeVotes;
+  const noVoice = prospectiveData?.[0]?.no?.total_brand_value || disagreeVotes;
+  const yesCount = prospectiveData?.[0]?.yes?.number || 0;
+  const noCount = prospectiveData?.[0]?.no?.number || 0;
+
   return (
     <div className="space-y-3">
+      {/* Brand Voice Comparison - 始终显示 */}
+      <BrandVoiceComparison
+        yesVoice={yesVoice}
+        noVoice={noVoice}
+        yesCount={yesCount}
+        noCount={noCount}
+      />
+
       {/* 标签页 */}
       <div className="flex flex-wrap gap-2">
         {tabs.map((tab, index) => (
@@ -48,7 +67,7 @@ export default function OpinionVotes({
 
       {activeTab === 0 && (
         <>
-          <Prospective agreePercentage={agreePercentage} disagreePercentage={disagreePercentage} />
+          <Prospective data={prospectiveData} issueScreenName={issueScreenName} />
         </>
       )}
 

@@ -29,6 +29,8 @@ export default function OpinionsPage() {
     topic,
     attitude,
     commission,
+    chartData,
+    prospectiveData,
   } = useBetDetail(opinionId);
 
   if (isLoading) {
@@ -128,7 +130,7 @@ export default function OpinionsPage() {
             )}
 
             {/* 图表 */}
-            <OpinionChart />
+            <OpinionChart data={chartData} />
 
             {/* 投票结果 */}
             {betDetail && (
@@ -137,6 +139,8 @@ export default function OpinionsPage() {
                 disagreeVotes={betDetail.no_brand_value}
                 agreePercentage={yesPercentage}
                 disagreePercentage={noPercentage}
+                prospectiveData={prospectiveData?.list}
+                issueScreenName={topic?.screen_name}
               />
             )}
           </div>

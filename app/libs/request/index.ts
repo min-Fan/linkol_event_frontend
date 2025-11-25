@@ -85,6 +85,8 @@ export const ENDPOINT_URL = {
   GET_PRICE: '/kol/api/v4/price/',
   GET_BET_LIST: '/kol/api/v10/bet_list/',
   GET_BET_DETAIL: '/kol/api/v10/bet_detail/',
+  GET_BET_CHART: '/kol/api/v10/bet_chart/',
+  GET_BET_PROSPECTIVE: '/kol/api/v10/bet_prospective/',
 };
 
 // 获取OTP码
@@ -3055,6 +3057,7 @@ export interface IGetBetDetailResponseData {
     content: string;
     tweet_url?: string;
     token_address?: string;
+    chain_id: number;
   };
   yes_brand_value: number;
   no_brand_value: number;
@@ -3063,4 +3066,54 @@ export interface IGetBetDetailResponseData {
 
 export const getBetDetail = (params: IGetBetDetailParams) => {
   return kolRequest.get<IGetBetDetailResponseData>(ENDPOINT_URL.GET_BET_DETAIL, { ...params });
+};
+
+// 获取 bet 图表数据
+export interface IGetBetChartParams {
+  bet_id: string | number;
+}
+
+export interface IBetChartDataItem {
+  date: string;
+  yes: [number, { icons: string[] }];
+  no: [number, { icons: string[] }];
+}
+
+export const getBetChart = (params: IGetBetChartParams) => {
+  return kolRequest.get<IBetChartDataItem[]>(ENDPOINT_URL.GET_BET_CHART, { ...params });
+};
+
+// 获取 bet prospective 数据
+export interface IGetBetProspectiveParams {
+  bet_id: string | number;
+}
+
+export interface IBetProspectiveItem {
+  issue_screen_name: string;
+  yes: {
+    number: number;
+    icons: string[];
+    percentage: number;
+    total_brand_value: number;
+  };
+  no: {
+    number: number;
+    icons: string[];
+    percentage: number;
+    total_brand_value: number;
+  };
+}
+
+export interface IGetBetProspectiveResponseData {
+  total: number;
+  current_page: number;
+  page_size: number;
+  total_pages: number;
+  list: IBetProspectiveItem[];
+}
+
+export const getBetProspective = (params: IGetBetProspectiveParams) => {
+  return kolRequest.get<IGetBetProspectiveResponseData>(ENDPOINT_URL.GET_BET_PROSPECTIVE, {
+    ...params,
+  });
 };

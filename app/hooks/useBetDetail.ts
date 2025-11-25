@@ -2,7 +2,12 @@
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import { getBetDetail, IGetBetDetailResponseData } from '@libs/request';
+import {
+  getBetDetail,
+  getBetChart,
+  getBetProspective,
+  IGetBetDetailResponseData,
+} from '@libs/request';
 
 /**
  * 自定义 hook 用于管理 bet 详情页面的数据获取和缓存
@@ -32,6 +37,65 @@ export function useBetDetail(betId: string | string[] | undefined) {
   });
 
   const betDetail = betDetailResponse?.data;
+
+  // 获取图表数据
+  const {
+    data: betChartResponse,
+    isLoading: isChartLoading,
+    refetch: refetchChart,
+  } = useQuery({
+    queryKey: ['betChart', betId],
+    queryFn: async () => {
+      if (!betId) return null;
+      const response = await getBetChart({ bet_id: betId as string });
+      return response;
+    },
+    enabled: !!betId,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 2,
+  });
+
+  const chartData = betChartResponse?.data;
+
+  // 获取 prospective 数据
+  const {
+    data: betProspectiveResponse,
+    isLoading: isProspectiveLoading,
+    refetch: refetchProspective,
+  } = useQuery({
+    queryKey: ['betProspective', betId],
+    queryFn: async () => {
+      if (!betId) return null;
+      const response = await getBetProspective({ bet_id: betId as string });
+      return response;
+    },
+    enabled: !!betId,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 2,
+  });
+
+  const prospectiveData = betProspectiveResponse?.data;
+
+  // 转换图表数据格式以匹配组件需求
+  const transformedChartData = useMemo(() => {
+    if (!chartData) return null;
+
+    return chartData.map((item) => ({
+      date: item.date,
+      yes: item.yes[0] * 100, // 提取数值并转换为百分比
+      no: item.no[0] * 100, // 提取数值并转换为百分比
+      yesUsers: item.yes[1]?.icons?.map((icon) => ({
+        avatar: icon,
+        address: '', // API 没有提供地址，留空
+      })) || [],
+      noUsers: item.no[1]?.icons?.map((icon) => ({
+        avatar: icon,
+        address: '', // API 没有提供地址，留空
+      })) || [],
+    }));
+  }, [chartData]);
 
   // 计算投票百分比和价格
   const computedData = useMemo(() => {
@@ -105,7 +169,16 @@ export function useBetDetail(betId: string | string[] | undefined) {
     yesBrandValue: betDetail?.yes_brand_value || 0,
     noBrandValue: betDetail?.no_brand_value || 0,
     tweetUrl: betDetail?.attitude?.tweet_url,
+    chainId: betDetail?.attitude?.chain_id,
     tokenAddress: betDetail?.attitude?.token_address,
+    // 图表数据
+    chartData: transformedChartData,
+    isChartLoading,
+    refreshChart: refetchChart,
+    // Prospective 数据
+    prospectiveData,
+    isProspectiveLoading,
+    refreshProspective: refetchProspective,
   };
 }
 

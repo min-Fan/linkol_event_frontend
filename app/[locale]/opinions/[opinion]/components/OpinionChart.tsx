@@ -13,16 +13,16 @@ import {
 } from 'recharts';
 import { ChartConfig, ChartContainer } from '@shadcn/components/ui/chart';
 
-interface OpinionChartProps {
-  data?: any;
-}
-
 interface ChartDataPoint {
   date: string;
   yes: number;
   no: number;
   yesUsers?: Array<{ avatar: string; address: string }>;
   noUsers?: Array<{ avatar: string; address: string }>;
+}
+
+interface OpinionChartProps {
+  data?: ChartDataPoint[] | null;
 }
 
 // 模拟数据格式示例
@@ -133,7 +133,8 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export default function OpinionChart({ data }: OpinionChartProps) {
-  const chartData = data || mockData;
+  // 如果提供了数据，使用提供的数据；否则使用模拟数据
+  const chartData = data && data.length > 0 ? data : mockData;
   const [hoveredLine, setHoveredLine] = useState<'yes' | 'no' | null>(null);
   const [selectedPoint, setSelectedPoint] = useState<{
     date: string;
@@ -152,13 +153,13 @@ export default function OpinionChart({ data }: OpinionChartProps) {
       const hasNoUsers = payload.noUsers && payload.noUsers.length > 0;
 
       // 只根据当前悬停的线来显示用户
-      if (hoveredLine === 'yes' && hasYesUsers) {
+      if (hoveredLine === 'yes' && hasYesUsers && payload.yesUsers) {
         setSelectedPoint({
           date: payload.date,
           users: payload.yesUsers,
           lineType: 'yes',
         });
-      } else if (hoveredLine === 'no' && hasNoUsers) {
+      } else if (hoveredLine === 'no' && hasNoUsers && payload.noUsers) {
         setSelectedPoint({
           date: payload.date,
           users: payload.noUsers,
@@ -358,7 +359,7 @@ export default function OpinionChart({ data }: OpinionChartProps) {
   };
 
   return (
-    <Card className="border-none p-0 shadow-none">
+    <Card className="p-0 shadow-none">
       <CardContent className="p-0 sm:px-6">
         <div 
           className="relative h-64 w-full sm:h-80"
