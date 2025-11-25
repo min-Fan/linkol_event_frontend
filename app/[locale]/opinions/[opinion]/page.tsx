@@ -33,6 +33,8 @@ export default function OpinionsPage() {
     prospectiveData,
     topVoiceData,
     isTopVoiceLoading,
+    fetchComments,
+    commentsTotal,
   } = useBetDetail(opinionId);
 
   if (isLoading) {
@@ -145,6 +147,8 @@ export default function OpinionsPage() {
                 issueScreenName={topic?.screen_name}
                 topVoiceData={topVoiceData}
                 isTopVoiceLoading={isTopVoiceLoading}
+                fetchComments={fetchComments}
+                commentsTotal={commentsTotal}
               />
             )}
           </div>

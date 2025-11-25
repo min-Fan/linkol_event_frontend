@@ -1,12 +1,13 @@
 'use client';
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import {
   getBetDetail,
   getBetChart,
   getBetProspective,
   getBetTopVoice,
+  getBetComments,
   IGetBetDetailResponseData,
 } from '@libs/request';
 
@@ -99,6 +100,29 @@ export function useBetDetail(betId: string | string[] | undefined) {
 
   const topVoiceData = betTopVoiceResponse?.data;
 
+  // 获取评论总数（获取第一页数据以获取总数）
+  const {
+    data: betCommentsTotalResponse,
+    isLoading: isCommentsTotalLoading,
+  } = useQuery({
+    queryKey: ['betCommentsTotal', betId],
+    queryFn: async () => {
+      if (!betId) return null;
+      const response = await getBetComments({
+        bet_id: betId as string,
+        page: 1,
+        size: 1, // 只需要获取总数，所以只获取1条
+      });
+      return response;
+    },
+    enabled: !!betId,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 2,
+  });
+
+  const commentsTotal = betCommentsTotalResponse?.data?.total || 0;
+
   // 转换 top voice 数据格式
   const transformedTopVoiceData = useMemo(() => {
     if (!topVoiceData?.list) return { yesHolders: [], noHolders: [] };
@@ -133,6 +157,68 @@ export function useBetDetail(betId: string | string[] | undefined) {
 
     return { yesHolders, noHolders };
   }, [topVoiceData]);
+
+  // 获取评论数据（支持分页）
+  const fetchComments = useCallback(
+    async (page: number = 1, pageSize: number = 20) => {
+      if (!betId) {
+        return {
+          list: [],
+          total: 0,
+          current_page: 1,
+          total_pages: 0,
+        };
+      }
+      try {
+        const response = await getBetComments({
+          bet_id: betId as string,
+          page,
+          size: pageSize,
+        });
+        
+        if (response?.data) {
+          // 转换数据格式
+          const transformedList = response.data.list.map((item, index) => ({
+            id: `comment-${page}-${index}`,
+            name: item.name,
+            screen_name: '', // API 没有提供，可以从 link 中提取或留空
+            profile_image_url: item.icon,
+            is_verified: false, // API 没有提供
+            comment_text: item.content,
+            created_at: undefined, // API 没有提供创建时间
+            like_count: item.favorite_count,
+            retweet_count: 0, // API 没有提供
+            reply_count: item.reply_count,
+            position: item.amount > 0 ? item.amount : undefined,
+            position_type: item.amount > 0 ? 'yes' : 'no' as 'yes' | 'no',
+            link: item.link,
+          }));
+
+          return {
+            list: transformedList,
+            total: response.data.total,
+            current_page: response.data.current_page,
+            total_pages: response.data.total_pages,
+          };
+        }
+        return {
+          list: [],
+          total: 0,
+          current_page: 1,
+          total_pages: 0,
+        };
+      } catch (error) {
+        console.error('Failed to fetch comments:', error);
+        return {
+          list: [],
+          total: 0,
+          current_page: 1,
+          total_pages: 0,
+        };
+      }
+    },
+    [betId]
+  );
 
   // 转换图表数据格式以匹配组件需求
   const transformedChartData = useMemo(() => {
@@ -239,6 +325,10 @@ export function useBetDetail(betId: string | string[] | undefined) {
     topVoiceData: transformedTopVoiceData,
     isTopVoiceLoading,
     refreshTopVoice: refetchTopVoice,
+    // 评论数据
+    fetchComments,
+    commentsTotal,
+    isCommentsTotalLoading,
   };
 }
 

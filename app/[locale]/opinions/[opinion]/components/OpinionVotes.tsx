@@ -21,9 +21,28 @@ interface OpinionVotesProps {
     noHolders: Array<{ id: string; name: string; avatar?: string; shares: number; brandVoice: number }>;
   };
   isTopVoiceLoading?: boolean;
+  commentsTotal?: number;
+  fetchComments?: (page: number) => Promise<{
+    list: Array<{
+      id: string;
+      name: string;
+      screen_name?: string;
+      profile_image_url?: string;
+      is_verified?: boolean;
+      comment_text: string;
+      created_at?: string;
+      like_count: number;
+      retweet_count: number;
+      reply_count: number;
+      position?: number;
+      position_type?: 'yes' | 'no';
+      link?: string;
+    }>;
+    total: number;
+    current_page: number;
+    total_pages: number;
+  }>;
 }
-
-const tabs = ['Prospective', 'Top Voice', 'Post to Earn', 'Comments (48)', 'Activity'];
 
 export default function OpinionVotes({
   agreeVotes,
@@ -36,8 +55,13 @@ export default function OpinionVotes({
   issueScreenName,
   topVoiceData,
   isTopVoiceLoading = false,
+  commentsTotal = 0,
+  fetchComments,
 }: OpinionVotesProps) {
   const [activeTab, setActiveTab] = useState(0);
+
+  // 动态生成标签，包含评论总数
+  const tabs = ['Prospective', 'Top Voice', `Comments (${commentsTotal})`, 'Activity'];
 
   // 计算品牌价值（从 prospective 数据中获取，如果没有则使用详情数据）
   const yesVoice = prospectiveData?.[0]?.yes?.total_brand_value || agreeVotes;
@@ -88,19 +112,19 @@ export default function OpinionVotes({
         </>
       )}
 
-      {activeTab === 2 && (
+      {/* {activeTab === 2 && (
         <>
           <PostToEarn />
+        </>
+      )} */}
+
+      {activeTab === 2 && (
+        <>
+          <Comments onFetchComments={fetchComments} />
         </>
       )}
 
       {activeTab === 3 && (
-        <>
-          <Comments />
-        </>
-      )}
-
-      {activeTab === 4 && (
         <>
           <Activity />
         </>

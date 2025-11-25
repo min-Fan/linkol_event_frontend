@@ -30,28 +30,28 @@ export default function BrandVoiceComparison({
   return (
     <div className="space-y-6">
       {/* Main Voice Battle Card */}
-      <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-b from-gray-900 to-black p-8 shadow-2xl dark:from-muted dark:to-card">
+      <div className="border-border from-background to-primary/50 dark:from-background dark:to-card relative overflow-hidden rounded-3xl border bg-gradient-to-b from-[30%] p-8 shadow-2xl">
         {/* Decorative background glow */}
         <div
-          className={`absolute -top-24 -left-24 h-64 w-64 rounded-full blur-[100px] opacity-20 ${
+          className={`absolute -top-24 -left-24 h-64 w-64 rounded-full opacity-20 blur-[100px] ${
             isYesWinning ? 'bg-green-500' : 'bg-red-500'
           }`}
         ></div>
         <div
-          className={`absolute -bottom-24 -right-24 h-64 w-64 rounded-full blur-[100px] opacity-20 ${
+          className={`absolute -right-24 -bottom-24 h-64 w-64 rounded-full opacity-20 blur-[100px] ${
             !isYesWinning ? 'bg-green-500' : 'bg-red-500'
           }`}
         ></div>
 
         {/* Header */}
-        <div className="relative mb-8 flex items-center justify-between z-10">
-          <h3 className="flex items-center gap-3 text-2xl font-black text-white italic tracking-wide">
+        <div className="relative z-10 mb-8 flex items-center justify-between">
+          <h3 className="flex items-center gap-3 text-2xl font-black tracking-wide italic">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 shadow-lg shadow-orange-500/20">
-              <Zap className="h-6 w-6 text-white fill-white" />
+              <Zap className="fill-white h-6 w-6 text-white" />
             </span>
             BRAND VOICE BATTLE
           </h3>
-          <div className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-xs font-medium text-gray-300 backdrop-blur-md border border-white/5">
+          <div className="flex items-center gap-2 rounded-full border border-white/5 bg-accent-foreground/5 px-4 py-2 text-xs font-medium text-muted-foreground/60 backdrop-blur-md">
             <Info className="h-3.5 w-3.5 text-blue-400" />
             <span>Entropy Weight Method</span>
           </div>
@@ -60,19 +60,19 @@ export default function BrandVoiceComparison({
         {/* Scoreboard */}
         <div className="relative z-10 mb-8 flex items-end justify-between text-white">
           <div className="text-left">
-            <div className="flex items-center gap-2 mb-1">
+            <div className="mb-1 flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.8)]"></span>
-              <p className="text-sm font-bold uppercase tracking-widest text-green-500">
+              <p className="text-sm font-bold tracking-widest text-green-500 uppercase">
                 YES Voice
               </p>
             </div>
-            <p className="text-5xl md:text-6xl font-black tracking-tighter drop-shadow-lg">
+            <p className="text-5xl font-black tracking-tighter drop-shadow-lg md:text-6xl">
               {formatNumber(yesVoice)}
             </p>
           </div>
 
           <div className="mb-4 text-center">
-            <div className="rounded-full bg-white/10 px-4 py-1 text-[10px] font-bold text-gray-400 border border-white/10 uppercase tracking-widest">
+            <div className="rounded-full border border-white/10 bg-white/10 px-4 py-1 text-[10px] font-bold tracking-widest text-gray-400 uppercase">
               Current Winner
             </div>
             <div
@@ -83,11 +83,11 @@ export default function BrandVoiceComparison({
           </div>
 
           <div className="text-right">
-            <div className="flex items-center justify-end gap-2 mb-1">
-              <p className="text-sm font-bold uppercase tracking-widest text-red-500">NO Voice</p>
+            <div className="mb-1 flex items-center justify-end gap-2">
+              <p className="text-sm font-bold tracking-widest text-red-500 uppercase">NO Voice</p>
               <span className="h-2 w-2 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)]"></span>
             </div>
-            <p className="text-5xl md:text-6xl font-black tracking-tighter drop-shadow-lg">
+            <p className="text-5xl font-black tracking-tighter drop-shadow-lg md:text-6xl">
               {formatNumber(noVoice)}
             </p>
           </div>
@@ -98,37 +98,37 @@ export default function BrandVoiceComparison({
           <div className="relative h-8 w-full overflow-hidden rounded-full bg-gray-800 shadow-inner ring-1 ring-white/10">
             <div
               style={{ width: `${yesPercent}%` }}
-              className="absolute left-0 top-0 h-full bg-gradient-to-r from-green-600 via-green-500 to-green-400 shadow-[0_0_20px_rgba(34,197,94,0.4)] transition-all duration-1000 ease-out flex items-center justify-start px-4"
+              className="absolute top-0 left-0 flex h-full items-center justify-start bg-gradient-to-r from-green-600 via-green-500 to-green-400 px-4 shadow-[0_0_20px_rgba(34,197,94,0.4)] transition-all duration-1000 ease-out"
             >
               {yesPercent > 10 && (
-                <span className="text-xs font-black text-black tracking-widest">
+                <span className="text-xs font-black tracking-widest text-black">
                   {yesPercent.toFixed(1)}%
                 </span>
               )}
             </div>
             <div
               style={{ width: `${noPercent}%` }}
-              className="absolute right-0 top-0 h-full bg-gradient-to-l from-red-600 via-red-500 to-red-400 shadow-[0_0_20px_rgba(239,68,68,0.4)] transition-all duration-1000 ease-out flex items-center justify-end px-4"
+              className="absolute top-0 right-0 flex h-full items-center justify-end bg-gradient-to-l from-red-600 via-red-500 to-red-400 px-4 shadow-[0_0_20px_rgba(239,68,68,0.4)] transition-all duration-1000 ease-out"
             >
               {noPercent > 10 && (
-                <span className="text-xs font-black text-black tracking-widest">
+                <span className="text-xs font-black tracking-widest text-black">
                   {noPercent.toFixed(1)}%
                 </span>
               )}
             </div>
 
             {/* Center VS Marker */}
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-gray-900 border-4 border-gray-800 text-xs font-black text-white shadow-xl">
+            <div className="absolute top-1/2 left-1/2 z-20 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-4 border-gray-800 bg-gray-900 text-xs font-black text-white shadow-xl">
               VS
             </div>
           </div>
         </div>
 
         {/* Info Text */}
-        <p className="relative z-10 text-center text-sm font-medium text-gray-400">
-          <Trophy className="inline-block h-4 w-4 text-yellow-500 mr-2 -mt-1" />
+        <p className="relative z-10 text-center text-sm font-medium text-muted-foreground">
+          <Trophy className="-mt-1 mr-2 inline-block h-4 w-4 text-yellow-500" />
           Prediction resolves based on{' '}
-          <span className="text-white font-bold underline decoration-yellow-500/50 underline-offset-4">
+          <span className="font-bold text-white underline decoration-yellow-500/50 underline-offset-4">
             Volume
           </span>
           , not just participant count.
@@ -137,4 +137,3 @@ export default function BrandVoiceComparison({
     </div>
   );
 }
-

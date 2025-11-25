@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Skeleton } from '@shadcn/components/ui/skeleton';
 import { Like, Message, ReTwet, Verified } from '@assets/svg';
 import { Badge } from '@shadcn/components/ui/badge';
@@ -13,16 +13,17 @@ import { formatTimeAgoShort } from '@libs/utils';
 interface CommentItem {
   id: string;
   name: string;
-  screen_name: string;
+  screen_name?: string;
   profile_image_url?: string;
   is_verified?: boolean;
   comment_text: string;
-  created_at: string;
+  created_at?: string;
   like_count: number;
   retweet_count: number;
   reply_count: number;
   position?: number; // 持仓数量，如 200 或 420
   position_type?: 'yes' | 'no'; // 持仓类型：yes 或 no
+  link?: string; // 评论链接
 }
 
 // 评论卡片骨架屏组件
@@ -57,7 +58,7 @@ const CommentItem = ({ comment }: { comment: CommentItem }) => {
   const badgeText = comment.position ? `${comment.position} No change` : '';
 
   return (
-    <div className="bg-background border-border flex w-full flex-col gap-3 rounded-2xl border p-4">
+    <div className="bg-background border-border flex w-full flex-col gap-3 rounded-2xl border p-4 cursor-pointer hover:border-primary/20" onClick={() => window.open(comment.link, '_blank')}>
       <div className="flex w-full items-start justify-between">
         <div className="flex w-full flex-1 items-center gap-2">
           <div className="bg-muted-foreground/10 size-9 min-w-9 overflow-hidden rounded-full sm:size-12 sm:min-w-12">
@@ -76,11 +77,16 @@ const CommentItem = ({ comment }: { comment: CommentItem }) => {
               {comment.name || 'Unknown User'}
             </span>
             {comment.is_verified && <Verified className="size-4 min-w-4" />}
+            {comment.screen_name && (
+              <span className="text-muted-foreground/60 text-xs">@{comment.screen_name}</span>
+            )}
           </div>
         </div>
-        <span className="text-xs whitespace-nowrap sm:text-sm">
-          {formatTimeAgoShort(comment.created_at)}
-        </span>
+        {comment.created_at && (
+          <span className="text-xs whitespace-nowrap sm:text-sm">
+            {formatTimeAgoShort(comment.created_at)}
+          </span>
+        )}
       </div>
       <p className="sm:text-md text-muted-foreground/60 line-clamp-2 text-sm">
         {comment.comment_text}
@@ -304,76 +310,159 @@ const mockComments: CommentItem[] = [
 interface CommentsProps {
   comments?: CommentItem[];
   onFetchComments?: (
-    page: number
-  ) => Promise<{ list: CommentItem[]; total: number; current_page: number }>;
+    page: number,
+    pageSize?: number
+  ) => Promise<{ list: CommentItem[]; total: number; current_page: number; total_pages: number }>;
+  betId?: string;
+  pageSize?: number; // 每页数量，默认20
 }
 
-export default function Comments({ comments: propComments, onFetchComments }: CommentsProps) {
+export default function Comments({ 
+  comments: propComments, 
+  onFetchComments, 
+  betId,
+  pageSize = 20 
+}: CommentsProps) {
   const [comments, setComments] = useState<CommentItem[]>(propComments || []);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const itemsPerPage = 10; // 每页显示10个评论
+  const [total, setTotal] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
   // 获取评论数据
-  const fetchComments = useCallback(
-    async (page: number = 1) => {
+  const fetchCommentsData = useCallback(
+    async (page: number = 1, append: boolean = false) => {
       try {
-        setLoading(true);
+        if (append) {
+          setLoadingMore(true);
+        } else {
+          setLoading(true);
+        }
         setError(null);
 
         if (onFetchComments) {
           // 如果有传入的获取函数，使用它
-          const response = await onFetchComments(page);
-          setComments(response.list || []);
-          setCurrentPage(response.current_page || 1);
-          setTotalPages(Math.ceil((response.total || 0) / itemsPerPage));
+          const response = await onFetchComments(page, pageSize);
+          const newComments = response.list || [];
+          
+          if (append) {
+            // 追加新数据
+            setComments((prev) => [...prev, ...newComments]);
+          } else {
+            // 替换数据（首次加载或刷新）
+            setComments(newComments);
+          }
+          
+          const newCurrentPage = response.current_page || page;
+          const newTotalPages = response.total_pages || Math.ceil((response.total || 0) / pageSize);
+          
+          setCurrentPage(newCurrentPage);
+          setTotalPages(newTotalPages);
+          setTotal(response.total || 0);
+          
+          // 判断是否还有更多数据：当前页小于总页数
+          setHasMore(newCurrentPage < newTotalPages);
         } else {
           // 否则使用模拟数据
           // 模拟分页：从 mockComments 中取对应页的数据
-          const startIndex = (page - 1) * itemsPerPage;
-          const endIndex = startIndex + itemsPerPage;
+          const startIndex = (page - 1) * pageSize;
+          const endIndex = startIndex + pageSize;
           const pageComments = mockComments.slice(startIndex, endIndex);
-          setComments(pageComments);
+          
+          if (append) {
+            setComments((prev) => [...prev, ...pageComments]);
+          } else {
+            setComments(pageComments);
+          }
+          
           setCurrentPage(page);
-          // 假设总共有足够的数据，这里用 mockComments 的长度模拟
-          setTotalPages(Math.ceil(mockComments.length / itemsPerPage));
+          setTotalPages(Math.ceil(mockComments.length / pageSize));
+          setTotal(mockComments.length);
+          setHasMore(endIndex < mockComments.length);
         }
       } catch (err) {
         console.error('Failed to fetch comments:', err);
         setError('Failed to fetch comments');
-        setComments([]);
-        setTotalPages(0);
+        if (!append) {
+          setComments([]);
+          setTotalPages(0);
+        }
       } finally {
         setLoading(false);
+        setLoadingMore(false);
       }
     },
-    [onFetchComments]
+    [onFetchComments, pageSize, comments.length]
   );
 
+  // 首次加载
   useEffect(() => {
-    fetchComments(1);
+    fetchCommentsData(1, false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handlePageChange = (page: number) => {
-    if (page !== currentPage) {
-      fetchComments(page);
-    }
-  };
+  // 使用 Intersection Observer 实现滚动加载
+  useEffect(() => {
+    const loadMoreElement = loadMoreRef.current;
 
-  if (loading) {
+    if (!loadMoreElement || !hasMore) {
+      // 如果没有更多数据，断开观察
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+        observerRef.current = null;
+      }
+      return;
+    }
+
+    // 断开旧的 observer
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+    }
+
+    // 创建新的 observer
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting && hasMore && !loadingMore && !loading) {
+          const nextPage = currentPage + 1;
+          if (nextPage <= totalPages) {
+            fetchCommentsData(nextPage, true);
+          }
+        }
+      },
+      {
+        threshold: 0.1, // 当元素10%可见时触发
+        rootMargin: '100px', // 提前100px触发
+      }
+    );
+
+    observerRef.current.observe(loadMoreElement);
+
+    // 清理函数
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+        observerRef.current = null;
+      }
+    };
+  }, [hasMore, loadingMore, loading, currentPage, totalPages, fetchCommentsData]);
+
+  if (loading && comments.length === 0) {
     return (
       <div className="flex flex-col gap-4">
-        {Array.from({ length: itemsPerPage }).map((_, index) => (
+        {Array.from({ length: pageSize }).map((_, index) => (
           <CommentItemSkeleton key={index} />
         ))}
       </div>
     );
   }
 
-  if (error) {
+  if (error && comments.length === 0) {
     return (
       <div className="flex h-80 items-center justify-center py-16">
         <div className="text-center">
@@ -396,14 +485,31 @@ export default function Comments({ comments: propComments, onFetchComments }: Co
             ))}
           </div>
 
-          {/* 分页组件 */}
-          {totalPages > 1 && (
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-              disabled={loading}
-            />
+          {/* 滚动加载触发器 */}
+          {hasMore && (
+            <div ref={loadMoreRef} className="flex justify-center py-4">
+              {loadingMore && (
+                <div className="flex flex-col gap-2 items-center">
+                  {Array.from({ length: 2 }).map((_, index) => (
+                    <CommentItemSkeleton key={`loading-${index}`} />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 没有更多数据提示 */}
+          {!hasMore && comments.length > 0 && (
+            <div className="text-center text-muted-foreground/60 py-4 text-sm">
+              已加载全部评论 ({total})
+            </div>
+          )}
+
+          {/* 错误提示（加载更多时出错） */}
+          {error && comments.length > 0 && (
+            <div className="text-center text-destructive py-4 text-sm">
+              {error}
+            </div>
           )}
         </>
       )}
