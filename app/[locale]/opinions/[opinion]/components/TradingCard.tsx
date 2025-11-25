@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@shadcn/components/ui/button';
 import { ChevronDown } from 'lucide-react';
 import { Input } from '@shadcn/components/ui/input';
+import { useTranslations } from 'next-intl';
 
 interface TradingCardProps {
   dateRange: string;
@@ -22,8 +23,9 @@ export default function TradingCard({
   yesPrice,
   noPrice,
 }: TradingCardProps) {
+  const t = useTranslations('common');
   const quickAmounts = [10, 20, 100];
-  const tabs = ['Buy', 'Sell'];
+  const tabs = [t('buy'), t('sell')];
   const [tradeType, setTradeType] = useState<'buy' | 'sell'>('buy');
 
   const handleTabChange = (index: number) => {
@@ -46,7 +48,7 @@ export default function TradingCard({
   };
 
   return (
-    <div className="border-border space-y-4 rounded-3xl border px-4 py-5">
+    <div className="border-border space-y-4 rounded-3xl border px-4 py-5 bg-background">
       {/* 日期范围 */}
       <div className="text-base font-bold">{dateRange}</div>
 
@@ -69,7 +71,7 @@ export default function TradingCard({
         </div>
         {/* Market 下拉 */}
         <div className="ml-auto flex items-center justify-end gap-2">
-          <span className="text-md font-bold">Market</span>
+          <span className="text-md font-bold">{t('market')}</span>
           <ChevronDown className="h-4 w-4" />
         </div>
       </div>
@@ -87,7 +89,7 @@ export default function TradingCard({
           <div
             className={`text-md transition-colors ${selectedOption === 'yes' ? 'text-green-400' : 'text-muted-foreground'}`}
           >
-            Yes
+            {t('yes')}
           </div>
           <div
             className={`text-md transition-colors ${selectedOption === 'yes' ? 'text-green-400' : 'text-muted-foreground'}`}
@@ -106,7 +108,7 @@ export default function TradingCard({
           <div
             className={`text-md transition-colors ${selectedOption === 'no' ? 'text-red-400' : 'text-muted-foreground'}`}
           >
-            No
+            {t('no')}
           </div>
           <div
             className={`text-md transition-colors ${selectedOption === 'no' ? 'text-red-400' : 'text-muted-foreground'}`}
@@ -119,7 +121,7 @@ export default function TradingCard({
       {/* Amount */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-xl font-medium">Amount</span>
+          <span className="text-xl font-medium">{t('amount')}</span>
           <div className="flex min-w-0 items-center justify-between">
             <Input
               type="number"
@@ -142,7 +144,7 @@ export default function TradingCard({
             </Button>
           ))}
           <Button variant="outline" onClick={handleMax} className="border-border px-6">
-            Max
+            {t('max')}
           </Button>
         </div>
       </div>
@@ -153,7 +155,7 @@ export default function TradingCard({
           tradeType === 'buy' ? 'bg-primary hover:bg-primary/90' : 'bg-red-500 hover:bg-red-600'
         }`}
       >
-        Trade
+        {t('trade')}
       </Button>
     </div>
   );

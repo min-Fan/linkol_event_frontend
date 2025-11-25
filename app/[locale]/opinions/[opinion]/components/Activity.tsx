@@ -1,6 +1,7 @@
 'use client';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Skeleton } from '@shadcn/components/ui/skeleton';
+import { useTranslations } from 'next-intl';
 import { cn } from '@shadcn/lib/utils';
 import { ChevronLeft, ChevronRight, ExternalLink, ScreenShare } from 'lucide-react';
 import defaultAvatar from '@assets/image/avatar.png';
@@ -61,7 +62,7 @@ const ActivityItem = ({ activity }: { activity: ActivityItem }) => {
   const positionColor = activity.position_type === 'yes' ? 'text-green-500' : 'text-red-500';
 
   return (
-    <div className="bg-muted-foreground/5 flex w-full items-center gap-3 rounded-lg p-2 hover:bg-muted-foreground/10">
+    <div className="bg-muted-foreground/5 hover:bg-muted-foreground/10 flex w-full items-center gap-3 rounded-lg p-2">
       {/* 用户头像 */}
       <div className="bg-muted-foreground/10 size-6 min-w-6 overflow-hidden rounded-full sm:size-8 sm:min-w-8">
         <img
@@ -80,17 +81,22 @@ const ActivityItem = ({ activity }: { activity: ActivityItem }) => {
         <p className="text-sm">
           <span className="font-medium">{activity.user_name}</span> {activity.action}{' '}
           <span className="font-medium">{quantityFormatted}</span>{' '}
-          <span className={cn('font-bold', positionColor)}>{positionText}</span> for{' '}
-          {activity.condition} at {formatPrice(activity.price)}
-          <span className="text-muted-foreground/60">({formatCurrency(activity.total_value)})</span>
+          <span className={cn('font-bold', positionColor)}>{positionText}</span>
+          {activity.condition && <> for {activity.condition}</>}
+          {/* <span className="text-muted-foreground/60">
+            {' '}
+            ({formatCurrency(activity.total_value)})
+          </span> */}
         </p>
       </div>
 
       {/* 时间戳和链接图标 */}
       <div className="flex items-center gap-2">
-        <span className="text-muted-foreground/60 text-xs whitespace-nowrap sm:text-sm">
-          {formatTimeAgoShort(activity.created_at)}
-        </span>
+        {activity.created_at && (
+          <span className="text-muted-foreground/60 text-xs whitespace-nowrap sm:text-sm">
+            {formatTimeAgoShort(activity.created_at)}
+          </span>
+        )}
         {activity.link_url && (
           <a
             href={activity.link_url}
@@ -108,11 +114,12 @@ const ActivityItem = ({ activity }: { activity: ActivityItem }) => {
 
 // 空状态组件
 const EmptyState = () => {
+  const t = useTranslations('common');
   return (
     <div className="flex h-80 w-full flex-col items-center justify-center px-4 py-16 text-center">
-      <h3 className="text-muted-foreground/60 mb-2 text-xl font-semibold">No activities found</h3>
+      <h3 className="text-muted-foreground/60 mb-2 text-xl font-semibold">{t('no_activities_found')}</h3>
       <p className="text-md text-muted-foreground/60 mb-2 max-w-md">
-        Activities will appear here when users make trades.
+        {t('activities_will_appear')}
       </p>
     </div>
   );
@@ -317,76 +324,160 @@ const mockActivities: ActivityItem[] = [
 interface ActivityProps {
   activities?: ActivityItem[];
   onFetchActivities?: (
-    page: number
-  ) => Promise<{ list: ActivityItem[]; total: number; current_page: number }>;
+    page: number,
+    pageSize?: number
+  ) => Promise<{ list: ActivityItem[]; total: number; current_page: number; total_pages: number }>;
+  betId?: string;
+  pageSize?: number; // 每页数量，默认20
 }
 
-export default function Activity({ activities: propActivities, onFetchActivities }: ActivityProps) {
+export default function Activity({
+  activities: propActivities,
+  onFetchActivities,
+  betId,
+  pageSize = 20,
+}: ActivityProps) {
+  const t = useTranslations('common');
   const [activities, setActivities] = useState<ActivityItem[]>(propActivities || []);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const itemsPerPage = 10; // 每页显示10个活动
+  const [total, setTotal] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
   // 获取活动数据
   const fetchActivities = useCallback(
-    async (page: number = 1) => {
+    async (page: number = 1, append: boolean = false) => {
       try {
-        setLoading(true);
+        if (append) {
+          setLoadingMore(true);
+        } else {
+          setLoading(true);
+        }
         setError(null);
 
         if (onFetchActivities) {
           // 如果有传入的获取函数，使用它
-          const response = await onFetchActivities(page);
-          setActivities(response.list || []);
-          setCurrentPage(response.current_page || 1);
-          setTotalPages(Math.ceil((response.total || 0) / itemsPerPage));
+          const response = await onFetchActivities(page, pageSize);
+          const newActivities = response.list || [];
+
+          if (append) {
+            // 追加新数据
+            setActivities((prev) => [...prev, ...newActivities]);
+          } else {
+            // 替换数据（首次加载或刷新）
+            setActivities(newActivities);
+          }
+
+          const newCurrentPage = response.current_page || page;
+          const newTotalPages = response.total_pages || Math.ceil((response.total || 0) / pageSize);
+
+          setCurrentPage(newCurrentPage);
+          setTotalPages(newTotalPages);
+          setTotal(response.total || 0);
+
+          // 判断是否还有更多数据：当前页小于总页数
+          setHasMore(newCurrentPage < newTotalPages);
         } else {
           // 否则使用模拟数据
           // 模拟分页：从 mockActivities 中取对应页的数据
-          const startIndex = (page - 1) * itemsPerPage;
-          const endIndex = startIndex + itemsPerPage;
+          const startIndex = (page - 1) * pageSize;
+          const endIndex = startIndex + pageSize;
           const pageActivities = mockActivities.slice(startIndex, endIndex);
-          setActivities(pageActivities);
+
+          if (append) {
+            setActivities((prev) => [...prev, ...pageActivities]);
+          } else {
+            setActivities(pageActivities);
+          }
+
           setCurrentPage(page);
-          // 假设总共有足够的数据，这里用 mockActivities 的长度模拟
-          setTotalPages(Math.ceil(mockActivities.length / itemsPerPage));
+          setTotalPages(Math.ceil(mockActivities.length / pageSize));
+          setTotal(mockActivities.length);
+          setHasMore(endIndex < mockActivities.length);
         }
       } catch (err) {
         console.error('Failed to fetch activities:', err);
         setError('Failed to fetch activities');
-        setActivities([]);
-        setTotalPages(0);
+        if (!append) {
+          setActivities([]);
+          setTotalPages(0);
+        }
       } finally {
         setLoading(false);
+        setLoadingMore(false);
       }
     },
-    [onFetchActivities]
+    [onFetchActivities, pageSize]
   );
 
+  // 首次加载
   useEffect(() => {
-    fetchActivities(1);
+    fetchActivities(1, false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handlePageChange = (page: number) => {
-    if (page !== currentPage) {
-      fetchActivities(page);
-    }
-  };
+  // 使用 Intersection Observer 实现滚动加载
+  useEffect(() => {
+    const loadMoreElement = loadMoreRef.current;
 
-  if (loading) {
+    if (!loadMoreElement || !hasMore) {
+      // 如果没有更多数据，断开观察
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+        observerRef.current = null;
+      }
+      return;
+    }
+
+    // 断开旧的 observer
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+    }
+
+    // 创建新的 observer
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting && hasMore && !loadingMore && !loading) {
+          const nextPage = currentPage + 1;
+          if (nextPage <= totalPages) {
+            fetchActivities(nextPage, true);
+          }
+        }
+      },
+      {
+        threshold: 0.1, // 当元素10%可见时触发
+        rootMargin: '100px', // 提前100px触发
+      }
+    );
+
+    observerRef.current.observe(loadMoreElement);
+
+    // 清理函数
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+        observerRef.current = null;
+      }
+    };
+  }, [hasMore, loadingMore, loading, currentPage, totalPages, fetchActivities]);
+
+  if (loading && activities.length === 0) {
     return (
       <div className="flex flex-col gap-2">
-        {Array.from({ length: itemsPerPage }).map((_, index) => (
+        {Array.from({ length: pageSize }).map((_, index) => (
           <ActivityItemSkeleton key={index} />
         ))}
       </div>
     );
   }
 
-  if (error) {
+  if (error && activities.length === 0) {
     return (
       <div className="flex h-80 items-center justify-center py-16">
         <div className="text-center">
@@ -409,14 +500,29 @@ export default function Activity({ activities: propActivities, onFetchActivities
             ))}
           </div>
 
-          {/* 分页组件 */}
-          {totalPages > 1 && (
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-              disabled={loading}
-            />
+          {/* 滚动加载触发器 */}
+          {hasMore && (
+            <div ref={loadMoreRef} className="flex justify-center py-4">
+              {loadingMore && (
+                <div className="flex w-full flex-col items-center gap-2">
+                  {Array.from({ length: 2 }).map((_, index) => (
+                    <ActivityItemSkeleton key={`loading-${index}`} />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 没有更多数据提示 */}
+          {!hasMore && activities.length > 0 && (
+            <div className="text-muted-foreground/60 py-4 text-center text-sm">
+              {t('all_activities_loaded')} ({total})
+            </div>
+          )}
+
+          {/* 错误提示（加载更多时出错） */}
+          {error && activities.length > 0 && (
+            <div className="text-destructive py-4 text-center text-sm">{error}</div>
           )}
         </>
       )}

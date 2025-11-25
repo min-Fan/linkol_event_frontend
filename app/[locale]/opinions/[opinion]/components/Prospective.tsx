@@ -1,28 +1,84 @@
 'use client';
-import React, { useState } from 'react';
+import React from 'react';
 import DefaultAvatarImg from '@assets/image/avatar.png';
 import OpinionActions from './OpinionActions';
-import { ChevronDown } from 'lucide-react';
-import { cn } from '@shadcn/lib/utils';
+import { Info } from 'lucide-react';
+import { IBetProspectiveItem } from '@libs/request';
+import { useTranslations } from 'next-intl';
 
 interface ProspectiveProps {
-  agreePercentage: number;
-  disagreePercentage: number;
+  data?: IBetProspectiveItem[];
+  issueScreenName?: string;
 }
-export default function Prospective({ agreePercentage, disagreePercentage }: ProspectiveProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
 
-  // 生成模拟头像
-  const generateMockAvatars = (count: number) => {
-    return Array.from({ length: Math.min(count, 8) }, (_, i) => ({
-      id: i,
-      color: `hsl(${(i * 360) / count}, 70%, 60%)`,
-    }));
-  };
+const VoterRow: React.FC<{
+  side: 'yes' | 'no';
+  count: number;
+  handle: string;
+  icons: string[];
+  percentage: number;
+  brandValue: number;
+  t: (key: string) => string;
+}> = ({ side, count, handle, icons, percentage, brandValue, t }) => {
+  const isYes = side === 'yes';
 
-  const mockAgreeAvatars = generateMockAvatars(8);
-  const mockDisagreeAvatars = generateMockAvatars(8);
+  return (
+    <div className="group relative overflow-hidden rounded-xl border border-border bg-accent dark:bg-muted/20 p-4 transition-all hover:border-primary/20 hover:bg-muted/50">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <span
+            className={`rounded-md px-3 py-1 text-sm font-bold shadow-sm ${
+              isYes
+                ? 'bg-green-500/10 text-green-600 dark:text-green-400 ring-1 ring-green-500/30'
+                : 'bg-red-500/10 text-red-600 dark:text-red-400 ring-1 ring-red-500/30'
+            }`}
+          >
+            {isYes ? 'YES' : 'NO'}
+          </span>
+          <span className="text-base font-medium text-muted-foreground">
+            <span className="font-bold text-foreground">{count} {t('kol_count')}</span>{' '}
+            {isYes ? t('agree') : t('disagree')} with <span className="text-primary">{handle}</span>
+          </span>
+        </div>
 
+        <div className="flex items-center -space-x-3">
+          {icons.slice(0, 5).map((icon, idx) => (
+            <img
+              key={idx}
+              src={icon || DefaultAvatarImg.src}
+              alt={`avatar-${idx}`}
+              className={`h-10 w-10 rounded-full border-2 border-card object-cover transition-transform hover:scale-110 hover:z-10 ${
+                idx === 0 ? 'z-0' : `z-${idx}`
+              }`}
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = DefaultAvatarImg.src;
+              }}
+            />
+          ))}
+          {icons.length > 5 && (
+            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-card bg-muted text-xs font-medium text-muted-foreground z-10">
+              +{count - 5}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Subtle background gradient bar based on side */}
+      <div
+        className={`absolute bottom-0 left-0 h-0.5 w-full ${
+          isYes
+            ? 'bg-gradient-to-r from-green-500/0 via-green-500/50 to-green-500/0'
+            : 'bg-gradient-to-r from-red-500/0 via-red-500/50 to-red-500/0'
+        } opacity-0 transition-opacity group-hover:opacity-100`}
+      ></div>
+    </div>
+  );
+};
+
+export default function Prospective({ data, issueScreenName }: ProspectiveProps) {
+  const t = useTranslations('common');
+  
   const handleAddPerspective = () => {
     console.log('Add perspective clicked');
   };
@@ -31,143 +87,70 @@ export default function Prospective({ agreePercentage, disagreePercentage }: Pro
     console.log('Let agent comment clicked');
   };
 
-  const toggleExpand = () => {
-    setIsExpanded(!isExpanded);
-  };
+  // 如果没有数据，显示空状态
+  if (!data || data.length === 0) {
+    return (
+      <div className="space-y-4">
+        <div className="text-center text-muted-foreground py-8">{t('no_data_available')}</div>
+        <OpinionActions
+          onAddPerspective={handleAddPerspective}
+          onLetAgentComment={handleLetAgentComment}
+        />
+      </div>
+    );
+  }
+
+  // 使用第一条数据（根据API返回结构，通常只有一条）
+  const firstItem = data[0];
+  const kolHandle = issueScreenName || firstItem.issue_screen_name;
 
   return (
     <div className="space-y-4">
-      {/* Agree Section */}
-      <div className="border-border rounded-xl border p-4">
-        <div className="flex items-end justify-between">
-          <div className="flex flex-col items-start gap-3">
-            <div className="flex items-center gap-1">
-              <span className="rounded-sm bg-green-500 px-1 text-sm font-semibold whitespace-nowrap">
-                48 KOLs
-              </span>
-              <span className="text-foreground text-sm font-medium">agree with @CZ</span>
-            </div>
-            <div className="flex -space-x-3">
-              {mockAgreeAvatars.map((avatar) => (
-                <div
-                  key={avatar.id}
-                  className="border-background h-6 w-6 rounded-full border-1 sm:h-8 sm:w-8"
-                  style={{ backgroundColor: avatar.color }}
-                >
-                  <img
-                    src={DefaultAvatarImg.src}
-                    alt="avatar"
-                    className="h-full w-full rounded-full object-cover"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = DefaultAvatarImg.src;
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="flex flex-col items-end gap-3">
-            <span className="text-base text-green-600">YES</span>
-            <span className="text-right text-base text-green-600">{agreePercentage}% • 89 pts</span>
-          </div>
-        </div>
+      <div className="space-y-4">
+        <VoterRow
+          side="yes"
+          count={firstItem.yes.number}
+          handle={`@${kolHandle}`}
+          icons={firstItem.yes.icons}
+          percentage={firstItem.yes.percentage}
+          brandValue={firstItem.yes.total_brand_value}
+          t={t}
+        />
+        <VoterRow
+          side="no"
+          count={firstItem.no.number}
+          handle={`@${kolHandle}`}
+          icons={firstItem.no.icons}
+          percentage={firstItem.no.percentage}
+          brandValue={firstItem.no.total_brand_value}
+          t={t}
+        />
       </div>
 
-      {/* Disagree Section */}
-      <div className="border-border rounded-lg border p-4">
-        <div className="flex items-end justify-between">
-          <div className="flex flex-col items-start gap-3">
-            <div className="flex items-center gap-1">
-              <span className="rounded-sm bg-red-500 px-1 text-sm font-semibold whitespace-nowrap">
-                192 KOLs
-              </span>
-              <span className="text-foreground text-sm font-medium">disagree with @CZ</span>
-            </div>
-            <div className="flex -space-x-2">
-              {mockDisagreeAvatars.map((avatar) => (
-                <div
-                  key={avatar.id}
-                  className="border-background h-6 w-6 rounded-full border-1 sm:h-8 sm:w-8"
-                  style={{ backgroundColor: avatar.color }}
-                >
-                  <img
-                    src={DefaultAvatarImg.src}
-                    alt="avatar"
-                    className="h-full w-full rounded-full object-cover"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = DefaultAvatarImg.src;
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="flex flex-col items-end gap-3">
-            <span className="text-base text-red-600">No</span>
-            <span className="text-right text-base text-red-600">
-              {disagreePercentage}% • 93 pts
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* 可展开内容区域 */}
-      <div className='flex flex-col gap-2'>
-        <h2 className="text-foreground text-base font-medium">Rules</h2>
-        <span className="line-clamp-1 truncate text-sm">
-          The interest rates are defined in this market by the upper bound of the target funds
-          range. The decision on ...
-        </span>
-        <div className="border-border overflow-hidden rounded-xl border">
-          {/* 展开/折叠按钮 */}
-          <button
-            onClick={toggleExpand}
-            className="hover:bg-accent/50 flex w-full items-center justify-between p-4 transition-colors"
-          >
-            <span className="text-foreground text-sm font-medium">
-              {isExpanded ? 'Show less' : 'Show more'}
-            </span>
-            <ChevronDown
-              className={cn(
-                'text-foreground h-4 w-4 transition-transform duration-300 ease-in-out',
-                isExpanded && 'rotate-180'
-              )}
-            />
-          </button>
-
-          {/* 可展开内容 - 使用grid实现平滑滑动 */}
-          <div
-            className={cn(
-              'grid transition-all duration-300 ease-in-out',
-              isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
-            )}
-          >
-            <div className="overflow-hidden">
-              <div className="border-t-border border-t p-4">
-                {/* 这里可以添加更多内容 */}
-                <div className="space-y-3">
-                  <div className="text-foreground text-sm">
-                    <p className="mb-2 font-medium">Additional Information</p>
-                    <p className="text-muted-foreground text-xs">
-                      This section contains more details about the opinions and perspectives shared
-                      by KOLs.
-                    </p>
-                  </div>
-                  {/* 可以添加更多内容，比如更多KOL列表、详细统计等 */}
-                </div>
-              </div>
-            </div>
+      {/* Simplified Calculation Methodology Explainer */}
+      <div className="rounded-xl border border-dashed border-border bg-transparent p-5 text-sm text-muted-foreground">
+        <div className="flex items-start gap-3">
+          <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+          <div className="space-y-1">
+            <h4 className="font-medium text-foreground">{t('how_brand_voice_calculated')}</h4>
+            <p className="leading-relaxed">
+              {t.rich('brand_voice_calculation_desc', {
+                followers: (chunks) => <span className="text-foreground">{chunks}</span>,
+                views: (chunks) => <span className="text-foreground">{chunks}</span>,
+                likes: (chunks) => <span className="text-foreground">{chunks}</span>,
+                reading_volume: (chunks) => <span className="text-foreground">{chunks}</span>,
+                method: (chunks) => <span className="text-primary font-medium">{chunks}</span>,
+              })}
+            </p>
           </div>
         </div>
       </div>
 
       {/* 操作按钮 */}
-      <OpinionActions
+      {/* <OpinionActions
         onAddPerspective={handleAddPerspective}
         onLetAgentComment={handleLetAgentComment}
-      />
+      /> */}
     </div>
   );
 }

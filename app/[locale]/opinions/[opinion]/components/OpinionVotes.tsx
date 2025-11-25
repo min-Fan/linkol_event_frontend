@@ -5,6 +5,8 @@ import PostToEarn from './PostToEarn';
 import Activity from './Activity';
 import Prospective from './Prospective';
 import Comments from './Comments';
+import BrandVoiceComparison from './BrandVoiceComparison';
+import { useTranslations } from 'next-intl';
 
 interface OpinionVotesProps {
   agreeVotes: number;
@@ -13,9 +15,53 @@ interface OpinionVotesProps {
   disagreePercentage: number;
   agreeAvatars?: string[];
   disagreeAvatars?: string[];
+  prospectiveData?: any;
+  issueScreenName?: string;
+  topVoiceData?: {
+    yesHolders: Array<{ id: string; name: string; avatar?: string; shares: number; brandVoice: number }>;
+    noHolders: Array<{ id: string; name: string; avatar?: string; shares: number; brandVoice: number }>;
+  };
+  isTopVoiceLoading?: boolean;
+  commentsTotal?: number;
+  fetchComments?: (page: number, pageSize?: number) => Promise<{
+    list: Array<{
+      id: string;
+      name: string;
+      screen_name?: string;
+      profile_image_url?: string;
+      is_verified?: boolean;
+      comment_text: string;
+      created_at?: string;
+      like_count: number;
+      retweet_count: number;
+      reply_count: number;
+      position?: number;
+      position_type?: 'yes' | 'no';
+      link?: string;
+    }>;
+    total: number;
+    current_page: number;
+    total_pages: number;
+  }>;
+  fetchActivity?: (page: number, pageSize?: number) => Promise<{
+    list: Array<{
+      id: string;
+      user_name: string;
+      profile_image_url?: string;
+      action: 'bought' | 'sold';
+      quantity: number;
+      position_type: 'yes' | 'no';
+      condition: string;
+      price: number;
+      total_value: number;
+      created_at: string;
+      link_url?: string;
+    }>;
+    total: number;
+    current_page: number;
+    total_pages: number;
+  }>;
 }
-
-const tabs = ['Prospective', 'Top Voice', 'Post to Earn', 'Comments (48)', 'Activity'];
 
 export default function OpinionVotes({
   agreeVotes,
@@ -24,11 +70,41 @@ export default function OpinionVotes({
   disagreePercentage,
   agreeAvatars = [],
   disagreeAvatars = [],
+  prospectiveData,
+  issueScreenName,
+  topVoiceData,
+  isTopVoiceLoading = false,
+  commentsTotal = 0,
+  fetchComments,
+  fetchActivity,
 }: OpinionVotesProps) {
+  const t = useTranslations('common');
   const [activeTab, setActiveTab] = useState(0);
+
+  // 动态生成标签，包含评论总数
+  const tabs = [
+    t('tab_prospective'),
+    t('tab_top_voice'),
+    `${t('tab_comments')} (${commentsTotal})`,
+    t('tab_activity'),
+  ];
+
+  // 计算品牌价值（从 prospective 数据中获取，如果没有则使用详情数据）
+  const yesVoice = prospectiveData?.[0]?.yes?.total_brand_value || agreeVotes;
+  const noVoice = prospectiveData?.[0]?.no?.total_brand_value || disagreeVotes;
+  const yesCount = prospectiveData?.[0]?.yes?.number || 0;
+  const noCount = prospectiveData?.[0]?.no?.number || 0;
 
   return (
     <div className="space-y-3">
+      {/* Brand Voice Comparison - 始终显示 */}
+      <BrandVoiceComparison
+        yesVoice={yesVoice}
+        noVoice={noVoice}
+        yesCount={yesCount}
+        noCount={noCount}
+      />
+
       {/* 标签页 */}
       <div className="flex flex-wrap gap-2">
         {tabs.map((tab, index) => (
@@ -48,31 +124,35 @@ export default function OpinionVotes({
 
       {activeTab === 0 && (
         <>
-          <Prospective agreePercentage={agreePercentage} disagreePercentage={disagreePercentage} />
+          <Prospective data={prospectiveData} issueScreenName={issueScreenName} />
         </>
       )}
 
       {activeTab === 1 && (
         <>
-          <TopVoice />
+          <TopVoice
+            yesHolders={topVoiceData?.yesHolders}
+            noHolders={topVoiceData?.noHolders}
+            isLoading={isTopVoiceLoading}
+          />
         </>
       )}
 
-      {activeTab === 2 && (
+      {/* {activeTab === 2 && (
         <>
           <PostToEarn />
+        </>
+      )} */}
+
+      {activeTab === 2 && (
+        <>
+          <Comments onFetchComments={fetchComments} />
         </>
       )}
 
       {activeTab === 3 && (
         <>
-          <Comments />
-        </>
-      )}
-
-      {activeTab === 4 && (
-        <>
-          <Activity />
+          <Activity onFetchActivities={fetchActivity} />
         </>
       )}
     </div>

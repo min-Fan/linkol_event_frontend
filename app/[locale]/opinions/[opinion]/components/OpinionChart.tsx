@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useCallback } from 'react';
 import { Card, CardContent } from '@shadcn/components/ui/card';
+import { useTranslations } from 'next-intl';
 import {
   LineChart,
   Line,
@@ -13,16 +14,16 @@ import {
 } from 'recharts';
 import { ChartConfig, ChartContainer } from '@shadcn/components/ui/chart';
 
-interface OpinionChartProps {
-  data?: any;
-}
-
 interface ChartDataPoint {
   date: string;
   yes: number;
   no: number;
   yesUsers?: Array<{ avatar: string; address: string }>;
   noUsers?: Array<{ avatar: string; address: string }>;
+}
+
+interface OpinionChartProps {
+  data?: ChartDataPoint[] | null;
 }
 
 // 模拟数据格式示例
@@ -121,20 +122,24 @@ const mockData: ChartDataPoint[] = [
   { date: 'Nov 2', yes: 37, no: 12 },
 ];
 
-const chartConfig = {
-  yes: {
-    label: 'YES',
-    color: '#22c55e', // 绿色
-  },
-  no: {
-    label: 'NO',
-    color: '#ef4444', // 红色
-  },
-} satisfies ChartConfig;
+// chartConfig 将在组件内部动态生成，以便使用国际化
 
 export default function OpinionChart({ data }: OpinionChartProps) {
-  const chartData = data || mockData;
+  const t = useTranslations('common');
+  // 如果提供了数据，使用提供的数据；否则使用模拟数据
+  const chartData = data && data.length > 0 ? data : mockData;
   const [hoveredLine, setHoveredLine] = useState<'yes' | 'no' | null>(null);
+  
+  const chartConfig = {
+    yes: {
+      label: t('yes').toUpperCase(),
+      color: '#22c55e', // 绿色
+    },
+    no: {
+      label: t('no').toUpperCase(),
+      color: '#ef4444', // 红色
+    },
+  } satisfies ChartConfig;
   const [selectedPoint, setSelectedPoint] = useState<{
     date: string;
     users: Array<{ avatar: string; address: string }>;
@@ -152,13 +157,13 @@ export default function OpinionChart({ data }: OpinionChartProps) {
       const hasNoUsers = payload.noUsers && payload.noUsers.length > 0;
 
       // 只根据当前悬停的线来显示用户
-      if (hoveredLine === 'yes' && hasYesUsers) {
+      if (hoveredLine === 'yes' && hasYesUsers && payload.yesUsers) {
         setSelectedPoint({
           date: payload.date,
           users: payload.yesUsers,
           lineType: 'yes',
         });
-      } else if (hoveredLine === 'no' && hasNoUsers) {
+      } else if (hoveredLine === 'no' && hasNoUsers && payload.noUsers) {
         setSelectedPoint({
           date: payload.date,
           users: payload.noUsers,
@@ -276,7 +281,7 @@ export default function OpinionChart({ data }: OpinionChartProps) {
         <p className="mb-1 text-sm font-medium">{label}</p>
         {payload.map((entry: any, index: number) => (
           <p key={index} className="text-sm" style={{ color: entry.color }}>
-            {entry.dataKey === 'yes' ? 'YES' : 'NO'}: {entry.value}%
+            {entry.dataKey === 'yes' ? t('yes').toUpperCase() : t('no').toUpperCase()}: {entry.value}%
           </p>
         ))}
       </div>
@@ -358,7 +363,7 @@ export default function OpinionChart({ data }: OpinionChartProps) {
   };
 
   return (
-    <Card className="border-none p-0 shadow-none">
+    <Card className="p-0 shadow-none bg-accent/20 dark:bg-muted/20">
       <CardContent className="p-0 sm:px-6">
         <div 
           className="relative h-64 w-full sm:h-80"

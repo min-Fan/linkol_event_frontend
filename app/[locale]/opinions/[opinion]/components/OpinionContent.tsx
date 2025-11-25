@@ -1,7 +1,8 @@
 'use client';
 import React from 'react';
-import { Verified } from '@assets/svg';
+import { ExternalLink } from 'lucide-react';
 import avatar from '@assets/image/avatar.png';
+import { useTranslations } from 'next-intl';
 
 interface OpinionContentProps {
   question: string;
@@ -10,50 +11,36 @@ interface OpinionContentProps {
       name: string;
       handle: string;
       avatar?: string;
-      verified: boolean;
+      verified?: boolean;
     };
-    date: string;
     content: string;
+    tweetUrl?: string;
   };
 }
 
 export default function OpinionContent({ question, reply }: OpinionContentProps) {
+  const t = useTranslations('common');
   return (
     <div className="space-y-4">
       {/* 主要问题/观点 */}
-      <div className="text-muted-foreground/60 line-clamp-3 text-base">{question}</div>
+      <p className="text-xl font-medium text-foreground/90 leading-relaxed mb-4">{question}</p>
 
       {/* 引用回复 */}
-      <div className="border-border bg-gray-400/10 space-y-3 rounded-xl border p-4">
-        <div className="flex items-center gap-2">
-          <div className="relative flex h-8 w-8 flex-shrink-0 rounded-full shadow-sm">
-            {reply.author.avatar ? (
-              <img
-                src={reply.author.avatar}
-                alt={reply.author.name}
-                className="h-full w-full object-cover"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src = avatar.src;
-                }}
-              />
-            ) : (
-              <>
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-700 via-gray-600 to-gray-800 opacity-60 blur-sm"></div>
-                <div className="relative h-full w-full rounded-full bg-gray-700 ring-1 ring-gray-500 dark:bg-gray-600 dark:ring-gray-400"></div>
-              </>
-            )}
+      <div className="rounded-xl border border-border bg-muted/20 p-4 relative overflow-hidden">
+        <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
+        <p className="text-muted-foreground italic pl-2">"{reply.content}"</p>
+        {reply.tweetUrl && (
+          <div className="mt-2 flex justify-end">
+            <a
+              href={reply.tweetUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-primary flex items-center gap-1 hover:underline"
+            >
+              {t('view_original')} <ExternalLink className="h-3 w-3" />
+            </a>
           </div>
-          <div className="flex min-w-0 flex-1 items-center gap-2">
-            <div className="flex min-w-0 flex-1 items-center gap-1.5">
-              <span className="truncate text-base font-semibold">{reply.author.name}</span>
-              {reply.author.verified && <Verified className="text-primary h-4 w-4 flex-shrink-0" />}
-              <span className="text-muted-foreground/60 truncate text-md">{reply.author.handle}</span>
-            </div>
-            <span className="flex-shrink-0 text-md">{reply.date}</span>
-          </div>
-        </div>
-        <div className="text-muted-foreground/60 text-md line-clamp-2">{reply.content}</div>
+        )}
       </div>
     </div>
   );

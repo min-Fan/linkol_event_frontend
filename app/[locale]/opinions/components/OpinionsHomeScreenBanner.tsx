@@ -8,10 +8,32 @@ import { Button } from '@shadcn/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import PixelBlast from '@shadcn/components/pixelBlast/PixelBlast';
 import { track } from '@vercel/analytics';
+import { useQuery } from '@tanstack/react-query';
+import { getBetList } from '@libs/request';
 
 export default function OpinionsHomeScreenBanner() {
   const { data, isLoading } = useBanner();
   const t = useTranslations('common');
+  
+  // 获取 bet 列表数据（和 HotOpinions 组件一样）
+  const {
+    data: betListResponse,
+    isLoading: isBetListLoading,
+  } = useQuery({
+    queryKey: ['betList'],
+    queryFn: async () => {
+      const response = await getBetList();
+      return response;
+    },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 2,
+  });
+
+  // 获取第一个 bet 的 id（优先使用 attitude.bet_id）
+  const firstBet = betListResponse?.data?.list?.[0];
+  const firstBetId = firstBet?.attitude?.bet_id?.toString() || firstBet?.id?.toString();
+  const isLoadingData = isBetListLoading || isLoading;
   return (
     <div className="relative w-full pt-14 pb-52 sm:pt-16">
       <div className="absolute inset-0 z-0 h-full w-full">
@@ -44,18 +66,31 @@ export default function OpinionsHomeScreenBanner() {
           {t('predict_the_future')}
         </p>
         <div className="mt-6 rounded-full shadow-[0_1px_40px_0_rgba(242,242,242,0.80)]">
-          <Link
-            href={`${PagesRoute.OPINIONS}/1`}
-            title={t('join_predict')}
-            onClick={() => {
-              track('Predict the Future Button ==> Opinions Page');
-            }}
-          >
-            <Button className="text-primary !h-11 gap-x-1 !rounded-full bg-white !px-6 !text-base font-medium">
+          {firstBetId ? (
+            <Link
+              href={`${PagesRoute.OPINIONS}/${firstBetId}`}
+              title={t('join_predict')}
+              onClick={() => {
+                track('Predict the Future Button ==> Opinions Page');
+              }}
+            >
+              <Button 
+                disabled={isLoadingData}
+                className="text-primary !h-11 gap-x-1 !rounded-full bg-white !px-6 !text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span>{t('join_predict')}</span>
+                <ArrowRight className="size-5" />
+              </Button>
+            </Link>
+          ) : (
+            <Button 
+              disabled={true}
+              className="text-primary !h-11 gap-x-1 !rounded-full bg-white !px-6 !text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            >
               <span>{t('join_predict')}</span>
               <ArrowRight className="size-5" />
             </Button>
-          </Link>
+          )}
         </div>
       </div>
     </div>
