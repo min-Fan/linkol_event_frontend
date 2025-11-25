@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Skeleton } from '@shadcn/components/ui/skeleton';
+import { useTranslations } from 'next-intl';
 import { cn } from '@shadcn/lib/utils';
 import { ChevronLeft, ChevronRight, ExternalLink, ScreenShare } from 'lucide-react';
 import defaultAvatar from '@assets/image/avatar.png';
@@ -113,11 +114,12 @@ const ActivityItem = ({ activity }: { activity: ActivityItem }) => {
 
 // 空状态组件
 const EmptyState = () => {
+  const t = useTranslations('common');
   return (
     <div className="flex h-80 w-full flex-col items-center justify-center px-4 py-16 text-center">
-      <h3 className="text-muted-foreground/60 mb-2 text-xl font-semibold">No activities found</h3>
+      <h3 className="text-muted-foreground/60 mb-2 text-xl font-semibold">{t('no_activities_found')}</h3>
       <p className="text-md text-muted-foreground/60 mb-2 max-w-md">
-        Activities will appear here when users make trades.
+        {t('activities_will_appear')}
       </p>
     </div>
   );
@@ -335,6 +337,7 @@ export default function Activity({
   betId,
   pageSize = 20,
 }: ActivityProps) {
+  const t = useTranslations('common');
   const [activities, setActivities] = useState<ActivityItem[]>(propActivities || []);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -513,7 +516,7 @@ export default function Activity({
           {/* 没有更多数据提示 */}
           {!hasMore && activities.length > 0 && (
             <div className="text-muted-foreground/60 py-4 text-center text-sm">
-              已加载全部活动 ({total})
+              {t('all_activities_loaded')} ({total})
             </div>
           )}
 

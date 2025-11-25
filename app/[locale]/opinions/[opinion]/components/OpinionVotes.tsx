@@ -6,6 +6,7 @@ import Activity from './Activity';
 import Prospective from './Prospective';
 import Comments from './Comments';
 import BrandVoiceComparison from './BrandVoiceComparison';
+import { useTranslations } from 'next-intl';
 
 interface OpinionVotesProps {
   agreeVotes: number;
@@ -77,10 +78,16 @@ export default function OpinionVotes({
   fetchComments,
   fetchActivity,
 }: OpinionVotesProps) {
+  const t = useTranslations('common');
   const [activeTab, setActiveTab] = useState(0);
 
   // 动态生成标签，包含评论总数
-  const tabs = ['Prospective', 'Top Voice', `Comments (${commentsTotal})`, 'Activity'];
+  const tabs = [
+    t('tab_prospective'),
+    t('tab_top_voice'),
+    `${t('tab_comments')} (${commentsTotal})`,
+    t('tab_activity'),
+  ];
 
   // 计算品牌价值（从 prospective 数据中获取，如果没有则使用详情数据）
   const yesVoice = prospectiveData?.[0]?.yes?.total_brand_value || agreeVotes;

@@ -2,6 +2,7 @@
 import React from 'react';
 import defaultAvatar from '@assets/image/avatar.png';
 import { Skeleton } from '@shadcn/components/ui/skeleton';
+import { useTranslations } from 'next-intl';
 
 interface UserItem {
   id: string;
@@ -22,6 +23,7 @@ export default function TopVoice({
   noHolders = [],
   isLoading = false,
 }: TopVoiceProps) {
+  const t = useTranslations('common');
   const formatShares = (shares: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -108,14 +110,14 @@ export default function TopVoice({
         {/* YES Holder 列 */}
         <div className="border-border flex-1 space-y-3 rounded-2xl border p-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-base text-green-500">YES Holder</h3>
-            <p className="text-muted-foreground/60 text-sm">Shares / Brand voice</p>
+            <h3 className="text-base text-green-500">{t('yes_holder')}</h3>
+            <p className="text-muted-foreground/60 text-sm">{t('shares_brand_voice')}</p>
           </div>
           <div className="space-y-2">
             {yesHolders.length > 0 ? (
               yesHolders.map((user) => <UserRow key={user.id} user={user} isYes={true} />)
             ) : (
-              <div className="text-center text-muted-foreground py-8 text-sm">暂无数据</div>
+              <div className="text-center text-muted-foreground py-8 text-sm">{t('no_data_available')}</div>
             )}
           </div>
         </div>
@@ -123,14 +125,14 @@ export default function TopVoice({
         {/* No Holder 列 */}
         <div className="border-border flex-1 space-y-3 rounded-2xl border p-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-base text-red-500">No Holder</h3>
-            <p className="text-muted-foreground/60 text-sm">Shares / Brand voice</p>
+            <h3 className="text-base text-red-500">{t('no_holder')}</h3>
+            <p className="text-muted-foreground/60 text-sm">{t('shares_brand_voice')}</p>
           </div>
           <div className="space-y-2">
             {noHolders.length > 0 ? (
               noHolders.map((user) => <UserRow key={user.id} user={user} isYes={false} />)
             ) : (
-              <div className="text-center text-muted-foreground py-8 text-sm">暂无数据</div>
+              <div className="text-center text-muted-foreground py-8 text-sm">{t('no_data_available')}</div>
             )}
           </div>
         </div>

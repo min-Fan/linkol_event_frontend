@@ -277,7 +277,7 @@ export default function HotOpinions() {
       {/* Error State */}
       {isError && (
         <div className="flex items-center justify-center py-8">
-          <div className="text-destructive">加载失败，请稍后重试</div>
+          <div className="text-destructive">{t('load_failed_retry')}</div>
         </div>
       )}
 
@@ -288,7 +288,7 @@ export default function HotOpinions() {
             opinions.map((opinion) => <OpinionCard key={opinion.id} data={opinion} />)
           ) : (
             <div className="col-span-2 flex items-center justify-center py-8">
-              <div className="text-muted-foreground">暂无数据</div>
+              <div className="text-muted-foreground">{t('no_data_available')}</div>
             </div>
           )}
         </div>

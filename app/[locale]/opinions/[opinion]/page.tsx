@@ -12,10 +12,12 @@ import { ArrowLeft } from 'lucide-react';
 import { Skeleton } from '@shadcn/components/ui/skeleton';
 import PagesRoute from '@constants/routes';
 import { useBetDetail } from '@hooks/useBetDetail';
+import { useTranslations } from 'next-intl';
 
 export default function OpinionsPage() {
   const params = useParams();
   const opinionId = params?.opinion as string;
+  const t = useTranslations('common');
 
   // 使用自定义 hook 获取 bet 详情数据
   const {
@@ -45,7 +47,7 @@ export default function OpinionsPage() {
           href={PagesRoute.OPINIONS}
           className="text-muted-foreground hover:text-foreground mb-6 flex items-center gap-2 text-sm transition-colors"
         >
-          <ArrowLeft className="h-4 w-4" /> Back to Markets
+          <ArrowLeft className="h-4 w-4" /> {t('back_to_markets')}
         </Link>
         <div className="bg-background border-border grid grid-cols-1 gap-6 rounded-2xl border p-4 sm:rounded-3xl sm:p-8 lg:grid-cols-3">
           <div className="space-y-6 lg:col-span-2">
@@ -83,10 +85,10 @@ export default function OpinionsPage() {
           href={PagesRoute.OPINIONS}
           className="text-muted-foreground hover:text-foreground mb-6 flex items-center gap-2 text-sm transition-colors"
         >
-          <ArrowLeft className="h-4 w-4" /> Back to Markets
+          <ArrowLeft className="h-4 w-4" /> {t('back_to_markets')}
         </Link>
         <div className="flex items-center justify-center py-12">
-          <div className="text-destructive">加载失败，请稍后重试</div>
+          <div className="text-destructive">{t('load_failed_retry')}</div>
         </div>
       </div>
     );

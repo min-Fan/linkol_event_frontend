@@ -97,7 +97,7 @@ const PostItem = ({ post }: { post: PostItem }) => {
               <div className="flex w-full items-center">
                 <div className="flex w-full flex-1 items-center gap-2">
                   <span className="text-md line-clamp-1 truncate sm:text-base">
-                    {post.name || 'Unknown User'}
+                    {post.name || t('unknown_user')}
                   </span>
                   {post.is_verified && <Verified className="size-4 min-w-4" />}
                   <span className="ml-auto text-xs whitespace-nowrap sm:text-base">

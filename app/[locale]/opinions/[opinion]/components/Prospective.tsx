@@ -4,6 +4,7 @@ import DefaultAvatarImg from '@assets/image/avatar.png';
 import OpinionActions from './OpinionActions';
 import { Info } from 'lucide-react';
 import { IBetProspectiveItem } from '@libs/request';
+import { useTranslations } from 'next-intl';
 
 interface ProspectiveProps {
   data?: IBetProspectiveItem[];
@@ -17,11 +18,12 @@ const VoterRow: React.FC<{
   icons: string[];
   percentage: number;
   brandValue: number;
-}> = ({ side, count, handle, icons, percentage, brandValue }) => {
+  t: (key: string) => string;
+}> = ({ side, count, handle, icons, percentage, brandValue, t }) => {
   const isYes = side === 'yes';
 
   return (
-    <div className="group relative overflow-hidden rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/20 hover:bg-muted/50">
+    <div className="group relative overflow-hidden rounded-xl border border-border bg-accent dark:bg-muted/20 p-4 transition-all hover:border-primary/20 hover:bg-muted/50">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <span
@@ -34,8 +36,8 @@ const VoterRow: React.FC<{
             {isYes ? 'YES' : 'NO'}
           </span>
           <span className="text-base font-medium text-muted-foreground">
-            <span className="font-bold text-foreground">{count} KOLs</span>{' '}
-            {isYes ? 'agree' : 'disagree'} with <span className="text-primary">{handle}</span>
+            <span className="font-bold text-foreground">{count} {t('kol_count')}</span>{' '}
+            {isYes ? t('agree') : t('disagree')} with <span className="text-primary">{handle}</span>
           </span>
         </div>
 
@@ -75,6 +77,8 @@ const VoterRow: React.FC<{
 };
 
 export default function Prospective({ data, issueScreenName }: ProspectiveProps) {
+  const t = useTranslations('common');
+  
   const handleAddPerspective = () => {
     console.log('Add perspective clicked');
   };
@@ -87,7 +91,7 @@ export default function Prospective({ data, issueScreenName }: ProspectiveProps)
   if (!data || data.length === 0) {
     return (
       <div className="space-y-4">
-        <div className="text-center text-muted-foreground py-8">暂无数据</div>
+        <div className="text-center text-muted-foreground py-8">{t('no_data_available')}</div>
         <OpinionActions
           onAddPerspective={handleAddPerspective}
           onLetAgentComment={handleLetAgentComment}
@@ -110,6 +114,7 @@ export default function Prospective({ data, issueScreenName }: ProspectiveProps)
           icons={firstItem.yes.icons}
           percentage={firstItem.yes.percentage}
           brandValue={firstItem.yes.total_brand_value}
+          t={t}
         />
         <VoterRow
           side="no"
@@ -118,6 +123,7 @@ export default function Prospective({ data, issueScreenName }: ProspectiveProps)
           icons={firstItem.no.icons}
           percentage={firstItem.no.percentage}
           brandValue={firstItem.no.total_brand_value}
+          t={t}
         />
       </div>
 
@@ -126,15 +132,15 @@ export default function Prospective({ data, issueScreenName }: ProspectiveProps)
         <div className="flex items-start gap-3">
           <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
           <div className="space-y-1">
-            <h4 className="font-medium text-foreground">How is Brand Voice calculated?</h4>
+            <h4 className="font-medium text-foreground">{t('how_brand_voice_calculated')}</h4>
             <p className="leading-relaxed">
-              Brand Voice volume is calculated based on participants'{' '}
-              <span className="text-foreground">Followers</span>,{' '}
-              <span className="text-foreground">Views</span>,{' '}
-              <span className="text-foreground">Likes</span>, and{' '}
-              <span className="text-foreground">Reading volume</span>. We use the{' '}
-              <span className="text-primary font-medium">Entropy Weight Method</span> to accumulate
-              these metrics into a single influence score.
+              {t.rich('brand_voice_calculation_desc', {
+                followers: (chunks) => <span className="text-foreground">{chunks}</span>,
+                views: (chunks) => <span className="text-foreground">{chunks}</span>,
+                likes: (chunks) => <span className="text-foreground">{chunks}</span>,
+                reading_volume: (chunks) => <span className="text-foreground">{chunks}</span>,
+                method: (chunks) => <span className="text-primary font-medium">{chunks}</span>,
+              })}
             </p>
           </div>
         </div>

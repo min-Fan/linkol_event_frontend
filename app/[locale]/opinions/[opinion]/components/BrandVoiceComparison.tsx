@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 import { Zap, Info, Trophy } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface BrandVoiceComparisonProps {
   yesVoice: number;
@@ -15,6 +16,7 @@ export default function BrandVoiceComparison({
   yesCount,
   noCount,
 }: BrandVoiceComparisonProps) {
+  const t = useTranslations('common');
   const totalVoice = yesVoice + noVoice;
   const yesPercent = totalVoice > 0 ? (yesVoice / totalVoice) * 100 : 50;
   const noPercent = 100 - yesPercent;
@@ -49,11 +51,11 @@ export default function BrandVoiceComparison({
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 shadow-lg shadow-orange-500/20">
               <Zap className="fill-white h-6 w-6 text-white" />
             </span>
-            BRAND VOICE BATTLE
+            {t('brand_voice_battle')}
           </h3>
           <div className="flex items-center gap-2 rounded-full border border-white/5 bg-accent-foreground/5 px-4 py-2 text-xs font-medium text-muted-foreground/60 backdrop-blur-md">
             <Info className="h-3.5 w-3.5 text-blue-400" />
-            <span>Entropy Weight Method</span>
+            <span>{t('entropy_weight_method')}</span>
           </div>
         </div>
 
@@ -63,7 +65,7 @@ export default function BrandVoiceComparison({
             <div className="mb-1 flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.8)]"></span>
               <p className="text-sm font-bold tracking-widest text-green-500 uppercase">
-                YES Voice
+                {t('yes')} Voice
               </p>
             </div>
             <p className="text-5xl font-black tracking-tighter drop-shadow-lg md:text-6xl">
@@ -73,18 +75,18 @@ export default function BrandVoiceComparison({
 
           <div className="mb-4 text-center">
             <div className="rounded-full border border-white/10 bg-white/10 px-4 py-1 text-[10px] font-bold tracking-widest text-gray-400 uppercase">
-              Current Winner
+              {t('current_winner')}
             </div>
             <div
               className={`mt-2 text-xl font-black ${isYesWinning ? 'text-green-500' : 'text-red-500'}`}
             >
-              {isYesWinning ? 'YES' : 'NO'}
+              {isYesWinning ? t('yes').toUpperCase() : t('no').toUpperCase()}
             </div>
           </div>
 
           <div className="text-right">
             <div className="mb-1 flex items-center justify-end gap-2">
-              <p className="text-sm font-bold tracking-widest text-red-500 uppercase">NO Voice</p>
+              <p className="text-sm font-bold tracking-widest text-red-500 uppercase">{t('no')} Voice</p>
               <span className="h-2 w-2 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)]"></span>
             </div>
             <p className="text-5xl font-black tracking-tighter drop-shadow-lg md:text-6xl">
@@ -119,7 +121,7 @@ export default function BrandVoiceComparison({
 
             {/* Center VS Marker */}
             <div className="absolute top-1/2 left-1/2 z-20 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-4 border-gray-800 bg-gray-900 text-xs font-black text-white shadow-xl">
-              VS
+              {t('vs')}
             </div>
           </div>
         </div>
@@ -127,11 +129,13 @@ export default function BrandVoiceComparison({
         {/* Info Text */}
         <p className="relative z-10 text-center text-sm font-medium text-muted-foreground">
           <Trophy className="-mt-1 mr-2 inline-block h-4 w-4 text-yellow-500" />
-          Prediction resolves based on{' '}
-          <span className="font-bold text-white underline decoration-yellow-500/50 underline-offset-4">
-            Volume
-          </span>
-          , not just participant count.
+          {t.rich('prediction_resolves_volume', {
+            volume: (chunks) => (
+              <span className="font-bold text-white underline decoration-yellow-500/50 underline-offset-4">
+                {chunks}
+              </span>
+            ),
+          })}
         </p>
       </div>
     </div>

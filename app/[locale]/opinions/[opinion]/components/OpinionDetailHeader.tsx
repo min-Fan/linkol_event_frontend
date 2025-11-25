@@ -2,6 +2,7 @@
 import React from 'react';
 import avatar from '@assets/image/avatar.png';
 import { Verified } from '@assets/svg';
+import { useTranslations } from 'next-intl';
 
 interface OpinionDetailHeaderProps {
   author: {
@@ -14,8 +15,9 @@ interface OpinionDetailHeaderProps {
 }
 
 export default function OpinionDetailHeader({ author, volume }: OpinionDetailHeaderProps) {
+  const t = useTranslations('common');
   return (
-    <div className="rounded-2xl border border-border bg-card p-6">
+    <div className="rounded-2xl border border-border bg-background dark:bg-muted/20 p-6">
       <div className="flex items-center gap-4">
         <img
           src={author.avatar || avatar.src}
@@ -34,7 +36,7 @@ export default function OpinionDetailHeader({ author, volume }: OpinionDetailHea
           <p className="text-primary">{author.handle}</p>
         </div>
         <div className="ml-auto text-right">
-          <p className="text-sm text-muted-foreground">Volume</p>
+          <p className="text-sm text-muted-foreground">{t('vol')}</p>
           <p className="text-lg font-mono font-bold text-primary">
             ${volume.toLocaleString()}
           </p>

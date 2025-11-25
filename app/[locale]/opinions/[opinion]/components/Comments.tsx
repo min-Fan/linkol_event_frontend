@@ -119,8 +119,8 @@ const EmptyState = () => {
   const t = useTranslations('common');
   return (
     <div className="flex h-80 w-full flex-col items-center justify-center px-4 py-16 text-center">
-      <h3 className="text-muted-foreground/60 mb-2 text-xl font-semibold">No comments found</h3>
-      <p className="text-md text-muted-foreground/60 mb-2 max-w-md">Be the first to comment!</p>
+      <h3 className="text-muted-foreground/60 mb-2 text-xl font-semibold">{t('no_comments_found')}</h3>
+      <p className="text-md text-muted-foreground/60 mb-2 max-w-md">{t('be_first_to_comment')}</p>
     </div>
   );
 };
@@ -323,6 +323,7 @@ export default function Comments({
   betId,
   pageSize = 20 
 }: CommentsProps) {
+  const t = useTranslations('common');
   const [comments, setComments] = useState<CommentItem[]>(propComments || []);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -501,7 +502,7 @@ export default function Comments({
           {/* 没有更多数据提示 */}
           {!hasMore && comments.length > 0 && (
             <div className="text-center text-muted-foreground/60 py-4 text-sm">
-              已加载全部评论 ({total})
+              {t('all_comments_loaded')} ({total})
             </div>
           )}
 
