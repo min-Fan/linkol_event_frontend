@@ -83,6 +83,7 @@ export const ENDPOINT_URL = {
   SOLANA_CLAIM_REWARD: '/kol/api/v6/claim_reward/usd1/pay/',
   UPDATE_ACTIVITY: '/kol/api/v3/actives/',
   GET_PRICE: '/kol/api/v4/price/',
+  GET_BET_LIST: '/kol/api/v10/bet_list/',
 };
 
 // 获取OTP码
@@ -3001,4 +3002,34 @@ export const getDonateHeatmap = (params: IGetDonateHeatmapParams) => {
   return kolRequest.get<IGetDonateHeatmapResponseData>(`/kol/api/v9/donate/summary/`, {
     ...params,
   });
+};
+
+// 获取 bet 列表
+export interface IGetBetListResponseData {
+  total: number;
+  current_page: number;
+  page_range: number[];
+  list: IBetListItem[];
+}
+
+export interface IBetListItem {
+  topic: {
+    icon: string;
+    name: string;
+    screen_name: string;
+    content: string;
+  };
+  attitude: {
+    icon: string;
+    name: string;
+    screen_name: string;
+    content: string;
+  };
+  yes_brand_value: number;
+  no_brand_value: number;
+  commission: number;
+}
+
+export const getBetList = () => {
+  return kolRequest.get<IGetBetListResponseData>(ENDPOINT_URL.GET_BET_LIST);
 };

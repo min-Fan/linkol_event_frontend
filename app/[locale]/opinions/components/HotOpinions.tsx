@@ -1,9 +1,12 @@
 'use client';
 import React from 'react';
 import { useTranslations } from 'next-intl';
-import { Card, CardContent } from '@shadcn/components/ui/card';
-import { Verified } from '@assets/svg';
-import { Gift } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { CheckCircle2, MessageSquare, BarChart2, MoreHorizontal } from 'lucide-react';
+import { Skeleton } from '@shadcn/components/ui/skeleton';
+import { getBetList, IBetListItem } from '@libs/request';
+import { Link } from '@libs/i18n/navigation';
+import PagesRoute from '@constants/routes';
 
 interface OpinionCardData {
   id: string;
@@ -31,198 +34,228 @@ interface OpinionCardData {
   volume: string;
 }
 
-// 模拟数据
-const mockOpinions: OpinionCardData[] = [
-  {
-    id: '1',
+// 将 API 数据转换为组件数据格式
+const transformBetDataToOpinionData = (betItem: IBetListItem, index: number): OpinionCardData => {
+  // 格式化日期为 "Jun 22" 格式
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
+  return {
+    id: `bet-${index}`,
     author: {
-      name: 'Crypto Analyst',
-      handle: '@crypto_analyst',
-      avatar: '',
-      verified: true,
+      name: betItem.topic.name,
+      handle: betItem.topic.screen_name,
+      avatar: betItem.topic.icon,
+      verified: false, // API 数据中没有 verified 字段，可以根据需要调整
     },
-    question:
-      "I'd like to ask — does this count as market manipulation? If I'm shorting right now, who's responsible if this causes a liquidation?",
+    question: betItem.topic.content,
     reply: {
       author: {
-        name: 'CZ',
-        handle: '@crypto_analyst',
-        avatar: '',
-        verified: true,
+        name: betItem.attitude.name,
+        handle: betItem.attitude.screen_name,
+        avatar: betItem.attitude.icon,
+        verified: false, // API 数据中没有 verified 字段，可以根据需要调整
       },
-      date: 'Jun 22',
-      content: 'Full disclosure. I just bought some Aster today, using my own money, on @Binance.',
+      date: formatDate(new Date()),
+      content: betItem.attitude.content,
     },
     poll: {
-      yes: 65,
-      no: 35,
+      yes: betItem.yes_brand_value,
+      no: betItem.no_brand_value,
     },
-    volume: '$34m',
-  },
-  {
-    id: '2',
-    author: {
-      name: 'Crypto Analyst',
-      handle: '@crypto_analyst',
-      avatar: '',
-      verified: true,
-    },
-    question:
-      "I'd like to ask — does this count as market manipulation? If I'm shorting right now, who's responsible if this causes a liquidation?",
-    reply: {
-      author: {
-        name: 'CZ',
-        handle: '@crypto_analyst',
-        avatar: '',
-        verified: true,
-      },
-      date: 'Jun 22',
-      content: 'Full disclosure. I just bought some Aster today, using my own money, on @Binance.',
-    },
-    poll: {
-      yes: 65,
-      no: 35,
-    },
-    volume: '$34m',
-  },
-  {
-    id: '3',
-    author: {
-      name: 'Crypto Analyst',
-      handle: '@crypto_analyst',
-      avatar: '',
-      verified: true,
-    },
-    question:
-      "I'd like to ask — does this count as market manipulation? If I'm shorting right now, who's responsible if this causes a liquidation?",
-    reply: {
-      author: {
-        name: 'CZ',
-        handle: '@crypto_analyst',
-        avatar: '',
-        verified: true,
-      },
-      date: 'Jun 22',
-      content: 'Full disclosure. I just bought some Aster today, using my own money, on @Binance.',
-    },
-    poll: {
-      yes: 65,
-      no: 35,
-    },
-    volume: '$34m',
-  },
-  {
-    id: '4',
-    author: {
-      name: 'Crypto Analyst',
-      handle: '@crypto_analyst',
-      avatar: '',
-      verified: true,
-    },
-    question:
-      "I'd like to ask — does this count as market manipulation? If I'm shorting right now, who's responsible if this causes a liquidation?",
-    reply: {
-      author: {
-        name: 'CZ',
-        handle: '@crypto_analyst',
-        avatar: '',
-        verified: true,
-      },
-      date: 'Jun 22',
-      content: 'Full disclosure. I just bought some Aster today, using my own money, on @Binance.',
-    },
-    poll: {
-      yes: 65,
-      no: 35,
-    },
-    volume: '$34m',
-  },
-];
+    volume: `$${betItem.commission.toLocaleString()}`,
+  };
+};
 
 function OpinionCard({ data }: { data: OpinionCardData }) {
   const t = useTranslations('common');
   const totalVotes = data.poll.yes + data.poll.no;
   const yesPercentage = totalVotes > 0 ? (data.poll.yes / totalVotes) * 100 : 0;
   const noPercentage = totalVotes > 0 ? (data.poll.no / totalVotes) * 100 : 0;
+  const yesPct = Math.round(yesPercentage);
+  const noPct = Math.round(noPercentage);
+
+  // 格式化头像显示
+  const authorAvatar = data.author.avatar || '';
+  const replyAvatar = data.reply.author.avatar || '';
+
+  // 格式化交易量
+  const volumeNumber = parseFloat(data.volume.replace(/[$,]/g, '')) || 0;
+  const formattedVolume =
+    volumeNumber >= 1000000
+      ? `$${(volumeNumber / 1000000).toFixed(1)}m`
+      : volumeNumber >= 1000
+        ? `$${(volumeNumber / 1000).toFixed(1)}k`
+        : data.volume;
 
   return (
-    <Card className="border-border bg-card p-0 transition-shadow hover:shadow-md">
-      <CardContent className="space-y-4 p-5">
-        {/* Header: Author Info */}
-        <div className="flex items-start justify-between">
-          <div className="flex min-w-0 flex-1 items-center gap-3">
-            <div className="relative flex-shrink-0">
-              <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-black dark:bg-gray-900">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-700 via-gray-600 to-gray-800 opacity-60 blur-sm"></div>
-                <div className="relative h-6 w-6 rounded-full bg-gray-700 ring-1 ring-gray-500 dark:bg-gray-600 dark:ring-gray-400"></div>
+    <Link
+      href={`${PagesRoute.OPINIONS}/${data.id}`}
+      className="group border-border bg-background hover:border-primary/50 hover:shadow-primary/5 dark:hover:shadow-primary/10 relative cursor-pointer overflow-hidden rounded-2xl border p-5 transition-all hover:shadow-xl"
+    >
+      {/* Header */}
+      <div className="mb-4 flex items-start justify-between">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            {authorAvatar ? (
+              <img
+                src={authorAvatar}
+                alt={data.author.name}
+                className="border-border h-10 w-10 rounded-full border object-cover"
+              />
+            ) : (
+              <div className="border-border bg-muted flex h-10 w-10 items-center justify-center rounded-full border">
+                <div className="bg-muted-foreground/20 h-6 w-6 rounded-full"></div>
               </div>
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1.5">
-                <span className="truncate text-base font-semibold">{data.author.name}</span>
-                {data.author.verified && (
-                  <Verified className="h-4 w-4 flex-shrink-0 text-blue-500" />
-                )}
-              </div>
-              <div className="text-muted-foreground/60 text-md truncate">{data.author.handle}</div>
-            </div>
+            )}
+            {data.author.verified && (
+              <CheckCircle2 className="bg-card text-primary absolute -right-1 -bottom-1 h-4 w-4 rounded-full" />
+            )}
           </div>
-          <Gift className="h-5 w-5 flex-shrink-0 text-blue-500" />
-        </div>
-
-        {/* Question */}
-        <div className="text-md text-muted-foreground/60 leading-relaxed">{data.question}</div>
-
-        {/* Reply Section */}
-        <div className="border-border bg-muted/30 space-y-2 rounded-lg border p-3">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 flex-shrink-0 rounded-full bg-gradient-to-br from-orange-400 via-orange-500 to-pink-500 shadow-sm"></div>
-            <div className="flex min-w-0 flex-1 items-center gap-2">
-              <div className="flex min-w-0 flex-1 items-center gap-1.5">
-                <span className="truncate text-base font-semibold">{data.reply.author.name}</span>
-                {data.reply.author.verified && (
-                  <Verified className="h-3.5 w-3.5 flex-shrink-0 text-blue-500" />
-                )}
-                <span className="text-muted-foreground/60 text-md truncate">
-                  {data.reply.author.handle}
-                </span>
-              </div>
-              <span className="text-muted-foreground/60 text-md flex-shrink-0">
-                {data.reply.date}
-              </span>
-            </div>
-          </div>
-          <div className="text-md text-muted-foreground/60 leading-relaxed">
-            {data.reply.content}
+          <div>
+            <h3 className="text-foreground group-hover:text-primary font-semibold transition-colors">
+              {data.author.name}
+            </h3>
+            <p className="text-muted-foreground text-xs">
+              @{data.author.handle} • {data.reply.date}
+            </p>
           </div>
         </div>
+      </div>
 
-        {/* Poll Results */}
+      {/* Content */}
+      <div className="mb-5 space-y-3">
+        <p className="text-foreground/90 line-clamp-2 text-sm leading-relaxed font-medium">
+          {data.question}
+        </p>
+        <div className="border-border bg-muted/50 text-muted-foreground rounded-xl border p-3 text-sm italic">
+          <div className="mb-2 flex items-center gap-2">
+            {replyAvatar ? (
+              <img
+                src={replyAvatar}
+                alt={data.reply.author.name}
+                className="h-6 w-6 rounded-full object-cover"
+              />
+            ) : (
+              <div className="h-6 w-6 rounded-full bg-gradient-to-br from-orange-400 via-orange-500 to-pink-500"></div>
+            )}
+            <span className="text-foreground/80 text-xs font-medium">
+              {data.reply.author.name} @{data.reply.author.handle}
+            </span>
+          </div>
+          "{data.reply.content}"
+        </div>
+      </div>
+
+      {/* Probability Bar */}
+      <div className="mb-4">
+        <div className="mb-2 flex justify-between text-sm font-semibold">
+          <span className="text-primary">Yes {yesPct}%</span>
+          <span className="text-destructive">No {noPct}%</span>
+        </div>
+        <div className="bg-muted dark:bg-muted/50 flex h-3 w-full overflow-hidden rounded-full">
+          <div
+            style={{ width: `${yesPercentage}%` }}
+            className="from-primary bg-gradient-to-r to-indigo-500 transition-all"
+          />
+          <div
+            style={{ width: `${noPercentage}%` }}
+            className="bg-muted-foreground/20 dark:bg-muted-foreground/30"
+          />
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="text-muted-foreground flex items-center justify-between text-xs">
+        <span className="font-mono font-medium">
+          {formattedVolume} {t('vol')}
+        </span>
+      </div>
+    </Link>
+  );
+}
+
+// 骨架屏组件
+function OpinionCardSkeleton() {
+  return (
+    <div className="group border-border bg-background relative overflow-hidden rounded-2xl border p-5">
+      {/* Header */}
+      <div className="mb-4 flex items-start justify-between">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <Skeleton className="h-10 w-10 rounded-full" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-3 w-32" />
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="mb-5 space-y-3">
         <div className="space-y-2">
-          <div className="relative h-6 overflow-hidden rounded-2xl bg-foreground dark:bg-muted">
-            {/* No 作为底部背景 */}
-            <div className="absolute inset-0 flex items-center justify-end pr-4">
-              <span className="text-xs font-medium text-white">No</span>
-            </div>
-            {/* Yes 作为绿色进度条覆盖在上面 */}
-            <div
-              className="absolute top-0 left-0 flex h-full items-center justify-start rounded-2xl bg-primary pl-4 transition-all"
-              style={{ width: `${yesPercentage}%` }}
-            >
-              {yesPercentage > 15 && <span className="text-md font-medium text-white">Yes</span>}
-            </div>
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-5/6" />
+        </div>
+        <div className="border-border bg-muted/50 rounded-xl border p-3">
+          <div className="mb-2 flex items-center gap-2">
+            <Skeleton className="h-6 w-6 rounded-full" />
+            <Skeleton className="h-3 w-32" />
           </div>
-          <div className="text-muted-foreground text-xs">
-            {data.volume} {t('vol')}
+          <div className="space-y-2">
+            <Skeleton className="h-3 w-full" />
+            <Skeleton className="h-3 w-4/5" />
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+
+      {/* Probability Bar */}
+      <div className="mb-4">
+        <div className="mb-2 flex justify-between">
+          <Skeleton className="h-4 w-16" />
+          <Skeleton className="h-4 w-16" />
+        </div>
+        <Skeleton className="h-3 w-full rounded-full" />
+      </div>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between">
+        <Skeleton className="h-3 w-20" />
+      </div>
+    </div>
   );
 }
 
 export default function HotOpinions() {
   const t = useTranslations('common');
+
+  // 获取 bet 列表数据
+  const {
+    data: betListResponse,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ['betList'],
+    queryFn: async () => {
+      const response = await getBetList();
+      return response;
+    },
+    staleTime: 5 * 60 * 1000, // 5分钟内数据被认为是新鲜的
+    gcTime: 10 * 60 * 1000, // 10分钟后清除缓存
+    retry: 2, // 失败时重试2次
+  });
+
+  // 转换数据格式
+  const opinions: OpinionCardData[] = React.useMemo(() => {
+    if (!betListResponse?.data?.list) {
+      return [];
+    }
+    return betListResponse.data.list.map((betItem, index) =>
+      transformBetDataToOpinionData(betItem, index)
+    );
+  }, [betListResponse]);
 
   return (
     <div className="bg-background box-border space-y-4 rounded-3xl p-4 backdrop-blur-sm sm:p-6">
@@ -232,12 +265,34 @@ export default function HotOpinions() {
         <p className="text-primary text-base">{t('share_your_views_to_earn_usdt')}</p>
       </div>
 
+      {/* Loading State - 骨架屏 */}
+      {isLoading && (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {[...Array(4)].map((_, index) => (
+            <OpinionCardSkeleton key={`skeleton-${index}`} />
+          ))}
+        </div>
+      )}
+
+      {/* Error State */}
+      {isError && (
+        <div className="flex items-center justify-center py-8">
+          <div className="text-destructive">加载失败，请稍后重试</div>
+        </div>
+      )}
+
       {/* Grid */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        {mockOpinions.map((opinion) => (
-          <OpinionCard key={opinion.id} data={opinion} />
-        ))}
-      </div>
+      {!isLoading && !isError && (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {opinions.length > 0 ? (
+            opinions.map((opinion) => <OpinionCard key={opinion.id} data={opinion} />)
+          ) : (
+            <div className="col-span-2 flex items-center justify-center py-8">
+              <div className="text-muted-foreground">暂无数据</div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
