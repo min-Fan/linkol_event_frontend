@@ -251,8 +251,8 @@ export function useBetDetail(betId: string | string[] | undefined) {
             condition: '', // API 没有提供，留空
             price: 0, // API 没有提供价格
             total_value: item.total_brand_value,
-            created_at: '', // API 没有提供创建时间
-            link_url: undefined, // API 没有提供链接
+            created_at: item.created_at || '', // 使用 API 提供的创建时间
+            link_url: item.tx_hash_link, // 使用 API 提供的交易哈希链接
           }));
 
           return {
