@@ -8,6 +8,7 @@ import {
   getBetProspective,
   getBetTopVoice,
   getBetComments,
+  getBetActivity,
   IGetBetDetailResponseData,
 } from '@libs/request';
 
@@ -220,6 +221,66 @@ export function useBetDetail(betId: string | string[] | undefined) {
     [betId]
   );
 
+  // 获取活动数据（支持分页）
+  const fetchActivity = useCallback(
+    async (page: number = 1, pageSize: number = 20) => {
+      if (!betId) {
+        return {
+          list: [],
+          total: 0,
+          current_page: 1,
+          total_pages: 0,
+        };
+      }
+      try {
+        const response = await getBetActivity({
+          bet_id: betId as string,
+          page,
+          size: pageSize,
+        });
+        
+        if (response?.data) {
+          // 转换数据格式
+          const transformedList = response.data.list.map((item, index) => ({
+            id: `activity-${page}-${index}`,
+            user_name: item.name,
+            profile_image_url: item.icon,
+            action: (item.attitude === 'Yes' ? 'bought' : 'sold') as 'bought' | 'sold',
+            quantity: item.amount,
+            position_type: item.attitude.toLowerCase() as 'yes' | 'no',
+            condition: '', // API 没有提供，留空
+            price: 0, // API 没有提供价格
+            total_value: item.total_brand_value,
+            created_at: '', // API 没有提供创建时间
+            link_url: undefined, // API 没有提供链接
+          }));
+
+          return {
+            list: transformedList,
+            total: response.data.total,
+            current_page: response.data.current_page,
+            total_pages: response.data.total_pages,
+          };
+        }
+        return {
+          list: [],
+          total: 0,
+          current_page: 1,
+          total_pages: 0,
+        };
+      } catch (error) {
+        console.error('Failed to fetch activity:', error);
+        return {
+          list: [],
+          total: 0,
+          current_page: 1,
+          total_pages: 0,
+        };
+      }
+    },
+    [betId]
+  );
+
   // 转换图表数据格式以匹配组件需求
   const transformedChartData = useMemo(() => {
     if (!chartData) return null;
@@ -329,6 +390,8 @@ export function useBetDetail(betId: string | string[] | undefined) {
     fetchComments,
     commentsTotal,
     isCommentsTotalLoading,
+    // 活动数据
+    fetchActivity,
   };
 }
 

@@ -35,6 +35,7 @@ export default function OpinionsPage() {
     isTopVoiceLoading,
     fetchComments,
     commentsTotal,
+    fetchActivity,
   } = useBetDetail(opinionId);
 
   if (isLoading) {
@@ -149,6 +150,7 @@ export default function OpinionsPage() {
                 isTopVoiceLoading={isTopVoiceLoading}
                 fetchComments={fetchComments}
                 commentsTotal={commentsTotal}
+                fetchActivity={fetchActivity}
               />
             )}
           </div>

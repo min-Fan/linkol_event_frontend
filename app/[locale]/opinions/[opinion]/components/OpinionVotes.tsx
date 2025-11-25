@@ -22,7 +22,7 @@ interface OpinionVotesProps {
   };
   isTopVoiceLoading?: boolean;
   commentsTotal?: number;
-  fetchComments?: (page: number) => Promise<{
+  fetchComments?: (page: number, pageSize?: number) => Promise<{
     list: Array<{
       id: string;
       name: string;
@@ -37,6 +37,24 @@ interface OpinionVotesProps {
       position?: number;
       position_type?: 'yes' | 'no';
       link?: string;
+    }>;
+    total: number;
+    current_page: number;
+    total_pages: number;
+  }>;
+  fetchActivity?: (page: number, pageSize?: number) => Promise<{
+    list: Array<{
+      id: string;
+      user_name: string;
+      profile_image_url?: string;
+      action: 'bought' | 'sold';
+      quantity: number;
+      position_type: 'yes' | 'no';
+      condition: string;
+      price: number;
+      total_value: number;
+      created_at: string;
+      link_url?: string;
     }>;
     total: number;
     current_page: number;
@@ -57,6 +75,7 @@ export default function OpinionVotes({
   isTopVoiceLoading = false,
   commentsTotal = 0,
   fetchComments,
+  fetchActivity,
 }: OpinionVotesProps) {
   const [activeTab, setActiveTab] = useState(0);
 
@@ -126,7 +145,7 @@ export default function OpinionVotes({
 
       {activeTab === 3 && (
         <>
-          <Activity />
+          <Activity onFetchActivities={fetchActivity} />
         </>
       )}
     </div>
