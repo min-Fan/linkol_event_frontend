@@ -42,7 +42,7 @@ const transformBetDataToOpinionData = (betItem: IBetListItem, index: number): Op
   };
 
   return {
-    id: betItem.id?.toString() || `1`,
+    id: betItem.attitude.bet_id?.toString() || betItem.id?.toString() || `1`,
     author: {
       name: betItem.topic.name,
       handle: betItem.topic.screen_name,

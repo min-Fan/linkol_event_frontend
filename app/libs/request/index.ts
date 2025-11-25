@@ -3027,6 +3027,7 @@ export interface IBetListItem {
     content: string;
   };
   attitude: {
+    bet_id?: string | number;
     icon: string;
     name: string;
     screen_name: string;
