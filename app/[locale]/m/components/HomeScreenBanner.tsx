@@ -41,7 +41,7 @@ export default function HomeScreenBanner() {
           {t('post_to_earn')}
         </h1>
         <p className="max-w-[90%] text-center text-lg text-white sm:max-w-[420px] sm:text-2xl">
-          {t('boost_personal_brand')}
+          {t('turn_your_tweets')}
         </p>
         <div className="mt-6 rounded-full shadow-[0_1px_40px_0_rgba(242,242,242,0.80)]">
           <Link
