@@ -9,23 +9,23 @@ export default function HowItWork() {
       <h3 className="font-semibold">{t('how_it_works')}</h3>
       <ul className="text-muted-foreground space-y-2 text-sm">
         <li className="flex items-start gap-2">
-          <span className="flex mt-2 text-primary w-1 h-1 rounded-full bg-primary"></span>
+          <span className="text-primary bg-primary mt-2 flex h-1 w-1 rounded-full"></span>
           <span>{t('how_it_works_step_1')}</span>
         </li>
         <li className="flex items-start gap-2">
-          <span className="flex mt-2 text-primary w-1 h-1 rounded-full bg-primary"></span>
+          <span className="text-primary bg-primary mt-2 flex h-1 w-1 rounded-full"></span>
           <span>{t('how_it_works_step_2')}</span>
         </li>
         <li className="flex items-start gap-2">
-          <span className="flex mt-2 text-primary w-1 h-1 rounded-full bg-primary"></span>
+          <span className="text-primary bg-primary mt-2 flex h-1 w-1 rounded-full"></span>
           <span>{t('how_it_works_step_3')}</span>
         </li>
         <li className="flex items-start gap-2">
-          <span className="flex mt-2 text-primary w-1 h-1 rounded-full bg-primary"></span>
+          <span className="text-primary bg-primary mt-2 flex h-1 w-1 rounded-full"></span>
           <span>{t('how_it_works_step_4')}</span>
         </li>
         <li className="flex items-start gap-2">
-          <span className="flex mt-2 text-primary w-1 h-1 rounded-full bg-primary"></span>
+          <span className="text-primary bg-primary mt-2 flex h-1 w-1 rounded-full"></span>
           <span>{t('how_it_works_step_5')}</span>
         </li>
       </ul>

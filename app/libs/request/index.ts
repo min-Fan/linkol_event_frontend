@@ -3172,6 +3172,8 @@ export interface IBetCommentItem {
   views: number;
   reply_count: number;
   link: string;
+  screen_name: string;
+  created_at: string;
 }
 
 export interface IGetBetCommentsResponseData {
@@ -3201,6 +3203,9 @@ export interface IBetActivityItem {
   total_brand_value: number;
   amount: number;
   attitude: 'Yes' | 'No';
+  tx_hash?: string;
+  tx_hash_link?: string;
+  created_at?: string;
 }
 
 export interface IGetBetActivityResponseData {

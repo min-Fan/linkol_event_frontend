@@ -102,10 +102,7 @@ export function useBetDetail(betId: string | string[] | undefined) {
   const topVoiceData = betTopVoiceResponse?.data;
 
   // 获取评论总数（获取第一页数据以获取总数）
-  const {
-    data: betCommentsTotalResponse,
-    isLoading: isCommentsTotalLoading,
-  } = useQuery({
+  const { data: betCommentsTotalResponse, isLoading: isCommentsTotalLoading } = useQuery({
     queryKey: ['betCommentsTotal', betId],
     queryFn: async () => {
       if (!betId) return null;
@@ -128,8 +125,20 @@ export function useBetDetail(betId: string | string[] | undefined) {
   const transformedTopVoiceData = useMemo(() => {
     if (!topVoiceData?.list) return { yesHolders: [], noHolders: [] };
 
-    const yesHolders: Array<{ id: string; name: string; avatar?: string; shares: number; brandVoice: number }> = [];
-    const noHolders: Array<{ id: string; name: string; avatar?: string; shares: number; brandVoice: number }> = [];
+    const yesHolders: Array<{
+      id: string;
+      name: string;
+      avatar?: string;
+      shares: number;
+      brandVoice: number;
+    }> = [];
+    const noHolders: Array<{
+      id: string;
+      name: string;
+      avatar?: string;
+      shares: number;
+      brandVoice: number;
+    }> = [];
 
     topVoiceData.list.forEach((item, index) => {
       if (item.yes && item.yes.length > 0) {
@@ -176,23 +185,24 @@ export function useBetDetail(betId: string | string[] | undefined) {
           page,
           size: pageSize,
         });
-        
+
         if (response?.data) {
           // 转换数据格式
           const transformedList = response.data.list.map((item, index) => ({
             id: `comment-${page}-${index}`,
             name: item.name,
-            screen_name: '', // API 没有提供，可以从 link 中提取或留空
+            screen_name: item.screen_name,
             profile_image_url: item.icon,
             is_verified: false, // API 没有提供
             comment_text: item.content,
-            created_at: undefined, // API 没有提供创建时间
+            created_at: item.created_at || '',
             like_count: item.favorite_count,
             retweet_count: 0, // API 没有提供
             reply_count: item.reply_count,
             position: item.amount > 0 ? item.amount : undefined,
-            position_type: item.amount > 0 ? 'yes' : 'no' as 'yes' | 'no',
+            position_type: item.amount > 0 ? 'yes' : ('no' as 'yes' | 'no'),
             link: item.link,
+            views: item.views,
           }));
 
           return {
@@ -238,7 +248,7 @@ export function useBetDetail(betId: string | string[] | undefined) {
           page,
           size: pageSize,
         });
-        
+
         if (response?.data) {
           // 转换数据格式
           const transformedList = response.data.list.map((item, index) => ({
@@ -251,8 +261,8 @@ export function useBetDetail(betId: string | string[] | undefined) {
             condition: '', // API 没有提供，留空
             price: 0, // API 没有提供价格
             total_value: item.total_brand_value,
-            created_at: '', // API 没有提供创建时间
-            link_url: undefined, // API 没有提供链接
+            created_at: item.created_at || '', // 使用 API 提供的创建时间
+            link_url: item.tx_hash_link, // 使用 API 提供的交易哈希链接
           }));
 
           return {
@@ -289,14 +299,16 @@ export function useBetDetail(betId: string | string[] | undefined) {
       date: item.date,
       yes: item.yes[0] * 100, // 提取数值并转换为百分比
       no: item.no[0] * 100, // 提取数值并转换为百分比
-      yesUsers: item.yes[1]?.icons?.map((icon) => ({
-        avatar: icon,
-        address: '', // API 没有提供地址，留空
-      })) || [],
-      noUsers: item.no[1]?.icons?.map((icon) => ({
-        avatar: icon,
-        address: '', // API 没有提供地址，留空
-      })) || [],
+      yesUsers:
+        item.yes[1]?.icons?.map((icon) => ({
+          avatar: icon,
+          address: '', // API 没有提供地址，留空
+        })) || [],
+      noUsers:
+        item.no[1]?.icons?.map((icon) => ({
+          avatar: icon,
+          address: '', // API 没有提供地址，留空
+        })) || [],
     }));
   }, [chartData]);
 
@@ -315,7 +327,7 @@ export function useBetDetail(betId: string | string[] | undefined) {
     const totalVotes = betDetail.yes_brand_value + betDetail.no_brand_value;
     const yesPercentage = totalVotes > 0 ? (betDetail.yes_brand_value / totalVotes) * 100 : 0;
     const noPercentage = totalVotes > 0 ? (betDetail.no_brand_value / totalVotes) * 100 : 0;
-    
+
     // 价格基于百分比计算
     const yesPrice = yesPercentage;
     const noPrice = noPercentage;
@@ -394,4 +406,3 @@ export function useBetDetail(betId: string | string[] | undefined) {
     fetchActivity,
   };
 }
-

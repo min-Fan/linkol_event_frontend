@@ -38,7 +38,7 @@ export default function UITheme() {
 
   return (
     <Button
-      className={`size-6 md:size-8 text-white`}
+      className={`size-6 text-white md:size-8`}
       variant="ghost"
       size="icon"
       onClick={handleChangeTheme}

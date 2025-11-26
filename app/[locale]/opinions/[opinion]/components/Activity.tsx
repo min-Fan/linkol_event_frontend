@@ -117,7 +117,9 @@ const EmptyState = () => {
   const t = useTranslations('common');
   return (
     <div className="flex h-80 w-full flex-col items-center justify-center px-4 py-16 text-center">
-      <h3 className="text-muted-foreground/60 mb-2 text-xl font-semibold">{t('no_activities_found')}</h3>
+      <h3 className="text-muted-foreground/60 mb-2 text-xl font-semibold">
+        {t('no_activities_found')}
+      </h3>
       <p className="text-md text-muted-foreground/60 mb-2 max-w-md">
         {t('activities_will_appear')}
       </p>

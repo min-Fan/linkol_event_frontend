@@ -117,7 +117,9 @@ export default function TopVoice({
             {yesHolders.length > 0 ? (
               yesHolders.map((user) => <UserRow key={user.id} user={user} isYes={true} />)
             ) : (
-              <div className="text-center text-muted-foreground py-8 text-sm">{t('no_data_available')}</div>
+              <div className="text-muted-foreground py-8 text-center text-sm">
+                {t('no_data_available')}
+              </div>
             )}
           </div>
         </div>
@@ -132,7 +134,9 @@ export default function TopVoice({
             {noHolders.length > 0 ? (
               noHolders.map((user) => <UserRow key={user.id} user={user} isYes={false} />)
             ) : (
-              <div className="text-center text-muted-foreground py-8 text-sm">{t('no_data_available')}</div>
+              <div className="text-muted-foreground py-8 text-center text-sm">
+                {t('no_data_available')}
+              </div>
             )}
           </div>
         </div>
