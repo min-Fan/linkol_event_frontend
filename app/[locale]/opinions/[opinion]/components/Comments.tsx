@@ -58,7 +58,10 @@ const CommentItem = ({ comment }: { comment: CommentItem }) => {
   const badgeText = comment.position ? `${comment.position} No change` : '';
 
   return (
-    <div className="bg-background border-border flex w-full flex-col gap-3 rounded-2xl border p-4 cursor-pointer hover:border-primary/20" onClick={() => window.open(comment.link, '_blank')}>
+    <div
+      className="bg-background border-border hover:border-primary/20 flex w-full cursor-pointer flex-col gap-3 rounded-2xl border p-4"
+      onClick={() => window.open(comment.link, '_blank')}
+    >
       <div className="flex w-full items-start justify-between">
         <div className="flex w-full flex-1 items-center gap-2">
           <div className="bg-muted-foreground/10 size-9 min-w-9 overflow-hidden rounded-full sm:size-12 sm:min-w-12">
@@ -119,7 +122,9 @@ const EmptyState = () => {
   const t = useTranslations('common');
   return (
     <div className="flex h-80 w-full flex-col items-center justify-center px-4 py-16 text-center">
-      <h3 className="text-muted-foreground/60 mb-2 text-xl font-semibold">{t('no_comments_found')}</h3>
+      <h3 className="text-muted-foreground/60 mb-2 text-xl font-semibold">
+        {t('no_comments_found')}
+      </h3>
       <p className="text-md text-muted-foreground/60 mb-2 max-w-md">{t('be_first_to_comment')}</p>
     </div>
   );
@@ -317,11 +322,11 @@ interface CommentsProps {
   pageSize?: number; // 每页数量，默认20
 }
 
-export default function Comments({ 
-  comments: propComments, 
-  onFetchComments, 
+export default function Comments({
+  comments: propComments,
+  onFetchComments,
   betId,
-  pageSize = 20 
+  pageSize = 20,
 }: CommentsProps) {
   const t = useTranslations('common');
   const [comments, setComments] = useState<CommentItem[]>(propComments || []);
@@ -350,7 +355,7 @@ export default function Comments({
           // 如果有传入的获取函数，使用它
           const response = await onFetchComments(page, pageSize);
           const newComments = response.list || [];
-          
+
           if (append) {
             // 追加新数据
             setComments((prev) => [...prev, ...newComments]);
@@ -358,14 +363,14 @@ export default function Comments({
             // 替换数据（首次加载或刷新）
             setComments(newComments);
           }
-          
+
           const newCurrentPage = response.current_page || page;
           const newTotalPages = response.total_pages || Math.ceil((response.total || 0) / pageSize);
-          
+
           setCurrentPage(newCurrentPage);
           setTotalPages(newTotalPages);
           setTotal(response.total || 0);
-          
+
           // 判断是否还有更多数据：当前页小于总页数
           setHasMore(newCurrentPage < newTotalPages);
         } else {
@@ -374,13 +379,13 @@ export default function Comments({
           const startIndex = (page - 1) * pageSize;
           const endIndex = startIndex + pageSize;
           const pageComments = mockComments.slice(startIndex, endIndex);
-          
+
           if (append) {
             setComments((prev) => [...prev, ...pageComments]);
           } else {
             setComments(pageComments);
           }
-          
+
           setCurrentPage(page);
           setTotalPages(Math.ceil(mockComments.length / pageSize));
           setTotal(mockComments.length);
@@ -490,7 +495,7 @@ export default function Comments({
           {hasMore && (
             <div ref={loadMoreRef} className="flex justify-center py-4">
               {loadingMore && (
-                <div className="flex flex-col gap-2 items-center">
+                <div className="flex flex-col items-center gap-2">
                   {Array.from({ length: 2 }).map((_, index) => (
                     <CommentItemSkeleton key={`loading-${index}`} />
                   ))}
@@ -501,16 +506,14 @@ export default function Comments({
 
           {/* 没有更多数据提示 */}
           {!hasMore && comments.length > 0 && (
-            <div className="text-center text-muted-foreground/60 py-4 text-sm">
+            <div className="text-muted-foreground/60 py-4 text-center text-sm">
               {t('all_comments_loaded')} ({total})
             </div>
           )}
 
           {/* 错误提示（加载更多时出错） */}
           {error && comments.length > 0 && (
-            <div className="text-center text-destructive py-4 text-sm">
-              {error}
-            </div>
+            <div className="text-destructive py-4 text-center text-sm">{error}</div>
           )}
         </>
       )}

@@ -102,7 +102,6 @@ export default function Header(props: { hasLogin?: boolean }) {
           <CompNav navigationItems={navigationItems} />
         </div>
         <div className="flex w-auto items-center gap-2">
-          
           {hasLogin && (
             <>
               <div className="hidden sm:block">

@@ -18,12 +18,27 @@ interface OpinionVotesProps {
   prospectiveData?: any;
   issueScreenName?: string;
   topVoiceData?: {
-    yesHolders: Array<{ id: string; name: string; avatar?: string; shares: number; brandVoice: number }>;
-    noHolders: Array<{ id: string; name: string; avatar?: string; shares: number; brandVoice: number }>;
+    yesHolders: Array<{
+      id: string;
+      name: string;
+      avatar?: string;
+      shares: number;
+      brandVoice: number;
+    }>;
+    noHolders: Array<{
+      id: string;
+      name: string;
+      avatar?: string;
+      shares: number;
+      brandVoice: number;
+    }>;
   };
   isTopVoiceLoading?: boolean;
   commentsTotal?: number;
-  fetchComments?: (page: number, pageSize?: number) => Promise<{
+  fetchComments?: (
+    page: number,
+    pageSize?: number
+  ) => Promise<{
     list: Array<{
       id: string;
       name: string;
@@ -43,7 +58,10 @@ interface OpinionVotesProps {
     current_page: number;
     total_pages: number;
   }>;
-  fetchActivity?: (page: number, pageSize?: number) => Promise<{
+  fetchActivity?: (
+    page: number,
+    pageSize?: number
+  ) => Promise<{
     list: Array<{
       id: string;
       user_name: string;

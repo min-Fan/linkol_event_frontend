@@ -1,22 +1,21 @@
 'use client';
 import React from 'react';
+import { useParams } from 'next/navigation';
 import { Zap, Info, Trophy } from 'lucide-react';
+import { useBetDetail } from '@hooks/useBetDetail';
 import { useTranslations } from 'next-intl';
 
-interface BrandVoiceComparisonProps {
-  yesVoice: number;
-  noVoice: number;
-  yesCount: number;
-  noCount: number;
-}
-
-export default function BrandVoiceComparison({
-  yesVoice,
-  noVoice,
-  yesCount,
-  noCount,
-}: BrandVoiceComparisonProps) {
+export default function OpinionBrandVoiceComparison() {
+  const params = useParams();
+  const opinionId = params?.opinion as string;
+  const { yesBrandValue, noBrandValue, prospectiveData } = useBetDetail(opinionId);
   const t = useTranslations('common');
+
+  const yesVoice = yesBrandValue || 0;
+  const noVoice = noBrandValue || 0;
+  const yesCount = prospectiveData?.list?.[0]?.yes?.number || 0;
+  const noCount = prospectiveData?.list?.[0]?.no?.number || 0;
+
   const totalVoice = yesVoice + noVoice;
   const yesPercent = totalVoice > 0 ? (yesVoice / totalVoice) * 100 : 50;
   const noPercent = 100 - yesPercent;
@@ -32,28 +31,24 @@ export default function BrandVoiceComparison({
   return (
     <div className="space-y-6">
       {/* Main Voice Battle Card */}
-      <div className="border-border from-background to-primary/50 dark:from-background dark:to-card relative overflow-hidden rounded-3xl border bg-gradient-to-b from-[30%] p-8 shadow-2xl">
+      <div className="border-border dark:from-muted dark:to-card relative overflow-hidden rounded-3xl border bg-gradient-to-b from-gray-900 to-black p-8 shadow-2xl">
         {/* Decorative background glow */}
         <div
-          className={`absolute -top-24 -left-24 h-64 w-64 rounded-full opacity-20 blur-[100px] ${
-            isYesWinning ? 'bg-green-500' : 'bg-red-500'
-          }`}
+          className={`absolute -top-24 -left-24 h-64 w-64 rounded-full opacity-20 blur-[100px] ${isYesWinning ? 'bg-green-500' : 'bg-red-500'}`}
         ></div>
         <div
-          className={`absolute -right-24 -bottom-24 h-64 w-64 rounded-full opacity-20 blur-[100px] ${
-            !isYesWinning ? 'bg-green-500' : 'bg-red-500'
-          }`}
+          className={`absolute -right-24 -bottom-24 h-64 w-64 rounded-full opacity-20 blur-[100px] ${!isYesWinning ? 'bg-green-500' : 'bg-red-500'}`}
         ></div>
 
         {/* Header */}
         <div className="relative z-10 mb-8 flex items-center justify-between">
-          <h3 className="flex items-center gap-3 text-2xl font-black tracking-wide italic">
+          <h3 className="flex items-center gap-3 text-2xl font-black tracking-wide text-white italic">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 shadow-lg shadow-orange-500/20">
               <Zap className="h-6 w-6 fill-white text-white" />
             </span>
             {t('brand_voice_battle')}
           </h3>
-          <div className="bg-accent-foreground/5 text-muted-foreground/60 flex items-center gap-2 rounded-full border border-white/5 px-4 py-2 text-xs font-medium backdrop-blur-md">
+          <div className="flex items-center gap-2 rounded-full border border-white/5 bg-white/10 px-4 py-2 text-xs font-medium text-gray-300 backdrop-blur-md">
             <Info className="h-3.5 w-3.5 text-blue-400" />
             <span>{t('entropy_weight_method')}</span>
           </div>
@@ -129,15 +124,9 @@ export default function BrandVoiceComparison({
         </div>
 
         {/* Info Text */}
-        <p className="text-muted-foreground relative z-10 text-center text-sm font-medium">
+        <p className="relative z-10 text-center text-sm font-medium text-gray-400">
           <Trophy className="-mt-1 mr-2 inline-block h-4 w-4 text-yellow-500" />
-          {t.rich('prediction_resolves_volume', {
-            volume: (chunks) => (
-              <span className="font-bold text-white underline decoration-yellow-500/50 underline-offset-4">
-                {chunks}
-              </span>
-            ),
-          })}
+          {t('prediction_resolves_volume')}
         </p>
       </div>
     </div>

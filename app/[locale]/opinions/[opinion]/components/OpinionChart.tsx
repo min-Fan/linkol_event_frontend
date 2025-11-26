@@ -129,7 +129,7 @@ export default function OpinionChart({ data }: OpinionChartProps) {
   // 如果提供了数据，使用提供的数据；否则使用模拟数据
   const chartData = data && data.length > 0 ? data : mockData;
   const [hoveredLine, setHoveredLine] = useState<'yes' | 'no' | null>(null);
-  
+
   const chartConfig = {
     yes: {
       label: t('yes').toUpperCase(),
@@ -210,7 +210,7 @@ export default function OpinionChart({ data }: OpinionChartProps) {
       const yesY = calculateY(yesPayload.payload.yes);
       const noY = calculateY(noPayload.payload.no);
 
-  return (
+      return (
         <g>
           {/* 垂直虚线 - 从坐标点到X轴 */}
           <line
@@ -281,7 +281,8 @@ export default function OpinionChart({ data }: OpinionChartProps) {
         <p className="mb-1 text-sm font-medium">{label}</p>
         {payload.map((entry: any, index: number) => (
           <p key={index} className="text-sm" style={{ color: entry.color }}>
-            {entry.dataKey === 'yes' ? t('yes').toUpperCase() : t('no').toUpperCase()}: {entry.value}%
+            {entry.dataKey === 'yes' ? t('yes').toUpperCase() : t('no').toUpperCase()}:{' '}
+            {entry.value}%
           </p>
         ))}
       </div>
@@ -290,14 +291,13 @@ export default function OpinionChart({ data }: OpinionChartProps) {
 
   // 自定义头像标签组件
   const AvatarLabel = ({ viewBox, users, lineType }: any) => {
-
     if (!viewBox || !viewBox.x) {
       return null;
     }
 
     const { x } = viewBox;
     const borderColor = lineType === 'yes' ? chartConfig.yes.color : chartConfig.no.color;
-    
+
     // 最多显示5个头像
     const maxDisplay = 5;
     const displayUsers = users.slice(0, maxDisplay);
@@ -363,9 +363,9 @@ export default function OpinionChart({ data }: OpinionChartProps) {
   };
 
   return (
-    <Card className="p-0 shadow-none bg-accent/20 dark:bg-muted/20">
+    <Card className="bg-accent/20 dark:bg-muted/20 p-0 shadow-none">
       <CardContent className="p-0 sm:px-6">
-        <div 
+        <div
           className="relative h-64 w-full sm:h-80"
           onMouseLeave={() => {
             // 当鼠标离开图表区域时，清除所有悬停状态
@@ -543,7 +543,7 @@ export default function OpinionChart({ data }: OpinionChartProps) {
               </LineChart>
             </ResponsiveContainer>
           </ChartContainer>
-    </div>
+        </div>
       </CardContent>
     </Card>
   );

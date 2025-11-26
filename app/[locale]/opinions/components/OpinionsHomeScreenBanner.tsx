@@ -14,12 +14,9 @@ import { getBetList } from '@libs/request';
 export default function OpinionsHomeScreenBanner() {
   const { data, isLoading } = useBanner();
   const t = useTranslations('common');
-  
+
   // 获取 bet 列表数据（和 HotOpinions 组件一样）
-  const {
-    data: betListResponse,
-    isLoading: isBetListLoading,
-  } = useQuery({
+  const { data: betListResponse, isLoading: isBetListLoading } = useQuery({
     queryKey: ['betList'],
     queryFn: async () => {
       const response = await getBetList();
@@ -74,18 +71,18 @@ export default function OpinionsHomeScreenBanner() {
                 track('Predict the Future Button ==> Opinions Page');
               }}
             >
-              <Button 
+              <Button
                 disabled={isLoadingData}
-                className="text-primary !h-11 gap-x-1 !rounded-full bg-white !px-6 !text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="text-primary !h-11 gap-x-1 !rounded-full bg-white !px-6 !text-base font-medium disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <span>{t('join_predict')}</span>
                 <ArrowRight className="size-5" />
               </Button>
             </Link>
           ) : (
-            <Button 
+            <Button
               disabled={true}
-              className="text-primary !h-11 gap-x-1 !rounded-full bg-white !px-6 !text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-primary !h-11 gap-x-1 !rounded-full bg-white !px-6 !text-base font-medium disabled:cursor-not-allowed disabled:opacity-50"
             >
               <span>{t('join_predict')}</span>
               <ArrowRight className="size-5" />

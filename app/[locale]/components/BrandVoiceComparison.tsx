@@ -1,7 +1,5 @@
-'use client';
 import React from 'react';
-import { Zap, Info, Trophy } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { Users, Zap, Info, Trophy } from 'lucide-react';
 
 interface BrandVoiceComparisonProps {
   yesVoice: number;
@@ -10,13 +8,12 @@ interface BrandVoiceComparisonProps {
   noCount: number;
 }
 
-export default function BrandVoiceComparison({
+export const BrandVoiceComparison: React.FC<BrandVoiceComparisonProps> = ({
   yesVoice,
   noVoice,
   yesCount,
   noCount,
-}: BrandVoiceComparisonProps) {
-  const t = useTranslations('common');
+}) => {
   const totalVoice = yesVoice + noVoice;
   const yesPercent = totalVoice > 0 ? (yesVoice / totalVoice) * 100 : 50;
   const noPercent = 100 - yesPercent;
@@ -31,31 +28,27 @@ export default function BrandVoiceComparison({
 
   return (
     <div className="space-y-6">
-      {/* Main Voice Battle Card */}
-      <div className="border-border from-background to-primary/50 dark:from-background dark:to-card relative overflow-hidden rounded-3xl border bg-gradient-to-b from-[30%] p-8 shadow-2xl">
+      {/* Main Voice Battle Card - Uses dark theme by default even in light mode for impact, or adapted */}
+      <div className="border-theme dark:from-surfaceHighlight dark:to-surface relative overflow-hidden rounded-3xl border bg-gradient-to-b from-gray-900 to-black p-8 shadow-2xl">
         {/* Decorative background glow */}
         <div
-          className={`absolute -top-24 -left-24 h-64 w-64 rounded-full opacity-20 blur-[100px] ${
-            isYesWinning ? 'bg-green-500' : 'bg-red-500'
-          }`}
+          className={`absolute -top-24 -left-24 h-64 w-64 rounded-full opacity-20 blur-[100px] ${isYesWinning ? 'bg-green-500' : 'bg-red-500'}`}
         ></div>
         <div
-          className={`absolute -right-24 -bottom-24 h-64 w-64 rounded-full opacity-20 blur-[100px] ${
-            !isYesWinning ? 'bg-green-500' : 'bg-red-500'
-          }`}
+          className={`absolute -right-24 -bottom-24 h-64 w-64 rounded-full opacity-20 blur-[100px] ${!isYesWinning ? 'bg-green-500' : 'bg-red-500'}`}
         ></div>
 
         {/* Header */}
         <div className="relative z-10 mb-8 flex items-center justify-between">
-          <h3 className="flex items-center gap-3 text-2xl font-black tracking-wide italic">
+          <h3 className="flex items-center gap-3 text-2xl font-black tracking-wide text-white italic">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 shadow-lg shadow-orange-500/20">
               <Zap className="h-6 w-6 fill-white text-white" />
             </span>
-            {t('brand_voice_battle')}
+            BRAND VOICE BATTLE
           </h3>
-          <div className="bg-accent-foreground/5 text-muted-foreground/60 flex items-center gap-2 rounded-full border border-white/5 px-4 py-2 text-xs font-medium backdrop-blur-md">
+          <div className="flex items-center gap-2 rounded-full border border-white/5 bg-white/10 px-4 py-2 text-xs font-medium text-gray-300 backdrop-blur-md">
             <Info className="h-3.5 w-3.5 text-blue-400" />
-            <span>{t('entropy_weight_method')}</span>
+            <span>Entropy Weight Method</span>
           </div>
         </div>
 
@@ -65,7 +58,7 @@ export default function BrandVoiceComparison({
             <div className="mb-1 flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.8)]"></span>
               <p className="text-sm font-bold tracking-widest text-green-500 uppercase">
-                {t('yes')} Voice
+                YES Voice
               </p>
             </div>
             <p className="text-5xl font-black tracking-tighter drop-shadow-lg md:text-6xl">
@@ -75,20 +68,18 @@ export default function BrandVoiceComparison({
 
           <div className="mb-4 text-center">
             <div className="rounded-full border border-white/10 bg-white/10 px-4 py-1 text-[10px] font-bold tracking-widest text-gray-400 uppercase">
-              {t('current_winner')}
+              Current Winner
             </div>
             <div
               className={`mt-2 text-xl font-black ${isYesWinning ? 'text-green-500' : 'text-red-500'}`}
             >
-              {isYesWinning ? t('yes').toUpperCase() : t('no').toUpperCase()}
+              {isYesWinning ? 'YES' : 'NO'}
             </div>
           </div>
 
           <div className="text-right">
             <div className="mb-1 flex items-center justify-end gap-2">
-              <p className="text-sm font-bold tracking-widest text-red-500 uppercase">
-                {t('no')} Voice
-              </p>
+              <p className="text-sm font-bold tracking-widest text-red-500 uppercase">NO Voice</p>
               <span className="h-2 w-2 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)]"></span>
             </div>
             <p className="text-5xl font-black tracking-tighter drop-shadow-lg md:text-6xl">
@@ -123,23 +114,21 @@ export default function BrandVoiceComparison({
 
             {/* Center VS Marker */}
             <div className="absolute top-1/2 left-1/2 z-20 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-4 border-gray-800 bg-gray-900 text-xs font-black text-white shadow-xl">
-              {t('vs')}
+              VS
             </div>
           </div>
         </div>
 
         {/* Info Text */}
-        <p className="text-muted-foreground relative z-10 text-center text-sm font-medium">
+        <p className="relative z-10 text-center text-sm font-medium text-gray-400">
           <Trophy className="-mt-1 mr-2 inline-block h-4 w-4 text-yellow-500" />
-          {t.rich('prediction_resolves_volume', {
-            volume: (chunks) => (
-              <span className="font-bold text-white underline decoration-yellow-500/50 underline-offset-4">
-                {chunks}
-              </span>
-            ),
-          })}
+          Prediction resolves based on{' '}
+          <span className="font-bold text-white underline decoration-yellow-500/50 underline-offset-4">
+            Volume
+          </span>
+          , not just participant count.
         </p>
       </div>
     </div>
   );
-}
+};

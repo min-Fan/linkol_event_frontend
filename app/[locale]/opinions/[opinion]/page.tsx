@@ -1,18 +1,26 @@
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'next/navigation';
-import OpinionDetailHeader from './components/OpinionDetailHeader';
-import OpinionContent from './components/OpinionContent';
-import OpinionChart from './components/OpinionChart';
-import OpinionVotes from './components/OpinionVotes';
-import OpinionActions from './components/OpinionActions';
-import { TradingPanel } from './components';
 import { Link } from '@libs/i18n/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ExternalLink, HelpCircle, CheckCircle2 } from 'lucide-react';
 import { Skeleton } from '@shadcn/components/ui/skeleton';
 import PagesRoute from '@constants/routes';
 import { useBetDetail } from '@hooks/useBetDetail';
 import { useTranslations } from 'next-intl';
+import { PredictionSide } from './types';
+
+// 导入新组件
+import {
+  OpinionTradingPanel,
+  OpinionSentimentChart,
+  OpinionCommentList,
+  OpinionActivityList,
+  OpinionTopVoiceList,
+  OpinionBrandVoiceComparison,
+  OpinionSentimentVoterList,
+  OpinionShareModal,
+  OpinionAgentInsight,
+} from './components';
 
 export default function OpinionsPage() {
   const params = useParams();
@@ -20,39 +28,36 @@ export default function OpinionsPage() {
   const t = useTranslations('common');
 
   // 使用自定义 hook 获取 bet 详情数据
-  const {
-    betDetail,
-    isLoading,
-    isError,
-    yesPercentage,
-    noPercentage,
-    yesPrice,
-    noPrice,
-    topic,
-    attitude,
-    commission,
-    chartData,
-    prospectiveData,
-    topVoiceData,
-    isTopVoiceLoading,
-    fetchComments,
-    commentsTotal,
-    fetchActivity,
-  } = useBetDetail(opinionId);
+  const { betDetail, isLoading, isError, topic, attitude, commission, commentsTotal } =
+    useBetDetail(opinionId);
+
+  // Tab 状态
+  const [activeTab, setActiveTab] = useState<'prospective' | 'top_voice' | 'comments' | 'activity'>(
+    'prospective'
+  );
+
+  // Share Modal State
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [shareSide, setShareSide] = useState<PredictionSide>(PredictionSide.YES);
+
+  const openShareModal = (side: PredictionSide) => {
+    setShareSide(side);
+    setIsShareModalOpen(true);
+  };
 
   if (isLoading) {
     return (
-      <div className="mx-auto h-full w-full max-w-7xl px-0 py-4 sm:px-10 sm:py-6">
+      <div className="container mx-auto min-h-screen px-4 py-8 pb-20 transition-colors duration-300">
         <Link
           href={PagesRoute.OPINIONS}
           className="text-muted-foreground hover:text-foreground mb-6 flex items-center gap-2 text-sm transition-colors"
         >
           <ArrowLeft className="h-4 w-4" /> {t('back_to_markets')}
         </Link>
-        <div className="bg-background border-border grid grid-cols-1 gap-6 rounded-2xl border p-4 sm:rounded-3xl sm:p-8 lg:grid-cols-3">
+        <div className="grid gap-8 lg:grid-cols-3">
           <div className="space-y-6 lg:col-span-2">
-            <div className="rounded-2xl border border-border bg-card p-6">
-              <div className="flex items-center gap-4 mb-6">
+            <div className="border-border bg-card rounded-2xl border p-6">
+              <div className="mb-6 flex items-center gap-4">
                 <Skeleton className="h-16 w-16 rounded-full" />
                 <div className="space-y-2">
                   <Skeleton className="h-6 w-32" />
@@ -78,9 +83,9 @@ export default function OpinionsPage() {
     );
   }
 
-  if (isError || !betDetail) {
+  if (isError || !betDetail || !topic || !attitude) {
     return (
-      <div className="mx-auto h-full w-full max-w-7xl px-0 py-4 sm:px-10 sm:py-6">
+      <div className="container mx-auto min-h-screen px-4 py-8 pb-20 transition-colors duration-300">
         <Link
           href={PagesRoute.OPINIONS}
           className="text-muted-foreground hover:text-foreground mb-6 flex items-center gap-2 text-sm transition-colors"
@@ -95,78 +100,152 @@ export default function OpinionsPage() {
   }
 
   return (
-    <div className="mx-auto h-full w-full max-w-7xl px-0 py-4 sm:px-10 sm:py-6">
+    <div className="container mx-auto min-h-screen px-4 py-8 pb-20 transition-colors duration-300">
       <Link
         href={PagesRoute.OPINIONS}
         className="text-muted-foreground hover:text-foreground mb-6 flex items-center gap-2 text-sm transition-colors"
       >
-        <ArrowLeft className="h-4 w-4" /> Back to Markets
+        <ArrowLeft className="h-4 w-4" /> {t('back_to_markets')}
       </Link>
-      <div className=" grid grid-cols-1 gap-6 sm:rounded-3xl lg:grid-cols-3">
-        {/* 左侧内容区 - 占据 2/3 宽度 */}
+
+      <div className="grid gap-8 lg:grid-cols-3">
+        {/* Main Content (Left Col) */}
         <div className="space-y-6 lg:col-span-2">
-          <div className="space-y-6">
-            {/* 头部信息 */}
-            {topic && (
-              <OpinionDetailHeader
-                author={{
-                  name: topic.name,
-                  handle: `@${topic.screen_name}`,
-                  avatar: topic.icon,
-                  verified: false,
-                }}
-                volume={commission}
-              />
-            )}
-
-            {/* 内容区 */}
-            {topic && attitude && (
-              <OpinionContent
-                question={topic.content}
-                reply={{
-                  author: {
-                    name: attitude.name,
-                    handle: `@${attitude.screen_name}`,
-                    avatar: attitude.icon,
-                    verified: false,
-                  },
-                  content: attitude.content,
-                  tweetUrl: attitude.tweet_url,
+          {/* Market Header Card */}
+          <div className="border-border bg-card rounded-2xl border p-6">
+            <div className="mb-6 flex items-center gap-4">
+              <img
+                src={topic.icon || ''}
+                className="border-border h-16 w-16 rounded-full border-2"
+                alt={topic.name || ''}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = '/linkol.png';
                 }}
               />
-            )}
+              <div>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-foreground text-2xl font-bold">{topic.name}</h1>
+                  {false && <CheckCircle2 className="text-primary h-5 w-5" />}
+                </div>
+                <p className="text-primary">@{topic.screen_name}</p>
+              </div>
+              <div className="ml-auto text-right">
+                <p className="text-muted-foreground text-sm">{t('vol')}</p>
+                <p className="text-primary font-mono text-lg font-bold">
+                  ${commission.toLocaleString()}
+                </p>
+              </div>
+            </div>
 
-            {/* 图表 */}
-            <OpinionChart data={chartData} />
+            <p className="text-foreground/90 mb-4 text-xl leading-relaxed font-medium">
+              {topic.content}
+            </p>
 
-            {/* 投票结果 */}
-            {betDetail && (
-              <OpinionVotes
-                agreeVotes={betDetail.yes_brand_value}
-                disagreeVotes={betDetail.no_brand_value}
-                agreePercentage={yesPercentage}
-                disagreePercentage={noPercentage}
-                prospectiveData={prospectiveData?.list}
-                issueScreenName={topic?.screen_name}
-                topVoiceData={topVoiceData}
-                isTopVoiceLoading={isTopVoiceLoading}
-                fetchComments={fetchComments}
-                commentsTotal={commentsTotal}
-                fetchActivity={fetchActivity}
-              />
-            )}
+            <div className="border-border bg-muted/20 relative overflow-hidden rounded-xl border p-4">
+              <div className="bg-primary absolute top-0 bottom-0 left-0 w-1"></div>
+              <p className="text-muted-foreground pl-2 italic">"{attitude.content}"</p>
+              {attitude.tweet_url && (
+                <div className="mt-2 flex justify-end">
+                  <a
+                    href={attitude.tweet_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary flex items-center gap-1 text-xs hover:underline"
+                  >
+                    {t('view_original')} <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Chart Section */}
+          <div className="border-border bg-card min-h-[400px] rounded-2xl border p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-muted-foreground font-semibold">
+                {t('price_history')} ({t('yes')})
+              </h3>
+              <div className="flex gap-2">
+                {['1H', '1D', '1W', 'ALL'].map((tf) => (
+                  <button
+                    key={tf}
+                    className={`rounded-lg px-3 py-1 text-xs ${tf === '1W' ? 'bg-muted text-foreground font-semibold' : 'text-muted-foreground hover:bg-muted/50'}`}
+                  >
+                    {tf}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <OpinionSentimentChart />
+          </div>
+
+          {/* AI Agent Section */}
+          <OpinionAgentInsight />
+
+          {/* Tabs Navigation */}
+          <div>
+            <div className="border-border flex overflow-x-auto border-b">
+              <button
+                onClick={() => setActiveTab('prospective')}
+                className={`border-b-2 px-6 py-4 text-sm font-medium whitespace-nowrap transition-colors ${activeTab === 'prospective' ? 'border-primary text-foreground' : 'text-muted-foreground hover:text-foreground border-transparent'}`}
+              >
+                {t('tab_prospective')}
+              </button>
+              <button
+                onClick={() => setActiveTab('top_voice')}
+                className={`border-b-2 px-6 py-4 text-sm font-medium whitespace-nowrap transition-colors ${activeTab === 'top_voice' ? 'border-primary text-foreground' : 'text-muted-foreground hover:text-foreground border-transparent'}`}
+              >
+                {t('tab_top_voice')}
+              </button>
+              <button
+                onClick={() => setActiveTab('comments')}
+                className={`border-b-2 px-6 py-4 text-sm font-medium whitespace-nowrap transition-colors ${activeTab === 'comments' ? 'border-primary text-foreground' : 'text-muted-foreground hover:text-foreground border-transparent'}`}
+              >
+                {t('tab_comments')} {commentsTotal !== undefined && `(${commentsTotal})`}
+              </button>
+              <button
+                onClick={() => setActiveTab('activity')}
+                className={`border-b-2 px-6 py-4 text-sm font-medium whitespace-nowrap transition-colors ${activeTab === 'activity' ? 'border-primary text-foreground' : 'text-muted-foreground hover:text-foreground border-transparent'}`}
+              >
+                {t('tab_activity')}
+              </button>
+            </div>
+
+            <div className="py-6">
+              {activeTab === 'prospective' && (
+                <div className="animate-fade-in">
+                  {/* Hero Brand Voice Section */}
+                  <OpinionBrandVoiceComparison />
+
+                  {/* List Breakdown Section */}
+                  <OpinionSentimentVoterList />
+                </div>
+              )}
+
+              {activeTab === 'top_voice' && <OpinionTopVoiceList />}
+
+              {activeTab === 'comments' && <OpinionCommentList />}
+
+              {activeTab === 'activity' && <OpinionActivityList />}
+            </div>
           </div>
         </div>
 
-        {/* 右侧交易面板 - 占据 1/3 宽度 */}
-        <div className="lg:col-span-1">
-          <TradingPanel
-            dateRange=""
-            yesPrice={yesPrice}
-            noPrice={noPrice}
-          />
+        {/* Sidebar (Right Col) */}
+        <div className="space-y-6 lg:col-span-1">
+          <div className="sticky top-24 space-y-6">
+            <OpinionTradingPanel onShare={openShareModal} />
+          </div>
         </div>
       </div>
+
+      {/* Share Modal */}
+      <OpinionShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        side={shareSide}
+      />
     </div>
   );
 }

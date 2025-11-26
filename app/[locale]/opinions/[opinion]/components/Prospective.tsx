@@ -23,20 +23,22 @@ const VoterRow: React.FC<{
   const isYes = side === 'yes';
 
   return (
-    <div className="group relative overflow-hidden rounded-xl border border-border bg-accent dark:bg-muted/20 p-4 transition-all hover:border-primary/20 hover:bg-muted/50">
+    <div className="group border-border bg-accent dark:bg-muted/20 hover:border-primary/20 hover:bg-muted/50 relative overflow-hidden rounded-xl border p-4 transition-all">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <span
             className={`rounded-md px-3 py-1 text-sm font-bold shadow-sm ${
               isYes
-                ? 'bg-green-500/10 text-green-600 dark:text-green-400 ring-1 ring-green-500/30'
-                : 'bg-red-500/10 text-red-600 dark:text-red-400 ring-1 ring-red-500/30'
+                ? 'bg-green-500/10 text-green-600 ring-1 ring-green-500/30 dark:text-green-400'
+                : 'bg-red-500/10 text-red-600 ring-1 ring-red-500/30 dark:text-red-400'
             }`}
           >
             {isYes ? 'YES' : 'NO'}
           </span>
-          <span className="text-base font-medium text-muted-foreground">
-            <span className="font-bold text-foreground">{count} {t('kol_count')}</span>{' '}
+          <span className="text-muted-foreground text-base font-medium">
+            <span className="text-foreground font-bold">
+              {count} {t('kol_count')}
+            </span>{' '}
             {isYes ? t('agree') : t('disagree')} with <span className="text-primary">{handle}</span>
           </span>
         </div>
@@ -47,7 +49,7 @@ const VoterRow: React.FC<{
               key={idx}
               src={icon || DefaultAvatarImg.src}
               alt={`avatar-${idx}`}
-              className={`h-10 w-10 rounded-full border-2 border-card object-cover transition-transform hover:scale-110 hover:z-10 ${
+              className={`border-card h-10 w-10 rounded-full border-2 object-cover transition-transform hover:z-10 hover:scale-110 ${
                 idx === 0 ? 'z-0' : `z-${idx}`
               }`}
               onError={(e) => {
@@ -57,7 +59,7 @@ const VoterRow: React.FC<{
             />
           ))}
           {icons.length > 5 && (
-            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-card bg-muted text-xs font-medium text-muted-foreground z-10">
+            <div className="border-card bg-muted text-muted-foreground z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 text-xs font-medium">
               +{count - 5}
             </div>
           )}
@@ -78,7 +80,7 @@ const VoterRow: React.FC<{
 
 export default function Prospective({ data, issueScreenName }: ProspectiveProps) {
   const t = useTranslations('common');
-  
+
   const handleAddPerspective = () => {
     console.log('Add perspective clicked');
   };
@@ -91,7 +93,7 @@ export default function Prospective({ data, issueScreenName }: ProspectiveProps)
   if (!data || data.length === 0) {
     return (
       <div className="space-y-4">
-        <div className="text-center text-muted-foreground py-8">{t('no_data_available')}</div>
+        <div className="text-muted-foreground py-8 text-center">{t('no_data_available')}</div>
         <OpinionActions
           onAddPerspective={handleAddPerspective}
           onLetAgentComment={handleLetAgentComment}
@@ -128,11 +130,11 @@ export default function Prospective({ data, issueScreenName }: ProspectiveProps)
       </div>
 
       {/* Simplified Calculation Methodology Explainer */}
-      <div className="rounded-xl border border-dashed border-border bg-transparent p-5 text-sm text-muted-foreground">
+      <div className="border-border text-muted-foreground rounded-xl border border-dashed bg-transparent p-5 text-sm">
         <div className="flex items-start gap-3">
-          <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+          <Info className="text-muted-foreground mt-0.5 h-4 w-4 shrink-0" />
           <div className="space-y-1">
-            <h4 className="font-medium text-foreground">{t('how_brand_voice_calculated')}</h4>
+            <h4 className="text-foreground font-medium">{t('how_brand_voice_calculated')}</h4>
             <p className="leading-relaxed">
               {t.rich('brand_voice_calculation_desc', {
                 followers: (chunks) => <span className="text-foreground">{chunks}</span>,

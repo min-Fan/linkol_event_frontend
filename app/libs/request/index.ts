@@ -3172,6 +3172,8 @@ export interface IBetCommentItem {
   views: number;
   reply_count: number;
   link: string;
+  screen_name: string;
+  created_at: string;
 }
 
 export interface IGetBetCommentsResponseData {
