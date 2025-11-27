@@ -195,7 +195,7 @@ export function useBetDetail(betId: string | string[] | undefined) {
             profile_image_url: item.icon,
             is_verified: false, // API 没有提供
             comment_text: item.content,
-            created_at: item.created_at || '',
+            created_at: item.tweet_update_time || item.created_at || '',
             like_count: item.favorite_count,
             retweet_count: 0, // API 没有提供
             reply_count: item.reply_count,
@@ -300,13 +300,15 @@ export function useBetDetail(betId: string | string[] | undefined) {
       yes: item.yes[0] * 100, // 提取数值并转换为百分比
       no: item.no[0] * 100, // 提取数值并转换为百分比
       yesUsers:
-        item.yes[1]?.icons?.map((icon) => ({
-          avatar: icon,
+        item.yes[1]?.icons?.map((iconItem) => ({
+          avatar: iconItem.icon,
+          name: iconItem.kol_user_name || '',
           address: '', // API 没有提供地址，留空
         })) || [],
       noUsers:
-        item.no[1]?.icons?.map((icon) => ({
-          avatar: icon,
+        item.no[1]?.icons?.map((iconItem) => ({
+          avatar: iconItem.icon,
+          name: iconItem.kol_user_name || '',
           address: '', // API 没有提供地址，留空
         })) || [],
     }));

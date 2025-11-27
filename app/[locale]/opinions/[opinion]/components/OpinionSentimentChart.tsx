@@ -13,6 +13,7 @@ import {
 import { useBetDetail } from '@hooks/useBetDetail';
 import { useTranslations } from 'next-intl';
 import { PredictionSide } from '../types';
+import defaultAvatar from '@assets/image/avatar.png';
 
 export default function OpinionSentimentChart() {
   const params = useParams();
@@ -30,7 +31,7 @@ export default function OpinionSentimentChart() {
         ...(item.yesUsers?.map((user) => ({
           user: {
             id: user.address || '',
-            name: '',
+            name: user.name || '',
             handle: '',
             avatar: user.avatar,
             verified: false,
@@ -41,7 +42,7 @@ export default function OpinionSentimentChart() {
         ...(item.noUsers?.map((user) => ({
           user: {
             id: user.address || '',
-            name: '',
+            name: user.name || '',
             handle: '',
             avatar: user.avatar,
             verified: false,
@@ -56,8 +57,15 @@ export default function OpinionSentimentChart() {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
+      
+      // 计算YES和NO的数量
+      const yesCount = data.kols?.filter((k: any) => k.side === PredictionSide.YES).length || 0;
+      const noCount = data.kols?.filter((k: any) => k.side === PredictionSide.NO).length || 0;
+      
       return (
-        <div className="border-border bg-card/95 min-w-[220px] rounded-xl border p-3 shadow-xl backdrop-blur-md">
+        <div 
+          className="border-border bg-card/95 min-w-[220px] rounded-xl border p-3 shadow-xl backdrop-blur-md pointer-events-auto"
+        >
           <p className="text-muted-foreground mb-2 text-xs font-medium">{label}</p>
           <div className="mb-3 flex items-center justify-between">
             <span className="text-foreground text-sm">{t('probability')}</span>
@@ -66,10 +74,21 @@ export default function OpinionSentimentChart() {
 
           {data.kols && data.kols.length > 0 && (
             <div className="border-border mt-2 border-t pt-2">
-              <p className="text-muted-foreground mb-2 text-[10px] font-semibold tracking-wider uppercase">
-                {t('key_activity')}
-              </p>
-              <div className="max-h-48 space-y-2.5 overflow-y-auto pr-1">
+              <div className="mb-2 flex items-center justify-between">
+                <p className="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase">
+                  {t('key_activity')}
+                </p>
+                <div className="flex items-center gap-2 text-[10px]">
+                  <span className="text-green-500 font-medium">
+                    {t('yes')}: {yesCount}
+                  </span>
+                  <span className="text-muted-foreground">|</span>
+                  <span className="text-red-500 font-medium">
+                    {t('no')}: {noCount}
+                  </span>
+                </div>
+              </div>
+              <div className="max-h-48 space-y-2.5 overflow-y-auto pr-1 custom-scrollbar">
                 {data.kols.map((k: any, i: number) => {
                   // 如果没有 name，使用默认文本或地址缩写
                   return (
@@ -84,7 +103,7 @@ export default function OpinionSentimentChart() {
                         alt={k.user.name || ''}
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          target.src = '/linkol.png';
+                          target.src = defaultAvatar.src;
                         }}
                       />
                       <div className="flex min-w-0 flex-1 flex-col justify-center leading-tight">
@@ -146,6 +165,8 @@ export default function OpinionSentimentChart() {
           <Tooltip
             content={<CustomTooltip />}
             cursor={{ stroke: '#71717a', strokeWidth: 1, strokeDasharray: '4 4', opacity: 0.5 }}
+            allowEscapeViewBox={{ x: false, y: false }}
+            animationDuration={0}
           />
           <Area
             type="monotone"

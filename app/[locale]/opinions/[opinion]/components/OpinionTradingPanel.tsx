@@ -101,10 +101,6 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
 
           <div className="border-border bg-muted/20 space-y-2 rounded-xl border p-4">
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">{t('avg_price')}</span>
-              <span className="text-foreground font-mono">${price.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">{t('est_shares')}</span>
               <span className="text-foreground font-mono">{potentialReturn}</span>
             </div>
