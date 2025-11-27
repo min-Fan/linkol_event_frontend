@@ -57,10 +57,10 @@ export default function OpinionsHomeScreenBanner() {
       <div className="to-background absolute -bottom-1 h-10 w-full bg-gradient-to-b from-transparent backdrop-blur-sm"></div>
       <div className="relative z-10 flex flex-col items-center justify-center gap-4 pt-28 pb-16">
         <h1 className="font-kyiv text-5xl leading-none font-bold text-white sm:text-[60px]">
-          {t('post_to_predict')}
+          {t('agress_vs_disagree')}
         </h1>
         <p className="max-w-[90%] text-center text-lg text-white sm:max-w-[420px] sm:text-2xl">
-          {t('predict_the_future')}
+          {t('bet_on_sentiment')}
         </p>
         <div className="mt-6 rounded-full shadow-[0_1px_40px_0_rgba(242,242,242,0.80)]">
           {firstBetId ? (
