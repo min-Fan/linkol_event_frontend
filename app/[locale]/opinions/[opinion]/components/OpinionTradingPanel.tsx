@@ -44,7 +44,9 @@ const extractErrorMessage = (error: any): string => {
         return reasonMatch[1].trim();
       }
       // 尝试从 message 中提取 "Execution reverted with reason:" 后面的内容
-      const executionMatch = error.message?.match(/Execution reverted with reason:\s*(.+?)(?:\n|$)/i);
+      const executionMatch = error.message?.match(
+        /Execution reverted with reason:\s*(.+?)(?:\n|$)/i
+      );
       if (executionMatch && executionMatch[1]) {
         return executionMatch[1].trim();
       }
@@ -55,7 +57,9 @@ const extractErrorMessage = (error: any): string => {
   // 尝试从 message 中提取原因
   if (error.message) {
     // 提取 "Execution reverted with reason:" 后面的内容
-    const executionMatch = error.message.match(/Execution reverted with reason:\s*(.+?)(?:\n|Details:|$)/i);
+    const executionMatch = error.message.match(
+      /Execution reverted with reason:\s*(.+?)(?:\n|Details:|$)/i
+    );
     if (executionMatch && executionMatch[1]) {
       return executionMatch[1].trim();
     }
@@ -194,7 +198,8 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
     tokenAddress === ethers.ZeroAddress ? 18 : tokenDecimals ? Number(tokenDecimals) : 18; // 默认18位精度
 
   // 获取代币 symbol：原生代币不显示 symbol
-  const displayTokenSymbol = tokenAddress === ethers.ZeroAddress ? '' : (tokenSymbol as string) || '';
+  const displayTokenSymbol =
+    tokenAddress === ethers.ZeroAddress ? '' : (tokenSymbol as string) || '';
 
   const [selectedSide, setSelectedSide] = useState<PredictionSide>(PredictionSide.YES);
   const [amount, setAmount] = useState<string>('');
@@ -572,7 +577,12 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">{t('potential_return')}</span>
-              <span className={`font-mono ${selectedSide === PredictionSide.YES ? 'text-green-500' : 'text-red-500'}`}>{selectedSide === PredictionSide.YES ? '+' : '-'}{0}%</span>
+              <span
+                className={`font-mono ${selectedSide === PredictionSide.YES ? 'text-green-500' : 'text-red-500'}`}
+              >
+                {selectedSide === PredictionSide.YES ? '+' : '-'}
+                {0}%
+              </span>
             </div>
           </div>
         </div>

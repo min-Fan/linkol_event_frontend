@@ -5,12 +5,7 @@ import { Copy, Download, Twitter, CheckCircle2, Zap, Loader2 } from 'lucide-reac
 import { useBetDetail } from '@hooks/useBetDetail';
 import { useTranslations } from 'next-intl';
 import { PredictionSide } from '../types';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@shadcn/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@shadcn/components/ui/dialog';
 import { getCurrentDomain, getCurrentUrl, copy } from '@libs/utils';
 import { toast } from 'sonner';
 import { domToPng } from 'modern-screenshot';
@@ -39,10 +34,10 @@ export default function OpinionShareModal({ isOpen, onClose, side }: OpinionShar
   // 动态获取当前完整URL
   const currentUrl = `${getCurrentUrl()}/opinions/${opinionId}`;
   const currentDomain = getCurrentDomain();
-  
+
   // 获取原文链接，优先使用 attitude.tweet_url，否则构建 Twitter 用户主页链接
   const originalTweetUrl = attitude?.tweet_url || `https://twitter.com/${topic.screen_name}`;
-  
+
   // 分享文本中使用链接引用原文，而不是直接显示内容
   const shareText = `I bet ${side} on @${topic.screen_name}'s market on Linkol! 🚀\n\n${originalTweetUrl}\n\nJoin my side and boost the Brand Voice! 👇\n${currentUrl}`;
   const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
@@ -107,7 +102,6 @@ export default function OpinionShareModal({ isOpen, onClose, side }: OpinionShar
         </DialogHeader>
 
         <div className="p-4 pt-3 sm:p-6 sm:pt-4">
-
           {/* Share Card Preview */}
           <div
             ref={shareCardRef}
@@ -120,7 +114,11 @@ export default function OpinionShareModal({ isOpen, onClose, side }: OpinionShar
             <div className="relative z-10 flex flex-col items-center text-center">
               <div className="mb-3 flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-3 py-1.5 backdrop-blur-md sm:mb-4 sm:gap-3 sm:px-4 sm:py-2">
                 <div className="relative">
-                  <img src={topic.icon || ''} alt="Avatar" className="h-7 w-7 rounded-full sm:h-8 sm:w-8" />
+                  <img
+                    src={topic.icon || ''}
+                    alt="Avatar"
+                    className="h-7 w-7 rounded-full sm:h-8 sm:w-8"
+                  />
                   {false && (
                     <CheckCircle2 className="text-primary absolute -right-1 -bottom-1 h-3 w-3 rounded-full bg-black" />
                   )}
@@ -168,7 +166,7 @@ export default function OpinionShareModal({ isOpen, onClose, side }: OpinionShar
             <button
               onClick={handleDownloadImage}
               disabled={isDownloading}
-              className="hidden items-center justify-center gap-2 rounded-xl border border-border bg-muted py-2.5 text-sm font-bold text-foreground transition-all hover:bg-muted/80 disabled:opacity-50 sm:flex sm:py-3"
+              className="border-border bg-muted text-foreground hover:bg-muted/80 hidden items-center justify-center gap-2 rounded-xl border py-2.5 text-sm font-bold transition-all disabled:opacity-50 sm:flex sm:py-3"
             >
               {isDownloading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />

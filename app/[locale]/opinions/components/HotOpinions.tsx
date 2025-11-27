@@ -92,7 +92,7 @@ function OpinionCard({ data }: { data: OpinionCardData }) {
   return (
     <Link
       href={`${PagesRoute.OPINIONS}/${data.id}`}
-      className="group border-border bg-background hover:border-primary/50 hover:shadow-primary/5 dark:hover:shadow-primary/10 relative cursor-pointer overflow-hidden rounded-2xl border p-5 transition-all hover:shadow-xl flex flex-col"
+      className="group border-border bg-background hover:border-primary/50 hover:shadow-primary/5 dark:hover:shadow-primary/10 relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border p-5 transition-all hover:shadow-xl"
     >
       {/* Header */}
       <div className="mb-4 flex items-start justify-between">
@@ -149,7 +149,7 @@ function OpinionCard({ data }: { data: OpinionCardData }) {
       </div>
 
       {/* Probability Bar */}
-      <div className="mb-4 mt-auto">
+      <div className="mt-auto mb-4">
         <div className="mb-2 flex justify-between text-sm font-semibold">
           <span className="text-primary">Yes {yesPct}%</span>
           <span className="text-destructive">No {noPct}%</span>
