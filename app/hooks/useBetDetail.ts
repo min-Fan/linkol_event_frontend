@@ -195,7 +195,7 @@ export function useBetDetail(betId: string | string[] | undefined) {
             profile_image_url: item.icon,
             is_verified: false, // API 没有提供
             comment_text: item.content,
-            created_at: item.created_at || '',
+            created_at: item.tweet_update_time || item.created_at || '',
             like_count: item.favorite_count,
             retweet_count: 0, // API 没有提供
             reply_count: item.reply_count,
@@ -300,27 +300,27 @@ export function useBetDetail(betId: string | string[] | undefined) {
       yes: item.yes[0] * 100, // 提取数值并转换为百分比
       no: item.no[0] * 100, // 提取数值并转换为百分比
       yesUsers:
-        item.yes[1]?.icons?.map((icon) => ({
-          avatar: icon,
+        item.yes[1]?.icons?.map((iconItem) => ({
+          avatar: iconItem.icon,
+          name: iconItem.kol_user_name || '',
           address: '', // API 没有提供地址，留空
         })) || [],
       noUsers:
-        item.no[1]?.icons?.map((icon) => ({
-          avatar: icon,
+        item.no[1]?.icons?.map((iconItem) => ({
+          avatar: iconItem.icon,
+          name: iconItem.kol_user_name || '',
           address: '', // API 没有提供地址，留空
         })) || [],
     }));
   }, [chartData]);
 
-  // 计算投票百分比和价格
+  // 计算投票百分比
   const computedData = useMemo(() => {
     if (!betDetail) {
       return {
         totalVotes: 0,
-        yesPercentage: 0,
-        noPercentage: 0,
-        yesPrice: 50,
-        noPrice: 50,
+        yesPercentage: 50,
+        noPercentage: 50,
       };
     }
 
@@ -328,16 +328,10 @@ export function useBetDetail(betId: string | string[] | undefined) {
     const yesPercentage = totalVotes > 0 ? (betDetail.yes_brand_value / totalVotes) * 100 : 0;
     const noPercentage = totalVotes > 0 ? (betDetail.no_brand_value / totalVotes) * 100 : 0;
 
-    // 价格基于百分比计算
-    const yesPrice = yesPercentage;
-    const noPrice = noPercentage;
-
     return {
       totalVotes,
       yesPercentage,
       noPercentage,
-      yesPrice,
-      noPrice,
     };
   }, [betDetail]);
 
@@ -369,6 +363,9 @@ export function useBetDetail(betId: string | string[] | undefined) {
     betDetail,
     // 计算后的数据
     ...computedData,
+    // 向后兼容：保留 yesPrice 和 noPrice 作为别名
+    yesPrice: computedData.yesPercentage,
+    noPrice: computedData.noPercentage,
     // 状态
     isLoading,
     isError,

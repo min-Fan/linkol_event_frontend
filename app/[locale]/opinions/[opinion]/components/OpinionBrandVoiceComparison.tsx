@@ -126,7 +126,13 @@ export default function OpinionBrandVoiceComparison() {
         {/* Info Text */}
         <p className="relative z-10 text-center text-sm font-medium text-gray-400">
           <Trophy className="-mt-1 mr-2 inline-block h-4 w-4 text-yellow-500" />
-          {t('prediction_resolves_volume')}
+          {t.rich('prediction_resolves_volume', {
+            volume: (chunks) => (
+              <span className="font-bold text-white underline decoration-yellow-500/50 underline-offset-4">
+                {chunks}
+              </span>
+            ),
+          })}
         </p>
       </div>
     </div>

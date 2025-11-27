@@ -1407,6 +1407,13 @@
     "default_resolution_criteria": "At the end of the campaign, the side with higher brand value wins.",
     "linkol_agent_insight": "Linkol Agent Insight",
     "thinking": "Thinking...",
-    "agent_insight_description": "Get an AI-powered analysis of this market based on historical data and sentiment analysis."
-  }
+    "agent_insight_description": "Get an AI-powered analysis of this market based on historical data and sentiment analysis.",
+    "based_on": "Based on",
+    "comments": "comments",
+    "agress_vs_disagree": "Agress vs. Disagree",
+    "bet_on_sentiment": "Bet on Sentiment,Earn When You're Right",
+    "bet_success": "Bet placed successfully",
+    "bet_failed": "Bet failed",
+    "switching": "Switching..."
+  } 
 }

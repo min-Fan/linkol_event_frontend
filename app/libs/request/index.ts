@@ -90,6 +90,8 @@ export const ENDPOINT_URL = {
   GET_BET_TOP_VOICE: '/kol/api/v10/bet_top_voice/',
   GET_BET_COMMENTS: '/kol/api/v10/bet_comments/',
   GET_BET_ACTIVITY: '/kol/api/v10/bet_activity/',
+  GET_BET_AI_COMMENT: '/kol/api/v10/ai_comment/',
+  DO_BET_SUCCESS: '/kol/api/v10/dobet/success/',
 };
 
 // 获取OTP码
@@ -3077,10 +3079,15 @@ export interface IGetBetChartParams {
   bet_id: string | number;
 }
 
+export interface IBetChartIconItem {
+  icon: string;
+  kol_user_name: string;
+}
+
 export interface IBetChartDataItem {
   date: string;
-  yes: [number, { icons: string[] }];
-  no: [number, { icons: string[] }];
+  yes: [number, { icons: IBetChartIconItem[] }];
+  no: [number, { icons: IBetChartIconItem[] }];
 }
 
 export const getBetChart = (params: IGetBetChartParams) => {
@@ -3173,7 +3180,8 @@ export interface IBetCommentItem {
   reply_count: number;
   link: string;
   screen_name: string;
-  created_at: string;
+  created_at?: string;
+  tweet_update_time: string;
 }
 
 export interface IGetBetCommentsResponseData {
@@ -3220,4 +3228,34 @@ export const getBetActivity = (params: IGetBetActivityParams) => {
   return kolRequest.get<IGetBetActivityResponseData>(ENDPOINT_URL.GET_BET_ACTIVITY, {
     ...params,
   });
+};
+
+// 获取 bet AI 评论数据
+export interface IGetBetAiCommentParams {
+  bet_id: string | number;
+}
+
+export interface IGetBetAiCommentResponseData {
+  ai_comment: string;
+  total_comments: number;
+}
+
+export const getBetAiComment = (params: IGetBetAiCommentParams) => {
+  return kolRequest.get<IGetBetAiCommentResponseData>(ENDPOINT_URL.GET_BET_AI_COMMENT, {
+    ...params,
+  });
+};
+
+// 下注成功回调接口
+export interface IDoBetSuccessParams {
+  bet_id: string | number;
+  amount: string;
+  choice: number; // 0 for NO, 1 for YES
+  token_address: string;
+  tx_hash: string;
+  chainId: number;
+}
+
+export const doBetSuccess = (params: IDoBetSuccessParams) => {
+  return kolRequest.post(ENDPOINT_URL.DO_BET_SUCCESS, params);
 };

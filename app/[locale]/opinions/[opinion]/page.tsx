@@ -8,6 +8,7 @@ import PagesRoute from '@constants/routes';
 import { useBetDetail } from '@hooks/useBetDetail';
 import { useTranslations } from 'next-intl';
 import { PredictionSide } from './types';
+import defaultAvatar from '@assets/image/avatar.png';
 
 // 导入新组件
 import {
@@ -101,12 +102,14 @@ export default function OpinionsPage() {
 
   return (
     <div className="container mx-auto min-h-screen px-4 py-8 pb-20 transition-colors duration-300">
-      <Link
-        href={PagesRoute.OPINIONS}
-        className="text-muted-foreground hover:text-foreground mb-6 flex items-center gap-2 text-sm transition-colors"
-      >
-        <ArrowLeft className="h-4 w-4" /> {t('back_to_markets')}
-      </Link>
+      <div className="flex items-center justify-between">
+        <Link
+          href={PagesRoute.OPINIONS}
+          className="text-muted-foreground hover:text-foreground mb-6 flex items-center gap-2 text-sm transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" /> {t('back_to_markets')}
+        </Link>
+      </div>
 
       <div className="grid gap-8 lg:grid-cols-3">
         {/* Main Content (Left Col) */}
@@ -120,7 +123,7 @@ export default function OpinionsPage() {
                 alt={topic.name || ''}
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  target.src = '/linkol.png';
+                  target.src = defaultAvatar.src;
                 }}
               />
               <div>
