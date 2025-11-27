@@ -20,6 +20,7 @@ export interface ChainConfig {
   name: string;
   KOLServiceAddress?: string;
   ActivityServiceAddress?: string;
+  AgentBetAddress?: string;
   iconUrl?: string;
   blockExplorerUrl: string;
   tokens: Record<TokenType, TokenConfig>;
@@ -32,10 +33,11 @@ const isDevelopment = process.env.NEXT_PUBLIC_NODE_ENV === 'development';
 // 开发环境配置
 const DEVELOPMENT_CONFIG: Record<ChainType, ChainConfig> = {
   base: {
-    chainId: '8453', // Base 主网
-    name: 'Base',
+    chainId: '84532', // Base Sepolia 测试网
+    name: 'Base Sepolia',
     KOLServiceAddress: '0xD562135D926763d4132a3E7d55a536850E03bcA9',
     ActivityServiceAddress: '0xf3E45cF29c86b92cc7CC8Ef68773162B53CB5C78',
+    AgentBetAddress: '0xb5BdD04247C066A5125F991aC776AeF3408C1BCd',
     defaultToken: 'usdc',
     blockExplorerUrl: 'https://basescan.org',
     iconUrl:
@@ -69,6 +71,7 @@ const DEVELOPMENT_CONFIG: Record<ChainType, ChainConfig> = {
     name: 'BNB Smart Chain',
     KOLServiceAddress: '',
     ActivityServiceAddress: '0xf3E45cF29c86b92cc7CC8Ef68773162B53CB5C78',
+    AgentBetAddress: '',
     defaultToken: 'bnb',
     blockExplorerUrl: 'https://bscscan.com',
     iconUrl: 'https://cryptologos.cc/logos/bnb-bnb-logo.svg?v=040',
@@ -90,6 +93,7 @@ const DEVELOPMENT_CONFIG: Record<ChainType, ChainConfig> = {
   solana: {
     chainId: 'solana',
     name: 'Solana',
+    AgentBetAddress: '',
     defaultToken: 'usd1',
     blockExplorerUrl: 'https://solscan.io',
     iconUrl:
@@ -106,6 +110,7 @@ const DEVELOPMENT_CONFIG: Record<ChainType, ChainConfig> = {
   ton: {
     chainId: 'Ton',
     name: 'Ton',
+    AgentBetAddress: '',
     defaultToken: 'usdt',
     blockExplorerUrl: 'https://tonviewer.com',
     iconUrl: 'https://cryptologos.cc/logos/toncoin-ton-logo.png?v=040',
@@ -128,6 +133,7 @@ const PRODUCTION_CONFIG: Record<ChainType, ChainConfig> = {
     name: 'Base',
     KOLServiceAddress: '0xD562135D926763d4132a3E7d55a536850E03bcA9',
     ActivityServiceAddress: '0xf3E45cF29c86b92cc7CC8Ef68773162B53CB5C78',
+    AgentBetAddress: '',
     defaultToken: 'usdc',
     blockExplorerUrl: 'https://basescan.org',
     iconUrl:
@@ -161,6 +167,7 @@ const PRODUCTION_CONFIG: Record<ChainType, ChainConfig> = {
     name: 'BNB Smart Chain',
     KOLServiceAddress: '', // 测试网地址
     ActivityServiceAddress: '0xf3E45cF29c86b92cc7CC8Ef68773162B53CB5C78', // 测试网地址
+    AgentBetAddress: '',
     defaultToken: 'bnb',
     blockExplorerUrl: 'https://bscscan.com',
     iconUrl: 'https://cryptologos.cc/logos/bnb-bnb-logo.svg?v=040',
@@ -182,6 +189,7 @@ const PRODUCTION_CONFIG: Record<ChainType, ChainConfig> = {
   solana: {
     chainId: 'solana',
     name: 'Solana',
+    AgentBetAddress: '',
     defaultToken: 'usd1',
     blockExplorerUrl: 'https://solscan.io',
     iconUrl:
@@ -199,6 +207,7 @@ const PRODUCTION_CONFIG: Record<ChainType, ChainConfig> = {
   ton: {
     chainId: 'Ton',
     name: 'Ton',
+    AgentBetAddress: '',
     defaultToken: 'usdt',
     blockExplorerUrl: 'https://tonviewer.com',
     iconUrl: 'https://cryptologos.cc/logos/toncoin-ton-logo.png?v=040',

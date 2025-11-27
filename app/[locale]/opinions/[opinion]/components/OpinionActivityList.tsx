@@ -36,7 +36,7 @@ const ActivityItemSkeleton = () => {
 export default function OpinionActivityList() {
   const params = useParams();
   const opinionId = params?.opinion as string;
-  const { fetchActivity, yesPrice, noPrice } = useBetDetail(opinionId);
+  const { fetchActivity, yesPercentage, noPercentage } = useBetDetail(opinionId);
   const t = useTranslations('common');
 
   const [activities, setActivities] = useState<any[]>([]);
@@ -92,7 +92,7 @@ export default function OpinionActivityList() {
     <div className="flex flex-col gap-2">
       {activities.map((activity) => {
         const isYes = activity.side === PredictionSide.YES;
-        const price = isYes ? yesPrice / 100 : noPrice / 100;
+        const price = isYes ? yesPercentage / 100 : noPercentage / 100;
 
         return (
           <div

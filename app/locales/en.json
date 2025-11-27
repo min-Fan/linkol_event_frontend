@@ -1411,6 +1411,9 @@
     "based_on": "Based on",
     "comments": "comments",
     "agress_vs_disagree": "Agress vs. Disagree",
-    "bet_on_sentiment": "Bet on Sentiment,Earn When You're Right"
+    "bet_on_sentiment": "Bet on Sentiment,Earn When You're Right",
+    "bet_success": "Bet placed successfully",
+    "bet_failed": "Bet failed",
+    "switching": "Switching..."
   } 
 }

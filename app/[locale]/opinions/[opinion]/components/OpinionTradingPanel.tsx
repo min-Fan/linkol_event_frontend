@@ -1,36 +1,489 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
-import { ArrowRight, HelpCircle, Info, Share2, TrendingUp } from 'lucide-react';
+import { ArrowRight, HelpCircle, Info, Share2, TrendingUp, Loader2, Wallet } from 'lucide-react';
 import { useBetDetail } from '@hooks/useBetDetail';
 import { useTranslations } from 'next-intl';
 import { PredictionSide } from '../types';
 import HowItWork from './HowItWork';
 import { Input } from '@shadcn/components/ui/input';
+import {
+  useAccount,
+  useSwitchChain,
+  useWriteContract,
+  useWaitForTransactionReceipt,
+  useReadContract,
+  useBalance,
+} from 'wagmi';
+import { erc20Abi } from 'viem';
+import { ethers } from 'ethers';
+import { toast } from 'sonner';
+import { ChainType, getChainConfig, getDefaultChain } from '@constants/config';
+import useUserInfo from '@hooks/useUserInfo';
+import Bet_abi from '@constants/abi/Bet_abi.json';
+import { formatPrecision } from '@libs/utils';
+import { parseToBigNumber, formatBigNumber } from '@libs/utils/format-bignumber';
+import UIWallet from '@ui/wallet';
+import { doBetSuccess } from '@libs/request';
 
 interface OpinionTradingPanelProps {
   onShare?: (side: PredictionSide) => void;
 }
 
+// 提取有效的错误消息
+const extractErrorMessage = (error: any): string => {
+  if (!error) return '';
+
+  // 尝试从 shortMessage 获取
+  if (error.shortMessage) {
+    // 如果是 "execution reverted" 类型，尝试从 message 中提取原因
+    if (error.shortMessage.includes('reverted')) {
+      // 从 message 中提取 "reason:" 后面的内容
+      const reasonMatch = error.message?.match(/reason:\s*(.+?)(?:\n|$)/i);
+      if (reasonMatch && reasonMatch[1]) {
+        return reasonMatch[1].trim();
+      }
+      // 尝试从 message 中提取 "Execution reverted with reason:" 后面的内容
+      const executionMatch = error.message?.match(/Execution reverted with reason:\s*(.+?)(?:\n|$)/i);
+      if (executionMatch && executionMatch[1]) {
+        return executionMatch[1].trim();
+      }
+    }
+    return error.shortMessage;
+  }
+
+  // 尝试从 message 中提取原因
+  if (error.message) {
+    // 提取 "Execution reverted with reason:" 后面的内容
+    const executionMatch = error.message.match(/Execution reverted with reason:\s*(.+?)(?:\n|Details:|$)/i);
+    if (executionMatch && executionMatch[1]) {
+      return executionMatch[1].trim();
+    }
+    // 提取 "reason:" 后面的内容
+    const reasonMatch = error.message.match(/reason:\s*(.+?)(?:\n|Details:|$)/i);
+    if (reasonMatch && reasonMatch[1]) {
+      return reasonMatch[1].trim();
+    }
+    // 如果包含 "reverted"，返回简短消息
+    if (error.message.includes('reverted')) {
+      return error.message.split('\n')[0] || error.message;
+    }
+    return error.message;
+  }
+
+  // 尝试从 cause 中获取
+  if (error.cause) {
+    return extractErrorMessage(error.cause);
+  }
+
+  return '';
+};
+
 export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProps) {
   const params = useParams();
   const opinionId = params?.opinion as string;
-  const { yesPrice, noPrice, betDetail } = useBetDetail(opinionId);
+  const { yesPercentage, noPercentage, betDetail, tokenAddress, chainId } = useBetDetail(opinionId);
   const t = useTranslations('common');
+  const { address, chainId: currentChainId } = useAccount();
+  const { isLogin } = useUserInfo();
+  const { switchChain, isPending: isSwitchingChain } = useSwitchChain();
+
+  // 确定使用的链（chainId 为 0 或 undefined 时使用 base）
+  const betChainId = !chainId || chainId === 0 ? getDefaultChain().chainId : chainId;
+  // 根据 chainId 确定链类型
+  const getChainTypeFromChainId = (id: number): ChainType => {
+    if (id === 8453 || id === 84532) return 'base'; // Base 主网或测试网
+    if (id === 56) return 'bsc'; // BSC
+    return 'base'; // 默认 base
+  };
+  const chainType = getChainTypeFromChainId(betChainId);
+  const chainConfig = getChainConfig(chainType);
+  const expectedChainId = chainConfig ? parseInt(chainConfig.chainId) : null;
+  const isWrongChain = currentChainId !== expectedChainId;
+
+  // Wagmi hooks for contract interactions
+  const {
+    writeContract: writeBetContract,
+    isPending: isBetPending,
+    error: betError,
+    isError: isBetWriteError,
+    data: betTxHash,
+  } = useWriteContract();
+  const {
+    writeContract: writeApproveContract,
+    isPending: isApprovePending,
+    error: approveError,
+    isError: isApproveWriteError,
+    data: approveTxHash,
+  } = useWriteContract();
+
+  // Wait for transaction receipts
+  const {
+    isLoading: isBetConfirming,
+    isSuccess: isBetConfirmed,
+    isError: isBetReceiptError,
+    error: betReceiptError,
+  } = useWaitForTransactionReceipt({
+    hash: betTxHash,
+    query: {
+      enabled: !!betTxHash,
+    },
+  });
+
+  const { isLoading: isApproveConfirming, isSuccess: isApproveConfirmed } =
+    useWaitForTransactionReceipt({
+      hash: approveTxHash,
+      query: {
+        enabled: !!approveTxHash,
+      },
+    });
+
+  // Read token allowance
+  const { data: tokenAllowance, refetch: refetchAllowance } = useReadContract({
+    address: tokenAddress as `0x${string}`,
+    abi: erc20Abi,
+    functionName: 'allowance',
+    args:
+      tokenAddress && address && chainConfig?.AgentBetAddress
+        ? [address, chainConfig.AgentBetAddress as `0x${string}`]
+        : undefined,
+    query: {
+      enabled:
+        !!tokenAddress &&
+        !!address &&
+        !!chainConfig?.AgentBetAddress &&
+        !isWrongChain &&
+        tokenAddress !== ethers.ZeroAddress,
+    },
+  });
+
+  // Read token balance
+  const { data: tokenBalance } = useBalance({
+    address: address,
+    token:
+      tokenAddress && tokenAddress !== ethers.ZeroAddress
+        ? (tokenAddress as `0x${string}`)
+        : undefined,
+    query: {
+      enabled: !!address && !!tokenAddress && !isWrongChain,
+    },
+  });
+
+  // Read token decimals
+  const { data: tokenDecimals } = useReadContract({
+    address: tokenAddress as `0x${string}`,
+    abi: erc20Abi,
+    functionName: 'decimals',
+    query: {
+      enabled: !!tokenAddress && !isWrongChain && tokenAddress !== ethers.ZeroAddress, // 原生代币不需要查询 decimals
+    },
+  });
+
+  // Read token symbol
+  const { data: tokenSymbol } = useReadContract({
+    address: tokenAddress as `0x${string}`,
+    abi: erc20Abi,
+    functionName: 'symbol',
+    query: {
+      enabled: !!tokenAddress && !isWrongChain && tokenAddress !== ethers.ZeroAddress, // 原生代币不需要查询 symbol
+    },
+  });
+
+  // 获取代币精度：原生代币使用18，ERC20代币使用合约返回的decimals
+  const tokenDecimalsValue =
+    tokenAddress === ethers.ZeroAddress ? 18 : tokenDecimals ? Number(tokenDecimals) : 18; // 默认18位精度
+
+  // 获取代币 symbol：原生代币不显示 symbol
+  const displayTokenSymbol = tokenAddress === ethers.ZeroAddress ? '' : (tokenSymbol as string) || '';
 
   const [selectedSide, setSelectedSide] = useState<PredictionSide>(PredictionSide.YES);
-  const [amount, setAmount] = useState<number>(0);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [amount, setAmount] = useState<string>('');
+  const [currentAllowance, setCurrentAllowance] = useState('0');
+  const [needsApproval, setNeedsApproval] = useState(false);
 
-  const price = selectedSide === PredictionSide.YES ? yesPrice / 100 : noPrice / 100;
-  const potentialReturn = amount > 0 ? (amount / price).toFixed(2) : '0.00';
+  const price = selectedSide === PredictionSide.YES ? yesPercentage / 100 : noPercentage / 100;
+  const amountNum = parseFloat(amount || '0');
+  const potentialReturn = amountNum > 0 ? (amountNum / price).toFixed(2) : '0.00';
   const returnPercentage = price > 0 ? ((1 / price - 1) * 100).toFixed(0) : '0';
+  const availableBalance = tokenBalance ? parseFloat(tokenBalance.formatted) : 0;
+  const hasSufficientBalance = amountNum > 0 && availableBalance >= amountNum;
 
-  const handleTrade = () => {
-    setIsProcessing(true);
-    // TODO: 实现实际的交易逻辑
-    setTimeout(() => setIsProcessing(false), 1500);
-  };
+  // 检查授权额度
+  const checkAllowance = useCallback(() => {
+    if (!tokenAddress || !amount || !address || !chainConfig?.AgentBetAddress) {
+      setNeedsApproval(false);
+      return;
+    }
+
+    // ETH和BNB等母币不需要授权
+    const isETH = tokenAddress === ethers.ZeroAddress;
+    if (isETH) {
+      setNeedsApproval(false);
+      setCurrentAllowance('0');
+      return;
+    }
+    console.log('tokenAllowance', tokenAllowance);
+    if (!tokenAllowance) {
+      setNeedsApproval(true);
+      return;
+    }
+
+    try {
+      const allowance = tokenAllowance.toString();
+      setCurrentAllowance(formatBigNumber(BigInt(allowance), tokenDecimalsValue));
+
+      const allowanceBN = BigInt(allowance);
+      const amountBNValue = parseToBigNumber(amount, tokenDecimalsValue);
+      const amountBN = BigInt(amountBNValue.toString()); // 转换为 bigint
+
+      if (allowanceBN === ethers.MaxUint256) {
+        setNeedsApproval(false);
+        setCurrentAllowance('∞');
+      } else {
+        setNeedsApproval(allowanceBN < amountBN);
+      }
+    } catch (error) {
+      console.error('Check allowance failed:', error);
+      setNeedsApproval(true);
+    }
+  }, [
+    tokenAddress,
+    amount,
+    address,
+    chainConfig?.AgentBetAddress,
+    tokenAllowance,
+    tokenDecimalsValue,
+  ]);
+
+  // 监听授权变化
+  useEffect(() => {
+    if (tokenAddress && amount && address) {
+      checkAllowance();
+    } else {
+      setNeedsApproval(false);
+    }
+  }, [tokenAddress, amount, address, checkAllowance]);
+
+  // 监听授权交易状态
+  useEffect(() => {
+    if (isApproveConfirmed) {
+      toast.success(t('donate_approve_success') || 'Approve successful');
+      setNeedsApproval(false);
+      setCurrentAllowance('∞');
+      refetchAllowance();
+    }
+  }, [isApproveConfirmed, t, refetchAllowance]);
+
+  // 静默调用下注成功回调接口
+  const callDoBetSuccessCallback = useCallback(async () => {
+    if (!betTxHash || !opinionId || !amount || !tokenAddress || !betChainId) {
+      return;
+    }
+
+    try {
+      // 静默调用回调接口，不处理返回结果，只记录日志
+      const choice = selectedSide === PredictionSide.YES ? 1 : 0; // YES = 1, NO = 0
+      const res: any = await doBetSuccess({
+        bet_id: opinionId,
+        amount: amount,
+        choice: choice,
+        token_address: tokenAddress,
+        tx_hash: betTxHash,
+        chainId: betChainId,
+      });
+      console.log('Do bet success callback result:', res);
+    } catch (error) {
+      // 静默处理错误，不影响UI
+      console.error('Failed to call do bet success callback (silent):', error);
+    }
+  }, [betTxHash, opinionId, amount, tokenAddress, betChainId, selectedSide]);
+
+  // 监听下注交易状态
+  useEffect(() => {
+    if (isBetConfirmed && betTxHash) {
+      toast.success(t('bet_success') || 'Bet placed successfully');
+      setAmount('');
+      // 静默调用回调接口
+      callDoBetSuccessCallback();
+      // 可以在这里刷新数据
+    }
+  }, [isBetConfirmed, betTxHash, callDoBetSuccessCallback]);
+
+  // 监听授权合约调用错误
+  useEffect(() => {
+    if (isApproveWriteError && approveError) {
+      console.error('Approve write error:', approveError);
+      const extractedMessage = extractErrorMessage(approveError);
+      const errorMessage = extractedMessage || t('donate_approve_failed') || 'Approve failed';
+      toast.error(errorMessage);
+    }
+  }, [isApproveWriteError, approveError]);
+
+  // 监听下注合约调用错误
+  useEffect(() => {
+    if (isBetWriteError && betError) {
+      console.error('Bet write error:', betError);
+      const extractedMessage = extractErrorMessage(betError);
+      const errorMessage = extractedMessage || t('bet_failed') || 'Bet failed';
+      toast.error(errorMessage);
+    }
+  }, [isBetWriteError, betError]);
+
+  // 监听下注交易确认错误
+  useEffect(() => {
+    if (isBetReceiptError && betReceiptError) {
+      console.error('Bet receipt error:', betReceiptError);
+      const extractedMessage = extractErrorMessage(betReceiptError);
+      const errorMessage = extractedMessage || t('bet_failed') || 'Bet transaction failed';
+      toast.error(errorMessage);
+    }
+  }, [isBetReceiptError, betReceiptError]);
+
+  // 授权代币
+  const handleApprove = useCallback(async () => {
+    if (!tokenAddress || !chainConfig?.AgentBetAddress) {
+      toast.error(t('please_select_token') || 'Please select token');
+      return;
+    }
+
+    if (!amount || parseFloat(amount) <= 0) {
+      toast.error(t('donate_amount_invalid') || 'Invalid amount');
+      return;
+    }
+
+    if (tokenAddress === ethers.ZeroAddress) {
+      setNeedsApproval(false);
+      return;
+    }
+
+    try {
+      const approveAmountBN = parseToBigNumber(amount, tokenDecimalsValue);
+      const approveAmount = BigInt(approveAmountBN.toString()); // 转换为 bigint
+      writeApproveContract({
+        address: tokenAddress as `0x${string}`,
+        abi: erc20Abi,
+        functionName: 'approve',
+        args: [chainConfig.AgentBetAddress as `0x${string}`, approveAmount],
+      });
+    } catch (error: any) {
+      console.error('Approve failed:', error);
+      toast.error(error.message || t('donate_approve_failed') || 'Approve failed');
+    }
+  }, [
+    tokenAddress,
+    chainConfig?.AgentBetAddress,
+    amount,
+    tokenDecimalsValue,
+    writeApproveContract,
+    t,
+  ]);
+
+  // 切换到正确的链
+  const handleSwitchChain = useCallback(async () => {
+    if (!expectedChainId) {
+      toast.error(t('wrong_chain') || 'Wrong chain');
+      return;
+    }
+
+    try {
+      await switchChain({
+        chainId: expectedChainId,
+      });
+    } catch (error) {
+      console.error('Switch chain failed:', error);
+      toast.error(t('switch_chain_failed') || 'Switch chain failed');
+    }
+  }, [expectedChainId, switchChain, t]);
+
+  // 处理 max 按钮
+  const handleMaxClick = useCallback(() => {
+    if (tokenBalance) {
+      const balance = parseFloat(tokenBalance.formatted);
+      setAmount(balance.toString());
+    }
+  }, [tokenBalance]);
+
+  // 下注
+  const handleTrade = useCallback(async () => {
+    if (!isLogin) {
+      toast.error(t('please_connect_wallet') || 'Please connect wallet');
+      return;
+    }
+
+    if (isWrongChain) {
+      toast.error(t('wrong_chain') || 'Wrong chain');
+      return;
+    }
+
+    if (!amount || parseFloat(amount) <= 0) {
+      toast.error(t('donate_amount_invalid') || 'Invalid amount');
+      return;
+    }
+
+    if (!tokenAddress) {
+      toast.error(t('donate_token_required') || 'Token required');
+      return;
+    }
+
+    if (!opinionId) {
+      toast.error('Bet ID required');
+      return;
+    }
+
+    if (!hasSufficientBalance) {
+      toast.error(t('insufficient_balance') || 'Insufficient balance');
+      return;
+    }
+
+    if (needsApproval) {
+      toast.error(t('donate_approve_required') || 'Approval required');
+      return;
+    }
+
+    if (!chainConfig?.AgentBetAddress) {
+      toast.error('Bet contract address not configured');
+      return;
+    }
+
+    try {
+      const amountInWeiBN = parseToBigNumber(amount, tokenDecimalsValue);
+      const amountInWei = BigInt(amountInWeiBN.toString()); // 转换为 bigint
+      const choice = selectedSide === PredictionSide.YES ? 1 : 0; // YES = 1, NO = 0
+      const isETH = tokenAddress === ethers.ZeroAddress;
+      const isNativeToken = isETH;
+      console.log('amountInWei', amountInWei);
+      console.log('choice', choice);
+      console.log('isNativeToken', isNativeToken);
+      console.log('args', [BigInt(opinionId), amountInWei, choice]);
+
+      writeBetContract({
+        address: chainConfig.AgentBetAddress as `0x${string}`,
+        abi: Bet_abi,
+        functionName: 'doBet',
+        args: [BigInt(opinionId), amountInWei, choice],
+        value: isNativeToken ? amountInWei : 0n,
+      });
+    } catch (error: any) {
+      console.error('Bet failed:', error);
+      toast.error(error.message || t('bet_failed') || 'Bet failed');
+    }
+  }, [
+    isLogin,
+    isWrongChain,
+    amount,
+    tokenAddress,
+    opinionId,
+    hasSufficientBalance,
+    needsApproval,
+    selectedSide,
+    chainConfig?.AgentBetAddress,
+    tokenDecimalsValue,
+    writeBetContract,
+    t,
+  ]);
+
+  const isProcessing =
+    isBetPending || isBetConfirming || isApprovePending || isApproveConfirming || isSwitchingChain;
 
   return (
     <div className="sticky top-24 space-y-5">
@@ -52,7 +505,7 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            {t('yes')} ${(yesPrice / 100).toFixed(2)}
+            {t('yes')} {yesPercentage.toFixed(1)}%
           </button>
           <button
             onClick={() => setSelectedSide(PredictionSide.NO)}
@@ -62,39 +515,52 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            {t('no')} ${(noPrice / 100).toFixed(2)}
+            {t('no')} {noPercentage.toFixed(1)}%
           </button>
         </div>
 
         <div className="mb-6 space-y-4">
           <div>
             <label className="text-muted-foreground mb-2 block text-xs font-medium">
-              {t('amount_usdt')}
+              {displayTokenSymbol ? `${t('amount')} (${displayTokenSymbol})` : t('amount')}
             </label>
-            <div className="border-border bg-muted/50 text-foreground placeholder-muted-foreground has-[:focus]:border-primary has-[:focus]:ring-primary flex w-full flex-col gap-1 rounded-xl border px-4 py-2 transition-colors has-[:focus]:ring-0.5 dark:bg-black/40">
+            <div
+              className={`border-border bg-muted/50 text-foreground placeholder-muted-foreground has-[:focus]:ring-primary has-[:focus]:ring-0.5 flex w-full flex-col gap-1 rounded-xl border px-4 py-2 transition-colors dark:bg-black/40 ${selectedSide === PredictionSide.YES ? 'has-[:focus]:border-primary' : 'has-[:focus]:border-red-500'}`}
+            >
               <Input
                 type="number"
-                value={amount || ''}
-                onChange={(e) => setAmount(Number(e.target.value))}
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
                 placeholder="0"
-                className="border-none !bg-transparent !text-2xl font-bold focus:outline-none px-0"
+                className="border-none !bg-transparent px-0 !text-2xl font-bold focus:outline-none"
               />
-              <div className="ml-auto flex gap-1">
-                {[10, 50, 100].map((val) => (
+              <div className="ml-auto flex flex-wrap items-center gap-2">
+                {tokenBalance && (
+                  <div className="text-muted-foreground flex items-center gap-1 text-xs">
+                    <Wallet className="h-3 w-3" />
+                    <span>{formatPrecision(tokenBalance.formatted)}</span>
+                  </div>
+                )}
+                <div className="ml-auto flex gap-1">
+                  {[10, 50, 100].map((val) => (
+                    <button
+                      key={val}
+                      onClick={() => {
+                        const currentAmount = parseFloat(amount || '0');
+                        setAmount((currentAmount + val).toString());
+                      }}
+                      className="bg-card border-border text-muted-foreground hover:bg-muted rounded-lg border px-2 py-1.5 text-xs font-medium transition-colors"
+                    >
+                      +{val}
+                    </button>
+                  ))}
                   <button
-                    key={val}
-                    onClick={() => setAmount(val)}
-                    className="bg-card border-border text-muted-foreground hover:bg-muted rounded-lg border px-2 py-1.5 text-xs font-medium transition-colors"
+                    onClick={handleMaxClick}
+                    className="bg-card border-border text-primary hover:bg-muted rounded-lg border px-2 py-1.5 text-xs font-medium transition-colors"
                   >
-                    +{val}
+                    {t('max')}
                   </button>
-                ))}
-                <button
-                  onClick={() => setAmount(1000)}
-                  className="bg-card border-border text-primary hover:bg-muted rounded-lg border px-2 py-1.5 text-xs font-medium transition-colors"
-                >
-                  {t('max')}
-                </button>
+                </div>
               </div>
             </div>
           </div>
@@ -102,26 +568,69 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
           <div className="border-border bg-muted/20 space-y-2 rounded-xl border p-4">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">{t('est_shares')}</span>
-              <span className="text-foreground font-mono">{potentialReturn}</span>
+              <span className="text-foreground font-mono">{0}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">{t('potential_return')}</span>
-              <span className="font-mono text-green-500">+{returnPercentage}%</span>
+              <span className={`font-mono ${selectedSide === PredictionSide.YES ? 'text-green-500' : 'text-red-500'}`}>{selectedSide === PredictionSide.YES ? '+' : '-'}{0}%</span>
             </div>
           </div>
         </div>
 
-        <button
-          onClick={handleTrade}
-          disabled={isProcessing}
-          className={`w-full rounded-xl py-4 text-base font-bold text-white shadow-lg transition-all ${
-            selectedSide === PredictionSide.YES
-              ? 'bg-gradient-to-r from-blue-600 to-indigo-600 shadow-blue-500/20 hover:from-blue-500 hover:to-indigo-500'
-              : 'bg-gradient-to-r from-red-500 to-orange-600 shadow-red-500/20 hover:from-red-400 hover:to-orange-500'
-          } ${isProcessing ? 'cursor-wait opacity-70' : ''} `}
-        >
-          {isProcessing ? t('opinion_processing') : `${t('buy')} ${selectedSide}`}
-        </button>
+        {!isLogin ? (
+          <div className="flex w-full">
+            <UIWallet
+              className="!h-auto w-full flex-1 !rounded-xl !py-4"
+              chainId={expectedChainId || undefined}
+            />
+          </div>
+        ) : isWrongChain ? (
+          <button
+            onClick={handleSwitchChain}
+            disabled={isSwitchingChain}
+            className="w-full rounded-xl bg-yellow-600 py-4 text-base font-bold text-white shadow-lg transition-all hover:bg-yellow-500 disabled:cursor-wait disabled:opacity-70"
+          >
+            {isSwitchingChain
+              ? t('switching') || 'Switching...'
+              : t('switch_to_chain', { chainName: chainConfig?.name || 'Base' }) || 'Switch Chain'}
+          </button>
+        ) : needsApproval ? (
+          <button
+            onClick={handleApprove}
+            disabled={isApprovePending || isApproveConfirming || !amount || !tokenAddress}
+            className="w-full rounded-xl bg-green-600 py-4 text-base font-bold text-white shadow-lg transition-all hover:bg-green-500 disabled:cursor-wait disabled:opacity-70"
+          >
+            {isApprovePending || isApproveConfirming ? (
+              <>
+                <Loader2 className="mr-2 inline h-4 w-4 animate-spin" />
+                {t('approving') || 'Approving...'}
+              </>
+            ) : (
+              t('approve_token') || 'Approve Token'
+            )}
+          </button>
+        ) : (
+          <button
+            onClick={handleTrade}
+            disabled={
+              isProcessing || !amount || !tokenAddress || !hasSufficientBalance || needsApproval
+            }
+            className={`w-full rounded-xl py-4 text-base font-bold text-white shadow-lg transition-all ${
+              selectedSide === PredictionSide.YES
+                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 shadow-blue-500/20 hover:from-blue-500 hover:to-indigo-500'
+                : 'bg-gradient-to-r from-red-500 to-orange-600 shadow-red-500/20 hover:from-red-400 hover:to-orange-500'
+            } ${isProcessing ? 'cursor-wait opacity-70' : ''} disabled:cursor-not-allowed disabled:opacity-50`}
+          >
+            {isBetPending || isBetConfirming ? (
+              <>
+                <Loader2 className="mr-2 inline h-4 w-4 animate-spin" />
+                {t('opinion_processing') || 'Processing...'}
+              </>
+            ) : (
+              `${t('buy')} ${selectedSide}`
+            )}
+          </button>
+        )}
 
         {/* Share / Call Out Section */}
         {onShare && (

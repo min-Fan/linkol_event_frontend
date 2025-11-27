@@ -1413,6 +1413,9 @@
     "based_on": "基于",
     "comments": "条评论",
     "agress_vs_disagree": "支持 vs. 反对",
-    "bet_on_sentiment": "押注情绪，赢时即赚"
+    "bet_on_sentiment": "押注情绪，赢时即赚",
+    "bet_success": "下注成功",
+    "bet_failed": "下注失败",
+    "switching": "切换中..."
   }
 }

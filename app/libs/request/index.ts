@@ -91,6 +91,7 @@ export const ENDPOINT_URL = {
   GET_BET_COMMENTS: '/kol/api/v10/bet_comments/',
   GET_BET_ACTIVITY: '/kol/api/v10/bet_activity/',
   GET_BET_AI_COMMENT: '/kol/api/v10/ai_comment/',
+  DO_BET_SUCCESS: '/kol/api/v10/dobet/success/',
 };
 
 // 获取OTP码
@@ -3243,4 +3244,18 @@ export const getBetAiComment = (params: IGetBetAiCommentParams) => {
   return kolRequest.get<IGetBetAiCommentResponseData>(ENDPOINT_URL.GET_BET_AI_COMMENT, {
     ...params,
   });
+};
+
+// 下注成功回调接口
+export interface IDoBetSuccessParams {
+  bet_id: string | number;
+  amount: string;
+  choice: number; // 0 for NO, 1 for YES
+  token_address: string;
+  tx_hash: string;
+  chainId: number;
+}
+
+export const doBetSuccess = (params: IDoBetSuccessParams) => {
+  return kolRequest.post(ENDPOINT_URL.DO_BET_SUCCESS, params);
 };
