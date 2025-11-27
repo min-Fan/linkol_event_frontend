@@ -377,6 +377,8 @@
     "verification_tweet_success": "验证成功",
     "copy_success": "复制成功",
     "copy_failed": "复制失败",
+    "download_success": "图片下载成功",
+    "download_failed": "图片下载失败",
     "kol_twitter_auth_login_failed": "推特授权失败",
     "feedback_title": "问题反馈",
     "feedback_category_title": "选择反馈类别*",

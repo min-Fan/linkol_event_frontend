@@ -13270,6 +13270,7 @@ __metadata:
     lit-html: ^3.3.0
     localforage: ^1.10.0
     lucide-react: ^0.543.0
+    modern-screenshot: ^4.6.7
     motion: ^12.9.2
     nanoid: ^5.1.5
     next: ^15.4.4
@@ -14393,6 +14394,13 @@ __metadata:
   version: 1.1.0
   resolution: "modern-ahocorasick@npm:1.1.0"
   checksum: 78b99840c9af086c1e36a594ee85bebd8c19d48e2ef31a67d1bad0e673ac12fc931e5961abb5b16daaf820af4923e700f76b1793b7413e18782230162866a0af
+  languageName: node
+  linkType: hard
+
+"modern-screenshot@npm:^4.6.7":
+  version: 4.6.7
+  resolution: "modern-screenshot@npm:4.6.7"
+  checksum: b407157ac71c972678bebeab9bc54f3eec839b11bfbbda0fe9e73656b38cab47b7c64e03c3d5f86ee88d631b857c08c32d08e4db2b2ca4162e66fd195a45e784
   languageName: node
   linkType: hard
 

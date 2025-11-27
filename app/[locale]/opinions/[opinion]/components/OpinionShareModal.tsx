@@ -1,10 +1,19 @@
 'use client';
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { useParams } from 'next/navigation';
-import { X, Copy, Download, Twitter, CheckCircle2, Zap } from 'lucide-react';
+import { Copy, Download, Twitter, CheckCircle2, Zap, Loader2 } from 'lucide-react';
 import { useBetDetail } from '@hooks/useBetDetail';
 import { useTranslations } from 'next-intl';
 import { PredictionSide } from '../types';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@shadcn/components/ui/dialog';
+import { getCurrentDomain, getCurrentUrl, copy } from '@libs/utils';
+import { toast } from 'sonner';
+import { domToPng } from 'modern-screenshot';
 
 interface OpinionShareModalProps {
   isOpen: boolean;
@@ -17,100 +26,169 @@ export default function OpinionShareModal({ isOpen, onClose, side }: OpinionShar
   const opinionId = params?.opinion as string;
   const { betDetail, topic, attitude } = useBetDetail(opinionId);
   const t = useTranslations('common');
+  const [isCopying, setIsCopying] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const shareCardRef = useRef<HTMLDivElement>(null);
 
-  if (!isOpen || !betDetail || !topic) return null;
+  if (!betDetail || !topic) return null;
 
   const isYes = side === PredictionSide.YES;
   const gradient = isYes ? 'from-green-600 to-emerald-800' : 'from-red-600 to-rose-800';
   const borderColor = isYes ? 'border-green-500' : 'border-red-500';
 
-  const shareText = `I bet ${side} on @${topic.screen_name}'s market on Linkol! 🚀\n\n"${topic.content}"\n\nJoin my side and boost the Brand Voice! 👇\nhttps://linkol.xyz/opinions/${opinionId}`;
+  // 动态获取当前完整URL
+  const currentUrl = `${getCurrentUrl()}/opinions/${opinionId}`;
+  const currentDomain = getCurrentDomain();
+  
+  // 获取原文链接，优先使用 attitude.tweet_url，否则构建 Twitter 用户主页链接
+  const originalTweetUrl = attitude?.tweet_url || `https://twitter.com/${topic.screen_name}`;
+  
+  // 分享文本中使用链接引用原文，而不是直接显示内容
+  const shareText = `I bet ${side} on @${topic.screen_name}'s market on Linkol! 🚀\n\n${originalTweetUrl}\n\nJoin my side and boost the Brand Voice! 👇\n${currentUrl}`;
   const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
 
-  return (
-    <div className="animate-in fade-in fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm duration-200">
-      <div className="border-border bg-card animate-in zoom-in-95 relative w-full max-w-md rounded-3xl border p-0 shadow-2xl duration-200">
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="text-muted-foreground hover:text-foreground absolute top-4 right-4 z-10 rounded-full bg-black/10 p-2 transition-all hover:bg-black/20 dark:bg-black/50 dark:hover:bg-black/70"
-        >
-          <X className="h-5 w-5" />
-        </button>
+  const handleCopyLink = async () => {
+    setIsCopying(true);
+    const success = await copy(currentUrl);
+    if (success) {
+      toast.success(t('copy_success') || 'Link copied to clipboard');
+    } else {
+      toast.error(t('copy_failed') || 'Failed to copy link');
+    }
+    setIsCopying(false);
+  };
 
-        <div className="p-6">
-          <h3 className="text-foreground mb-6 text-center text-xl font-bold">
+  const handleDownloadImage = async () => {
+    if (!shareCardRef.current || isDownloading) return;
+
+    try {
+      setIsDownloading(true);
+
+      // 等待DOM完全渲染
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // 使用 modern-screenshot 将DOM转换为PNG
+      const dataUrl = await domToPng(shareCardRef.current, {
+        scale: 2, // 提高图片质量
+        quality: 0.95,
+        backgroundColor: null,
+      });
+
+      // 将 data URL 转换为 blob
+      const response = await fetch(dataUrl);
+      const blob = await response.blob();
+
+      // 创建下载链接
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `opinion-share-${topic.screen_name}-${side}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast.success(t('download_success') || 'Image downloaded successfully');
+      setIsDownloading(false);
+    } catch (error) {
+      console.error('Error generating image:', error);
+      toast.error(t('download_failed') || 'Failed to generate image');
+      setIsDownloading(false);
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="border-border bg-card w-full max-w-[90%] rounded-2xl border p-0 shadow-2xl sm:max-w-md sm:rounded-3xl">
+        <DialogHeader className="p-4 pb-0 sm:p-6">
+          <DialogTitle className="text-foreground text-center text-lg font-bold sm:text-xl">
             {t('rally_support')}
-          </h3>
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="p-4 pt-3 sm:p-6 sm:pt-4">
 
           {/* Share Card Preview */}
           <div
-            className={`relative overflow-hidden rounded-2xl border-2 ${borderColor} bg-gradient-to-br ${gradient} p-6 shadow-2xl`}
+            ref={shareCardRef}
+            className={`relative overflow-hidden rounded-xl border-2 ${borderColor} bg-gradient-to-br ${gradient} p-4 shadow-2xl sm:rounded-2xl sm:p-6`}
           >
             {/* Background Texture */}
             <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
 
             {/* Card Content */}
             <div className="relative z-10 flex flex-col items-center text-center">
-              <div className="mb-4 flex items-center gap-3 rounded-full border border-white/10 bg-black/30 px-4 py-2 backdrop-blur-md">
+              <div className="mb-3 flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-3 py-1.5 backdrop-blur-md sm:mb-4 sm:gap-3 sm:px-4 sm:py-2">
                 <div className="relative">
-                  <img src={topic.icon || ''} alt="Avatar" className="h-8 w-8 rounded-full" />
+                  <img src={topic.icon || ''} alt="Avatar" className="h-7 w-7 rounded-full sm:h-8 sm:w-8" />
                   {false && (
                     <CheckCircle2 className="text-primary absolute -right-1 -bottom-1 h-3 w-3 rounded-full bg-black" />
                   )}
                 </div>
-                <span className="text-sm font-semibold text-white">{topic.name}</span>
+                <span className="text-xs font-semibold text-white sm:text-sm">{topic.name}</span>
               </div>
 
-              <h4 className="mb-6 text-lg leading-tight font-bold text-white drop-shadow-md">
+              <h4 className="mb-4 text-base leading-tight font-bold text-white drop-shadow-md sm:mb-6 sm:text-lg">
                 "{topic.content}"
               </h4>
 
-              <div className="w-full rounded-xl border border-white/10 bg-black/40 p-4 backdrop-blur-md">
-                <p className="mb-1 text-xs tracking-widest text-gray-300 uppercase">
+              <div className="w-full rounded-lg border border-white/10 bg-black/40 p-3 backdrop-blur-md sm:rounded-xl sm:p-4">
+                <p className="mb-1 text-[10px] tracking-widest text-gray-300 uppercase sm:text-xs">
                   {t('i_support')}
                 </p>
                 <div
-                  className={`text-4xl font-black ${isYes ? 'text-green-400' : 'text-red-400'} drop-shadow-sm`}
+                  className={`text-3xl font-black ${isYes ? 'text-green-400' : 'text-red-400'} drop-shadow-sm sm:text-4xl`}
                 >
                   {side}
                 </div>
-                <div className="mt-2 flex items-center justify-center gap-2 text-xs font-medium text-white/80">
-                  <Zap className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                <div className="mt-1.5 flex items-center justify-center gap-1.5 text-[10px] font-medium text-white/80 sm:mt-2 sm:gap-2 sm:text-xs">
+                  <Zap className="h-2.5 w-2.5 fill-yellow-400 text-yellow-400 sm:h-3 sm:w-3" />
                   <span>{t('boosting_brand_voice')}</span>
                 </div>
               </div>
             </div>
 
             {/* Linkol Watermark */}
-            <div className="absolute right-4 bottom-3 text-[10px] font-bold text-white/40 italic">
-              Linkol.xyz
+            <div className="absolute right-2 bottom-0.5 text-[9px] font-bold text-white/40 italic sm:right-4 sm:bottom-1 sm:text-[10px]">
+              {currentDomain}
             </div>
           </div>
 
           {/* Actions */}
-          <div className="mt-6 grid grid-cols-2 gap-3">
+          <div className="mt-4 grid grid-cols-1 gap-3 sm:mt-6 sm:grid-cols-2">
             <a
               href={twitterUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 rounded-xl bg-[#1DA1F2] py-3 text-sm font-bold text-white shadow-lg shadow-blue-500/20 transition-all hover:bg-[#1a8cd8]"
+              className="flex items-center justify-center gap-2 rounded-xl bg-[#1DA1F2] py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-500/20 transition-all hover:bg-[#1a8cd8] sm:py-3"
             >
               <Twitter className="h-4 w-4 fill-white" />
               {t('share_to_x')}
             </a>
-            <button className="bg-muted hover:bg-muted/80 text-foreground border-border flex items-center justify-center gap-2 rounded-xl border py-3 text-sm font-bold transition-all">
-              <Download className="h-4 w-4" />
+            <button
+              onClick={handleDownloadImage}
+              disabled={isDownloading}
+              className="hidden items-center justify-center gap-2 rounded-xl border border-border bg-muted py-2.5 text-sm font-bold text-foreground transition-all hover:bg-muted/80 disabled:opacity-50 sm:flex sm:py-3"
+            >
+              {isDownloading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Download className="h-4 w-4" />
+              )}
               {t('save_image')}
             </button>
           </div>
 
-          <button className="text-muted-foreground hover:text-foreground mt-3 flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-medium transition-colors">
+          <button
+            onClick={handleCopyLink}
+            disabled={isCopying}
+            className="text-muted-foreground hover:text-foreground mt-3 flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium transition-colors disabled:opacity-50 sm:py-3"
+          >
             <Copy className="h-4 w-4" />
             {t('copy_link')}
           </button>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

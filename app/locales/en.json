@@ -376,6 +376,8 @@
     "verification_tweet_success": "Verification successful",
     "copy_success": "Copy successful",
     "copy_failed": "Copy failed",
+    "download_success": "Image downloaded successfully",
+    "download_failed": "Failed to generate image",
     "kol_twitter_auth_login_failed": "Twitter authorization failed",
     "feedback_title": "Feedback",
     "feedback_category_title": "Select feedback category*",
