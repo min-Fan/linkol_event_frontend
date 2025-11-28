@@ -1438,6 +1438,24 @@
     "bet_on_sentiment": "押注情绪，赢时即赚",
     "bet_success": "下注成功",
     "bet_failed": "下注失败",
-    "switching": "切换中..."
+    "switching": "切换中...",
+    "brand_panel_agent_title": "AI 代理",
+    "brand_panel_agent_subtitle": "自动化社交挖矿",
+    "brand_panel_agent_description": "没时间发帖？激活您的个人 AI 代理。它会自动参与、发推并赚取奖励，全天候运行。",
+    "brand_panel_agent_tag_1": "⚡ 全天候运行",
+    "brand_panel_agent_tag_2": "🤖 智能自动回复",
+    "brand_panel_earn_title": "价值回报",
+    "brand_panel_earn_subtitle": "您的声音，货币化",
+    "brand_panel_earn_description": "打破垄断。每条推文、回复和互动都会产生真实价值，直接流入您的钱包。",
+    "brand_panel_earn_tag_1": "💰 USDT 奖励",
+    "brand_panel_earn_tag_2": "🎟️ 每周抽奖",
+    "brand_panel_sentiment_title": "预测",
+    "brand_panel_sentiment_subtitle": "情绪市场",
+    "brand_panel_sentiment_description": "将您的直觉转化为利润。预测热门话题的公众舆论趋势，预测正确即可获得奖励。",
+    "login_form_connect": "连接",
+    "login_form_description": "加入 SocialFi 生态系统。<br />您的影响力，现在可以变现。",
+    "login_form_sign_in_twitter": "使用 Twitter 登录",
+    "login_form_agent_active": "代理已激活",
+    "login_form_powered_by": "由 Linkol 提供支持"
   }
 }
