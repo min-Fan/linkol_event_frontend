@@ -13,7 +13,7 @@ export default function MarketEventsLayout({ children }: { children: React.React
       <Header />
       <div
         className={cn(
-          'mx-auto -mt-56 box-border flex w-full max-w-[1600px] flex-1 justify-center p-4',
+          'mx-auto -mt-56 box-border flex w-full max-w-[1600px] flex-1 justify-center p-4 sm:p-0',
           !isHomeScreen && 'mt-auto pt-14 sm:pt-16'
         )}
       >

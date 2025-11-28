@@ -23,8 +23,8 @@ export default function MyAgentPage() {
 
   return (
     <div className="min-h-screen w-full pb-10 sm:pb-0">
-      <div className="mx-auto h-full max-w-7xl">
-        {isLoggedIn ? (
+      {isLoggedIn ? (
+        <div className="mx-auto h-full max-w-7xl">
           <div className="grid grid-cols-1 gap-2 lg:grid-cols-3">
             {/* 左侧列 */}
             <div className="flex flex-col gap-2 lg:col-span-1">
@@ -42,12 +42,10 @@ export default function MyAgentPage() {
               <MyInviteeSection />
             </div>
           </div>
-        ) : (
-          <div className="flex h-full flex-col items-center justify-center">
-            <ProfileCard />
-          </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        <ProfileCard />
+      )}
     </div>
   );
 }
