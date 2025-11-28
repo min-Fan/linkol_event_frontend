@@ -57,15 +57,13 @@ export default function OpinionSentimentChart() {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
-      
+
       // 计算YES和NO的数量
       const yesCount = data.kols?.filter((k: any) => k.side === PredictionSide.YES).length || 0;
       const noCount = data.kols?.filter((k: any) => k.side === PredictionSide.NO).length || 0;
-      
+
       return (
-        <div 
-          className="border-border bg-card/95 min-w-[220px] rounded-xl border p-3 shadow-xl backdrop-blur-md pointer-events-auto"
-        >
+        <div className="border-border bg-card/95 pointer-events-auto min-w-[220px] rounded-xl border p-3 shadow-xl backdrop-blur-md">
           <p className="text-muted-foreground mb-2 text-xs font-medium">{label}</p>
           <div className="mb-3 flex items-center justify-between">
             <span className="text-foreground text-sm">{t('probability')}</span>
@@ -79,16 +77,16 @@ export default function OpinionSentimentChart() {
                   {t('key_activity')}
                 </p>
                 <div className="flex items-center gap-2 text-[10px]">
-                  <span className="text-green-500 font-medium">
+                  <span className="font-medium text-green-500">
                     {t('yes')}: {yesCount}
                   </span>
                   <span className="text-muted-foreground">|</span>
-                  <span className="text-red-500 font-medium">
+                  <span className="font-medium text-red-500">
                     {t('no')}: {noCount}
                   </span>
                 </div>
               </div>
-              <div className="max-h-48 space-y-2.5 overflow-y-auto pr-1 custom-scrollbar">
+              <div className="custom-scrollbar max-h-48 space-y-2.5 overflow-y-auto pr-1">
                 {data.kols.map((k: any, i: number) => {
                   // 如果没有 name，使用默认文本或地址缩写
                   return (
