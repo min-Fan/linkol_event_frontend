@@ -1436,6 +1436,24 @@
     "bet_on_sentiment": "Bet on Sentiment,Earn When You're Right",
     "bet_success": "Bet placed successfully",
     "bet_failed": "Bet failed",
-    "switching": "Switching..."
+    "switching": "Switching...",
+    "brand_panel_agent_title": "AI Agent",
+    "brand_panel_agent_subtitle": "Automated Social Mining",
+    "brand_panel_agent_description": "Don't have time to post? Activate your personal AI Agent. It engages, tweets, and earns rewards automatically, 24/7.",
+    "brand_panel_agent_tag_1": "⚡ 24/7 Active",
+    "brand_panel_agent_tag_2": "🤖 Smart Auto-Reply",
+    "brand_panel_earn_title": "Value Return",
+    "brand_panel_earn_subtitle": "Your Voice, Monetized",
+    "brand_panel_earn_description": "Break the monopoly. Every tweet, reply, and interaction generates real value that flows directly back to your wallet.",
+    "brand_panel_earn_tag_1": "💰 USDT Rewards",
+    "brand_panel_earn_tag_2": "🎟️ Weekly Raffles",
+    "brand_panel_sentiment_title": "Prediction",
+    "brand_panel_sentiment_subtitle": "Sentiment Market",
+    "brand_panel_sentiment_description": "Transform your intuition into profit. Predict public opinion trends on hot topics and win rewards when you're right.",
+    "login_form_connect": "Connect",
+    "login_form_description": "Join the SocialFi ecosystem. <br /> Your influence, now liquidated.",
+    "login_form_sign_in_twitter": "Sign in with Twitter",
+    "login_form_agent_active": "Agent Active",
+    "login_form_powered_by": "Powered by Linkol"
   }
 }
