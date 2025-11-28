@@ -15,7 +15,7 @@ import {
   useReadContract,
   useBalance,
 } from 'wagmi';
-import { erc20Abi } from 'viem';
+import { erc20Abi, decodeEventLog } from 'viem';
 import { ethers } from 'ethers';
 import { toast } from 'sonner';
 import { ChainType, getChainConfig, getDefaultChain } from '@constants/config';
@@ -24,7 +24,7 @@ import Bet_abi from '@constants/abi/Bet_abi.json';
 import { formatPrecision } from '@libs/utils';
 import { parseToBigNumber, formatBigNumber } from '@libs/utils/format-bignumber';
 import UIWallet from '@ui/wallet';
-import { doBetSuccess } from '@libs/request';
+import { doBetSuccess, claimSuccess } from '@libs/request';
 
 interface OpinionTradingPanelProps {
   onShare?: (side: PredictionSide) => void;
@@ -86,7 +86,8 @@ const extractErrorMessage = (error: any): string => {
 export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProps) {
   const params = useParams();
   const opinionId = params?.opinion as string;
-  const { yesPercentage, noPercentage, betDetail, tokenAddress, chainId } = useBetDetail(opinionId);
+  const { yesPercentage, noPercentage, betDetail, tokenAddress, chainId, attitude } =
+    useBetDetail(opinionId);
   const t = useTranslations('common');
   const { address, chainId: currentChainId } = useAccount();
   const { isLogin } = useUserInfo();
@@ -120,6 +121,13 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
     isError: isApproveWriteError,
     data: approveTxHash,
   } = useWriteContract();
+  const {
+    writeContract: writeClaimContract,
+    isPending: isClaimPending,
+    error: claimError,
+    isError: isClaimWriteError,
+    data: claimTxHash,
+  } = useWriteContract();
 
   // Wait for transaction receipts
   const {
@@ -141,6 +149,19 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
         enabled: !!approveTxHash,
       },
     });
+
+  const {
+    isLoading: isClaimConfirming,
+    isSuccess: isClaimConfirmed,
+    isError: isClaimReceiptError,
+    error: claimReceiptError,
+    data: claimReceipt,
+  } = useWaitForTransactionReceipt({
+    hash: claimTxHash,
+    query: {
+      enabled: !!claimTxHash,
+    },
+  });
 
   // Read token allowance
   const { data: tokenAllowance, refetch: refetchAllowance } = useReadContract({
@@ -193,6 +214,28 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
     },
   });
 
+  // Read event info from contract
+  const { data: eventInfo } = useReadContract({
+    address: chainConfig?.AgentBetAddress as `0x${string}`,
+    abi: Bet_abi,
+    functionName: 'getEventInfo',
+    args: opinionId ? [BigInt(opinionId)] : undefined,
+    query: {
+      enabled: !!opinionId && !!chainConfig?.AgentBetAddress && !isWrongChain,
+    },
+  });
+
+  // Read user bet info from contract
+  const { data: betInfo } = useReadContract({
+    address: chainConfig?.AgentBetAddress as `0x${string}`,
+    abi: Bet_abi,
+    functionName: 'getBetInfo',
+    args: opinionId && address ? [BigInt(opinionId), address as `0x${string}`] : undefined,
+    query: {
+      enabled: !!opinionId && !!address && !!chainConfig?.AgentBetAddress && !isWrongChain,
+    },
+  });
+
   // 获取代币精度：原生代币使用18，ERC20代币使用合约返回的decimals
   const tokenDecimalsValue =
     tokenAddress === ethers.ZeroAddress ? 18 : tokenDecimals ? Number(tokenDecimals) : 18; // 默认18位精度
@@ -205,13 +248,53 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
   const [amount, setAmount] = useState<string>('');
   const [currentAllowance, setCurrentAllowance] = useState('0');
   const [needsApproval, setNeedsApproval] = useState(false);
+  const [isEnded, setIsEnded] = useState(false);
+  const [activeTab, setActiveTab] = useState<'yes' | 'no' | 'claim'>('yes');
+
+  // 解析用户下注信息
+  // betInfo 结构: {amount: bigint, choice: number, claimed: boolean}
+  const userBetAmount =
+    betInfo && (betInfo as any).amount
+      ? formatBigNumber(BigInt((betInfo as any).amount.toString()), tokenDecimalsValue)
+      : '0';
+  const userBetChoice =
+    betInfo && (betInfo as any).choice !== undefined ? Number((betInfo as any).choice) : null; // 0 = NO, 1 = YES
+  const hasUserBet = userBetChoice !== null && parseFloat(userBetAmount) > 0;
 
   const price = selectedSide === PredictionSide.YES ? yesPercentage / 100 : noPercentage / 100;
   const amountNum = parseFloat(amount || '0');
-  const potentialReturn = amountNum > 0 ? (amountNum / price).toFixed(2) : '0.00';
-  const returnPercentage = price > 0 ? ((1 / price - 1) * 100).toFixed(0) : '0';
   const availableBalance = tokenBalance ? parseFloat(tokenBalance.formatted) : 0;
   const hasSufficientBalance = amountNum > 0 && availableBalance >= amountNum;
+
+  // 解析合约返回的 eventInfo
+  // eventInfo 结构: [name, startTimestamp, endTimestamp, betTokenAddress, exists, settled, winningChoice, totalAmount, totalWinningAmount]
+  const isSettled =
+    eventInfo && Array.isArray(eventInfo) && eventInfo[5] !== undefined
+      ? Boolean(eventInfo[5])
+      : false;
+  // canClaim: 活动已结算（settled = true）且用户还未 claim（claimed = false）
+  const canClaim =
+    isSettled && betInfo && (betInfo as any).claimed !== undefined && !(betInfo as any).claimed;
+  const totalAmount =
+    eventInfo && Array.isArray(eventInfo) && eventInfo[7]
+      ? formatBigNumber(BigInt(eventInfo[7].toString()), tokenDecimalsValue)
+      : '0';
+  const totalWinningAmount =
+    eventInfo && Array.isArray(eventInfo) && eventInfo[8]
+      ? formatBigNumber(BigInt(eventInfo[8].toString()), tokenDecimalsValue)
+      : '0';
+  const totalAmountNum = parseFloat(totalAmount || '0');
+  const totalWinningAmountNum = parseFloat(totalWinningAmount || '0');
+
+  // 计算预估份额：用户投入的金额能获得多少份额
+  // 份额 = 投入金额 / 当前价格
+  const estShares = amountNum > 0 && price > 0 ? (amountNum / price).toFixed(4) : '0.0000';
+
+  // 计算潜在回报百分比
+  // 如果赢了，回报 = (总金额 / 获胜方总金额 - 1) * 100
+  // 或者使用价格计算：回报 = (1 / 价格 - 1) * 100
+  const potentialReturnPercentage =
+    price > 0 && amountNum > 0 ? ((1 / price - 1) * 100).toFixed(2) : '0.00';
 
   // 检查授权额度
   const checkAllowance = useCallback(() => {
@@ -260,6 +343,57 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
     tokenDecimalsValue,
   ]);
 
+  // 根据用户下注信息设置默认值
+  useEffect(() => {
+    if (betInfo && (betInfo as any).amount && BigInt((betInfo as any).amount.toString()) > 0n) {
+      const choice = Number((betInfo as any).choice);
+      // 设置用户选择的 side: 0 = NO, 1 = YES
+      const userSide = choice === 1 ? PredictionSide.YES : PredictionSide.NO;
+      setSelectedSide(userSide);
+      // 如果活动已结算且用户已下注，默认显示 claim tab
+      if (isSettled) {
+        setActiveTab('claim');
+      } else if ((betInfo as any).claimed === false) {
+        // 如果用户已经下注且可以 claim，默认显示 claim tab
+        setActiveTab('claim');
+      } else {
+        // 设置 tab 为用户选择的方向
+        setActiveTab(choice === 1 ? 'yes' : 'no');
+      }
+    }
+  }, [betInfo, isSettled]);
+
+  // 同步 activeTab 和 selectedSide（当用户切换 tab 时）
+  useEffect(() => {
+    if (activeTab === 'yes') {
+      setSelectedSide(PredictionSide.YES);
+    } else if (activeTab === 'no') {
+      setSelectedSide(PredictionSide.NO);
+    }
+  }, [activeTab]);
+
+  // 检查是否已结束
+  useEffect(() => {
+    if (!attitude?.end_at) {
+      setIsEnded(false);
+      return;
+    }
+
+    const checkEndTime = () => {
+      const now = new Date().getTime();
+      const endTime = new Date(attitude.end_at).getTime();
+      setIsEnded(now >= endTime);
+    };
+
+    // 立即检查一次
+    checkEndTime();
+
+    // 每秒检查一次
+    const interval = setInterval(checkEndTime, 1000);
+
+    return () => clearInterval(interval);
+  }, [attitude?.end_at]);
+
   // 监听授权变化
   useEffect(() => {
     if (tokenAddress && amount && address) {
@@ -303,6 +437,97 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
     }
   }, [betTxHash, opinionId, amount, tokenAddress, betChainId, selectedSide]);
 
+  // 静默调用 claim 成功回调接口
+  const callClaimSuccessCallback = useCallback(async () => {
+    if (
+      !claimTxHash ||
+      !opinionId ||
+      !tokenAddress ||
+      !betChainId ||
+      !address ||
+      userBetChoice === null
+    ) {
+      return;
+    }
+
+    try {
+      // 从交易收据中获取 amount (payout)
+      // BetClaimed 事件包含 payout 字段
+      let claimAmount = userBetAmount; // 默认值
+
+      // 如果有交易收据，尝试从 logs 中解析 payout
+      if (claimReceipt && claimReceipt.logs) {
+        try {
+          // 查找 BetClaimed 事件
+          // BetClaimed 事件签名: BetClaimed(uint256 indexed id, address indexed bettor, uint256 payout)
+          const betClaimedEvent = Bet_abi.find(
+            (item: any) => item.name === 'BetClaimed' && item.type === 'event'
+          );
+
+          if (betClaimedEvent) {
+            for (const log of claimReceipt.logs) {
+              try {
+                const decoded = decodeEventLog({
+                  abi: [betClaimedEvent],
+                  data: log.data,
+                  topics: log.topics,
+                }) as any;
+
+                // 检查是否是当前用户的 claim
+                if (
+                  decoded.args &&
+                  decoded.args.bettor &&
+                  decoded.args.bettor.toLowerCase() === address.toLowerCase()
+                ) {
+                  // payout 是第三个参数（indexed 参数不算在 data 中）
+                  if (decoded.args.payout) {
+                    claimAmount = formatBigNumber(
+                      BigInt(decoded.args.payout.toString()),
+                      tokenDecimalsValue
+                    );
+                    break;
+                  }
+                }
+              } catch (decodeError) {
+                // 继续查找下一个 log
+                continue;
+              }
+            }
+          }
+        } catch (parseError) {
+          console.warn(
+            'Failed to parse payout from receipt logs, using userBetAmount:',
+            parseError
+          );
+        }
+      }
+
+      const res: any = await claimSuccess({
+        bet_id: opinionId,
+        receiver: address,
+        amount: claimAmount,
+        choice: userBetChoice,
+        token_address: tokenAddress,
+        tx_hash: claimTxHash,
+        chainId: betChainId,
+      });
+      console.log('Claim success callback result:', res);
+    } catch (error) {
+      // 静默处理错误，不影响UI
+      console.error('Failed to call claim success callback (silent):', error);
+    }
+  }, [
+    claimTxHash,
+    claimReceipt,
+    opinionId,
+    tokenAddress,
+    betChainId,
+    address,
+    userBetChoice,
+    userBetAmount,
+    tokenDecimalsValue,
+  ]);
+
   // 监听下注交易状态
   useEffect(() => {
     if (isBetConfirmed && betTxHash) {
@@ -312,7 +537,17 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
       callDoBetSuccessCallback();
       // 可以在这里刷新数据
     }
-  }, [isBetConfirmed, betTxHash, callDoBetSuccessCallback]);
+  }, [isBetConfirmed, betTxHash, callDoBetSuccessCallback, t]);
+
+  // 监听 claim 交易状态
+  useEffect(() => {
+    if (isClaimConfirmed && claimTxHash) {
+      toast.success(t('claim_success') || 'Claim successful');
+      // 静默调用回调接口
+      callClaimSuccessCallback();
+      // 可以在这里刷新数据
+    }
+  }, [isClaimConfirmed, claimTxHash, callClaimSuccessCallback, t]);
 
   // 监听授权合约调用错误
   useEffect(() => {
@@ -342,7 +577,27 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
       const errorMessage = extractedMessage || t('bet_failed') || 'Bet transaction failed';
       toast.error(errorMessage);
     }
-  }, [isBetReceiptError, betReceiptError]);
+  }, [isBetReceiptError, betReceiptError, t]);
+
+  // 监听 claim 合约调用错误
+  useEffect(() => {
+    if (isClaimWriteError && claimError) {
+      console.error('Claim write error:', claimError);
+      const extractedMessage = extractErrorMessage(claimError);
+      const errorMessage = extractedMessage || t('claim_failed') || 'Claim failed';
+      toast.error(errorMessage);
+    }
+  }, [isClaimWriteError, claimError, t]);
+
+  // 监听 claim 交易确认错误
+  useEffect(() => {
+    if (isClaimReceiptError && claimReceiptError) {
+      console.error('Claim receipt error:', claimReceiptError);
+      const extractedMessage = extractErrorMessage(claimReceiptError);
+      const errorMessage = extractedMessage || t('claim_failed') || 'Claim transaction failed';
+      toast.error(errorMessage);
+    }
+  }, [isClaimReceiptError, claimReceiptError, t]);
 
   // 授权代币
   const handleApprove = useCallback(async () => {
@@ -408,8 +663,67 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
     }
   }, [tokenBalance]);
 
+  // Claim
+  const handleClaim = useCallback(async () => {
+    if (!isLogin) {
+      toast.error(t('please_connect_wallet') || 'Please connect wallet');
+      return;
+    }
+
+    if (isWrongChain) {
+      toast.error(t('wrong_chain') || 'Wrong chain');
+      return;
+    }
+
+    if (!opinionId) {
+      toast.error('Bet ID required');
+      return;
+    }
+
+    if (userBetChoice === null) {
+      toast.error(t('no_bet_found') || 'No bet found');
+      return;
+    }
+
+    if (!canClaim) {
+      toast.error(t('cannot_claim') || 'Cannot claim');
+      return;
+    }
+
+    if (!chainConfig?.AgentBetAddress) {
+      toast.error('Bet contract address not configured');
+      return;
+    }
+
+    try {
+      writeClaimContract({
+        address: chainConfig.AgentBetAddress as `0x${string}`,
+        abi: Bet_abi,
+        functionName: 'settlement',
+        args: [BigInt(opinionId), userBetChoice],
+      });
+    } catch (error: any) {
+      console.error('Claim failed:', error);
+      toast.error(error.message || t('claim_failed') || 'Claim failed');
+    }
+  }, [
+    isLogin,
+    isWrongChain,
+    opinionId,
+    userBetChoice,
+    canClaim,
+    chainConfig?.AgentBetAddress,
+    writeClaimContract,
+    t,
+  ]);
+
   // 下注
   const handleTrade = useCallback(async () => {
+    if (isEnded) {
+      toast.error(t('market_ended') || 'Market has ended');
+      return;
+    }
+
     if (!isLogin) {
       toast.error(t('please_connect_wallet') || 'Please connect wallet');
       return;
@@ -473,6 +787,7 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
       toast.error(error.message || t('bet_failed') || 'Bet failed');
     }
   }, [
+    isEnded,
     isLogin,
     isWrongChain,
     amount,
@@ -488,158 +803,325 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
   ]);
 
   const isProcessing =
-    isBetPending || isBetConfirming || isApprovePending || isApproveConfirming || isSwitchingChain;
+    isBetPending ||
+    isBetConfirming ||
+    isApprovePending ||
+    isApproveConfirming ||
+    isSwitchingChain ||
+    isClaimPending ||
+    isClaimConfirming;
 
   return (
     <div className="sticky top-24 space-y-5">
       <div className="border-border bg-card h-fit rounded-2xl border p-6 shadow-xl">
         <div className="mb-6 flex items-center justify-between">
           <h3 className="text-foreground text-lg font-semibold">{t('place_order')}</h3>
-          <span className="text-muted-foreground bg-muted flex items-center gap-1 rounded px-2 py-1 text-xs">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-green-500"></span>{' '}
-            {t('opinion_live')}
-          </span>
+          {isEnded ? (
+            <span className="text-muted-foreground bg-muted flex items-center gap-1 rounded px-2 py-1 text-xs">
+              <span className="h-2 w-2 rounded-full bg-red-500"></span> {t('opinion_stopped')}
+            </span>
+          ) : (
+            <span className="text-muted-foreground bg-muted flex items-center gap-1 rounded px-2 py-1 text-xs">
+              <span className="h-2 w-2 animate-pulse rounded-full bg-green-500"></span>{' '}
+              {t('opinion_live')}
+            </span>
+          )}
         </div>
 
+        {/* Tab 切换 */}
         <div className="bg-muted/20 border-border mb-6 flex rounded-lg border p-1">
-          <button
-            onClick={() => setSelectedSide(PredictionSide.YES)}
-            className={`flex-1 rounded-md py-2.5 text-sm font-semibold transition-all ${
-              selectedSide === PredictionSide.YES
-                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            {t('yes')} {yesPercentage.toFixed(1)}%
-          </button>
-          <button
-            onClick={() => setSelectedSide(PredictionSide.NO)}
-            className={`flex-1 rounded-md py-2.5 text-sm font-semibold transition-all ${
-              selectedSide === PredictionSide.NO
-                ? 'bg-red-500 text-white shadow-lg shadow-red-500/20'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            {t('no')} {noPercentage.toFixed(1)}%
-          </button>
+          {isSettled && hasUserBet ? (
+            // 活动已结算且用户已下注：只显示 Claim
+            <button
+              onClick={() => setActiveTab('claim')}
+              className="flex-1 rounded-md bg-gradient-to-r from-green-600 to-emerald-600 py-2.5 text-sm font-semibold text-white shadow-lg shadow-green-500/20 transition-all"
+            >
+              {t('claim')}
+            </button>
+          ) : !hasUserBet ? (
+            // 没下注时：显示 YES / NO
+            <>
+              <button
+                onClick={() => setActiveTab('yes')}
+                disabled={isEnded}
+                className={`flex-1 rounded-md py-2.5 text-sm font-semibold transition-all ${
+                  activeTab === 'yes'
+                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                    : 'text-muted-foreground hover:text-foreground'
+                } disabled:cursor-not-allowed disabled:opacity-50`}
+              >
+                {t('yes')} {yesPercentage.toFixed(1)}%
+              </button>
+              <button
+                onClick={() => setActiveTab('no')}
+                disabled={isEnded}
+                className={`flex-1 rounded-md py-2.5 text-sm font-semibold transition-all ${
+                  activeTab === 'no'
+                    ? 'bg-red-500 text-white shadow-lg shadow-red-500/20'
+                    : 'text-muted-foreground hover:text-foreground'
+                } disabled:cursor-not-allowed disabled:opacity-50`}
+              >
+                {t('no')} {noPercentage.toFixed(1)}%
+              </button>
+            </>
+          ) : (
+            // 下注后但活动未结算：显示用户选择的方向 / Claim
+            <>
+              <button
+                onClick={() => setActiveTab(userBetChoice === 1 ? 'yes' : 'no')}
+                className={`flex-1 rounded-md py-2.5 text-sm font-semibold transition-all ${
+                  activeTab === 'yes' || activeTab === 'no'
+                    ? userBetChoice === 1
+                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                      : 'bg-red-500 text-white shadow-lg shadow-red-500/20'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {userBetChoice === 1 ? t('yes') : t('no')}{' '}
+                {userBetChoice === 1 ? yesPercentage.toFixed(1) : noPercentage.toFixed(1)}%
+              </button>
+              <button
+                onClick={() => setActiveTab('claim')}
+                className={`flex-1 rounded-md py-2.5 text-sm font-semibold transition-all ${
+                  activeTab === 'claim'
+                    ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg shadow-green-500/20'
+                    : 'text-muted-foreground hover:text-green-500'
+                }`}
+              >
+                {t('claim')}
+              </button>
+            </>
+          )}
         </div>
 
-        <div className="mb-6 space-y-4">
-          <div>
-            <label className="text-muted-foreground mb-2 block text-xs font-medium">
-              {displayTokenSymbol ? `${t('amount')} (${displayTokenSymbol})` : t('amount')}
-            </label>
-            <div
-              className={`border-border bg-muted/50 text-foreground placeholder-muted-foreground has-[:focus]:ring-primary has-[:focus]:ring-0.5 flex w-full flex-col gap-1 rounded-xl border px-4 py-2 transition-colors dark:bg-black/40 ${selectedSide === PredictionSide.YES ? 'has-[:focus]:border-primary' : 'has-[:focus]:border-red-500'}`}
-            >
-              <Input
-                type="number"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder="0"
-                className="border-none !bg-transparent px-0 !text-2xl font-bold focus:outline-none"
-              />
-              <div className="ml-auto flex flex-wrap items-center gap-2">
-                {tokenBalance && (
-                  <div className="text-muted-foreground flex items-center gap-1 text-xs">
-                    <Wallet className="h-3 w-3" />
-                    <span>{formatPrecision(tokenBalance.formatted)}</span>
+        {/* Bet Tab Content (YES or NO) */}
+        {(activeTab === 'yes' || activeTab === 'no') && !(isSettled && hasUserBet) && (
+          <>
+            <div className="mb-6 space-y-4">
+              <div>
+                <label className="text-muted-foreground mb-2 block text-xs font-medium">
+                  {displayTokenSymbol ? `${t('amount')} (${displayTokenSymbol})` : t('amount')}
+                </label>
+                <div
+                  className={`border-border bg-muted/50 text-foreground placeholder-muted-foreground has-[:focus]:ring-primary has-[:focus]:ring-0.5 flex w-full flex-col gap-1 rounded-xl border px-4 py-2 transition-colors dark:bg-black/40 ${selectedSide === PredictionSide.YES ? 'has-[:focus]:border-primary' : 'has-[:focus]:border-red-500'}`}
+                >
+                  <Input
+                    type="number"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    placeholder="0"
+                    disabled={isEnded}
+                    className="border-none !bg-transparent px-0 !text-2xl font-bold focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                  <div className="ml-auto flex flex-wrap items-center gap-2">
+                    {tokenBalance && (
+                      <div className="text-muted-foreground flex items-center gap-1 text-xs">
+                        <Wallet className="h-3 w-3" />
+                        <span>{formatPrecision(tokenBalance.formatted)}</span>
+                      </div>
+                    )}
+                    <div className="ml-auto flex gap-1">
+                      {[10, 50, 100].map((val) => (
+                        <button
+                          key={val}
+                          onClick={() => {
+                            const currentAmount = parseFloat(amount || '0');
+                            setAmount((currentAmount + val).toString());
+                          }}
+                          disabled={isEnded}
+                          className="bg-card border-border text-muted-foreground hover:bg-muted rounded-lg border px-2 py-1.5 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          +{val}
+                        </button>
+                      ))}
+                      <button
+                        onClick={handleMaxClick}
+                        disabled={isEnded}
+                        className="bg-card border-border text-primary hover:bg-muted rounded-lg border px-2 py-1.5 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {t('max')}
+                      </button>
+                    </div>
                   </div>
-                )}
-                <div className="ml-auto flex gap-1">
-                  {[10, 50, 100].map((val) => (
-                    <button
-                      key={val}
-                      onClick={() => {
-                        const currentAmount = parseFloat(amount || '0');
-                        setAmount((currentAmount + val).toString());
-                      }}
-                      className="bg-card border-border text-muted-foreground hover:bg-muted rounded-lg border px-2 py-1.5 text-xs font-medium transition-colors"
-                    >
-                      +{val}
-                    </button>
-                  ))}
-                  <button
-                    onClick={handleMaxClick}
-                    className="bg-card border-border text-primary hover:bg-muted rounded-lg border px-2 py-1.5 text-xs font-medium transition-colors"
-                  >
-                    {t('max')}
-                  </button>
+                </div>
+              </div>
+
+              <div className="border-border bg-muted/20 space-y-2 rounded-xl border p-4">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">{t('est_shares')}</span>
+                  <span className="text-foreground font-mono">
+                    {amountNum > 0 ? estShares : '0.0000'}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">{t('potential_return')}</span>
+                  <span className={`font-mono text-green-500`}>
+                    {amountNum > 0 ? <>+{potentialReturnPercentage}%</> : '0.00%'}
+                  </span>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="border-border bg-muted/20 space-y-2 rounded-xl border p-4">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">{t('est_shares')}</span>
-              <span className="text-foreground font-mono">{0}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">{t('potential_return')}</span>
-              <span
-                className={`font-mono ${selectedSide === PredictionSide.YES ? 'text-green-500' : 'text-red-500'}`}
+            {!isLogin ? (
+              <div className="flex w-full">
+                <UIWallet
+                  className="!h-auto w-full flex-1 !rounded-xl !py-4"
+                  chainId={expectedChainId || undefined}
+                />
+              </div>
+            ) : isWrongChain ? (
+              <button
+                onClick={handleSwitchChain}
+                disabled={isSwitchingChain}
+                className="w-full rounded-xl bg-yellow-600 py-4 text-base font-bold text-white shadow-lg transition-all hover:bg-yellow-500 disabled:cursor-wait disabled:opacity-70"
               >
-                {selectedSide === PredictionSide.YES ? '+' : '-'}
-                {0}%
-              </span>
-            </div>
-          </div>
-        </div>
+                {isSwitchingChain
+                  ? t('switching') || 'Switching...'
+                  : t('switch_to_chain', { chainName: chainConfig?.name || 'Base' }) ||
+                    'Switch Chain'}
+              </button>
+            ) : amountNum > 0 && !hasSufficientBalance ? (
+              <button
+                disabled
+                className="w-full cursor-not-allowed rounded-xl bg-gray-500 py-4 text-base font-bold text-white opacity-70 shadow-lg transition-all"
+              >
+                {t('insufficient_balance') || 'Insufficient Balance'}
+              </button>
+            ) : needsApproval ? (
+              <button
+                onClick={handleApprove}
+                disabled={isApprovePending || isApproveConfirming || !amount || !tokenAddress}
+                className="w-full rounded-xl bg-green-600 py-4 text-base font-bold text-white shadow-lg transition-all hover:bg-green-500 disabled:cursor-wait disabled:opacity-70"
+              >
+                {isApprovePending || isApproveConfirming ? (
+                  <>
+                    <Loader2 className="mr-2 inline h-4 w-4 animate-spin" />
+                    {t('approving') || 'Approving...'}
+                  </>
+                ) : (
+                  t('approve_token') || 'Approve Token'
+                )}
+              </button>
+            ) : (
+              <button
+                onClick={handleTrade}
+                disabled={
+                  isEnded ||
+                  isProcessing ||
+                  !amount ||
+                  !tokenAddress ||
+                  !hasSufficientBalance ||
+                  needsApproval
+                }
+                className={`w-full rounded-xl py-4 text-base font-bold text-white shadow-lg transition-all ${
+                  selectedSide === PredictionSide.YES
+                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 shadow-blue-500/20 hover:from-blue-500 hover:to-indigo-500'
+                    : 'bg-gradient-to-r from-red-500 to-orange-600 shadow-red-500/20 hover:from-red-400 hover:to-orange-500'
+                } ${isProcessing ? 'cursor-wait opacity-70' : ''} disabled:cursor-not-allowed disabled:opacity-50`}
+              >
+                {isBetPending || isBetConfirming ? (
+                  <>
+                    <Loader2 className="mr-2 inline h-4 w-4 animate-spin" />
+                    {t('opinion_processing') || 'Processing...'}
+                  </>
+                ) : (
+                  `${t('buy')} ${selectedSide}`
+                )}
+              </button>
+            )}
+          </>
+        )}
 
-        {!isLogin ? (
-          <div className="flex w-full">
-            <UIWallet
-              className="!h-auto w-full flex-1 !rounded-xl !py-4"
-              chainId={expectedChainId || undefined}
-            />
+        {/* Claim Tab Content */}
+        {activeTab === 'claim' && (
+          <div className="space-y-4">
+            {!isLogin ? (
+              <div className="flex w-full">
+                <UIWallet
+                  className="!h-auto w-full flex-1 !rounded-xl !py-4"
+                  chainId={expectedChainId || undefined}
+                />
+              </div>
+            ) : isWrongChain ? (
+              <button
+                onClick={handleSwitchChain}
+                disabled={isSwitchingChain}
+                className="w-full rounded-xl bg-yellow-600 py-4 text-base font-bold text-white shadow-lg transition-all hover:bg-yellow-500 disabled:cursor-wait disabled:opacity-70"
+              >
+                {isSwitchingChain
+                  ? t('switching') || 'Switching...'
+                  : t('switch_to_chain', { chainName: chainConfig?.name || 'Base' }) ||
+                    'Switch Chain'}
+              </button>
+            ) : !hasUserBet ? (
+              <div className="border-border text-muted-foreground flex h-40 items-center justify-center rounded-xl border border-dashed">
+                {t('no_bet_found') || 'No bet found'}
+              </div>
+            ) : !isSettled ? (
+              <>
+                <div className="border-border bg-muted/20 space-y-3 rounded-xl border p-4">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">{t('your_bet') || 'Your Bet'}</span>
+                    <span className={`${userBetChoice === 1 ? 'text-green-500' : 'text-red-500'} text-foreground font-mono`}>
+                      {userBetChoice === 1 ? t('yes') : t('no')}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">{t('bet_amount') || 'Bet Amount'}</span>
+                    <span className="text-foreground font-mono">
+                      {formatPrecision(userBetAmount)} {displayTokenSymbol}
+                    </span>
+                  </div>
+                </div>
+                <div className="border-border text-muted-foreground flex items-center justify-center rounded-xl border border-dashed py-2">
+                  <div className="text-center">
+                    <p className="mb-1 font-medium flex items-center gap-1 justify-center">
+                      <Info className="h-4 w-4 text-yellow-500" />
+                      {t('wait_for_market_end') || 'Wait for market to end'}
+                    </p>
+                    <p className="text-xs">
+                      {t('claim_after_market_end') || 'You can claim after the market ends'}
+                    </p>
+                  </div>
+                </div>
+              </>
+            ) : !canClaim ? (
+              <div className="border-border text-muted-foreground flex h-40 items-center justify-center rounded-xl border border-dashed">
+                {t('already_claimed') || 'Already claimed'}
+              </div>
+            ) : (
+              <>
+                <div className="border-border bg-muted/20 space-y-3 rounded-xl border p-4">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">{t('your_bet') || 'Your Bet'}</span>
+                    <span className="text-foreground font-mono">
+                      {userBetChoice === 1 ? t('yes') : t('no')}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">{t('bet_amount') || 'Bet Amount'}</span>
+                    <span className="text-foreground font-mono">
+                      {formatPrecision(userBetAmount)} {displayTokenSymbol}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={handleClaim}
+                  disabled={isClaimPending || isClaimConfirming || !canClaim}
+                  className="w-full rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 py-4 text-base font-bold text-white shadow-lg transition-all hover:from-green-500 hover:to-emerald-500 disabled:cursor-wait disabled:opacity-70"
+                >
+                  {isClaimPending || isClaimConfirming ? (
+                    <>
+                      <Loader2 className="mr-2 inline h-4 w-4 animate-spin" />
+                      {t('claiming') || 'Claiming...'}
+                    </>
+                  ) : (
+                    t('claim') || 'Claim'
+                  )}
+                </button>
+              </>
+            )}
           </div>
-        ) : isWrongChain ? (
-          <button
-            onClick={handleSwitchChain}
-            disabled={isSwitchingChain}
-            className="w-full rounded-xl bg-yellow-600 py-4 text-base font-bold text-white shadow-lg transition-all hover:bg-yellow-500 disabled:cursor-wait disabled:opacity-70"
-          >
-            {isSwitchingChain
-              ? t('switching') || 'Switching...'
-              : t('switch_to_chain', { chainName: chainConfig?.name || 'Base' }) || 'Switch Chain'}
-          </button>
-        ) : needsApproval ? (
-          <button
-            onClick={handleApprove}
-            disabled={isApprovePending || isApproveConfirming || !amount || !tokenAddress}
-            className="w-full rounded-xl bg-green-600 py-4 text-base font-bold text-white shadow-lg transition-all hover:bg-green-500 disabled:cursor-wait disabled:opacity-70"
-          >
-            {isApprovePending || isApproveConfirming ? (
-              <>
-                <Loader2 className="mr-2 inline h-4 w-4 animate-spin" />
-                {t('approving') || 'Approving...'}
-              </>
-            ) : (
-              t('approve_token') || 'Approve Token'
-            )}
-          </button>
-        ) : (
-          <button
-            onClick={handleTrade}
-            disabled={
-              isProcessing || !amount || !tokenAddress || !hasSufficientBalance || needsApproval
-            }
-            className={`w-full rounded-xl py-4 text-base font-bold text-white shadow-lg transition-all ${
-              selectedSide === PredictionSide.YES
-                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 shadow-blue-500/20 hover:from-blue-500 hover:to-indigo-500'
-                : 'bg-gradient-to-r from-red-500 to-orange-600 shadow-red-500/20 hover:from-red-400 hover:to-orange-500'
-            } ${isProcessing ? 'cursor-wait opacity-70' : ''} disabled:cursor-not-allowed disabled:opacity-50`}
-          >
-            {isBetPending || isBetConfirming ? (
-              <>
-                <Loader2 className="mr-2 inline h-4 w-4 animate-spin" />
-                {t('opinion_processing') || 'Processing...'}
-              </>
-            ) : (
-              `${t('buy')} ${selectedSide}`
-            )}
-          </button>
         )}
 
         {/* Share / Call Out Section */}
@@ -662,9 +1144,19 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
           </div>
         )}
 
-        <div className="text-muted-foreground mt-4 flex items-start gap-2 text-xs">
-          <Info className="mt-0.5 h-3 w-3 flex-shrink-0" />
-          <p>{t('positions_locked_info')}</p>
+        <div className="text-muted-foreground mt-4 space-y-2 text-xs">
+          <div className="flex items-start gap-2">
+            <Info className="mt-0.5 h-3 w-3 flex-shrink-0" />
+            <p>{t('positions_locked_info')}</p>
+          </div>
+          {attitude?.end_at && (
+            <div className="flex items-start gap-2">
+              <Info className="mt-0.5 h-3 w-3 flex-shrink-0" />
+              <p>
+                {t('market_ends_at')}: {new Date(attitude.end_at).toLocaleString()}
+              </p>
+            </div>
+          )}
         </div>
       </div>
 

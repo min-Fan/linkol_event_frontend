@@ -92,6 +92,7 @@ export const ENDPOINT_URL = {
   GET_BET_ACTIVITY: '/kol/api/v10/bet_activity/',
   GET_BET_AI_COMMENT: '/kol/api/v10/ai_comment/',
   DO_BET_SUCCESS: '/kol/api/v10/dobet/success/',
+  CLAIM_SUCCESS: '/kol/api/v10/claim/success/',
 };
 
 // 获取OTP码
@@ -3064,6 +3065,7 @@ export interface IGetBetDetailResponseData {
     tweet_url?: string;
     token_address?: string;
     chain_id: number;
+    end_at: string;
   };
   yes_brand_value: number;
   no_brand_value: number;
@@ -3182,6 +3184,7 @@ export interface IBetCommentItem {
   screen_name: string;
   created_at?: string;
   tweet_update_time: string;
+  attitude: 0 | 1 | 2;
 }
 
 export interface IGetBetCommentsResponseData {
@@ -3258,4 +3261,19 @@ export interface IDoBetSuccessParams {
 
 export const doBetSuccess = (params: IDoBetSuccessParams) => {
   return kolRequest.post(ENDPOINT_URL.DO_BET_SUCCESS, params);
+};
+
+// Claim 成功回调接口
+export interface IClaimSuccessParams {
+  bet_id: string | number;
+  receiver: string;
+  amount: string;
+  choice: number; // 0 for NO, 1 for YES
+  token_address: string;
+  tx_hash: string;
+  chainId: number;
+}
+
+export const claimSuccess = (params: IClaimSuccessParams) => {
+  return kolRequest.post(ENDPOINT_URL.CLAIM_SUCCESS, params);
 };

@@ -37,6 +37,9 @@ export default function OpinionsPage() {
     'prospective'
   );
 
+  // 时间框架状态
+  const [selectedTimeFrame, setSelectedTimeFrame] = useState<string>('1D');
+
   // Share Modal State
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [shareSide, setShareSide] = useState<PredictionSide>(PredictionSide.YES);
@@ -170,10 +173,15 @@ export default function OpinionsPage() {
                 {t('price_history')} ({t('yes')})
               </h3>
               <div className="flex gap-2">
-                {['1H', '1D', '1W', 'ALL'].map((tf) => (
+                {['1D'].map((tf) => (
                   <button
                     key={tf}
-                    className={`rounded-lg px-3 py-1 text-xs ${tf === '1W' ? 'bg-muted text-foreground font-semibold' : 'text-muted-foreground hover:bg-muted/50'}`}
+                    onClick={() => setSelectedTimeFrame(tf)}
+                    className={`rounded-lg px-3 py-1 text-xs transition-all ${
+                      selectedTimeFrame === tf
+                        ? 'bg-muted text-foreground font-semibold'
+                        : 'text-muted-foreground hover:bg-muted/50'
+                    }`}
                   >
                     {tf}
                   </button>

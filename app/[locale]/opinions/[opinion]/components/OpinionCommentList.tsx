@@ -72,24 +72,26 @@ export default function OpinionCommentList() {
         .then((result) => {
           console.log(result.list);
           // 转换数据格式
+          // attitude: 0 = YES, 1 = NO, 2 = OTHER
           const transformed = result.list.map((item: any) => ({
             id: item.id,
             user: {
               id: item.id,
               name: item.name,
               handle: item.screen_name ? `@${item.screen_name}` : '',
-              avatar: item.profile_image_url || defaultAvatar.src,
+              avatar: item.icon || item.profile_image_url || defaultAvatar.src,
               verified: item.is_verified || false,
             },
-            content: item.comment_text,
-            timestamp: item.created_at || '',
+            content: item.content || item.comment_text || '',
+            timestamp: item.created_at || item.tweet_update_time || '',
+            attitude: item.attitude !== undefined ? item.attitude : 2, // 默认为 OTHER (2)
             side:
-              item.position_type === 'yes'
+              item.attitude === 0
                 ? PredictionSide.YES
-                : item.position_type === 'no'
+                : item.attitude === 1
                   ? PredictionSide.NO
-                  : undefined,
-            likes: item.like_count || 0,
+                  : undefined, // attitude === 2 或其他值时，side 为 undefined (OTHER)
+            likes: item.favorite_count || item.like_count || 0,
             reply_count: item.reply_count || 0,
             retweet: item.retweet_count || 0,
             views: item.views || 0,
@@ -106,12 +108,13 @@ export default function OpinionCommentList() {
   }, [fetchComments]);
 
   // Filter Logic
+  // attitude: 0 = YES, 1 = NO, 2 = OTHER
   const filteredComments = useMemo(() => {
     return comments.filter((comment) => {
       if (activeFilter === 'ALL') return true;
-      if (activeFilter === 'YES') return comment.side === PredictionSide.YES;
-      if (activeFilter === 'NO') return comment.side === PredictionSide.NO;
-      if (activeFilter === 'OTHERS') return !comment.side;
+      if (activeFilter === 'YES') return comment.attitude === 0;
+      if (activeFilter === 'NO') return comment.attitude === 1;
+      if (activeFilter === 'OTHERS') return comment.attitude === 2 || comment.attitude === undefined;
       return true;
     });
   }, [comments, activeFilter]);
@@ -133,10 +136,11 @@ export default function OpinionCommentList() {
   };
 
   // Counts for tabs
+  // attitude: 0 = YES, 1 = NO, 2 = OTHER
   const allCount = comments.length;
-  const yesCount = comments.filter((c) => c.side === PredictionSide.YES).length;
-  const noCount = comments.filter((c) => c.side === PredictionSide.NO).length;
-  const othersCount = comments.filter((c) => !c.side).length;
+  const yesCount = comments.filter((c) => c.attitude === 0).length;
+  const noCount = comments.filter((c) => c.attitude === 1).length;
+  const othersCount = comments.filter((c) => c.attitude === 2 || c.attitude === undefined).length;
 
   if (loading) {
     return (
@@ -196,7 +200,7 @@ export default function OpinionCommentList() {
         >
           {t('no')} {noCount}
         </button>
-        {/* <button
+        <button
           onClick={() => handleFilterChange('OTHERS')}
           className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
             activeFilter === 'OTHERS' 
@@ -205,7 +209,7 @@ export default function OpinionCommentList() {
           }`}
         >
           {t('others')} {othersCount}
-        </button> */}
+        </button>
       </div>
 
       {/* List */}
