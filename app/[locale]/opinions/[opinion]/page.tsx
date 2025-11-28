@@ -1,14 +1,26 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { Link } from '@libs/i18n/navigation';
-import { ArrowLeft, ExternalLink, HelpCircle, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, ExternalLink, HelpCircle, CheckCircle2, Droplet } from 'lucide-react';
 import { Skeleton } from '@shadcn/components/ui/skeleton';
 import PagesRoute from '@constants/routes';
 import { useBetDetail } from '@hooks/useBetDetail';
 import { useTranslations } from 'next-intl';
 import { PredictionSide } from './types';
 import defaultAvatar from '@assets/image/avatar.png';
+import {
+  useAccount,
+  useSwitchChain,
+  useWriteContract,
+  useWaitForTransactionReceipt,
+  useReadContract,
+} from 'wagmi';
+import { toast } from 'sonner';
+import { ChainType, getChainConfig, getDefaultChain, getChainTypeFromChainId } from '@constants/config';
+import useUserInfo from '@hooks/useUserInfo';
+import Faucet_abi from '@constants/abi/faucet.json';
+import { Loader2 } from 'lucide-react';
 
 // 导入新组件
 import {
@@ -27,10 +39,127 @@ export default function OpinionsPage() {
   const params = useParams();
   const opinionId = params?.opinion as string;
   const t = useTranslations('common');
+  const { address, chainId: currentChainId } = useAccount();
+  const { isLogin } = useUserInfo();
+  const { switchChain, isPending: isSwitchingChain } = useSwitchChain();
 
   // 使用自定义 hook 获取 bet 详情数据
-  const { betDetail, isLoading, isError, topic, attitude, commission, commentsTotal } =
+  const { betDetail, isLoading, isError, topic, attitude, commission, commentsTotal, chainId } =
     useBetDetail(opinionId);
+
+  // 确定使用的链（chainId 为 0 或 undefined 时使用 base）
+  const betChainId = !chainId || chainId === 0 ? getDefaultChain().chainId : chainId;
+  // 根据 chainId 确定链类型
+  const chainType = getChainTypeFromChainId(Number(betChainId));
+  const chainConfig = getChainConfig(chainType);
+  const expectedChainId = Number(betChainId);
+  const isWrongChain = currentChainId !== expectedChainId;
+
+  // 水龙头相关状态
+  const [faucetHash, setFaucetHash] = useState<`0x${string}` | undefined>();
+
+  // 读取 canClaim 状态
+  const { data: canClaimFaucet, refetch: refetchCanClaim } = useReadContract({
+    address: chainConfig?.FaucetAddress as `0x${string}`,
+    abi: Faucet_abi,
+    functionName: 'canClaim',
+    args: address ? [address] : undefined,
+    query: {
+      enabled: !!address && !!chainConfig?.FaucetAddress && !isWrongChain,
+    },
+  });
+
+  // 写入合约 - 领取水龙头
+  const {
+    writeContract: writeFaucetClaim,
+    isPending: isFaucetPending,
+    error: faucetError,
+  } = useWriteContract();
+
+  // 等待交易确认
+  const { isLoading: isFaucetConfirming, isSuccess: isFaucetSuccess } =
+    useWaitForTransactionReceipt({
+      hash: faucetHash,
+    });
+
+  // 处理水龙头领取
+  const handleFaucetClaim = useCallback(async () => {
+    if (!isLogin) {
+      toast.error(t('please_connect_wallet') || 'Please connect wallet');
+      return;
+    }
+
+    if (isWrongChain) {
+      toast.error(t('wrong_chain') || 'Wrong chain');
+      return;
+    }
+
+    if (!chainConfig?.FaucetAddress) {
+      toast.error('Faucet contract address not configured');
+      return;
+    }
+
+    if (!canClaimFaucet) {
+      toast.error(t('cannot_claim_faucet') || 'Cannot claim faucet');
+      return;
+    }
+
+    try {
+      writeFaucetClaim(
+        {
+          address: chainConfig.FaucetAddress as `0x${string}`,
+          abi: Faucet_abi,
+          functionName: 'claim',
+        },
+        {
+          onSuccess: (hash) => {
+            setFaucetHash(hash);
+            toast.success(t('faucet_claiming') || 'Claiming faucet...');
+          },
+          onError: (error: any) => {
+            console.error('Faucet claim error:', error);
+            toast.error(error?.message || t('faucet_claim_failed') || 'Faucet claim failed');
+          },
+        }
+      );
+    } catch (error: any) {
+      console.error('Faucet claim error:', error);
+      toast.error(error?.message || t('faucet_claim_failed') || 'Faucet claim failed');
+    }
+  }, [
+    isLogin,
+    isWrongChain,
+    chainConfig?.FaucetAddress,
+    canClaimFaucet,
+    writeFaucetClaim,
+    t,
+  ]);
+
+  // 处理链切换
+  const handleSwitchChain = useCallback(async () => {
+    if (!chainConfig) return;
+    try {
+      await switchChain({ chainId: expectedChainId });
+    } catch (error) {
+      console.error('Switch chain error:', error);
+    }
+  }, [switchChain, chainConfig, expectedChainId]);
+
+  // 处理交易成功
+  useEffect(() => {
+    if (isFaucetSuccess && faucetHash) {
+      toast.success(t('faucet_claim_success') || 'Faucet claim successful!');
+      setFaucetHash(undefined);
+      refetchCanClaim();
+    }
+  }, [isFaucetSuccess, faucetHash, refetchCanClaim, t]);
+
+  // 处理交易错误
+  useEffect(() => {
+    if (faucetError) {
+      toast.error(faucetError.message || t('faucet_claim_failed') || 'Faucet claim failed');
+    }
+  }, [faucetError, t]);
 
   // Tab 状态
   const [activeTab, setActiveTab] = useState<'prospective' | 'top_voice' | 'comments' | 'activity'>(
@@ -105,13 +234,34 @@ export default function OpinionsPage() {
 
   return (
     <div className="container mx-auto min-h-screen px-4 py-8 pb-20 transition-colors duration-300">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-6">
         <Link
           href={PagesRoute.OPINIONS}
-          className="text-muted-foreground hover:text-foreground mb-6 flex items-center gap-2 text-sm transition-colors"
+          className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm transition-colors"
         >
           <ArrowLeft className="h-4 w-4" /> {t('back_to_markets')}
         </Link>
+        {/* 水龙头按钮 - 仅在开发环境显示 */}
+        {process.env.NEXT_PUBLIC_NODE_ENV === 'development' && chainConfig?.FaucetAddress && (
+          <button
+            onClick={isWrongChain ? handleSwitchChain : handleFaucetClaim}
+            disabled={isFaucetPending || isFaucetConfirming || isSwitchingChain || !canClaimFaucet}
+            className="text-muted-foreground hover:text-primary flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+            title={t('faucet_claim') || 'Claim test tokens'}
+          >
+            {isFaucetPending || isFaucetConfirming || isSwitchingChain ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                {t('claiming') || 'Claiming...'}
+              </>
+            ) : (
+              <>
+                <Droplet className="h-4 w-4" />
+                {t('faucet_claim') || 'Faucet'}
+              </>
+            )}
+          </button>
+        )}
       </div>
 
       <div className="grid gap-8 lg:grid-cols-3">

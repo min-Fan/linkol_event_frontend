@@ -18,7 +18,12 @@ import {
 import { erc20Abi, decodeEventLog } from 'viem';
 import { ethers } from 'ethers';
 import { toast } from 'sonner';
-import { ChainType, getChainConfig, getDefaultChain } from '@constants/config';
+import {
+  ChainType,
+  getChainConfig,
+  getDefaultChain,
+  getChainTypeFromChainId,
+} from '@constants/config';
 import useUserInfo from '@hooks/useUserInfo';
 import Bet_abi from '@constants/abi/Bet_abi.json';
 import { formatPrecision } from '@libs/utils';
@@ -94,13 +99,8 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
   const { switchChain, isPending: isSwitchingChain } = useSwitchChain();
 
   // 确定使用的链（chainId 为 0 或 undefined 时使用 base）
-  const betChainId = !chainId || chainId === 0 ? getDefaultChain().chainId : chainId;
+  const betChainId = !chainId || chainId === 0 ? 84532 : Number(chainId);
   // 根据 chainId 确定链类型
-  const getChainTypeFromChainId = (id: number): ChainType => {
-    if (id === 8453 || id === 84532) return 'base'; // Base 主网或测试网
-    if (id === 56) return 'bsc'; // BSC
-    return 'base'; // 默认 base
-  };
   const chainType = getChainTypeFromChainId(betChainId);
   const chainConfig = getChainConfig(chainType);
   const expectedChainId = chainConfig ? parseInt(chainConfig.chainId) : null;
@@ -236,6 +236,22 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
     },
   });
 
+  // Read claimable amount from contract
+  const { data: claimableAmount } = useReadContract({
+    address: chainConfig?.AgentBetAddress as `0x${string}`,
+    abi: Bet_abi,
+    functionName: 'getClaimableAmount',
+    args: opinionId && address ? [BigInt(opinionId), address as `0x${string}`] : undefined,
+    query: {
+      enabled: !!opinionId && !!address && !!chainConfig?.AgentBetAddress && !isWrongChain,
+    },
+  });
+
+  useEffect(() => {
+    console.log('getEventInfo', eventInfo);
+    console.log('claimableAmount', claimableAmount);
+  }, [eventInfo, claimableAmount]);
+
   // 获取代币精度：原生代币使用18，ERC20代币使用合约返回的decimals
   const tokenDecimalsValue =
     tokenAddress === ethers.ZeroAddress ? 18 : tokenDecimals ? Number(tokenDecimals) : 18; // 默认18位精度
@@ -261,40 +277,65 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
     betInfo && (betInfo as any).choice !== undefined ? Number((betInfo as any).choice) : null; // 0 = NO, 1 = YES
   const hasUserBet = userBetChoice !== null && parseFloat(userBetAmount) > 0;
 
-  const price = selectedSide === PredictionSide.YES ? yesPercentage / 100 : noPercentage / 100;
   const amountNum = parseFloat(amount || '0');
   const availableBalance = tokenBalance ? parseFloat(tokenBalance.formatted) : 0;
   const hasSufficientBalance = amountNum > 0 && availableBalance >= amountNum;
 
   // 解析合约返回的 eventInfo
-  // eventInfo 结构: [name, startTimestamp, endTimestamp, betTokenAddress, exists, settled, winningChoice, totalAmount, totalWinningAmount]
+  // eventInfo 结构: {name, startTimestamp, endTimestamp, betTokenAddress, exists, settled, winningChoice, totalAmount, totalWinningAmount}
   const isSettled =
-    eventInfo && Array.isArray(eventInfo) && eventInfo[5] !== undefined
-      ? Boolean(eventInfo[5])
+    eventInfo && typeof eventInfo === 'object' && 'settled' in eventInfo
+      ? Boolean((eventInfo as any).settled)
       : false;
-  // canClaim: 活动已结算（settled = true）且用户还未 claim（claimed = false）
-  const canClaim =
-    isSettled && betInfo && (betInfo as any).claimed !== undefined && !(betInfo as any).claimed;
+
+  // 解析可领取金额
+  const claimableAmountFormatted =
+    claimableAmount !== undefined && claimableAmount !== null
+      ? formatBigNumber(BigInt(claimableAmount.toString()), tokenDecimalsValue)
+      : '0';
+  const claimableAmountNum = parseFloat(claimableAmountFormatted || '0');
+  const hasClaimableAmount = claimableAmountNum > 0;
+
+  // 检查用户是否已领取
+  const hasClaimed = betInfo && (betInfo as any).claimed !== undefined && (betInfo as any).claimed;
+
+  // canClaim: 活动已结算（settled = true）且用户还未 claim（claimed = false）且可领取金额 > 0
+  const canClaim = isSettled && betInfo && !hasClaimed && hasClaimableAmount;
   const totalAmount =
-    eventInfo && Array.isArray(eventInfo) && eventInfo[7]
-      ? formatBigNumber(BigInt(eventInfo[7].toString()), tokenDecimalsValue)
+    eventInfo && typeof eventInfo === 'object' && 'totalAmount' in eventInfo
+      ? formatBigNumber(BigInt((eventInfo as any).totalAmount.toString()), tokenDecimalsValue)
       : '0';
   const totalWinningAmount =
-    eventInfo && Array.isArray(eventInfo) && eventInfo[8]
-      ? formatBigNumber(BigInt(eventInfo[8].toString()), tokenDecimalsValue)
+    eventInfo && typeof eventInfo === 'object' && 'totalWinningAmount' in eventInfo
+      ? formatBigNumber(
+          BigInt((eventInfo as any).totalWinningAmount.toString()),
+          tokenDecimalsValue
+        )
       : '0';
   const totalAmountNum = parseFloat(totalAmount || '0');
   const totalWinningAmountNum = parseFloat(totalWinningAmount || '0');
 
-  // 计算预估份额：用户投入的金额能获得多少份额
-  // 份额 = 投入金额 / 当前价格
-  const estShares = amountNum > 0 && price > 0 ? (amountNum / price).toFixed(4) : '0.0000';
+  // 获取当前选择方的占比（百分比）
+  const selectedSidePercentage = selectedSide === PredictionSide.YES ? yesPercentage : noPercentage;
+
+  // 计算预估份额：基于当前选择方的占比和总金额
+  // 如果用户下注 amountNum，当前选择方的总金额 = totalAmountNum * selectedSidePercentage / 100
+  // 预估份额 = (用户投入金额 / 当前选择方总金额) * 100
+  // 简化：预估份额 = (amountNum / totalAmountNum) * (100 / selectedSidePercentage)
+  const estShares =
+    amountNum > 0 && totalAmountNum > 0 && selectedSidePercentage > 0
+      ? ((amountNum / totalAmountNum) * (100 / selectedSidePercentage)).toFixed(4)
+      : '0.0000';
 
   // 计算潜在回报百分比
   // 如果赢了，回报 = (总金额 / 获胜方总金额 - 1) * 100
-  // 或者使用价格计算：回报 = (1 / 价格 - 1) * 100
+  // 获胜方总金额 = totalAmountNum * selectedSidePercentage / 100
+  // 回报 = (totalAmountNum / (totalAmountNum * selectedSidePercentage / 100) - 1) * 100
+  // 简化：回报 = (100 / selectedSidePercentage - 1) * 100
   const potentialReturnPercentage =
-    price > 0 && amountNum > 0 ? ((1 / price - 1) * 100).toFixed(2) : '0.00';
+    selectedSidePercentage > 0 && amountNum > 0
+      ? ((100 / selectedSidePercentage - 1) * 100).toFixed(2)
+      : '0.00';
 
   // 检查授权额度
   const checkAllowance = useCallback(() => {
@@ -690,6 +731,11 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
       return;
     }
 
+    if (!hasClaimableAmount) {
+      toast.error(t('no_claimable_amount') || 'No claimable amount');
+      return;
+    }
+
     if (!chainConfig?.AgentBetAddress) {
       toast.error('Bet contract address not configured');
       return;
@@ -699,8 +745,8 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
       writeClaimContract({
         address: chainConfig.AgentBetAddress as `0x${string}`,
         abi: Bet_abi,
-        functionName: 'settlement',
-        args: [BigInt(opinionId), userBetChoice],
+        functionName: 'claim',
+        args: [BigInt(opinionId)],
       });
     } catch (error: any) {
       console.error('Claim failed:', error);
@@ -1062,7 +1108,9 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
                 <div className="border-border bg-muted/20 space-y-3 rounded-xl border p-4">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">{t('your_bet') || 'Your Bet'}</span>
-                    <span className={`${userBetChoice === 1 ? 'text-green-500' : 'text-red-500'} text-foreground font-mono`}>
+                    <span
+                      className={`${userBetChoice === 1 ? 'text-green-500' : 'text-red-500'} text-foreground font-mono`}
+                    >
                       {userBetChoice === 1 ? t('yes') : t('no')}
                     </span>
                   </div>
@@ -1075,7 +1123,7 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
                 </div>
                 <div className="border-border text-muted-foreground flex items-center justify-center rounded-xl border border-dashed py-2">
                   <div className="text-center">
-                    <p className="mb-1 font-medium flex items-center gap-1 justify-center">
+                    <p className="mb-1 flex items-center justify-center gap-1 font-medium">
                       <Info className="h-4 w-4 text-yellow-500" />
                       {t('wait_for_market_end') || 'Wait for market to end'}
                     </p>
@@ -1085,9 +1133,13 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
                   </div>
                 </div>
               </>
-            ) : !canClaim ? (
+            ) : hasClaimed ? (
               <div className="border-border text-muted-foreground flex h-40 items-center justify-center rounded-xl border border-dashed">
                 {t('already_claimed') || 'Already claimed'}
+              </div>
+            ) : !hasClaimableAmount ? (
+              <div className="border-border text-muted-foreground flex h-40 items-center justify-center rounded-xl border border-dashed">
+                {t('no_claimable_amount') || 'No claimable amount'}
               </div>
             ) : (
               <>
@@ -1107,7 +1159,7 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
                 </div>
                 <button
                   onClick={handleClaim}
-                  disabled={isClaimPending || isClaimConfirming || !canClaim}
+                  disabled={isClaimPending || isClaimConfirming || !canClaim || !hasClaimableAmount}
                   className="w-full rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 py-4 text-base font-bold text-white shadow-lg transition-all hover:from-green-500 hover:to-emerald-500 disabled:cursor-wait disabled:opacity-70"
                 >
                   {isClaimPending || isClaimConfirming ? (
