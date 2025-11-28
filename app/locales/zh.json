@@ -1391,6 +1391,8 @@
     "already_bet": "您已经下注",
     "opinion_live": "进行中",
     "opinion_stopped": "已停止",
+    "opinion_settled": "已结算",
+    "event_settled": "活动已结算",
     "market_ended": "市场已结束",
     "amount_usdt": "金额 (USDT)",
     "avg_price": "平均价格",
