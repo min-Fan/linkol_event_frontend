@@ -12,6 +12,8 @@ import { TwitterX, Verified } from '@assets/svg';
 import XAuth from '@ui/profile/components/XAuth';
 import { useTranslations } from 'next-intl';
 import { useAgentDetails } from '@hooks/useAgentDetails';
+import { BrandPanel } from './BrandPanel';
+import { LoginForm } from './LoginForm';
 
 export default function ProfileCard() {
   const twitterFullProfile = useAppSelector((state) => state.userReducer?.twitter_full_profile);
@@ -21,25 +23,22 @@ export default function ProfileCard() {
   // 获取agent详情
   const { agentDetails, isLoading: isAgentDetailsLoading, points, rank } = useAgentDetails();
 
-  // 如果未登录，显示登录按钮
+  // 如果未登录，显示 BrandPanel + LoginForm 布局
   if (!isLoggedIn) {
     return (
-      <Card className="rounded-lg border-1 p-4 shadow-none">
-        <CardContent className="p-0">
-          <div className="flex min-h-32 flex-col items-center justify-center gap-4">
-            <div className="bg-primary/10 flex h-12 w-12 items-center justify-center rounded-full">
-              <TwitterX className="text-primary h-6 w-6" />
-            </div>
-            <div className="text-center">
-              <h3 className="text-md font-bold">{t('please_login_to_view')}</h3>
-              <p className="text-muted-foreground text-sm">
-                {t('just_spend_1_minutes_everyday_earn_usd_immediately')}
-              </p>
-            </div>
-            <XAuth />
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex h-screen min-h-screen w-full flex-col lg:flex-row">
+        {/* Left Side: Brand & Story */}
+        <div className="relative hidden h-full w-full overflow-hidden border-r border-zinc-200 bg-white/50 backdrop-blur-sm lg:block lg:w-[60%] dark:border-zinc-800/50 dark:bg-zinc-950/30">
+          <BrandPanel />
+          {/* 暗色模式下的模糊边界渐变效果 */}
+          <div className="to-background pointer-events-none absolute top-0 -left-0 hidden h-full w-32 bg-gradient-to-l from-transparent via-zinc-950/20 dark:block"></div>
+        </div>
+
+        {/* Right Side: Login */}
+        <div className="relative flex h-full w-full flex-col items-center justify-center lg:w-[40%]">
+          <LoginForm />
+        </div>
+      </div>
     );
   }
 
