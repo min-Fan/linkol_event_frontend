@@ -1389,6 +1389,8 @@
     "already_bet": "You have already placed a bet",
     "opinion_live": "Live",
     "opinion_stopped": "Stopped",
+    "opinion_settled": "Settled",
+    "event_settled": "Event has been settled",
     "market_ended": "Market has ended",
     "amount_usdt": "Amount (USDT)",
     "avg_price": "Avg. Price",

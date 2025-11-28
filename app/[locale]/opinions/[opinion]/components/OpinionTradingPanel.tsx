@@ -384,23 +384,27 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
     tokenDecimalsValue,
   ]);
 
+  // 如果活动已结算且未领取，强制显示 Claim tab
+  useEffect(() => {
+    if (isSettled && !hasClaimed) {
+      setActiveTab('claim');
+    }
+  }, [isSettled, hasClaimed]);
+
   // 根据用户下注信息设置默认值
   useEffect(() => {
+    // 如果活动已结算，不处理下注信息（由上面的 useEffect 处理）
+    if (isSettled) {
+      return;
+    }
+
     if (betInfo && (betInfo as any).amount && BigInt((betInfo as any).amount.toString()) > 0n) {
       const choice = Number((betInfo as any).choice);
       // 设置用户选择的 side: 0 = NO, 1 = YES
       const userSide = choice === 1 ? PredictionSide.YES : PredictionSide.NO;
       setSelectedSide(userSide);
-      // 如果活动已结算且用户已下注，默认显示 claim tab
-      if (isSettled) {
-        setActiveTab('claim');
-      } else if ((betInfo as any).claimed === false) {
-        // 如果用户已经下注且可以 claim，默认显示 claim tab
-        setActiveTab('claim');
-      } else {
-        // 设置 tab 为用户选择的方向
-        setActiveTab(choice === 1 ? 'yes' : 'no');
-      }
+      // 如果活动未结算且用户已下注，设置 tab 为用户选择的方向
+      setActiveTab(choice === 1 ? 'yes' : 'no');
     }
   }, [betInfo, isSettled]);
 
@@ -765,6 +769,11 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
 
   // 下注
   const handleTrade = useCallback(async () => {
+    if (isSettled) {
+      toast.error(t('event_settled') || 'Event has been settled');
+      return;
+    }
+
     if (isEnded) {
       toast.error(t('market_ended') || 'Market has ended');
       return;
@@ -833,6 +842,7 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
       toast.error(error.message || t('bet_failed') || 'Bet failed');
     }
   }, [
+    isSettled,
     isEnded,
     isLogin,
     isWrongChain,
@@ -862,7 +872,11 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
       <div className="border-border bg-card h-fit rounded-2xl border p-6 shadow-xl">
         <div className="mb-6 flex items-center justify-between">
           <h3 className="text-foreground text-lg font-semibold">{t('place_order')}</h3>
-          {isEnded ? (
+          {isSettled ? (
+            <span className="text-muted-foreground bg-muted flex items-center gap-1 rounded px-2 py-1 text-xs">
+              <span className="h-2 w-2 rounded-full bg-purple-500"></span> {t('opinion_settled') || 'Settled'}
+            </span>
+          ) : isEnded ? (
             <span className="text-muted-foreground bg-muted flex items-center gap-1 rounded px-2 py-1 text-xs">
               <span className="h-2 w-2 rounded-full bg-red-500"></span> {t('opinion_stopped')}
             </span>
@@ -875,17 +889,26 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
         </div>
 
         {/* Tab 切换 */}
-        <div className="bg-muted/20 border-border mb-6 flex rounded-lg border p-1">
-          {isSettled && hasUserBet ? (
-            // 活动已结算且用户已下注：只显示 Claim
-            <button
-              onClick={() => setActiveTab('claim')}
-              className="flex-1 rounded-md bg-gradient-to-r from-green-600 to-emerald-600 py-2.5 text-sm font-semibold text-white shadow-lg shadow-green-500/20 transition-all"
-            >
-              {t('claim')}
-            </button>
-          ) : !hasUserBet ? (
-            // 没下注时：显示 YES / NO
+        {isSettled && hasClaimed ? (
+          // 活动已结算且已领取：不显示 tab，显示已领取状态
+          <div className="border-border bg-muted/20 mb-6 rounded-lg border p-4">
+            <div className="text-muted-foreground flex items-center justify-center gap-2">
+              <Info className="h-4 w-4 text-green-500" />
+              <span className="text-sm font-medium">{t('already_claimed') || 'Already claimed'}</span>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-muted/20 border-border mb-6 flex rounded-lg border p-1">
+            {isSettled ? (
+              // 活动已结算但未领取：只显示 Claim
+              <button
+                onClick={() => setActiveTab('claim')}
+                className="flex-1 rounded-md bg-gradient-to-r from-green-600 to-emerald-600 py-2.5 text-sm font-semibold text-white shadow-lg shadow-green-500/20 transition-all"
+              >
+                {t('claim')}
+              </button>
+            ) : !hasUserBet ? (
+            // 活动未结算且没下注时：显示 YES / NO
             <>
               <button
                 onClick={() => setActiveTab('yes')}
@@ -911,7 +934,7 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
               </button>
             </>
           ) : (
-            // 下注后但活动未结算：显示用户选择的方向 / Claim
+            // 活动未结算且下注后：显示用户选择的方向 / Claim
             <>
               <button
                 onClick={() => setActiveTab(userBetChoice === 1 ? 'yes' : 'no')}
@@ -937,11 +960,12 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
                 {t('claim')}
               </button>
             </>
-          )}
-        </div>
+            )}
+          </div>
+        )}
 
         {/* Bet Tab Content (YES or NO) */}
-        {(activeTab === 'yes' || activeTab === 'no') && !(isSettled && hasUserBet) && (
+        {(activeTab === 'yes' || activeTab === 'no') && !isSettled && (
           <>
             <div className="mb-6 space-y-4">
               <div>
@@ -1052,6 +1076,7 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
               <button
                 onClick={handleTrade}
                 disabled={
+                  isSettled ||
                   isEnded ||
                   isProcessing ||
                   !amount ||
@@ -1079,7 +1104,7 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
         )}
 
         {/* Claim Tab Content */}
-        {activeTab === 'claim' && (
+        {activeTab === 'claim' && !hasClaimed && (
           <div className="space-y-4">
             {!isLogin ? (
               <div className="flex w-full">
