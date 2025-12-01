@@ -1,7 +1,22 @@
 'use client';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
-import { ArrowRight, HelpCircle, Info, Share2, TrendingUp, Loader2, Wallet } from 'lucide-react';
+import {
+  ArrowRight,
+  HelpCircle,
+  Info,
+  Share2,
+  TrendingUp,
+  Loader2,
+  Wallet,
+  Trophy,
+  XCircle,
+  CheckCircle,
+  Lock,
+  Crown,
+  Coins,
+  Clock,
+} from 'lucide-react';
 import { useBetDetail } from '@hooks/useBetDetail';
 import { useTranslations } from 'next-intl';
 import { PredictionSide } from '../types';
@@ -32,9 +47,14 @@ import UIWallet from '@ui/wallet';
 import XAuth from '@ui/profile/components/XAuth';
 import { useAppSelector } from '@store/hooks';
 import { doBetSuccess, claimSuccess } from '@libs/request';
+import { Link, useRouter } from '@libs/i18n/navigation';
+import PagesRoute from '@constants/routes';
 
 interface OpinionTradingPanelProps {
   onShare?: (side: PredictionSide) => void;
+  // Owner / Royalty Props
+  isOwner?: boolean;
+  accruedRoyalties?: number;
 }
 
 // 提取有效的错误消息
@@ -90,7 +110,11 @@ const extractErrorMessage = (error: any): string => {
   return '';
 };
 
-export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProps) {
+export default function OpinionTradingPanel({
+  onShare,
+  isOwner = false,
+  accruedRoyalties = 0,
+}: OpinionTradingPanelProps) {
   const params = useParams();
   const opinionId = params?.opinion as string;
   const {
@@ -107,6 +131,7 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
   const { address, chainId: currentChainId, isConnected } = useAccount();
   const { isLogin } = useUserInfo();
   const { switchChain, isPending: isSwitchingChain } = useSwitchChain();
+  const router = useRouter();
 
   // 检查 Twitter 登录状态
   const isTwitterLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
@@ -285,7 +310,10 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
   const [needsApproval, setNeedsApproval] = useState(false);
   const [isEnded, setIsEnded] = useState(false);
   // Tab 值与 choice 值对应关系: 'yes' tab = choice 0, 'no' tab = choice 1
-  const [activeTab, setActiveTab] = useState<'yes' | 'no' | 'claim'>('yes');
+  const [activeTab, setActiveTab] = useState<'yes' | 'no'>('yes');
+  // Owner royalty claim state
+  const [isClaimingRoyalties, setIsClaimingRoyalties] = useState(false);
+  const [hasClaimedRoyalties, setHasClaimedRoyalties] = useState(false);
 
   // 解析用户下注信息
   // betInfo 结构: {amount: bigint, choice: number, claimed: boolean}
@@ -307,6 +335,24 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
   const isSettled =
     eventInfo && typeof eventInfo === 'object' && 'settled' in eventInfo
       ? Boolean((eventInfo as any).settled)
+      : false;
+
+  // 解析获胜选择：0 = YES, 1 = NO
+  const winningChoice =
+    eventInfo && typeof eventInfo === 'object' && 'winningChoice' in eventInfo
+      ? Number((eventInfo as any).winningChoice)
+      : null;
+  const winningSide =
+    winningChoice !== null ? (winningChoice === 0 ? PredictionSide.YES : PredictionSide.NO) : null;
+
+  // 判断用户是否是获胜者
+  const isWinner =
+    isSettled && hasUserBet && winningSide !== null && userBetChoice !== null
+      ? userBetChoice === winningChoice
+      : false;
+  const isLoser =
+    isSettled && hasUserBet && winningSide !== null && userBetChoice !== null
+      ? userBetChoice !== winningChoice
       : false;
 
   // 解析可领取金额
@@ -338,6 +384,15 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
 
   // 获取当前选择方的占比（百分比）
   const selectedSidePercentage = selectedSide === PredictionSide.YES ? yesPercentage : noPercentage;
+
+  // 计算用户在整个池子中的占比
+  // userBetAmount 来自 betInfo.amount（用户的下注数量）
+  const userBetAmountNum = parseFloat(userBetAmount || '0');
+  // 用户占比 = (用户下注金额 / 总金额) * 100
+  const userSharePercentage =
+    totalAmountNum > 0 && userBetAmountNum > 0
+      ? ((userBetAmountNum / totalAmountNum) * 100).toFixed(2)
+      : '0.00';
 
   // 计算预估份额：基于当前选择方的占比和总金额
   // 如果用户下注 amountNum，当前选择方的总金额 = totalAmountNum * selectedSidePercentage / 100
@@ -405,16 +460,9 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
     tokenDecimalsValue,
   ]);
 
-  // 如果活动已结算且未领取，强制显示 Claim tab
-  useEffect(() => {
-    if (isSettled && !hasClaimed) {
-      setActiveTab('claim');
-    }
-  }, [isSettled, hasClaimed]);
-
   // 根据用户下注信息设置默认值
   useEffect(() => {
-    // 如果活动已结算，不处理下注信息（由上面的 useEffect 处理）
+    // 如果活动已结算，不处理下注信息
     if (isSettled) {
       return;
     }
@@ -916,8 +964,507 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
     isClaimPending ||
     isClaimConfirming;
 
+  // Handle claim royalties
+  const handleClaimRoyalties = useCallback(async () => {
+    if (!isSettled) {
+      toast.error(t('market_not_settled') || 'Market must be settled before claiming royalties');
+      return;
+    }
+
+    if (!hasTwitterLogin) {
+      toast.error(t('please_login_first') || 'Please login first');
+      return;
+    }
+
+    if (!hasWalletConnected) {
+      toast.error(t('please_connect_wallet') || 'Please connect wallet');
+      return;
+    }
+
+    if (isWrongChain) {
+      toast.error(t('wrong_chain') || 'Wrong chain');
+      return;
+    }
+
+    setIsClaimingRoyalties(true);
+    try {
+      // TODO: 实现实际的 claim royalties 合约调用
+      // 这里先模拟一个异步操作
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      setHasClaimedRoyalties(true);
+      toast.success(t('royalties_claimed_success') || 'Royalties claimed successfully');
+    } catch (error: any) {
+      console.error('Claim royalties failed:', error);
+      toast.error(error.message || t('claim_royalties_failed') || 'Claim royalties failed');
+    } finally {
+      setIsClaimingRoyalties(false);
+    }
+  }, [
+    isSettled,
+    hasTwitterLogin,
+    hasWalletConnected,
+    isWrongChain,
+    t,
+  ]);
+
+  // --- RENDER: RESOLVED STATE (Winner/Loser) ---
+  if (isSettled && hasUserBet) {
+    return (
+      <div className="sticky top-24 space-y-5">
+        {/* --- OWNER ROYALTY CARD --- */}
+        {isOwner && (
+          <div className="relative overflow-hidden rounded-2xl border border-yellow-500/30 bg-gradient-to-br from-yellow-500/10 to-orange-500/5 p-6 shadow-xl animate-in slide-in-from-top-4">
+            {/* Decor */}
+            <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+              <Crown className="h-24 w-24 text-yellow-600 dark:text-yellow-400" />
+            </div>
+            <div className="absolute -left-10 -bottom-10 h-32 w-32 rounded-full bg-yellow-500/20 blur-3xl pointer-events-none"></div>
+
+            <div className="relative z-10">
+              <div className="mb-4 flex items-start justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-500 text-white shadow-sm">
+                    <Crown className="h-4 w-4" />
+                  </span>
+                  <div>
+                    <h3 className="text-foreground text-sm font-bold uppercase tracking-wide">
+                      {t('owner_dashboard') || 'Owner Dashboard'}
+                    </h3>
+                    <p className="text-muted-foreground text-[10px] font-medium">
+                      {t('you_minted_this_asset') || 'You minted this asset'}
+                    </p>
+                  </div>
+                </div>
+                {/* Status Badge */}
+                <div
+                  className={`rounded-md border px-2 py-1 text-[10px] font-bold uppercase tracking-wider ${
+                    isSettled
+                      ? 'border-green-500/30 bg-green-500/20 text-green-500'
+                      : 'border-yellow-500/30 bg-yellow-500/20 text-yellow-500'
+                  }`}
+                >
+                  {isSettled
+                    ? t('ready_to_claim') || 'Ready to Claim'
+                    : t('accruing_fees') || 'Accruing Fees'}
+                </div>
+              </div>
+
+              <div className="mb-6 grid grid-cols-2 gap-4">
+                <div className="rounded-xl border border-yellow-500/20 bg-card/60 p-3 backdrop-blur-sm">
+                  <p className="text-muted-foreground text-[10px] font-bold uppercase">
+                    {t('total_volume') || 'Total Volume'}
+                  </p>
+                  <p className="text-foreground font-mono text-lg font-bold">
+                    {formatPrecision((totalAmountNum / 1000000).toString())}M{' '}
+                    {displayTokenSymbol}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-yellow-500/20 bg-card/60 p-3 backdrop-blur-sm">
+                  <p className="text-muted-foreground text-[10px] font-bold uppercase">
+                    {t('royalty_rate') || 'Royalty Rate'}
+                  </p>
+                  <p className="font-mono text-lg font-bold text-green-500">5.0%</p>
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <div className="mb-2 flex items-end justify-between">
+                  <span className="text-foreground text-sm font-medium">
+                    {t('unclaimed_royalties') || 'Unclaimed Royalties'}
+                  </span>
+                  <span className="text-foreground text-2xl font-black tracking-tight">
+                    {hasClaimedRoyalties
+                      ? '0.00'
+                      : formatPrecision(accruedRoyalties.toString())}{' '}
+                    {displayTokenSymbol}
+                  </span>
+                </div>
+
+                {hasClaimedRoyalties ? (
+                  <button
+                    disabled
+                    className="border-border bg-muted text-muted-foreground flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl border py-3 text-sm font-bold"
+                  >
+                    <CheckCircle className="h-4 w-4" />
+                    {t('revenue_claimed') || 'Revenue Claimed'}
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleClaimRoyalties}
+                    disabled={isClaimingRoyalties || !isSettled}
+                    className={`group relative w-full overflow-hidden rounded-xl py-3.5 text-sm font-bold shadow-lg transition-transform active:scale-95 ${
+                      isSettled
+                        ? 'bg-foreground text-background'
+                        : 'border-border bg-muted text-muted-foreground cursor-not-allowed border'
+                    }`}
+                  >
+                    {isSettled && (
+                      <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-400 opacity-90 transition-opacity group-hover:opacity-100 animate-[shimmer_2s_infinite]"></div>
+                    )}
+
+                    <div
+                      className={`relative flex items-center justify-center gap-2 ${
+                        isSettled ? 'text-white' : ''
+                      }`}
+                    >
+                      {isClaimingRoyalties ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          {t('processing') || 'Processing...'}
+                        </>
+                      ) : !isSettled ? (
+                        <>
+                          <Lock className="h-4 w-4" />
+                          {t('locked_until_resolution') || 'Locked until Resolution'}
+                        </>
+                      ) : (
+                        <>
+                          <Coins className="h-4 w-4" />
+                          {t('claim') || 'Claim'} {formatPrecision(accruedRoyalties.toString())}{' '}
+                          {displayTokenSymbol}
+                        </>
+                      )}
+                    </div>
+                  </button>
+                )}
+              </div>
+
+              <div className="border-border flex items-start gap-2 rounded-lg bg-muted/40 p-2 text-[10px] text-muted-foreground">
+                <Clock className="mt-0.5 h-3 w-3 flex-shrink-0" />
+                <p>
+                  {t('royalties_accrue_info') ||
+                    'Royalties accrue in real-time but can only be claimed after the market successfully resolves.'}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+        <div className="border-border bg-card h-fit rounded-2xl border p-6 shadow-xl">
+          <div className="border-border mb-6 flex items-center justify-between border-b pb-4">
+            <h3 className="text-foreground text-lg font-bold">
+              {t('market_resolved') || 'Market Resolved'}
+            </h3>
+            {winningSide && (
+              <span className="text-muted-foreground bg-muted flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold">
+                {t('outcome') || 'Outcome'}:{' '}
+                <span
+                  className={winningSide === PredictionSide.YES ? 'text-green-500' : 'text-red-500'}
+                >
+                  {winningSide === PredictionSide.YES ? t('yes') : t('no')}
+                </span>
+              </span>
+            )}
+          </div>
+
+          {/* Winner UI */}
+          {isWinner && (
+            <div className="animate-in zoom-in-95 space-y-6 duration-300">
+              <div className="relative overflow-hidden rounded-xl border border-yellow-500/50 bg-gradient-to-br from-yellow-500/10 to-orange-500/10 p-6 text-center">
+                <div className="absolute top-0 right-0 p-4 opacity-10">
+                  <Trophy className="h-24 w-24 text-yellow-500" />
+                </div>
+
+                <Trophy className="mx-auto mb-2 h-12 w-12 text-yellow-500 drop-shadow-md" />
+                <h4 className="text-foreground text-2xl font-black">
+                  {t('victory') || 'Victory!'}
+                </h4>
+                <p className="text-muted-foreground mb-4 text-sm">
+                  {t('you_predicted_correctly') || 'You predicted correctly.'}
+                </p>
+
+                <div className="bg-card/50 mb-6 flex flex-col items-center justify-center rounded-lg border border-yellow-500/20 p-3 backdrop-blur-sm">
+                  <span className="text-muted-foreground text-xs font-bold tracking-wider uppercase">
+                    {t('claimable_amount') || 'Claimable Amount'}
+                  </span>
+                  <span className="text-3xl font-black text-green-500">
+                    {formatPrecision(claimableAmountFormatted)} {displayTokenSymbol}
+                  </span>
+                </div>
+
+                {hasClaimed ? (
+                  <button
+                    disabled
+                    className="bg-muted text-muted-foreground flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold"
+                  >
+                    <CheckCircle className="h-4 w-4" />
+                    {t('rewards_claimed') || 'Rewards Claimed'}
+                  </button>
+                ) : (
+                  <>
+                    {!hasTwitterLogin ? (
+                      <div className="flex w-full">
+                        <XAuth className="!h-auto w-full rounded-xl bg-blue-600 py-4 text-base text-white shadow-lg transition-all hover:bg-blue-500" />
+                      </div>
+                    ) : !hasWalletConnected ? (
+                      <div className="flex w-full">
+                        <UIWallet
+                          className="!h-auto w-full flex-1 !rounded-xl !py-4"
+                          chainId={expectedChainId || undefined}
+                        />
+                      </div>
+                    ) : isWrongChain ? (
+                      <button
+                        onClick={handleSwitchChain}
+                        disabled={isSwitchingChain}
+                        className="w-full rounded-xl bg-yellow-600 py-4 text-base font-bold text-white shadow-lg transition-all hover:bg-yellow-500 disabled:cursor-wait disabled:opacity-70"
+                      >
+                        {isSwitchingChain
+                          ? t('switching') || 'Switching...'
+                          : t('switch_to_chain', { chainName: chainConfig?.name || 'Base' }) ||
+                            'Switch Chain'}
+                      </button>
+                    ) : !hasClaimableAmount ? (
+                      <button
+                        disabled
+                        className="bg-muted text-muted-foreground flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold"
+                      >
+                        {t('no_claimable_amount') || 'No claimable amount'}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={handleClaim}
+                        disabled={isClaimPending || isClaimConfirming || !canClaim}
+                        className="group relative w-full overflow-hidden rounded-xl bg-yellow-500 py-3.5 font-bold text-black shadow-lg shadow-yellow-500/20 transition-transform active:scale-95 disabled:cursor-wait disabled:opacity-70"
+                      >
+                        <div className="absolute inset-0 bg-white/20 opacity-0 transition-opacity group-hover:opacity-100"></div>
+                        <span className="flex items-center justify-center gap-2">
+                          {isClaimPending || isClaimConfirming ? (
+                            <>
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                              {t('claiming') || 'Claiming...'}
+                            </>
+                          ) : (
+                            <>
+                              <Wallet className="h-4 w-4" /> {t('claim_rewards') || 'Claim Rewards'}
+                            </>
+                          )}
+                        </span>
+                      </button>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Loser UI */}
+          {isLoser && (
+            <div className="animate-in zoom-in-95 space-y-6 duration-300">
+              <div className="relative overflow-hidden rounded-xl border border-red-500/30 bg-gradient-to-br from-red-500/5 to-pink-500/5 p-6 text-center">
+                {/* Background Elements */}
+                <div className="pointer-events-none absolute -top-6 -right-6 p-4 opacity-5">
+                  <XCircle className="h-40 w-40 text-red-500" />
+                </div>
+
+                <div className="relative z-10 mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full border border-red-500/20 bg-red-500/10 shadow-[0_0_15px_rgba(239,68,68,0.2)]">
+                  <XCircle className="h-7 w-7 text-red-500" />
+                </div>
+
+                <h4 className="text-foreground relative z-10 mb-1 text-2xl font-black tracking-tight">
+                  {t('position_liquidated') || 'Position Liquidated'}
+                </h4>
+                <p className="text-muted-foreground relative z-10 mb-6 text-sm">
+                  {t('market_resolved_to') || 'Market resolved to'}{' '}
+                  <span
+                    className={
+                      winningSide === PredictionSide.YES
+                        ? 'font-bold text-green-500'
+                        : 'font-bold text-red-500'
+                    }
+                  >
+                    {winningSide === PredictionSide.YES ? t('yes') : t('no')}
+                  </span>
+                  .
+                </p>
+
+                <div className="bg-card/60 relative z-10 mb-6 flex items-center justify-between rounded-lg border border-red-500/10 p-4 shadow-inner backdrop-blur-md">
+                  <div className="text-left">
+                    <p className="text-muted-foreground text-[10px] font-bold tracking-wider uppercase">
+                      {t('your_bet') || 'Your Bet'}
+                    </p>
+                    <p className="text-foreground text-lg font-bold">
+                      {userBetChoice === 0 ? t('yes') : t('no')}
+                    </p>
+                  </div>
+                  <div className="bg-border h-8 w-px"></div>
+                  <div className="text-right">
+                    <p className="text-muted-foreground text-[10px] font-bold tracking-wider uppercase">
+                      {t('net_pnl') || 'Net PnL'}
+                    </p>
+                    <p className="text-lg font-bold text-red-500">
+                      -{formatPrecision(userBetAmount)} {displayTokenSymbol}
+                    </p>
+                  </div>
+                </div>
+
+                <Link href={PagesRoute.OPINIONS}>
+                  <button className="group bg-muted hover:bg-muted/80 border-border text-foreground relative z-10 w-full overflow-hidden rounded-xl border py-3.5 font-bold shadow-sm transition-all hover:shadow-md active:scale-95">
+                    <span className="flex items-center justify-center gap-2">
+                      <TrendingUp className="h-4 w-4 text-blue-500" />{' '}
+                      {t('find_next_alpha') || 'Find Next Alpha'}
+                    </span>
+                  </button>
+                </Link>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Rules / Credibility Section */}
+        <div className="border-border bg-card rounded-2xl border p-6 shadow-xl">
+          <div className="mb-4 flex items-center gap-2">
+            <HelpCircle className="text-muted-foreground h-5 w-5" />
+            <h3 className="text-foreground text-lg font-semibold">{t('how_it_works')}</h3>
+          </div>
+          <div className="text-muted-foreground space-y-4 text-sm">
+            <p className="leading-relaxed">
+              <strong className="text-foreground mb-1 block">{t('resolution_criteria')}:</strong>
+              {t('default_resolution_criteria')}
+            </p>
+            <ul className="list-disc space-y-2 pl-4">
+              <li>{t('how_it_works_step_1')}</li>
+              <li>{t('how_it_works_step_2')}</li>
+              <li>{t('how_it_works_step_3')}</li>
+              <li>{t('how_it_works_step_4')}</li>
+              <li>{t('how_it_works_step_5')}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // --- RENDER: LIVE STATE (Betting) ---
   return (
     <div className="sticky top-24 space-y-5">
+      {/* --- OWNER ROYALTY CARD --- */}
+      {isOwner && (
+        <div className="relative overflow-hidden rounded-2xl border border-yellow-500/30 bg-gradient-to-br from-yellow-500/10 to-orange-500/5 p-6 shadow-xl animate-in slide-in-from-top-4">
+          {/* Decor */}
+          <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+            <Crown className="h-24 w-24 text-yellow-600 dark:text-yellow-400" />
+          </div>
+          <div className="absolute -left-10 -bottom-10 h-32 w-32 rounded-full bg-yellow-500/20 blur-3xl pointer-events-none"></div>
+
+          <div className="relative z-10">
+            <div className="mb-4 flex items-start justify-between">
+              <div className="flex items-center gap-2">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-500 text-white shadow-sm">
+                  <Crown className="h-4 w-4" />
+                </span>
+                <div>
+                  <h3 className="text-foreground text-sm font-bold uppercase tracking-wide">
+                    {t('owner_dashboard') || 'Owner Dashboard'}
+                  </h3>
+                  <p className="text-muted-foreground text-[10px] font-medium">
+                    {t('you_minted_this_asset') || 'You minted this asset'}
+                  </p>
+                </div>
+              </div>
+              {/* Status Badge */}
+              <div
+                className={`rounded-md border px-2 py-1 text-[10px] font-bold uppercase tracking-wider ${
+                  isSettled
+                    ? 'border-green-500/30 bg-green-500/20 text-green-500'
+                    : 'border-yellow-500/30 bg-yellow-500/20 text-yellow-500'
+                }`}
+              >
+                {isSettled
+                  ? t('ready_to_claim') || 'Ready to Claim'
+                  : t('accruing_fees') || 'Accruing Fees'}
+              </div>
+            </div>
+
+            <div className="mb-6 grid grid-cols-2 gap-4">
+              <div className="rounded-xl border border-yellow-500/20 bg-card/60 p-3 backdrop-blur-sm">
+                <p className="text-muted-foreground text-[10px] font-bold uppercase">
+                  {t('total_volume') || 'Total Volume'}
+                </p>
+                <p className="text-foreground font-mono text-lg font-bold">
+                  {formatPrecision((totalAmountNum / 1000000).toString())}M{' '}
+                  {displayTokenSymbol}
+                </p>
+              </div>
+              <div className="rounded-xl border border-yellow-500/20 bg-card/60 p-3 backdrop-blur-sm">
+                <p className="text-muted-foreground text-[10px] font-bold uppercase">
+                  {t('royalty_rate') || 'Royalty Rate'}
+                </p>
+                <p className="font-mono text-lg font-bold text-green-500">5.0%</p>
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <div className="mb-2 flex items-end justify-between">
+                <span className="text-foreground text-sm font-medium">
+                  {t('unclaimed_royalties') || 'Unclaimed Royalties'}
+                </span>
+                <span className="text-foreground text-2xl font-black tracking-tight">
+                  {hasClaimedRoyalties
+                    ? '0.00'
+                    : formatPrecision(accruedRoyalties.toString())}{' '}
+                  {displayTokenSymbol}
+                </span>
+              </div>
+
+              {hasClaimedRoyalties ? (
+                <button
+                  disabled
+                  className="border-border bg-muted text-muted-foreground flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl border py-3 text-sm font-bold"
+                >
+                  <CheckCircle className="h-4 w-4" />
+                  {t('revenue_claimed') || 'Revenue Claimed'}
+                </button>
+              ) : (
+                <button
+                  onClick={handleClaimRoyalties}
+                  disabled={isClaimingRoyalties || !isSettled}
+                  className={`group relative w-full overflow-hidden rounded-xl py-3.5 text-sm font-bold shadow-lg transition-transform active:scale-95 ${
+                    isSettled
+                      ? 'bg-foreground text-background'
+                      : 'border-border bg-muted text-muted-foreground cursor-not-allowed border'
+                  }`}
+                >
+                  {isSettled && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-400 opacity-90 transition-opacity group-hover:opacity-100 animate-[shimmer_2s_infinite]"></div>
+                  )}
+
+                  <div
+                    className={`relative flex items-center justify-center gap-2 ${
+                      isSettled ? 'text-white' : ''
+                    }`}
+                  >
+                    {isClaimingRoyalties ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        {t('processing') || 'Processing...'}
+                      </>
+                    ) : !isSettled ? (
+                      <>
+                        <Lock className="h-4 w-4" />
+                        {t('locked_until_resolution') || 'Locked until Resolution'}
+                      </>
+                    ) : (
+                      <>
+                        <Coins className="h-4 w-4" />
+                        {t('claim') || 'Claim'} {formatPrecision(accruedRoyalties.toString())}{' '}
+                        {displayTokenSymbol}
+                      </>
+                    )}
+                  </div>
+                </button>
+              )}
+            </div>
+
+            <div className="border-border flex items-start gap-2 rounded-lg bg-muted/40 p-2 text-[10px] text-muted-foreground">
+              <Clock className="mt-0.5 h-3 w-3 flex-shrink-0" />
+              <p>
+                {t('royalties_accrue_info') ||
+                  'Royalties accrue in real-time but can only be claimed after the market successfully resolves.'}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="border-border bg-card h-fit rounded-2xl border p-6 shadow-xl">
         <div className="mb-6 flex items-center justify-between">
           <h3 className="text-foreground text-lg font-semibold">{t('place_order')}</h3>
@@ -938,79 +1485,87 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
           )}
         </div>
 
-        {/* Tab 切换 */}
-        {isSettled && hasClaimed ? (
-          // 活动已结算且已领取：不显示 tab，显示已领取状态
-          <div className="border-border bg-muted/20 mb-6 rounded-lg border p-4">
-            <div className="text-muted-foreground flex items-center justify-center gap-2">
-              <Info className="h-4 w-4 text-green-500" />
-              <span className="text-sm font-medium">
-                {t('already_claimed') || 'Already claimed'}
+        {/* 未参与提示 */}
+        {/* {isSettled && !hasUserBet && (
+          <div className="text-muted-foreground py-8 text-center">
+            <p>{t('you_did_not_participate') || 'You did not participate in this market.'}</p>
+          </div>
+        )} */}
+
+        {/* Tab 切换 - 始终显示 YES/NO，下注后禁用已下注的一边 */}
+        {!isSettled && (
+          <div className="bg-muted/20 border-border relative mb-6 flex rounded-lg border p-1">
+            <button
+              onClick={() => setActiveTab('yes')}
+              disabled={isEnded || (hasUserBet && userBetChoice !== 0)}
+              className={`relative flex-1 rounded-md py-2.5 text-sm font-semibold transition-all ${
+                activeTab === 'yes'
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                  : 'text-muted-foreground hover:text-foreground'
+              } ${hasUserBet && userBetChoice !== 0 ? 'cursor-not-allowed opacity-30' : ''} disabled:cursor-not-allowed disabled:opacity-50`}
+            >
+              {t('yes')} {yesPercentage.toFixed(1)}%
+            </button>
+            <button
+              onClick={() => setActiveTab('no')}
+              disabled={isEnded || (hasUserBet && userBetChoice !== 1)}
+              className={`relative flex-1 rounded-md py-2.5 text-sm font-semibold transition-all ${
+                activeTab === 'no'
+                  ? 'bg-red-500 text-white shadow-lg shadow-red-500/20'
+                  : 'text-muted-foreground hover:text-foreground'
+              } ${hasUserBet && userBetChoice !== 1 ? 'cursor-not-allowed opacity-30' : ''} disabled:cursor-not-allowed disabled:opacity-50`}
+            >
+              {t('no')} {noPercentage.toFixed(1)}%
+            </button>
+          </div>
+        )}
+
+        {/* Existing Position Card (If any) */}
+        {hasUserBet && !isSettled && (
+          <div className="animate-in slide-in-from-top-2 relative mb-6 overflow-hidden rounded-xl border border-blue-500/30 bg-blue-500/5 p-4">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-xs font-bold tracking-wide text-blue-500 uppercase">
+                {t('your_position') || 'Your Position'}
+              </span>
+              <span
+                className={`rounded px-2 py-0.5 text-xs font-bold ${
+                  userBetChoice === 0
+                    ? 'bg-green-500/20 text-green-500'
+                    : 'bg-red-500/20 text-red-500'
+                }`}
+              >
+                {userBetChoice === 0 ? t('yes') : t('no')} {t('holder') || 'Holder'}
               </span>
             </div>
+            <div className="flex items-end justify-between">
+              <div>
+                <p className="text-foreground text-2xl font-bold">
+                  {userSharePercentage}%{' '}
+                  <span className="text-muted-foreground text-sm font-normal">
+                    {t('share') || 'Share'}
+                  </span>
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-muted-foreground text-xs">{t('value') || 'Value'}</p>
+                <p className="text-foreground font-mono font-medium">
+                  {formatPrecision(userBetAmount)} {displayTokenSymbol}
+                </p>
+              </div>
+            </div>
           </div>
-        ) : isSettled && !hasUserBet ? (
-          // 活动已结算但用户未参与：不显示 tab
-          null
-        ) : isSettled && hasUserBet && !hasClaimed ? (
-          // 活动已结算且用户可领取：不显示 tab，直接显示 Claim 内容
-          null
-        ) : (
-          <div className="bg-muted/20 border-border mb-6 flex rounded-lg border p-1">
-            {!hasUserBet ? (
-              // 活动未结算且没下注时：显示 YES / NO
-              <>
-                <button
-                  onClick={() => setActiveTab('yes')}
-                  disabled={isEnded}
-                  className={`flex-1 rounded-md py-2.5 text-sm font-semibold transition-all ${
-                    activeTab === 'yes'
-                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                      : 'text-muted-foreground hover:text-foreground'
-                  } disabled:cursor-not-allowed disabled:opacity-50`}
-                >
-                  {t('yes')} {yesPercentage.toFixed(1)}%
-                </button>
-                <button
-                  onClick={() => setActiveTab('no')}
-                  disabled={isEnded}
-                  className={`flex-1 rounded-md py-2.5 text-sm font-semibold transition-all ${
-                    activeTab === 'no'
-                      ? 'bg-red-500 text-white shadow-lg shadow-red-500/20'
-                      : 'text-muted-foreground hover:text-foreground'
-                  } disabled:cursor-not-allowed disabled:opacity-50`}
-                >
-                  {t('no')} {noPercentage.toFixed(1)}%
-                </button>
-              </>
-            ) : (
-              // 活动未结算且下注后：显示用户选择的方向 / Claim
-              <>
-                <button
-                  onClick={() => setActiveTab(userBetChoice === 0 ? 'yes' : 'no')}
-                  className={`flex-1 rounded-md py-2.5 text-sm font-semibold transition-all ${
-                    activeTab === 'yes' || activeTab === 'no'
-                      ? userBetChoice === 0
-                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                        : 'bg-red-500 text-white shadow-lg shadow-red-500/20'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  {userBetChoice === 0 ? t('yes') : t('no')}{' '}
-                  {userBetChoice === 0 ? yesPercentage.toFixed(1) : noPercentage.toFixed(1)}%
-                </button>
-                <button
-                  onClick={() => setActiveTab('claim')}
-                  className={`flex-1 rounded-md py-2.5 text-sm font-semibold transition-all ${
-                    activeTab === 'claim'
-                      ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg shadow-green-500/20'
-                      : 'text-muted-foreground hover:text-green-500'
-                  }`}
-                >
-                  {t('claim')}
-                </button>
-              </>
-            )}
+        )}
+
+        {/* 下注后显示提示信息 */}
+        {hasUserBet && !isSettled && (
+          <div className="bg-muted/50 text-muted-foreground border-border mb-4 flex items-center gap-2 rounded-lg border p-2 text-xs">
+            <Info className="h-3 w-3" />
+            <span>
+              {t('you_hold') || 'You hold'}{' '}
+              <strong>{userBetChoice === 0 ? t('yes') : t('no')}</strong>.{' '}
+              {t('must_sell_before_betting_opposite') ||
+                'You must sell your position before betting on the opposite side.'}
+            </span>
           </div>
         )}
 
@@ -1157,110 +1712,6 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
               </button>
             )}
           </>
-        )}
-
-        {/* Claim Tab Content */}
-        {(activeTab === 'claim' || (isSettled && hasUserBet && !hasClaimed)) && !hasClaimed && !(isSettled && !hasUserBet) && (
-          <div className="space-y-4">
-            {!hasTwitterLogin ? (
-              // 未登录 Twitter，显示 Twitter 登录按钮
-              <div className="flex w-full">
-                <XAuth className="!h-auto w-full rounded-xl bg-blue-600 py-4 text-base text-white shadow-lg transition-all hover:bg-blue-500" />
-              </div>
-            ) : !hasWalletConnected ? (
-              // 已登录 Twitter 但未连接钱包，显示连接钱包按钮
-              <div className="flex w-full">
-                <UIWallet
-                  className="!h-auto w-full flex-1 !rounded-xl !py-4"
-                  chainId={expectedChainId || undefined}
-                />
-              </div>
-            ) : isWrongChain ? (
-              <button
-                onClick={handleSwitchChain}
-                disabled={isSwitchingChain}
-                className="w-full rounded-xl bg-yellow-600 py-4 text-base font-bold text-white shadow-lg transition-all hover:bg-yellow-500 disabled:cursor-wait disabled:opacity-70"
-              >
-                {isSwitchingChain
-                  ? t('switching') || 'Switching...'
-                  : t('switch_to_chain', { chainName: chainConfig?.name || 'Base' }) ||
-                    'Switch Chain'}
-              </button>
-            ) : !hasUserBet ? (
-              <div className="border-border text-muted-foreground flex h-40 items-center justify-center rounded-xl border border-dashed">
-                {t('no_bet_found') || 'No bet found'}
-              </div>
-            ) : !isSettled ? (
-              <>
-                <div className="border-border bg-muted/20 space-y-3 rounded-xl border p-4">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t('your_bet') || 'Your Bet'}</span>
-                    <span
-                      className={`${userBetChoice === 0 ? 'text-green-500' : 'text-red-500'} text-foreground font-mono`}
-                    >
-                      {userBetChoice === 0 ? t('yes') : t('no')}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t('bet_amount') || 'Bet Amount'}</span>
-                    <span className="text-foreground font-mono">
-                      {formatPrecision(userBetAmount)} {displayTokenSymbol}
-                    </span>
-                  </div>
-                </div>
-                <div className="border-border text-muted-foreground flex items-center justify-center rounded-xl border border-dashed py-2">
-                  <div className="text-center">
-                    <p className="mb-1 flex items-center justify-center gap-1 font-medium">
-                      <Info className="h-4 w-4 text-yellow-500" />
-                      {t('wait_for_market_end') || 'Wait for market to end'}
-                    </p>
-                    <p className="text-xs">
-                      {t('claim_after_market_end') || 'You can claim after the market ends'}
-                    </p>
-                  </div>
-                </div>
-              </>
-            ) : hasClaimed ? (
-              <div className="border-border text-muted-foreground flex h-40 items-center justify-center rounded-xl border border-dashed">
-                {t('already_claimed') || 'Already claimed'}
-              </div>
-            ) : !hasClaimableAmount ? (
-              <div className="border-border text-muted-foreground flex h-40 items-center justify-center rounded-xl border border-dashed">
-                {t('no_claimable_amount') || 'No claimable amount'}
-              </div>
-            ) : (
-              <>
-                <div className="border-border bg-muted/20 space-y-3 rounded-xl border p-4">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t('your_bet') || 'Your Bet'}</span>
-                    <span className="text-foreground font-mono">
-                      {userBetChoice === 0 ? t('yes') : t('no')}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t('bet_amount') || 'Bet Amount'}</span>
-                    <span className="text-foreground font-mono">
-                      {formatPrecision(userBetAmount)} {displayTokenSymbol}
-                    </span>
-                  </div>
-                </div>
-                <button
-                  onClick={handleClaim}
-                  disabled={isClaimPending || isClaimConfirming || !canClaim || !hasClaimableAmount}
-                  className="w-full rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 py-4 text-base font-bold text-white shadow-lg transition-all hover:from-green-500 hover:to-emerald-500 disabled:cursor-wait disabled:opacity-70"
-                >
-                  {isClaimPending || isClaimConfirming ? (
-                    <>
-                      <Loader2 className="mr-2 inline h-4 w-4 animate-spin" />
-                      {t('claiming') || 'Claiming...'}
-                    </>
-                  ) : (
-                    t('claim') || 'Claim'
-                  )}
-                </button>
-              </>
-            )}
-          </div>
         )}
 
         {/* Share / Call Out Section */}
