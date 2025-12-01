@@ -1454,6 +1454,7 @@
     "login_form_description": "Join the SocialFi ecosystem. <br /> Your influence, now liquidated.",
     "login_form_sign_in_twitter": "Sign in with Twitter",
     "login_form_agent_active": "Agent Active",
-    "login_form_powered_by": "Powered by Linkol"
+    "login_form_powered_by": "Powered by Linkol",
+    "get_gas_fee": "Get gas fee"
   }
 }

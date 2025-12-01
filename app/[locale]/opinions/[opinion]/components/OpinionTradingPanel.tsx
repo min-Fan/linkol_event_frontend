@@ -93,8 +93,16 @@ const extractErrorMessage = (error: any): string => {
 export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProps) {
   const params = useParams();
   const opinionId = params?.opinion as string;
-  const { yesPercentage, noPercentage, betDetail, tokenAddress, chainId, attitude } =
-    useBetDetail(opinionId);
+  const {
+    yesPercentage,
+    noPercentage,
+    betDetail,
+    tokenAddress,
+    chainId,
+    attitude,
+    refreshBetDetail,
+    invalidateBetDetail,
+  } = useBetDetail(opinionId);
   const t = useTranslations('common');
   const { address, chainId: currentChainId, isConnected } = useAccount();
   const { isLogin } = useUserInfo();
@@ -225,7 +233,7 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
   });
 
   // Read event info from contract
-  const { data: eventInfo } = useReadContract({
+  const { data: eventInfo, refetch: refetchEventInfo } = useReadContract({
     address: chainConfig?.AgentBetAddress as `0x${string}`,
     abi: Bet_abi,
     functionName: 'getEventInfo',
@@ -236,7 +244,7 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
   });
 
   // Read user bet info from contract
-  const { data: betInfo } = useReadContract({
+  const { data: betInfo, refetch: refetchBetInfo } = useReadContract({
     address: chainConfig?.AgentBetAddress as `0x${string}`,
     abi: Bet_abi,
     functionName: 'getBetInfo',
@@ -247,7 +255,7 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
   });
 
   // Read claimable amount from contract
-  const { data: claimableAmount } = useReadContract({
+  const { data: claimableAmount, refetch: refetchClaimableAmount } = useReadContract({
     address: chainConfig?.AgentBetAddress as `0x${string}`,
     abi: Bet_abi,
     functionName: 'getClaimableAmount',
@@ -260,6 +268,7 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
   useEffect(() => {
     console.log('getEventInfo', eventInfo);
     console.log('claimableAmount', claimableAmount);
+    console.log('betInfo', betInfo);
   }, [eventInfo, claimableAmount]);
 
   // 获取代币精度：原生代币使用18，ERC20代币使用合约返回的decimals
@@ -275,16 +284,18 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
   const [currentAllowance, setCurrentAllowance] = useState('0');
   const [needsApproval, setNeedsApproval] = useState(false);
   const [isEnded, setIsEnded] = useState(false);
+  // Tab 值与 choice 值对应关系: 'yes' tab = choice 0, 'no' tab = choice 1
   const [activeTab, setActiveTab] = useState<'yes' | 'no' | 'claim'>('yes');
 
   // 解析用户下注信息
   // betInfo 结构: {amount: bigint, choice: number, claimed: boolean}
+  // choice: 0 = YES, 1 = NO (从合约读取的值)
   const userBetAmount =
     betInfo && (betInfo as any).amount
       ? formatBigNumber(BigInt((betInfo as any).amount.toString()), tokenDecimalsValue)
       : '0';
   const userBetChoice =
-    betInfo && (betInfo as any).choice !== undefined ? Number((betInfo as any).choice) : null; // 0 = NO, 1 = YES
+    betInfo && (betInfo as any).choice !== undefined ? Number((betInfo as any).choice) : null; // 0 = YES, 1 = NO (从合约读取的值)
   const hasUserBet = userBetChoice !== null && parseFloat(userBetAmount) > 0;
 
   const amountNum = parseFloat(amount || '0');
@@ -409,21 +420,24 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
     }
 
     if (betInfo && (betInfo as any).amount && BigInt((betInfo as any).amount.toString()) > 0n) {
-      const choice = Number((betInfo as any).choice);
-      // 设置用户选择的 side: 0 = NO, 1 = YES
-      const userSide = choice === 1 ? PredictionSide.YES : PredictionSide.NO;
+      const choice = Number((betInfo as any).choice); // 从合约读取: 0 = YES, 1 = NO
+      // 设置用户选择的 side: 0 = YES, 1 = NO
+      const userSide = choice === 0 ? PredictionSide.YES : PredictionSide.NO;
       setSelectedSide(userSide);
       // 如果活动未结算且用户已下注，设置 tab 为用户选择的方向
-      setActiveTab(choice === 1 ? 'yes' : 'no');
+      // choice = 0 → 'yes' tab, choice = 1 → 'no' tab
+      setActiveTab(choice === 0 ? 'yes' : 'no');
     }
   }, [betInfo, isSettled]);
 
   // 同步 activeTab 和 selectedSide（当用户切换 tab 时）
+  // 'yes' tab → PredictionSide.YES → choice = 0
+  // 'no' tab → PredictionSide.NO → choice = 1
   useEffect(() => {
     if (activeTab === 'yes') {
-      setSelectedSide(PredictionSide.YES);
+      setSelectedSide(PredictionSide.YES); // choice = 0
     } else if (activeTab === 'no') {
-      setSelectedSide(PredictionSide.NO);
+      setSelectedSide(PredictionSide.NO); // choice = 1
     }
   }, [activeTab]);
 
@@ -476,7 +490,7 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
 
     try {
       // 静默调用回调接口，不处理返回结果，只记录日志
-      const choice = selectedSide === PredictionSide.YES ? 1 : 0; // YES = 1, NO = 0
+      const choice = selectedSide === PredictionSide.YES ? 0 : 1; // YES = 0, NO = 1
       const res: any = await doBetSuccess({
         bet_id: opinionId,
         amount: amount,
@@ -485,6 +499,8 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
         tx_hash: betTxHash,
         chainId: betChainId,
       });
+      // 刷新 bet 详情接口数据
+      invalidateBetDetail();
       console.log('Do bet success callback result:', res);
     } catch (error) {
       // 静默处理错误，不影响UI
@@ -590,9 +606,15 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
       setAmount('');
       // 静默调用回调接口
       callDoBetSuccessCallback();
-      // 可以在这里刷新数据
+      setTimeout(() => {
+        refetchBetInfo();
+        refetchEventInfo();
+        refetchClaimableAmount();
+        // 刷新 bet 详情接口数据
+        invalidateBetDetail();
+      }, 1000);
     }
-  }, [isBetConfirmed, betTxHash, callDoBetSuccessCallback, t]);
+  }, [isBetConfirmed, betTxHash]);
 
   // 监听 claim 交易状态
   useEffect(() => {
@@ -600,9 +622,14 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
       toast.success(t('claim_success') || 'Claim successful');
       // 静默调用回调接口
       callClaimSuccessCallback();
-      // 可以在这里刷新数据
+      // 重新获取合约信息以更新状态
+      setTimeout(() => {
+        refetchBetInfo();
+        refetchEventInfo();
+        refetchClaimableAmount();
+      }, 1000);
     }
-  }, [isClaimConfirmed, claimTxHash, callClaimSuccessCallback, t]);
+  }, [isClaimConfirmed, claimTxHash, refetchBetInfo, refetchEventInfo, refetchClaimableAmount]);
 
   // 监听授权合约调用错误
   useEffect(() => {
@@ -632,7 +659,7 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
       const errorMessage = extractedMessage || t('bet_failed') || 'Bet transaction failed';
       toast.error(errorMessage);
     }
-  }, [isBetReceiptError, betReceiptError, t]);
+  }, [isBetReceiptError, betReceiptError]);
 
   // 监听 claim 合约调用错误
   useEffect(() => {
@@ -642,7 +669,7 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
       const errorMessage = extractedMessage || t('claim_failed') || 'Claim failed';
       toast.error(errorMessage);
     }
-  }, [isClaimWriteError, claimError, t]);
+  }, [isClaimWriteError, claimError]);
 
   // 监听 claim 交易确认错误
   useEffect(() => {
@@ -652,7 +679,7 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
       const errorMessage = extractedMessage || t('claim_failed') || 'Claim transaction failed';
       toast.error(errorMessage);
     }
-  }, [isClaimReceiptError, claimReceiptError, t]);
+  }, [isClaimReceiptError, claimReceiptError]);
 
   // 授权代币
   const handleApprove = useCallback(async () => {
@@ -843,7 +870,7 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
     try {
       const amountInWeiBN = parseToBigNumber(amount, tokenDecimalsValue);
       const amountInWei = BigInt(amountInWeiBN.toString()); // 转换为 bigint
-      const choice = selectedSide === PredictionSide.YES ? 1 : 0; // YES = 1, NO = 0
+      const choice = selectedSide === PredictionSide.YES ? 0 : 1; // YES = 0, NO = 1
       const isETH = tokenAddress === ethers.ZeroAddress;
       const isNativeToken = isETH;
       console.log('amountInWei', amountInWei);
@@ -906,7 +933,7 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
           ) : (
             <span className="text-muted-foreground bg-muted flex items-center gap-1 rounded px-2 py-1 text-xs">
               <span className="h-2 w-2 animate-pulse rounded-full bg-green-500"></span>{' '}
-              {t('opinion_live')}
+              {chainConfig?.name}
             </span>
           )}
         </div>
@@ -922,17 +949,15 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
               </span>
             </div>
           </div>
+        ) : isSettled && !hasUserBet ? (
+          // 活动已结算但用户未参与：不显示 tab
+          null
+        ) : isSettled && hasUserBet && !hasClaimed ? (
+          // 活动已结算且用户可领取：不显示 tab，直接显示 Claim 内容
+          null
         ) : (
           <div className="bg-muted/20 border-border mb-6 flex rounded-lg border p-1">
-            {isSettled ? (
-              // 活动已结算但未领取：只显示 Claim
-              <button
-                onClick={() => setActiveTab('claim')}
-                className="flex-1 rounded-md bg-gradient-to-r from-green-600 to-emerald-600 py-2.5 text-sm font-semibold text-white shadow-lg shadow-green-500/20 transition-all"
-              >
-                {t('claim')}
-              </button>
-            ) : !hasUserBet ? (
+            {!hasUserBet ? (
               // 活动未结算且没下注时：显示 YES / NO
               <>
                 <button
@@ -962,17 +987,17 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
               // 活动未结算且下注后：显示用户选择的方向 / Claim
               <>
                 <button
-                  onClick={() => setActiveTab(userBetChoice === 1 ? 'yes' : 'no')}
+                  onClick={() => setActiveTab(userBetChoice === 0 ? 'yes' : 'no')}
                   className={`flex-1 rounded-md py-2.5 text-sm font-semibold transition-all ${
                     activeTab === 'yes' || activeTab === 'no'
-                      ? userBetChoice === 1
+                      ? userBetChoice === 0
                         ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
                         : 'bg-red-500 text-white shadow-lg shadow-red-500/20'
                       : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  {userBetChoice === 1 ? t('yes') : t('no')}{' '}
-                  {userBetChoice === 1 ? yesPercentage.toFixed(1) : noPercentage.toFixed(1)}%
+                  {userBetChoice === 0 ? t('yes') : t('no')}{' '}
+                  {userBetChoice === 0 ? yesPercentage.toFixed(1) : noPercentage.toFixed(1)}%
                 </button>
                 <button
                   onClick={() => setActiveTab('claim')}
@@ -1135,7 +1160,7 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
         )}
 
         {/* Claim Tab Content */}
-        {activeTab === 'claim' && !hasClaimed && (
+        {(activeTab === 'claim' || (isSettled && hasUserBet && !hasClaimed)) && !hasClaimed && !(isSettled && !hasUserBet) && (
           <div className="space-y-4">
             {!hasTwitterLogin ? (
               // 未登录 Twitter，显示 Twitter 登录按钮
@@ -1171,9 +1196,9 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">{t('your_bet') || 'Your Bet'}</span>
                     <span
-                      className={`${userBetChoice === 1 ? 'text-green-500' : 'text-red-500'} text-foreground font-mono`}
+                      className={`${userBetChoice === 0 ? 'text-green-500' : 'text-red-500'} text-foreground font-mono`}
                     >
-                      {userBetChoice === 1 ? t('yes') : t('no')}
+                      {userBetChoice === 0 ? t('yes') : t('no')}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
@@ -1209,7 +1234,7 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">{t('your_bet') || 'Your Bet'}</span>
                     <span className="text-foreground font-mono">
-                      {userBetChoice === 1 ? t('yes') : t('no')}
+                      {userBetChoice === 0 ? t('yes') : t('no')}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">

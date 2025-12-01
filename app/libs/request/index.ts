@@ -3253,7 +3253,7 @@ export const getBetAiComment = (params: IGetBetAiCommentParams) => {
 export interface IDoBetSuccessParams {
   bet_id: string | number;
   amount: string;
-  choice: number; // 0 for NO, 1 for YES
+  choice: number; // 0 for YES, 1 for NO
   token_address: string;
   tx_hash: string;
   chainId: number;
@@ -3268,7 +3268,7 @@ export interface IClaimSuccessParams {
   bet_id: string | number;
   receiver: string;
   amount: string;
-  choice: number; // 0 for NO, 1 for YES
+  choice: number; // 0 for YES, 1 for NO
   token_address: string;
   tx_hash: string;
   chainId: number;

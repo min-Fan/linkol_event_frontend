@@ -17,7 +17,12 @@ import {
   useReadContract,
 } from 'wagmi';
 import { toast } from 'sonner';
-import { ChainType, getChainConfig, getDefaultChain, getChainTypeFromChainId } from '@constants/config';
+import {
+  ChainType,
+  getChainConfig,
+  getDefaultChain,
+  getChainTypeFromChainId,
+} from '@constants/config';
 import useUserInfo from '@hooks/useUserInfo';
 import Faucet_abi from '@constants/abi/faucet.json';
 import { Loader2, Wallet } from 'lucide-react';
@@ -102,13 +107,11 @@ export default function OpinionsPage() {
     }
 
     try {
-      writeFaucetClaim(
-        {
-          address: chainConfig.FaucetAddress as `0x${string}`,
-          abi: Faucet_abi,
-          functionName: 'claim',
-        }
-      );
+      writeFaucetClaim({
+        address: chainConfig.FaucetAddress as `0x${string}`,
+        abi: Faucet_abi,
+        functionName: 'claim',
+      });
     } catch (error: any) {
       console.error('Faucet claim error:', error);
       toast.error(error?.message || t('faucet_claim_failed') || 'Faucet claim failed');
@@ -239,50 +242,64 @@ export default function OpinionsPage() {
 
   return (
     <div className="container mx-auto min-h-screen px-4 py-8 pb-20 transition-colors duration-300">
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <Link
           href={PagesRoute.OPINIONS}
           className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm transition-colors"
         >
           <ArrowLeft className="h-4 w-4" /> {t('back_to_markets')}
         </Link>
-        {/* 水龙头按钮 - 仅在开发环境显示 */}
-        {process.env.NEXT_PUBLIC_NODE_ENV === 'development' && chainConfig?.FaucetAddress && (
-          <div className="flex items-center gap-2">
-            {!isLogin ? (
-              <div className="relative">
-                <UIWallet
-                  className="!h-auto !rounded-lg !px-3 !py-2 text-sm"
-                  chainId={expectedChainId || undefined}
-                />
-              </div>
-            ) : (
-              <button
-                onClick={isWrongChain ? handleSwitchChain : handleFaucetClaim}
-                disabled={
-                  isFaucetPending ||
-                  isFaucetConfirming ||
-                  isSwitchingChain ||
-                  (isLogin && !canClaimFaucet)
-                }
-                className="text-muted-foreground hover:text-primary flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800"
-                title={t('faucet_claim') || 'Claim test tokens'}
-              >
-                {isFaucetPending || isFaucetConfirming || isSwitchingChain ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    {t('claiming') || 'Claiming...'}
-                  </>
-                ) : (
-                  <>
-                    <Droplet className="h-4 w-4" />
-                    {t('faucet_claim') || 'Faucet'}
-                  </>
-                )}
-              </button>
-            )}
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {/* 水龙头按钮 - 仅在开发环境显示 */}
+          {process.env.NEXT_PUBLIC_NODE_ENV === 'development' && chainConfig?.FaucetAddress && (
+            <div className="flex items-center gap-2">
+              {!isLogin ? (
+                <div className="relative">
+                  <UIWallet
+                    className="!h-auto !rounded-lg !px-3 !py-2 text-sm"
+                    chainId={expectedChainId || undefined}
+                  />
+                </div>
+              ) : (
+                <button
+                  onClick={isWrongChain ? handleSwitchChain : handleFaucetClaim}
+                  disabled={
+                    isFaucetPending ||
+                    isFaucetConfirming ||
+                    isSwitchingChain ||
+                    (isLogin && !canClaimFaucet)
+                  }
+                  className="text-muted-foreground hover:text-primary flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+                  title={t('faucet_claim') || 'Claim test tokens'}
+                >
+                  {isFaucetPending || isFaucetConfirming || isSwitchingChain ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      {t('claiming') || 'Claiming...'}
+                    </>
+                  ) : (
+                    <>
+                      <Droplet className="h-4 w-4" />
+                      {t('faucet_claim') || 'Faucet'}
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          )}
+          {process.env.NEXT_PUBLIC_NODE_ENV === 'development' && (
+            <button
+              onClick={() => {
+                window.open('https://www.alchemy.com/faucets/base-sepolia', '_blank');
+              }}
+              className="text-muted-foreground hover:text-primary flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+              title={t('faucet_claim') || 'Claim test tokens'}
+            >
+              <Droplet className="h-4 w-4" />
+              {t('get_gas_fee') || 'Get gas fee'}
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-3">

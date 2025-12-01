@@ -1456,6 +1456,7 @@
     "login_form_description": "加入 SocialFi 生态系统。<br />您的影响力，现在可以变现。",
     "login_form_sign_in_twitter": "使用 Twitter 登录",
     "login_form_agent_active": "代理已激活",
-    "login_form_powered_by": "由 Linkol 提供支持"
+    "login_form_powered_by": "由 Linkol 提供支持",
+    "get_gas_fee": "获取 gas 费用"
   }
 }
