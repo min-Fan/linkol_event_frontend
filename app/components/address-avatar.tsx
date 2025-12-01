@@ -9,13 +9,12 @@ function AddressAvatar({ address }: { address: string }) {
   });
 
   return (
-    <div>
-      <img
-        src={blockie.toDataURL()} // 将图案转换为 Base64 URL
-        alt="address-avatar"
-        style={{ borderRadius: '50%' }} // 圆形样式
-      />
-    </div>
+    <img
+      src={blockie.toDataURL()} // 将图案转换为 Base64 URL
+      alt="address-avatar"
+      className="h-full w-full object-cover"
+      style={{ borderRadius: '50%' }} // 圆形样式
+    />
   );
 }
 
