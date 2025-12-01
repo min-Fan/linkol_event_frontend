@@ -203,6 +203,7 @@ export function useBetDetail(betId: string | string[] | undefined) {
             position_type: item.amount > 0 ? 'yes' : ('no' as 'yes' | 'no'),
             link: item.link,
             views: item.views,
+            attitude: item.attitude !== undefined ? item.attitude : 2,
           }));
 
           return {

@@ -29,6 +29,8 @@ import Bet_abi from '@constants/abi/Bet_abi.json';
 import { formatPrecision } from '@libs/utils';
 import { parseToBigNumber, formatBigNumber } from '@libs/utils/format-bignumber';
 import UIWallet from '@ui/wallet';
+import XAuth from '@ui/profile/components/XAuth';
+import { useAppSelector } from '@store/hooks';
 import { doBetSuccess, claimSuccess } from '@libs/request';
 
 interface OpinionTradingPanelProps {
@@ -94,9 +96,17 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
   const { yesPercentage, noPercentage, betDetail, tokenAddress, chainId, attitude } =
     useBetDetail(opinionId);
   const t = useTranslations('common');
-  const { address, chainId: currentChainId } = useAccount();
+  const { address, chainId: currentChainId, isConnected } = useAccount();
   const { isLogin } = useUserInfo();
   const { switchChain, isPending: isSwitchingChain } = useSwitchChain();
+
+  // 检查 Twitter 登录状态
+  const isTwitterLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
+  const twitterFullProfile = useAppSelector((state) => state.userReducer?.twitter_full_profile);
+  const hasTwitterLogin = isTwitterLoggedIn && twitterFullProfile;
+
+  // 检查钱包连接状态
+  const hasWalletConnected = isConnected && !!address;
 
   // 确定使用的链（chainId 为 0 或 undefined 时使用 base）
   const betChainId = !chainId || chainId === 0 ? 84532 : Number(chainId);
@@ -710,7 +720,12 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
 
   // Claim
   const handleClaim = useCallback(async () => {
-    if (!isLogin) {
+    if (!hasTwitterLogin) {
+      toast.error(t('please_login_first') || 'Please login first');
+      return;
+    }
+
+    if (!hasWalletConnected) {
       toast.error(t('please_connect_wallet') || 'Please connect wallet');
       return;
     }
@@ -757,7 +772,8 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
       toast.error(error.message || t('claim_failed') || 'Claim failed');
     }
   }, [
-    isLogin,
+    hasTwitterLogin,
+    hasWalletConnected,
     isWrongChain,
     opinionId,
     userBetChoice,
@@ -779,7 +795,12 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
       return;
     }
 
-    if (!isLogin) {
+    if (!hasTwitterLogin) {
+      toast.error(t('please_login_first') || 'Please login first');
+      return;
+    }
+
+    if (!hasWalletConnected) {
       toast.error(t('please_connect_wallet') || 'Please connect wallet');
       return;
     }
@@ -844,7 +865,8 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
   }, [
     isSettled,
     isEnded,
-    isLogin,
+    hasTwitterLogin,
+    hasWalletConnected,
     isWrongChain,
     amount,
     tokenAddress,
@@ -874,7 +896,8 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
           <h3 className="text-foreground text-lg font-semibold">{t('place_order')}</h3>
           {isSettled ? (
             <span className="text-muted-foreground bg-muted flex items-center gap-1 rounded px-2 py-1 text-xs">
-              <span className="h-2 w-2 rounded-full bg-purple-500"></span> {t('opinion_settled') || 'Settled'}
+              <span className="h-2 w-2 rounded-full bg-purple-500"></span>{' '}
+              {t('opinion_settled') || 'Settled'}
             </span>
           ) : isEnded ? (
             <span className="text-muted-foreground bg-muted flex items-center gap-1 rounded px-2 py-1 text-xs">
@@ -894,7 +917,9 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
           <div className="border-border bg-muted/20 mb-6 rounded-lg border p-4">
             <div className="text-muted-foreground flex items-center justify-center gap-2">
               <Info className="h-4 w-4 text-green-500" />
-              <span className="text-sm font-medium">{t('already_claimed') || 'Already claimed'}</span>
+              <span className="text-sm font-medium">
+                {t('already_claimed') || 'Already claimed'}
+              </span>
             </div>
           </div>
         ) : (
@@ -908,58 +933,58 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
                 {t('claim')}
               </button>
             ) : !hasUserBet ? (
-            // 活动未结算且没下注时：显示 YES / NO
-            <>
-              <button
-                onClick={() => setActiveTab('yes')}
-                disabled={isEnded}
-                className={`flex-1 rounded-md py-2.5 text-sm font-semibold transition-all ${
-                  activeTab === 'yes'
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                    : 'text-muted-foreground hover:text-foreground'
-                } disabled:cursor-not-allowed disabled:opacity-50`}
-              >
-                {t('yes')} {yesPercentage.toFixed(1)}%
-              </button>
-              <button
-                onClick={() => setActiveTab('no')}
-                disabled={isEnded}
-                className={`flex-1 rounded-md py-2.5 text-sm font-semibold transition-all ${
-                  activeTab === 'no'
-                    ? 'bg-red-500 text-white shadow-lg shadow-red-500/20'
-                    : 'text-muted-foreground hover:text-foreground'
-                } disabled:cursor-not-allowed disabled:opacity-50`}
-              >
-                {t('no')} {noPercentage.toFixed(1)}%
-              </button>
-            </>
-          ) : (
-            // 活动未结算且下注后：显示用户选择的方向 / Claim
-            <>
-              <button
-                onClick={() => setActiveTab(userBetChoice === 1 ? 'yes' : 'no')}
-                className={`flex-1 rounded-md py-2.5 text-sm font-semibold transition-all ${
-                  activeTab === 'yes' || activeTab === 'no'
-                    ? userBetChoice === 1
+              // 活动未结算且没下注时：显示 YES / NO
+              <>
+                <button
+                  onClick={() => setActiveTab('yes')}
+                  disabled={isEnded}
+                  className={`flex-1 rounded-md py-2.5 text-sm font-semibold transition-all ${
+                    activeTab === 'yes'
                       ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                      : 'bg-red-500 text-white shadow-lg shadow-red-500/20'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {userBetChoice === 1 ? t('yes') : t('no')}{' '}
-                {userBetChoice === 1 ? yesPercentage.toFixed(1) : noPercentage.toFixed(1)}%
-              </button>
-              <button
-                onClick={() => setActiveTab('claim')}
-                className={`flex-1 rounded-md py-2.5 text-sm font-semibold transition-all ${
-                  activeTab === 'claim'
-                    ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg shadow-green-500/20'
-                    : 'text-muted-foreground hover:text-green-500'
-                }`}
-              >
-                {t('claim')}
-              </button>
-            </>
+                      : 'text-muted-foreground hover:text-foreground'
+                  } disabled:cursor-not-allowed disabled:opacity-50`}
+                >
+                  {t('yes')} {yesPercentage.toFixed(1)}%
+                </button>
+                <button
+                  onClick={() => setActiveTab('no')}
+                  disabled={isEnded}
+                  className={`flex-1 rounded-md py-2.5 text-sm font-semibold transition-all ${
+                    activeTab === 'no'
+                      ? 'bg-red-500 text-white shadow-lg shadow-red-500/20'
+                      : 'text-muted-foreground hover:text-foreground'
+                  } disabled:cursor-not-allowed disabled:opacity-50`}
+                >
+                  {t('no')} {noPercentage.toFixed(1)}%
+                </button>
+              </>
+            ) : (
+              // 活动未结算且下注后：显示用户选择的方向 / Claim
+              <>
+                <button
+                  onClick={() => setActiveTab(userBetChoice === 1 ? 'yes' : 'no')}
+                  className={`flex-1 rounded-md py-2.5 text-sm font-semibold transition-all ${
+                    activeTab === 'yes' || activeTab === 'no'
+                      ? userBetChoice === 1
+                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                        : 'bg-red-500 text-white shadow-lg shadow-red-500/20'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {userBetChoice === 1 ? t('yes') : t('no')}{' '}
+                  {userBetChoice === 1 ? yesPercentage.toFixed(1) : noPercentage.toFixed(1)}%
+                </button>
+                <button
+                  onClick={() => setActiveTab('claim')}
+                  className={`flex-1 rounded-md py-2.5 text-sm font-semibold transition-all ${
+                    activeTab === 'claim'
+                      ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg shadow-green-500/20'
+                      : 'text-muted-foreground hover:text-green-500'
+                  }`}
+                >
+                  {t('claim')}
+                </button>
+              </>
             )}
           </div>
         )}
@@ -1032,7 +1057,15 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
               </div>
             </div>
 
-            {!isLogin ? (
+            {!hasTwitterLogin ? (
+              // 未登录 Twitter，显示 Twitter 登录按钮
+              <div className="flex w-full">
+                <XAuth
+                  className="!h-auto w-full rounded-xl bg-blue-600 py-4 text-base text-white shadow-lg transition-all hover:bg-blue-500"
+                />
+              </div>
+            ) : !hasWalletConnected ? (
+              // 已登录 Twitter 但未连接钱包，显示连接钱包按钮
               <div className="flex w-full">
                 <UIWallet
                   className="!h-auto w-full flex-1 !rounded-xl !py-4"
@@ -1106,7 +1139,19 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
         {/* Claim Tab Content */}
         {activeTab === 'claim' && !hasClaimed && (
           <div className="space-y-4">
-            {!isLogin ? (
+            {!hasTwitterLogin ? (
+              // 未登录 Twitter，显示 Twitter 登录按钮
+              <div className="flex w-full">
+                <XAuth
+                  button={
+                    <button className="w-full rounded-xl bg-blue-600 py-4 text-base font-bold text-white shadow-lg transition-all hover:bg-blue-500">
+                      {t('btn_log_twitter') || 'Log in with Twitter'}
+                    </button>
+                  }
+                />
+              </div>
+            ) : !hasWalletConnected ? (
+              // 已登录 Twitter 但未连接钱包，显示连接钱包按钮
               <div className="flex w-full">
                 <UIWallet
                   className="!h-auto w-full flex-1 !rounded-xl !py-4"

@@ -17,6 +17,7 @@ import { formatTimeAgoShort } from '@libs/utils';
 import { PredictionSide } from '../types';
 import defaultAvatar from '@assets/image/avatar.png';
 import { ReTwet } from '@assets/svg';
+import { IBetCommentItem } from '@libs/request';
 
 type FilterType = 'ALL' | 'YES' | 'NO' | 'OTHERS';
 
@@ -74,9 +75,9 @@ export default function OpinionCommentList() {
           // 转换数据格式
           // attitude: 0 = YES, 1 = NO, 2 = OTHER
           const transformed = result.list.map((item: any) => ({
-            id: item.id,
+            id: item.name,
             user: {
-              id: item.id,
+              id: item.name,
               name: item.name,
               handle: item.screen_name ? `@${item.screen_name}` : '',
               avatar: item.icon || item.profile_image_url || defaultAvatar.src,
@@ -150,6 +151,7 @@ export default function OpinionCommentList() {
           <Skeleton className="h-9 w-20 rounded-full" />
           <Skeleton className="h-9 w-20 rounded-full" />
           <Skeleton className="h-9 w-20 rounded-full" />
+          <Skeleton className="h-9 w-20 rounded-full" />
         </div>
 
         {/* List Skeleton */}
@@ -205,7 +207,7 @@ export default function OpinionCommentList() {
           className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
             activeFilter === 'OTHERS' 
               ? 'bg-blue-500/20 text-blue-500 ring-1 ring-blue-500' 
-              : 'bg-muted text-muted-foreground hover:text-blue-500'
+              : 'bg-muted/20 text-muted-foreground hover:text-blue-500'
           }`}
         >
           {t('others')} {othersCount}
