@@ -1060,9 +1060,7 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
             {!hasTwitterLogin ? (
               // 未登录 Twitter，显示 Twitter 登录按钮
               <div className="flex w-full">
-                <XAuth
-                  className="!h-auto w-full rounded-xl bg-blue-600 py-4 text-base text-white shadow-lg transition-all hover:bg-blue-500"
-                />
+                <XAuth className="!h-auto w-full rounded-xl bg-blue-600 py-4 text-base text-white shadow-lg transition-all hover:bg-blue-500" />
               </div>
             ) : !hasWalletConnected ? (
               // 已登录 Twitter 但未连接钱包，显示连接钱包按钮
@@ -1142,13 +1140,7 @@ export default function OpinionTradingPanel({ onShare }: OpinionTradingPanelProp
             {!hasTwitterLogin ? (
               // 未登录 Twitter，显示 Twitter 登录按钮
               <div className="flex w-full">
-                <XAuth
-                  button={
-                    <button className="w-full rounded-xl bg-blue-600 py-4 text-base font-bold text-white shadow-lg transition-all hover:bg-blue-500">
-                      {t('btn_log_twitter') || 'Log in with Twitter'}
-                    </button>
-                  }
-                />
+                <XAuth className="!h-auto w-full rounded-xl bg-blue-600 py-4 text-base text-white shadow-lg transition-all hover:bg-blue-500" />
               </div>
             ) : !hasWalletConnected ? (
               // 已登录 Twitter 但未连接钱包，显示连接钱包按钮
