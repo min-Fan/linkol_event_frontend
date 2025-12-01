@@ -7,22 +7,20 @@ import { useTranslations } from 'next-intl';
 import { Skeleton } from '@shadcn/components/ui/skeleton';
 import { PredictionSide } from '../types';
 import defaultAvatar from '@assets/image/avatar.png';
-import { formatTimeAgoShort } from '@libs/utils';
+import { formatAddress, formatTimeAgoShort } from '@libs/utils';
+import AddressAvatar from '../../../../components/address-avatar';
 
 // 活动项骨架屏组件
 const ActivityItemSkeleton = () => {
   return (
-    <div className="border-border bg-card flex items-center justify-between rounded-xl border p-4">
+    <div className="border-border bg-card flex items-center justify-between rounded-xl border p-4 py-2">
       <div className="flex items-center gap-3">
         <Skeleton className="h-10 w-10 rounded-full" />
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-4 w-16" />
-            <Skeleton className="h-4 w-20" />
-            <Skeleton className="h-4 w-12" />
+            <Skeleton className="h-4 w-32" />
           </div>
-          <Skeleton className="h-3 w-48" />
+          {/* <Skeleton className="h-3 w-48" /> */}
         </div>
       </div>
       <div className="flex items-center gap-4">
@@ -55,13 +53,14 @@ export default function OpinionActivityList() {
               id: item.id,
               name: item.user_name,
               handle: '',
-              avatar: item.profile_image_url || defaultAvatar.src,
+              avatar: item.profile_image_url || null, // 如果没有头像，设为 null
               verified: false,
             },
             side: item.position_type === 'yes' ? PredictionSide.YES : PredictionSide.NO,
             shares: item.quantity,
             amount: item.total_value,
             timestamp: item.created_at || '',
+            link_url: item.link_url,
           }));
           setActivities(transformed);
           setLoading(false);
@@ -97,21 +96,27 @@ export default function OpinionActivityList() {
         return (
           <div
             key={activity.id}
-            className="group border-border bg-card hover:border-primary/20 flex items-center justify-between rounded-xl border p-4 transition-colors"
+            className="group border-border bg-card hover:border-primary/20 flex items-center justify-between rounded-xl border p-4 py-2 transition-colors"
           >
             <div className="flex items-center gap-3">
-              <img
-                src={activity.user.avatar}
-                alt={activity.user.name}
-                className="border-border h-10 w-10 rounded-full border"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src = defaultAvatar.src;
-                }}
-              />
+              {activity.user.avatar ? (
+                <img
+                  src={activity.user.avatar}
+                  alt={activity.user.name}
+                  className="border-border h-10 w-10 rounded-full border"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = defaultAvatar.src;
+                  }}
+                />
+              ) : (
+                <div className="border-border h-10 w-10 rounded-full border overflow-hidden flex items-center justify-center">
+                  <AddressAvatar address={activity.user.address || activity.user.name} />
+                </div>
+              )}
               <div className="flex flex-col">
                 <div className="flex items-center gap-2 text-sm">
-                  <span className="text-foreground font-semibold">{activity.user.name}</span>
+                  <span className="text-foreground font-semibold">{formatAddress(activity.user.name || '')}</span>
                   <span className="text-muted-foreground">{t('bought')}</span>
                   <span className="text-foreground font-bold">
                     {activity.shares.toLocaleString()}
@@ -120,14 +125,14 @@ export default function OpinionActivityList() {
                     {activity.side}
                   </span>
                 </div>
-                <div className="text-muted-foreground text-xs">
+                {/* <div className="text-muted-foreground text-xs">
                   {t('for')}{' '}
                   {activity.side === PredictionSide.YES ? t('no_change') : t('bps_decrease')} at{' '}
                   <span className="text-foreground">${(price * 100).toFixed(1)}</span>
                   <span className="text-muted-foreground ml-1">
                     (${activity.amount.toLocaleString()})
                   </span>
-                </div>
+                </div> */}
               </div>
             </div>
 
@@ -135,7 +140,7 @@ export default function OpinionActivityList() {
               <span className="text-muted-foreground text-xs font-medium">
                 {formatTimeAgoShort(activity.timestamp)}
               </span>
-              <ExternalLink className="text-muted-foreground hover:text-primary h-4 w-4 cursor-pointer opacity-0 transition-opacity group-hover:opacity-100" />
+              <ExternalLink className="text-muted-foreground hover:text-primary h-4 w-4 cursor-pointer opacity-0 transition-opacity group-hover:opacity-100" onClick={() => window.open(activity.link_url, '_blank')}/>
             </div>
           </div>
         );

@@ -203,6 +203,7 @@ export function useBetDetail(betId: string | string[] | undefined) {
             position_type: item.amount > 0 ? 'yes' : ('no' as 'yes' | 'no'),
             link: item.link,
             views: item.views,
+            attitude: item.attitude !== undefined ? item.attitude : 2,
           }));
 
           return {
@@ -263,6 +264,7 @@ export function useBetDetail(betId: string | string[] | undefined) {
             total_value: item.total_brand_value,
             created_at: item.created_at || '', // 使用 API 提供的创建时间
             link_url: item.tx_hash_link, // 使用 API 提供的交易哈希链接
+            tx_hash: item.tx_hash, // 传递交易哈希，用于生成头像
           }));
 
           return {
