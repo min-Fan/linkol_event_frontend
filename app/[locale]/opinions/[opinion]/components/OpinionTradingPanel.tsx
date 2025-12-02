@@ -419,11 +419,25 @@ export default function OpinionTradingPanel({
           tokenDecimalsValue
         )
       : '0';
+  
+  // 从 eventInfo 中获取 totalYesAmount 和 totalNoAmount
+  const totalYesAmount =
+    eventInfo && typeof eventInfo === 'object' && 'totalYesAmount' in eventInfo
+      ? formatBigNumber(BigInt((eventInfo as any).totalYesAmount.toString()), tokenDecimalsValue)
+      : '0';
+  const totalNoAmount =
+    eventInfo && typeof eventInfo === 'object' && 'totalNoAmount' in eventInfo
+      ? formatBigNumber(BigInt((eventInfo as any).totalNoAmount.toString()), tokenDecimalsValue)
+      : '0';
+  
   const totalAmountNum = parseFloat(totalAmount || '0');
   const totalWinningAmountNum = parseFloat(totalWinningAmount || '0');
+  const totalYesAmountNum = parseFloat(totalYesAmount || '0');
+  const totalNoAmountNum = parseFloat(totalNoAmount || '0');
 
-  // 获取当前选择方的占比（百分比）
-  const selectedSidePercentage = selectedSide === PredictionSide.YES ? yesPercentage : noPercentage;
+  // 获取当前选择方的总金额（使用实际的池子金额，而不是百分比）
+  const selectedSideTotalAmount =
+    selectedSide === PredictionSide.YES ? totalYesAmountNum : totalNoAmountNum;
 
   // 计算用户在整个池子中的占比
   // userBetAmount 来自 betInfo.amount（用户的下注数量）
@@ -434,23 +448,20 @@ export default function OpinionTradingPanel({
       ? ((userBetAmountNum / totalAmountNum) * 100).toFixed(2)
       : '0.00';
 
-  // 计算预估份额：基于当前选择方的占比和总金额
-  // 如果用户下注 amountNum，当前选择方的总金额 = totalAmountNum * selectedSidePercentage / 100
+  // 计算预估份额：基于当前选择方的实际总金额
   // 预估份额 = (用户投入金额 / 当前选择方总金额) * 100
-  // 简化：预估份额 = (amountNum / totalAmountNum) * (100 / selectedSidePercentage)
   const estShares =
-    amountNum > 0 && totalAmountNum > 0 && selectedSidePercentage > 0
-      ? ((amountNum / totalAmountNum) * (100 / selectedSidePercentage)).toFixed(4)
+    amountNum > 0 && selectedSideTotalAmount > 0
+      ? ((amountNum / selectedSideTotalAmount) * 100).toFixed(4)
       : '0.0000';
 
   // 计算潜在回报百分比
   // 如果赢了，回报 = (总金额 / 获胜方总金额 - 1) * 100
-  // 获胜方总金额 = totalAmountNum * selectedSidePercentage / 100
-  // 回报 = (totalAmountNum / (totalAmountNum * selectedSidePercentage / 100) - 1) * 100
-  // 简化：回报 = (100 / selectedSidePercentage - 1) * 100
+  // 获胜方总金额 = selectedSideTotalAmount
+  // 回报 = (totalAmountNum / selectedSideTotalAmount - 1) * 100
   const potentialReturnPercentage =
-    selectedSidePercentage > 0 && amountNum > 0
-      ? ((100 / selectedSidePercentage - 1) * 100).toFixed(2)
+    selectedSideTotalAmount > 0 && amountNum > 0
+      ? (((totalAmountNum / selectedSideTotalAmount - 1) * 100).toFixed(2))
       : '0.00';
 
   // 检查授权额度
