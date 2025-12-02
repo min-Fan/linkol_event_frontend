@@ -93,6 +93,8 @@ export const ENDPOINT_URL = {
   GET_BET_AI_COMMENT: '/kol/api/v10/ai_comment/',
   DO_BET_SUCCESS: '/kol/api/v10/dobet/success/',
   CLAIM_SUCCESS: '/kol/api/v10/claim/success/',
+  SETUP_BET: '/kol/api/v10/setup_bet/',
+  SETUP_BET_SUCCESS: '/kol/api/v10/setupbet/success/',
 };
 
 // 获取OTP码
@@ -3039,6 +3041,10 @@ export interface IBetListItem {
   yes_brand_value: number;
   no_brand_value: number;
   commission: number;
+  favorite_count: number;
+  reply_count: number;
+  views: number;
+  comment_count: number;
 }
 
 export const getBetList = () => {
@@ -3276,4 +3282,38 @@ export interface IClaimSuccessParams {
 
 export const claimSuccess = (params: IClaimSuccessParams) => {
   return kolRequest.post(ENDPOINT_URL.CLAIM_SUCCESS, params);
+};
+
+// 设置下注市场接口
+export interface ISetupBetParams {
+  tweet_url: string;
+}
+
+export interface ISetupBetResponseData {
+  bet_topic_id: number;
+  bet_topic_name: string;
+  betTokenAddress: string;
+  chain_id: number;
+}
+
+export const setupBet = (params: ISetupBetParams) => {
+  return kolRequest.post<ISetupBetResponseData>(ENDPOINT_URL.SETUP_BET, params);
+};
+
+// 设置下注成功回调接口
+export interface ISetupBetSuccessParams {
+  tx_hash: string;
+  id: number;
+  endTimestamp: number;
+  betTokenAddress: string;
+}
+
+export interface ISetupBetSuccessResponseData {
+  bet_topic_id: number;
+  bet_topic_name: string;
+  betTokenAddress: string;
+}
+
+export const setupBetSuccess = (params: ISetupBetSuccessParams) => {
+  return kolRequest.post<ISetupBetSuccessResponseData>(ENDPOINT_URL.SETUP_BET_SUCCESS, params);
 };

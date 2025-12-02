@@ -1,12 +1,13 @@
 'use client';
 import React from 'react';
 import { useTranslations } from 'next-intl';
-import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from '@shadcn/components/ui/skeleton';
-import { getBetList, IBetListItem } from '@libs/request';
+import { IBetListItem } from '@libs/request';
 import { Link } from '@libs/i18n/navigation';
 import PagesRoute from '@constants/routes';
 import { Verified } from '@assets/svg';
+import { useBetList } from '@hooks/useBetList';
+import { MessageCircle, MessageSquare } from 'lucide-react';
 
 interface OpinionCardData {
   id: string;
@@ -32,6 +33,7 @@ interface OpinionCardData {
     no: number;
   };
   volume: string;
+  comment_count: number;
 }
 
 // 将 API 数据转换为组件数据格式
@@ -65,6 +67,7 @@ const transformBetDataToOpinionData = (betItem: IBetListItem, index: number): Op
       no: betItem.no_brand_value,
     },
     volume: `$${betItem.commission.toLocaleString()}`,
+    comment_count: betItem.comment_count,
   };
 };
 
@@ -171,6 +174,10 @@ function OpinionCard({ data }: { data: OpinionCardData }) {
         <span className="font-mono font-medium">
           {formattedVolume} {t('vol')}
         </span>
+        <div className="flex items-center gap-1">
+          <MessageSquare className="h-4 w-4" />
+          <span>{data.comment_count || 0}</span>
+        </div>
       </div>
     </Link>
   );
@@ -231,36 +238,21 @@ function OpinionCardSkeleton() {
 export default function HotOpinions() {
   const t = useTranslations('common');
 
-  // 获取 bet 列表数据
-  const {
-    data: betListResponse,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ['betList'],
-    queryFn: async () => {
-      const response = await getBetList();
-      return response;
-    },
-    staleTime: 5 * 60 * 1000, // 5分钟内数据被认为是新鲜的
-    gcTime: 10 * 60 * 1000, // 10分钟后清除缓存
-    retry: 2, // 失败时重试2次
-  });
+  // 使用自定义 hook 获取 bet 列表数据
+  const { betList, isLoading, isError, list } = useBetList();
 
   // 转换数据格式
   const opinions: OpinionCardData[] = React.useMemo(() => {
-    if (!betListResponse?.data?.list) {
+    if (!list || list.length === 0) {
       return [];
     }
-    return betListResponse.data.list.map((betItem, index) =>
-      transformBetDataToOpinionData(betItem, index)
-    );
-  }, [betListResponse]);
+    return list.map((betItem, index) => transformBetDataToOpinionData(betItem, index));
+  }, [list]);
 
   return (
     <div className="bg-background box-border space-y-4 rounded-3xl p-4 backdrop-blur-sm sm:p-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col items-start gap-0 sm:flex-row sm:items-center sm:gap-4">
         <h2 className="text-xl font-bold">{t('hot_opinions')}</h2>
         <p className="text-primary text-base">{t('share_your_views_to_earn_usdt')}</p>
       </div>
