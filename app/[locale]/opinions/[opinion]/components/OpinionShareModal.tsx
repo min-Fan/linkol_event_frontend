@@ -1,12 +1,12 @@
 'use client';
 import React, { useState, useRef } from 'react';
 import { useParams } from 'next/navigation';
-import { Copy, Download, Twitter, CheckCircle2, Zap, Loader2 } from 'lucide-react';
+import { Copy, Download, Twitter, CheckCircle2, Zap, Loader2, Rocket } from 'lucide-react';
 import { useBetDetail } from '@hooks/useBetDetail';
 import { useTranslations } from 'next-intl';
 import { PredictionSide } from '../types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@shadcn/components/ui/dialog';
-import { getCurrentDomain, getCurrentUrl, copy } from '@libs/utils';
+import { getCurrentDomain, getCurrentUrl, copy, formatPrecision } from '@libs/utils';
 import { toast } from 'sonner';
 import { domToPng } from 'modern-screenshot';
 
@@ -14,12 +14,20 @@ interface OpinionShareModalProps {
   isOpen: boolean;
   onClose: () => void;
   side: PredictionSide;
+  mode?: 'DEFAULT' | 'POST_TRADE';
+  amountInvested?: number;
 }
 
-export default function OpinionShareModal({ isOpen, onClose, side }: OpinionShareModalProps) {
+export default function OpinionShareModal({
+  isOpen,
+  onClose,
+  side,
+  mode = 'DEFAULT',
+  amountInvested,
+}: OpinionShareModalProps) {
   const params = useParams();
   const opinionId = params?.opinion as string;
-  const { betDetail, topic, attitude } = useBetDetail(opinionId);
+  const { betDetail, topic, attitude, tokenAddress } = useBetDetail(opinionId);
   const t = useTranslations('common');
   const [isCopying, setIsCopying] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -96,9 +104,34 @@ export default function OpinionShareModal({ isOpen, onClose, side }: OpinionShar
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="border-border bg-card w-full max-w-[90%] rounded-2xl border p-0 shadow-2xl sm:max-w-md sm:rounded-3xl">
         <DialogHeader className="p-4 pb-0 sm:p-6">
-          <DialogTitle className="text-foreground text-center text-lg font-bold sm:text-xl">
-            {t('rally_support')}
-          </DialogTitle>
+          {mode === 'POST_TRADE' ? (
+            <div className="text-center mb-4 animate-in slide-in-from-top-2">
+              <div className="mx-auto mb-4 flex h-14 w-14 md:h-16 md:w-16 items-center justify-center rounded-full bg-green-500/10 ring-1 ring-green-500/50">
+                <Rocket className="h-7 w-7 md:h-8 md:w-8 text-green-500 drop-shadow-sm" />
+              </div>
+              <DialogTitle className="text-foreground text-xl md:text-2xl font-black">
+                {t('position_confirmed') || 'Position Confirmed!'}
+              </DialogTitle>
+              <p className="text-muted-foreground text-xs md:text-sm mt-2 max-w-[95%] mx-auto leading-relaxed">
+                {t('you_invested') || 'You invested'}{' '}
+                {amountInvested && (
+                  <strong className="text-foreground">
+                    {formatPrecision(amountInvested.toString())}
+                  </strong>
+                )}{' '}
+                {t('in') || 'in'}{' '}
+                <strong className={isYes ? 'text-green-500' : 'text-red-500'}>{side}</strong>.
+                <br />
+                {t('share_now_to_boost') || 'Share now to boost'}{' '}
+                <strong className="text-foreground">{t('brand_voice') || 'Brand Voice'}</strong>{' '}
+                {t('and_increase_winning_chance') || 'and increase your chance of winning.'}
+              </p>
+            </div>
+          ) : (
+            <DialogTitle className="text-foreground text-center text-lg font-bold sm:text-xl">
+              {t('rally_support')}
+            </DialogTitle>
+          )}
         </DialogHeader>
 
         <div className="p-4 pt-3 sm:p-6 sm:pt-4">
@@ -139,6 +172,22 @@ export default function OpinionShareModal({ isOpen, onClose, side }: OpinionShar
                 >
                   {side}
                 </div>
+
+                {/* Visual Amount Badge */}
+                {amountInvested && amountInvested > 0 && (
+                  <div className="mt-3 mb-2 flex flex-col items-center">
+                    <div className="h-px w-16 md:w-20 bg-white/20 mb-2"></div>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-lg md:text-xl font-black text-white tracking-tight">
+                        {formatPrecision(amountInvested.toString())}
+                      </span>
+                      <span className="text-[10px] text-gray-300 uppercase font-bold tracking-wider">
+                        {t('invested') || 'Invested'}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
                 <div className="mt-1.5 flex items-center justify-center gap-1.5 text-[10px] font-medium text-white/80 sm:mt-2 sm:gap-2 sm:text-xs">
                   <Zap className="h-2.5 w-2.5 fill-yellow-400 text-yellow-400 sm:h-3 sm:w-3" />
                   <span>{t('boosting_brand_voice')}</span>
@@ -161,7 +210,7 @@ export default function OpinionShareModal({ isOpen, onClose, side }: OpinionShar
               className="flex items-center justify-center gap-2 rounded-xl bg-[#1DA1F2] py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-500/20 transition-all hover:bg-[#1a8cd8] sm:py-3"
             >
               <Twitter className="h-4 w-4 fill-white" />
-              {t('share_to_x')}
+              {mode === 'POST_TRADE' ? t('shill_on_x') || 'Shill on X' : t('share_to_x')}
             </a>
             <button
               onClick={handleDownloadImage}

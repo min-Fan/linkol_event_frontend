@@ -49,6 +49,7 @@ import { useAppSelector } from '@store/hooks';
 import { doBetSuccess, claimSuccess } from '@libs/request';
 import { Link, useRouter } from '@libs/i18n/navigation';
 import PagesRoute from '@constants/routes';
+import OpinionShareModal from './OpinionShareModal';
 
 interface OpinionTradingPanelProps {
   onShare?: (side: PredictionSide) => void;
@@ -59,7 +60,10 @@ interface OpinionTradingPanelProps {
 
 // 提取有效的错误消息
 const extractErrorMessage = (error: any): string => {
-  if (!error) return '';
+  if (!error) return 'Unknown error';
+
+  // 保存原始错误信息，以便在提取失败时返回
+  const originalMessage = error.message || error.shortMessage || String(error);
 
   // 尝试从 shortMessage 获取
   if (error.shortMessage) {
@@ -78,7 +82,8 @@ const extractErrorMessage = (error: any): string => {
         return executionMatch[1].trim();
       }
     }
-    return error.shortMessage;
+    // 如果提取失败，返回 shortMessage
+    return error.shortMessage || originalMessage;
   }
 
   // 尝试从 message 中提取原因
@@ -95,19 +100,50 @@ const extractErrorMessage = (error: any): string => {
     if (reasonMatch && reasonMatch[1]) {
       return reasonMatch[1].trim();
     }
-    // 如果包含 "reverted"，返回简短消息
+    // 如果包含 "reverted"，尝试提取更详细的信息
     if (error.message.includes('reverted')) {
-      return error.message.split('\n')[0] || error.message;
+      // 尝试提取 "BetService: issuer not set" 这样的具体错误
+      const serviceMatch = error.message.match(/(BetService|ContractError):\s*(.+?)(?:\n|$)/i);
+      if (serviceMatch && serviceMatch[2]) {
+        return serviceMatch[2].trim();
+      }
+      // 如果包含 "issuer not set" 这样的具体错误，直接返回
+      if (error.message.includes('issuer not set')) {
+        return 'BetService: issuer not set';
+      }
+      // 返回第一行或完整消息
+      const firstLine = error.message.split('\n')[0];
+      return firstLine || error.message;
     }
+    // 如果提取失败，返回原始 message
     return error.message;
   }
 
   // 尝试从 cause 中获取
   if (error.cause) {
-    return extractErrorMessage(error.cause);
+    const causeMessage = extractErrorMessage(error.cause);
+    // 如果从 cause 中提取到了有效消息，返回它；否则继续使用原始消息
+    if (causeMessage && causeMessage !== 'Unknown error') {
+      return causeMessage;
+    }
   }
 
-  return '';
+  // 尝试从 data 中获取（某些错误可能在这里）
+  if (error.data) {
+    if (typeof error.data === 'string') {
+      return error.data;
+    }
+    if (error.data.message) {
+      const dataMessage = extractErrorMessage(error.data);
+      // 如果从 data 中提取到了有效消息，返回它；否则继续使用原始消息
+      if (dataMessage && dataMessage !== 'Unknown error') {
+        return dataMessage;
+      }
+    }
+  }
+
+  // 如果都没有，返回原始错误信息或错误对象的字符串表示
+  return originalMessage || String(error) || 'Unknown error';
 };
 
 export default function OpinionTradingPanel({
@@ -314,6 +350,10 @@ export default function OpinionTradingPanel({
   // Owner royalty claim state
   const [isClaimingRoyalties, setIsClaimingRoyalties] = useState(false);
   const [hasClaimedRoyalties, setHasClaimedRoyalties] = useState(false);
+  // Share modal state
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [shareModalSide, setShareModalSide] = useState<PredictionSide>(PredictionSide.YES);
+  const [shareModalAmount, setShareModalAmount] = useState<number | undefined>(undefined);
 
   // 解析用户下注信息
   // betInfo 结构: {amount: bigint, choice: number, claimed: boolean}
@@ -651,9 +691,14 @@ export default function OpinionTradingPanel({
   useEffect(() => {
     if (isBetConfirmed && betTxHash) {
       toast.success(t('bet_success') || 'Bet placed successfully');
+      const betAmount = parseFloat(amount || '0');
       setAmount('');
       // 静默调用回调接口
       callDoBetSuccessCallback();
+      // 打开分享弹窗
+      setShareModalSide(selectedSide);
+      setShareModalAmount(betAmount);
+      setIsShareModalOpen(true);
       setTimeout(() => {
         refetchBetInfo();
         refetchEventInfo();
@@ -662,7 +707,7 @@ export default function OpinionTradingPanel({
         invalidateBetDetail();
       }, 1000);
     }
-  }, [isBetConfirmed, betTxHash]);
+  }, [isBetConfirmed, betTxHash, amount, selectedSide]);
 
   // 监听 claim 交易状态
   useEffect(() => {
@@ -703,11 +748,18 @@ export default function OpinionTradingPanel({
   useEffect(() => {
     if (isBetReceiptError && betReceiptError) {
       console.error('Bet receipt error:', betReceiptError);
+      console.error('Bet receipt error details:', {
+        message: betReceiptError?.message,
+        shortMessage: (betReceiptError as any)?.shortMessage,
+        cause: (betReceiptError as any)?.cause,
+        data: (betReceiptError as any)?.data,
+      });
       const extractedMessage = extractErrorMessage(betReceiptError);
+      console.log('Extracted error message:', extractedMessage);
       const errorMessage = extractedMessage || t('bet_failed') || 'Bet transaction failed';
       toast.error(errorMessage);
     }
-  }, [isBetReceiptError, betReceiptError]);
+  }, [isBetReceiptError, betReceiptError, t]);
 
   // 监听 claim 合约调用错误
   useEffect(() => {
@@ -1771,6 +1823,15 @@ export default function OpinionTradingPanel({
           </ul>
         </div>
       </div>
+
+      {/* Share Modal */}
+      <OpinionShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        side={shareModalSide}
+        mode="POST_TRADE"
+        amountInvested={shareModalAmount}
+      />
     </div>
   );
 }

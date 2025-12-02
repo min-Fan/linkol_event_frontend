@@ -260,7 +260,7 @@ export default function HotOpinions() {
   return (
     <div className="bg-background box-border space-y-4 rounded-3xl p-4 backdrop-blur-sm sm:p-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col items-start gap-0 sm:gap-4 sm:flex-row sm:items-center">
         <h2 className="text-xl font-bold">{t('hot_opinions')}</h2>
         <p className="text-primary text-base">{t('share_your_views_to_earn_usdt')}</p>
       </div>
