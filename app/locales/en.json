@@ -1488,7 +1488,6 @@
     "market_not_settled": "Market must be settled before claiming royalties",
     "royalties_claimed_success": "Royalties claimed successfully",
     "claim_royalties_failed": "Claim royalties failed",
-    "processing": "Processing",
     "position_confirmed": "Position Confirmed!",
     "you_invested": "You invested",
     "in": "in",
@@ -1496,6 +1495,9 @@
     "brand_voice": "Brand Voice",
     "and_increase_winning_chance": "and increase your chance of winning.",
     "invested": "Invested",
-    "shill_on_x": "Shill on X"
+    "shill_on_x": "Shill on X",
+    "create_market_failed": "Create market failed",
+    "total_revenue": "Total Revenue",
+    "royalties_share": "Royalties Share"
   }
 }

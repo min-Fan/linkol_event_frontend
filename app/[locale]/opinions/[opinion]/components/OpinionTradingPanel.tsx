@@ -148,7 +148,7 @@ const extractErrorMessage = (error: any): string => {
 
 export default function OpinionTradingPanel({
   onShare,
-  isOwner = false,
+  isOwner: isOwnerProp = false,
   accruedRoyalties = 0,
 }: OpinionTradingPanelProps) {
   const params = useParams();
@@ -326,11 +326,32 @@ export default function OpinionTradingPanel({
     },
   });
 
+  // Read owner address from contract
+  const { data: ownerAddress } = useReadContract({
+    address: chainConfig?.AgentBetAddress as `0x${string}`,
+    abi: Bet_abi,
+    functionName: 'getOwnerByBetId',
+    args: opinionId ? [BigInt(opinionId)] : undefined,
+    query: {
+      enabled: !!opinionId && !!chainConfig?.AgentBetAddress && !isWrongChain,
+    },
+  });
+
   useEffect(() => {
     console.log('getEventInfo', eventInfo);
     console.log('claimableAmount', claimableAmount);
     console.log('betInfo', betInfo);
-  }, [eventInfo, claimableAmount]);
+    console.log('ownerAddress', ownerAddress);
+  }, [eventInfo, claimableAmount, ownerAddress]);
+
+  // 判断当前用户是否为 owner
+  // 如果合约返回的 owner 地址与用户连接的钱包地址相同，则为 owner
+  const isOwnerFromContract =
+    ownerAddress && address
+      ? (ownerAddress as string).toLowerCase() === address.toLowerCase()
+      : false;
+  // 优先使用合约判断的结果，如果没有则使用 props 传入的值
+  const isOwner = isOwnerFromContract || isOwnerProp;
 
   // 获取代币精度：原生代币使用18，ERC20代币使用合约返回的decimals
   const tokenDecimalsValue =
@@ -419,7 +440,7 @@ export default function OpinionTradingPanel({
           tokenDecimalsValue
         )
       : '0';
-  
+
   // 从 eventInfo 中获取 totalYesAmount 和 totalNoAmount
   const totalYesAmount =
     eventInfo && typeof eventInfo === 'object' && 'totalYesAmount' in eventInfo
@@ -429,7 +450,7 @@ export default function OpinionTradingPanel({
     eventInfo && typeof eventInfo === 'object' && 'totalNoAmount' in eventInfo
       ? formatBigNumber(BigInt((eventInfo as any).totalNoAmount.toString()), tokenDecimalsValue)
       : '0';
-  
+
   const totalAmountNum = parseFloat(totalAmount || '0');
   const totalWinningAmountNum = parseFloat(totalWinningAmount || '0');
   const totalYesAmountNum = parseFloat(totalYesAmount || '0');
@@ -461,7 +482,7 @@ export default function OpinionTradingPanel({
   // 回报 = (totalAmountNum / selectedSideTotalAmount - 1) * 100
   const potentialReturnPercentage =
     selectedSideTotalAmount > 0 && amountNum > 0
-      ? (((totalAmountNum / selectedSideTotalAmount - 1) * 100).toFixed(2))
+      ? ((totalAmountNum / selectedSideTotalAmount - 1) * 100).toFixed(2)
       : '0.00';
 
   // 检查授权额度
@@ -1062,13 +1083,7 @@ export default function OpinionTradingPanel({
     } finally {
       setIsClaimingRoyalties(false);
     }
-  }, [
-    isSettled,
-    hasTwitterLogin,
-    hasWalletConnected,
-    isWrongChain,
-    t,
-  ]);
+  }, [isSettled, hasTwitterLogin, hasWalletConnected, isWrongChain, t]);
 
   // --- RENDER: RESOLVED STATE (Winner/Loser) ---
   if (isSettled && hasUserBet) {
@@ -1076,12 +1091,12 @@ export default function OpinionTradingPanel({
       <div className="sticky top-24 space-y-5">
         {/* --- OWNER ROYALTY CARD --- */}
         {isOwner && (
-          <div className="relative overflow-hidden rounded-2xl border border-yellow-500/30 bg-gradient-to-br from-yellow-500/10 to-orange-500/5 p-6 shadow-xl animate-in slide-in-from-top-4">
+          <div className="animate-in slide-in-from-top-4 relative overflow-hidden rounded-2xl border border-yellow-500/30 bg-gradient-to-br from-yellow-500/10 to-orange-500/5 p-6 shadow-xl">
             {/* Decor */}
-            <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+            <div className="pointer-events-none absolute top-0 right-0 p-4 opacity-10">
               <Crown className="h-24 w-24 text-yellow-600 dark:text-yellow-400" />
             </div>
-            <div className="absolute -left-10 -bottom-10 h-32 w-32 rounded-full bg-yellow-500/20 blur-3xl pointer-events-none"></div>
+            <div className="pointer-events-none absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-yellow-500/20 blur-3xl"></div>
 
             <div className="relative z-10">
               <div className="mb-4 flex items-start justify-between">
@@ -1090,7 +1105,7 @@ export default function OpinionTradingPanel({
                     <Crown className="h-4 w-4" />
                   </span>
                   <div>
-                    <h3 className="text-foreground text-sm font-bold uppercase tracking-wide">
+                    <h3 className="text-foreground text-sm font-bold tracking-wide uppercase">
                       {t('owner_dashboard') || 'Owner Dashboard'}
                     </h3>
                     <p className="text-muted-foreground text-[10px] font-medium">
@@ -1100,7 +1115,7 @@ export default function OpinionTradingPanel({
                 </div>
                 {/* Status Badge */}
                 <div
-                  className={`rounded-md border px-2 py-1 text-[10px] font-bold uppercase tracking-wider ${
+                  className={`rounded-md border px-2 py-1 text-[10px] font-bold tracking-wider uppercase ${
                     isSettled
                       ? 'border-green-500/30 bg-green-500/20 text-green-500'
                       : 'border-yellow-500/30 bg-yellow-500/20 text-yellow-500'
@@ -1113,16 +1128,15 @@ export default function OpinionTradingPanel({
               </div>
 
               <div className="mb-6 grid grid-cols-2 gap-4">
-                <div className="rounded-xl border border-yellow-500/20 bg-card/60 p-3 backdrop-blur-sm">
+                <div className="bg-card/60 rounded-xl border border-yellow-500/20 p-3 backdrop-blur-sm">
                   <p className="text-muted-foreground text-[10px] font-bold uppercase">
                     {t('total_volume') || 'Total Volume'}
                   </p>
                   <p className="text-foreground font-mono text-lg font-bold">
-                    {formatPrecision((totalAmountNum / 1000000).toString())}M{' '}
-                    {displayTokenSymbol}
+                    {formatPrecision((totalAmountNum / 1000000).toString())}M {displayTokenSymbol}
                   </p>
                 </div>
-                <div className="rounded-xl border border-yellow-500/20 bg-card/60 p-3 backdrop-blur-sm">
+                <div className="bg-card/60 rounded-xl border border-yellow-500/20 p-3 backdrop-blur-sm">
                   <p className="text-muted-foreground text-[10px] font-bold uppercase">
                     {t('royalty_rate') || 'Royalty Rate'}
                   </p>
@@ -1133,17 +1147,15 @@ export default function OpinionTradingPanel({
               <div className="mb-4">
                 <div className="mb-2 flex items-end justify-between">
                   <span className="text-foreground text-sm font-medium">
-                    {t('unclaimed_royalties') || 'Unclaimed Royalties'}
+                    {t('total_revenue') || 'Total Revenue'}
                   </span>
                   <span className="text-foreground text-2xl font-black tracking-tight">
-                    {hasClaimedRoyalties
-                      ? '0.00'
-                      : formatPrecision(accruedRoyalties.toString())}{' '}
-                    {displayTokenSymbol}
+                    {formatPrecision((totalAmountNum * 0.05).toString())} {displayTokenSymbol}
                   </span>
                 </div>
 
-                {hasClaimedRoyalties ? (
+                {/* Claim button commented out */}
+                {/* {hasClaimedRoyalties ? (
                   <button
                     disabled
                     className="border-border bg-muted text-muted-foreground flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl border py-3 text-sm font-bold"
@@ -1189,10 +1201,10 @@ export default function OpinionTradingPanel({
                       )}
                     </div>
                   </button>
-                )}
+                )} */}
               </div>
 
-              <div className="border-border flex items-start gap-2 rounded-lg bg-muted/40 p-2 text-[10px] text-muted-foreground">
+              <div className="border-border bg-muted/40 text-muted-foreground flex items-start gap-2 rounded-lg p-2 text-[10px]">
                 <Clock className="mt-0.5 h-3 w-3 flex-shrink-0" />
                 <p>
                   {t('royalties_accrue_info') ||
@@ -1402,12 +1414,12 @@ export default function OpinionTradingPanel({
     <div className="sticky top-24 space-y-5">
       {/* --- OWNER ROYALTY CARD --- */}
       {isOwner && (
-        <div className="relative overflow-hidden rounded-2xl border border-yellow-500/30 bg-gradient-to-br from-yellow-500/10 to-orange-500/5 p-6 shadow-xl animate-in slide-in-from-top-4">
+        <div className="animate-in slide-in-from-top-4 relative overflow-hidden rounded-2xl border border-yellow-500/30 bg-gradient-to-br from-yellow-500/10 to-orange-500/5 p-6 shadow-xl">
           {/* Decor */}
-          <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+          <div className="pointer-events-none absolute top-0 right-0 p-4 opacity-10">
             <Crown className="h-24 w-24 text-yellow-600 dark:text-yellow-400" />
           </div>
-          <div className="absolute -left-10 -bottom-10 h-32 w-32 rounded-full bg-yellow-500/20 blur-3xl pointer-events-none"></div>
+          <div className="pointer-events-none absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-yellow-500/20 blur-3xl"></div>
 
           <div className="relative z-10">
             <div className="mb-4 flex items-start justify-between">
@@ -1416,7 +1428,7 @@ export default function OpinionTradingPanel({
                   <Crown className="h-4 w-4" />
                 </span>
                 <div>
-                  <h3 className="text-foreground text-sm font-bold uppercase tracking-wide">
+                  <h3 className="text-foreground text-sm font-bold tracking-wide uppercase">
                     {t('owner_dashboard') || 'Owner Dashboard'}
                   </h3>
                   <p className="text-muted-foreground text-[10px] font-medium">
@@ -1426,7 +1438,7 @@ export default function OpinionTradingPanel({
               </div>
               {/* Status Badge */}
               <div
-                className={`rounded-md border px-2 py-1 text-[10px] font-bold uppercase tracking-wider ${
+                className={`rounded-md border px-2 py-1 text-[10px] font-bold tracking-wider uppercase ${
                   isSettled
                     ? 'border-green-500/30 bg-green-500/20 text-green-500'
                     : 'border-yellow-500/30 bg-yellow-500/20 text-yellow-500'
@@ -1439,37 +1451,34 @@ export default function OpinionTradingPanel({
             </div>
 
             <div className="mb-6 grid grid-cols-2 gap-4">
-              <div className="rounded-xl border border-yellow-500/20 bg-card/60 p-3 backdrop-blur-sm">
+              <div className="bg-card/60 rounded-xl border border-yellow-500/20 p-3 backdrop-blur-sm">
                 <p className="text-muted-foreground text-[10px] font-bold uppercase">
                   {t('total_volume') || 'Total Volume'}
                 </p>
-                <p className="text-foreground font-mono text-lg font-bold">
-                  {formatPrecision((totalAmountNum / 1000000).toString())}M{' '}
-                  {displayTokenSymbol}
+                <p className="text-foreground font-mono text-base font-bold">
+                  {formatPrecision((totalAmountNum / 1000000).toString())}M {displayTokenSymbol}
                 </p>
               </div>
-              <div className="rounded-xl border border-yellow-500/20 bg-card/60 p-3 backdrop-blur-sm">
+              <div className="bg-card/60 flex flex-col items-center justify-center rounded-xl border border-yellow-500/20 p-3 backdrop-blur-sm">
                 <p className="text-muted-foreground text-[10px] font-bold uppercase">
                   {t('royalty_rate') || 'Royalty Rate'}
                 </p>
-                <p className="font-mono text-lg font-bold text-green-500">5.0%</p>
+                <p className="my-auto font-mono text-base font-bold text-green-500">5.0%</p>
               </div>
             </div>
 
             <div className="mb-4">
               <div className="mb-2 flex items-end justify-between">
                 <span className="text-foreground text-sm font-medium">
-                  {t('unclaimed_royalties') || 'Unclaimed Royalties'}
+                  {t('royalties_share') || 'Total Revenue'}
                 </span>
                 <span className="text-foreground text-2xl font-black tracking-tight">
-                  {hasClaimedRoyalties
-                    ? '0.00'
-                    : formatPrecision(accruedRoyalties.toString())}{' '}
-                  {displayTokenSymbol}
+                  {formatPrecision((totalAmountNum * 0.05).toString())} {displayTokenSymbol}
                 </span>
               </div>
 
-              {hasClaimedRoyalties ? (
+              {/* Claim button commented out */}
+              {/* {hasClaimedRoyalties ? (
                 <button
                   disabled
                   className="border-border bg-muted text-muted-foreground flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl border py-3 text-sm font-bold"
@@ -1515,10 +1524,10 @@ export default function OpinionTradingPanel({
                     )}
                   </div>
                 </button>
-              )}
+              )} */}
             </div>
 
-            <div className="border-border flex items-start gap-2 rounded-lg bg-muted/40 p-2 text-[10px] text-muted-foreground">
+            <div className="border-border bg-muted/40 text-muted-foreground flex items-start gap-2 rounded-lg p-2 text-[10px]">
               <Clock className="mt-0.5 h-3 w-3 flex-shrink-0" />
               <p>
                 {t('royalties_accrue_info') ||

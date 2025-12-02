@@ -1490,7 +1490,6 @@
     "market_not_settled": "市场尚未结算",
     "royalties_claimed_success": "版税领取成功",
     "claim_royalties_failed": "领取版税失败",
-    "processing": "处理中",
     "position_confirmed": "持仓确认！",
     "you_invested": "您投资了",
     "in": "在",
@@ -1498,6 +1497,9 @@
     "brand_voice": "品牌声量",
     "and_increase_winning_chance": "并增加您的获胜机会。",
     "invested": "已投资",
-    "shill_on_x": "在 X 上推广"
+    "shill_on_x": "在 X 上推广",
+    "create_market_failed": "创建市场失败",
+    "total_revenue": "总收入",
+    "royalties_share": "版税分享"
   }
 }
