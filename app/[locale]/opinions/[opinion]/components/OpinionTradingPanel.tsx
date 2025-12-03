@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import {
   ArrowRight,
@@ -375,6 +375,10 @@ export default function OpinionTradingPanel({
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [shareModalSide, setShareModalSide] = useState<PredictionSide>(PredictionSide.YES);
   const [shareModalAmount, setShareModalAmount] = useState<number | undefined>(undefined);
+  // 使用 ref 跟踪是否应该显示分享弹窗（只在第一次下注时显示）
+  const shouldShowShareModalRef = useRef<boolean>(false);
+  // 使用 ref 跟踪已经处理过的下注交易 hash，避免重复显示 toast
+  const processedBetTxHashRef = useRef<string | null>(null);
 
   // 解析用户下注信息
   // betInfo 结构: {amount: bigint, choice: number, claimed: boolean}
@@ -531,6 +535,12 @@ export default function OpinionTradingPanel({
     tokenAllowance,
     tokenDecimalsValue,
   ]);
+
+  // 当 opinionId 变化时，重置分享弹窗标志和已处理的交易 hash
+  useEffect(() => {
+    shouldShowShareModalRef.current = false;
+    processedBetTxHashRef.current = null;
+  }, [opinionId]);
 
   // 根据用户下注信息设置默认值
   useEffect(() => {
@@ -722,15 +732,27 @@ export default function OpinionTradingPanel({
   // 监听下注交易状态
   useEffect(() => {
     if (isBetConfirmed && betTxHash) {
+      // 检查是否已经处理过这个交易，避免重复显示 toast
+      if (processedBetTxHashRef.current === betTxHash) {
+        return;
+      }
+      
+      // 标记这个交易已经处理过
+      processedBetTxHashRef.current = betTxHash;
+      
       toast.success(t('bet_success') || 'Bet placed successfully');
       const betAmount = parseFloat(amount || '0');
       setAmount('');
       // 静默调用回调接口
       callDoBetSuccessCallback();
-      // 打开分享弹窗
-      setShareModalSide(selectedSide);
-      setShareModalAmount(betAmount);
-      setIsShareModalOpen(true);
+      // 只在第一次下注时打开分享弹窗
+      if (shouldShowShareModalRef.current) {
+        setShareModalSide(selectedSide);
+        setShareModalAmount(betAmount);
+        setIsShareModalOpen(true);
+        // 重置标志，确保后续下注不再显示
+        shouldShowShareModalRef.current = false;
+      }
       setTimeout(() => {
         refetchBetInfo();
         refetchEventInfo();
@@ -739,7 +761,7 @@ export default function OpinionTradingPanel({
         invalidateBetDetail();
       }, 1000);
     }
-  }, [isBetConfirmed, betTxHash, amount, selectedSide]);
+  }, [isBetConfirmed, betTxHash, amount, selectedSide, callDoBetSuccessCallback, invalidateBetDetail, refetchBetInfo, refetchEventInfo, refetchClaimableAmount, t]);
 
   // 监听 claim 交易状态
   useEffect(() => {
@@ -831,7 +853,8 @@ export default function OpinionTradingPanel({
     }
 
     try {
-      const approveAmountBN = parseToBigNumber(amount, tokenDecimalsValue);
+      // 授权1000
+      const approveAmountBN = parseToBigNumber('1000', tokenDecimalsValue);
       const approveAmount = BigInt(approveAmountBN.toString()); // 转换为 bigint
       writeApproveContract({
         address: tokenAddress as `0x${string}`,
@@ -846,7 +869,6 @@ export default function OpinionTradingPanel({
   }, [
     tokenAddress,
     chainConfig?.AgentBetAddress,
-    amount,
     tokenDecimalsValue,
     writeApproveContract,
     t,
@@ -999,6 +1021,13 @@ export default function OpinionTradingPanel({
       return;
     }
 
+    // 检查是否是第一次下注（只在第一次下注时显示分享弹窗）
+    // betInfo 中 amount 为 0 或不存在时，表示还没下注过
+    const isFirstBet = !betInfo || 
+      !(betInfo as any).amount || 
+      BigInt((betInfo as any).amount.toString()) === 0n;
+    shouldShowShareModalRef.current = isFirstBet;
+
     try {
       const amountInWeiBN = parseToBigNumber(amount, tokenDecimalsValue);
       const amountInWei = BigInt(amountInWeiBN.toString()); // 转换为 bigint
@@ -1020,6 +1049,8 @@ export default function OpinionTradingPanel({
     } catch (error: any) {
       console.error('Bet failed:', error);
       toast.error(error.message || t('bet_failed') || 'Bet failed');
+      // 如果下注失败，重置分享弹窗标志
+      shouldShowShareModalRef.current = false;
     }
   }, [
     isSettled,
@@ -1036,6 +1067,7 @@ export default function OpinionTradingPanel({
     chainConfig?.AgentBetAddress,
     tokenDecimalsValue,
     writeBetContract,
+    betInfo,
     t,
   ]);
 
