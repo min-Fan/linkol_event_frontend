@@ -831,7 +831,8 @@ export default function OpinionTradingPanel({
     }
 
     try {
-      const approveAmountBN = parseToBigNumber(amount, tokenDecimalsValue);
+      // 授权1000
+      const approveAmountBN = parseToBigNumber('1000', tokenDecimalsValue);
       const approveAmount = BigInt(approveAmountBN.toString()); // 转换为 bigint
       writeApproveContract({
         address: tokenAddress as `0x${string}`,
@@ -846,7 +847,6 @@ export default function OpinionTradingPanel({
   }, [
     tokenAddress,
     chainConfig?.AgentBetAddress,
-    amount,
     tokenDecimalsValue,
     writeApproveContract,
     t,

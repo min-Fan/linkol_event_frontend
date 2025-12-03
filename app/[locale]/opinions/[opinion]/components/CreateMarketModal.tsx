@@ -14,7 +14,10 @@ import {
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@shadcn/components/ui/dialog';
 import { Input } from '@shadcn/components/ui/input';
-import { useAccount, useSwitchChain, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useAccount, useSwitchChain, useWriteContract, useWaitForTransactionReceipt, useReadContract } from 'wagmi';
+import { erc20Abi } from 'viem';
+import { ethers } from 'ethers';
+import { parseToBigNumber } from '@libs/utils/format-bignumber';
 import { toast } from 'sonner';
 import { useAppSelector } from '@store/hooks';
 import useUserInfo from '@hooks/useUserInfo';
@@ -57,6 +60,8 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
   const currentSessionTxHashRef = useRef<string | null>(null);
   // 使用 ref 保存当前会话的 endTimestamp，确保回调时使用相同的值
   const currentSessionEndTimestampRef = useRef<number | null>(null);
+  // 使用 ref 跟踪是否正在等待授权完成
+  const isWaitingForApprovalRef = useRef<boolean>(false);
   
   // 获取 bet list hook 用于刷新列表
   const { invalidateBetList } = useBetList();
@@ -102,6 +107,57 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
   const expectedChainId = chainConfig ? parseInt(chainConfig.chainId) : null;
   const isWrongChain = currentChainId !== expectedChainId;
   
+  // 获取代币地址和精度
+  const betTokenAddress = setupBetData?.betTokenAddress;
+  const tokenDecimals = 18; // USDT 默认18位精度，如果需要可以从合约读取
+  
+  // 读取代币授权额度
+  const { data: tokenAllowance, refetch: refetchAllowance } = useReadContract({
+    address: betTokenAddress as `0x${string}`,
+    abi: erc20Abi,
+    functionName: 'allowance',
+    args:
+      betTokenAddress && address && chainConfig?.AgentBetAddress
+        ? [address, chainConfig.AgentBetAddress as `0x${string}`]
+        : undefined,
+    query: {
+      enabled:
+        !!betTokenAddress &&
+        !!address &&
+        !!chainConfig?.AgentBetAddress &&
+        !isWrongChain &&
+        betTokenAddress !== ethers.ZeroAddress &&
+        step === 'PAYMENT',
+    },
+  });
+  
+  // 授权合约调用
+  const {
+    writeContract: writeApproveContract,
+    isPending: isApprovePending,
+    error: approveError,
+    isError: isApproveWriteError,
+    data: approveTxHash,
+  } = useWriteContract();
+  
+  // 授权交易确认
+  const {
+    isLoading: isApproveConfirming,
+    isSuccess: isApproveConfirmed,
+    isError: isApproveReceiptError,
+    error: approveReceiptError,
+  } = useWaitForTransactionReceipt({
+    hash: approveTxHash,
+    query: {
+      enabled: !!approveTxHash,
+    },
+  });
+  
+  // 检查是否需要授权（至少需要1）
+  const needsApproval = betTokenAddress && betTokenAddress !== ethers.ZeroAddress && tokenAllowance !== undefined
+    ? BigInt(tokenAllowance.toString()) < BigInt(parseToBigNumber('1', tokenDecimals).toString())
+    : false;
+  
   // 弹窗打开时，如果处于 INPUT 步骤，清除旧的 setupBetData（新会话）
   useEffect(() => {
     if (isOpen && step === 'INPUT' && setupBetData) {
@@ -115,6 +171,7 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
     if (!isOpen) {
       currentSessionTxHashRef.current = null;
       currentSessionEndTimestampRef.current = null;
+      isWaitingForApprovalRef.current = false;
     }
   }, [isOpen]);
   
@@ -164,6 +221,34 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
     }
   }, [url, hasTwitterLogin]);
   
+  // 授权代币
+  const handleApprove = useCallback(async () => {
+    if (!betTokenAddress || !chainConfig?.AgentBetAddress) {
+      toast.error(t('please_select_token') || 'Please select token');
+      return;
+    }
+
+    if (betTokenAddress === ethers.ZeroAddress) {
+      // 原生代币不需要授权
+      return;
+    }
+
+    try {
+      // 授权1000
+      const approveAmountBN = parseToBigNumber('1000', tokenDecimals);
+      const approveAmount = BigInt(approveAmountBN.toString());
+      writeApproveContract({
+        address: betTokenAddress as `0x${string}`,
+        abi: erc20Abi,
+        functionName: 'approve',
+        args: [chainConfig.AgentBetAddress as `0x${string}`, approveAmount],
+      });
+    } catch (error: any) {
+      console.error('Approve failed:', error);
+      toast.error(error.message || t('donate_approve_failed') || 'Approve failed');
+    }
+  }, [betTokenAddress, chainConfig?.AgentBetAddress, tokenDecimals, writeApproveContract, t]);
+  
   // Step 2: 支付并调用合约
   const handlePayment = useCallback(async () => {
     if (!hasTwitterLogin) {
@@ -191,6 +276,29 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
       toast.error(t('create_market_setup_data_unavailable'));
       return;
     }
+    
+    // 检查授权（原生代币不需要授权）
+    if (betTokenAddress && betTokenAddress !== ethers.ZeroAddress) {
+      // 等待授权额度加载
+      if (tokenAllowance === undefined) {
+        await refetchAllowance();
+        return;
+      }
+      
+      // 检查授权是否足够（至少需要1）
+      const allowanceBN = BigInt(tokenAllowance.toString());
+      const requiredBN = BigInt(parseToBigNumber('1', tokenDecimals).toString());
+      
+      if (allowanceBN < requiredBN) {
+        // 授权不足，先进行授权
+        isWaitingForApprovalRef.current = true;
+        handleApprove();
+        return;
+      }
+    }
+    
+    // 清除等待授权标志
+    isWaitingForApprovalRef.current = false;
     
     setStep('MINTING');
     
@@ -241,6 +349,11 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
     expectedChainId,
     setupBetData,
     chainConfig,
+    betTokenAddress,
+    tokenAllowance,
+    tokenDecimals,
+    refetchAllowance,
+    handleApprove,
     writePayContract,
     switchChain,
     t,
@@ -292,6 +405,44 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
       callSetupBetSuccess();
     }
   }, [isOpen, step, isPayConfirmed, payTxHash, setupBetData, t]);
+  
+  // 监听授权成功，授权完成后自动继续支付流程
+  useEffect(() => {
+    if (
+      isApproveConfirmed &&
+      approveTxHash &&
+      isOpen &&
+      step === 'PAYMENT' &&
+      isWaitingForApprovalRef.current
+    ) {
+      toast.success(t('donate_approve_success') || 'Approve successful');
+      isWaitingForApprovalRef.current = false;
+      // 刷新授权额度
+      refetchAllowance().then(() => {
+        // 授权完成后，延迟一下再继续支付流程，确保授权额度已更新
+        setTimeout(() => {
+          handlePayment();
+        }, 500);
+      });
+    }
+  }, [isApproveConfirmed, approveTxHash, isOpen, step, refetchAllowance, handlePayment, t]);
+  
+  // 监听授权错误
+  useEffect(() => {
+    if (isApproveWriteError && approveError) {
+      console.error('Approve write error:', approveError);
+      const errorMessage = approveError.message || t('donate_approve_failed') || 'Approve failed';
+      toast.error(errorMessage);
+    }
+  }, [isApproveWriteError, approveError, t]);
+  
+  useEffect(() => {
+    if (isApproveReceiptError && approveReceiptError) {
+      console.error('Approve receipt error:', approveReceiptError);
+      const errorMessage = approveReceiptError.message || t('donate_approve_failed') || 'Approve transaction failed';
+      toast.error(errorMessage);
+    }
+  }, [isApproveReceiptError, approveReceiptError, t]);
   
   // 监听支付错误
   useEffect(() => {
@@ -346,7 +497,7 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
   
   // 只有在当前会话的交易才显示加载状态
   const isProcessing = 
-    (isPayPending || isPayConfirming) && 
+    (isPayPending || isPayConfirming || isApprovePending || isApproveConfirming) && 
     (!payTxHash || payTxHash === currentSessionTxHashRef.current) &&
     isOpen &&
     (step === 'MINTING' || step === 'PAYMENT')
@@ -577,6 +728,21 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
                     ? t('switching') || 'Switching...'
                     : t('switch_to_chain', { chainName: chainConfig?.name || 'Base' }) ||
                       'Switch Chain'}
+                </button>
+              ) : needsApproval ? (
+                <button
+                  onClick={handleApprove}
+                  disabled={isApprovePending || isApproveConfirming}
+                  className="w-full rounded-xl bg-green-600 py-4 text-base font-bold text-white shadow-lg transition-all hover:bg-green-500 disabled:cursor-wait disabled:opacity-70"
+                >
+                  {isApprovePending || isApproveConfirming ? (
+                    <>
+                      <Loader2 className="mr-2 inline h-4 w-4 animate-spin" />
+                      {t('approving') || 'Approving...'}
+                    </>
+                  ) : (
+                    t('approve_token') || 'Approve Token'
+                  )}
                 </button>
               ) : (
                 <button
