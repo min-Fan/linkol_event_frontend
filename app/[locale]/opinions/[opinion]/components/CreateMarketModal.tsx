@@ -406,23 +406,28 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
     }
   }, [isOpen, step, isPayConfirmed, payTxHash, setupBetData, t]);
   
-  // 监听授权成功，授权完成后自动继续支付流程
+  // 监听授权成功，授权完成后更新按钮状态
   useEffect(() => {
     if (
       isApproveConfirmed &&
       approveTxHash &&
       isOpen &&
-      step === 'PAYMENT' &&
-      isWaitingForApprovalRef.current
+      step === 'PAYMENT'
     ) {
       toast.success(t('donate_approve_success') || 'Approve successful');
-      isWaitingForApprovalRef.current = false;
-      // 刷新授权额度
+      // 刷新授权额度，这会自动更新 needsApproval 状态，从而更新按钮显示
+      // 使用 await 确保授权额度已更新后再继续
       refetchAllowance().then(() => {
-        // 授权完成后，延迟一下再继续支付流程，确保授权额度已更新
-        setTimeout(() => {
-          handlePayment();
-        }, 500);
+        // 如果是从支付流程触发的授权（isWaitingForApprovalRef.current = true），授权完成后自动继续支付
+        if (isWaitingForApprovalRef.current) {
+          isWaitingForApprovalRef.current = false;
+          // 延迟一下再继续支付流程，确保授权额度已更新到组件状态
+          setTimeout(() => {
+            handlePayment();
+          }, 300);
+        }
+        // 如果用户直接点击授权按钮，授权完成后只需要更新按钮状态
+        // needsApproval 会根据新的 tokenAllowance 自动更新，按钮会从授权按钮变为支付按钮
       });
     }
   }, [isApproveConfirmed, approveTxHash, isOpen, step, refetchAllowance, handlePayment, t]);
@@ -515,24 +520,24 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
         <div className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-yellow-500/20 blur-[80px]"></div>
         <div className="pointer-events-none absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-blue-600/20 blur-[80px]"></div>
 
-        <div className="p-5 md:p-8">
+        <div className="p-4 md:p-5">
           {/* Header (Dynamic based on step) */}
-          <DialogHeader className="mb-6 text-center md:mb-8">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-600 shadow-lg ring-1 shadow-orange-500/40 ring-yellow-200/50 transition-all duration-500 md:h-16 md:w-16">
+          <DialogHeader className="mb-4 text-center md:mb-5">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-400 to-orange-600 shadow-lg ring-1 shadow-orange-500/40 ring-yellow-200/50 transition-all duration-500 md:h-14 md:w-14">
               {step === 'SUCCESS' ? (
-                <Rocket className="h-7 w-7 text-white md:h-8 md:w-8" />
+                <Rocket className="h-6 w-6 text-white md:h-7 md:w-7" />
               ) : (
-                <Gem className="h-7 w-7 text-white drop-shadow-md md:h-8 md:w-8" />
+                <Gem className="h-6 w-6 text-white drop-shadow-md md:h-7 md:w-7" />
               )}
             </div>
-            <DialogTitle className="text-center text-2xl font-black tracking-tight md:text-3xl">
+            <DialogTitle className="text-center text-xl font-black tracking-tight md:text-2xl">
               {step === 'PAYMENT'
                 ? t('create_market_deploy_asset')
                 : step === 'SUCCESS'
                   ? t('create_market_market_live')
                   : t('create_market_market_launchpad')}
             </DialogTitle>
-            <p className="text-muted-foreground mt-2 px-4 text-center text-xs font-medium md:text-sm">
+            <p className="text-muted-foreground mt-1.5 px-3 text-center text-[11px] font-medium md:text-xs">
               {step === 'PAYMENT'
                 ? t('create_market_verify_eligibility')
                 : t('create_market_tokenize_tweet')}
@@ -541,54 +546,54 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
 
           {/* STEP 1: INPUT */}
           {step === 'INPUT' && (
-            <div className="space-y-5 md:space-y-6">
+            <div className="space-y-3 md:space-y-4">
               {/* Wealth Simulator Card */}
-              <div className="relative overflow-hidden rounded-2xl border border-yellow-500/30 bg-gradient-to-br from-yellow-50 to-orange-50 p-4 md:p-5 dark:from-yellow-900/20 dark:to-orange-900/10">
-                <div className="absolute top-0 right-0 p-2 opacity-10">
-                  <Coins className="h-20 w-20 text-yellow-600 md:h-24 md:w-24 dark:text-yellow-500" />
+              <div className="relative overflow-hidden rounded-xl border border-yellow-500/30 bg-gradient-to-br from-yellow-50 to-orange-50 p-3 md:p-4 dark:from-yellow-900/20 dark:to-orange-900/10">
+                <div className="absolute top-0 right-0 p-1.5 opacity-10">
+                  <Coins className="h-16 w-16 text-yellow-600 md:h-20 md:w-20 dark:text-yellow-500" />
                 </div>
 
                 <div className="relative z-10">
-                  <div className="mb-3 flex items-center gap-2">
-                    <span className="flex items-center justify-center rounded-md bg-yellow-500 px-2 py-0.5 text-[10px] font-bold tracking-wider text-black uppercase">
+                  <div className="mb-2 flex items-center gap-2">
+                    <span className="flex items-center justify-center rounded-md bg-yellow-500 px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-black uppercase">
                       {t('create_market_creator_royalty')}
                     </span>
-                    <span className="animate-pulse text-xs font-semibold text-yellow-700 dark:text-yellow-400">
+                    <span className="animate-pulse text-[11px] font-semibold text-yellow-700 dark:text-yellow-400">
                       {t('create_market_perpetual_revenue')}
                     </span>
                   </div>
 
-                  <div className="mb-2 flex items-end gap-3">
-                    <span className="text-4xl font-black tracking-tighter drop-shadow-sm md:text-5xl">
-                      5<span className="text-2xl md:text-3xl">%</span>
+                  <div className="mb-1.5 flex items-end gap-2">
+                    <span className="text-3xl font-black tracking-tighter drop-shadow-sm md:text-4xl">
+                      5<span className="text-xl md:text-2xl">%</span>
                     </span>
-                    <span className="text-muted-foreground mb-2 text-xs font-medium md:text-sm">
+                    <span className="text-muted-foreground mb-1 text-[11px] font-medium md:text-xs">
                       {t('create_market_of_total_volume')}
                     </span>
                   </div>
 
-                  <div className="mt-4 space-y-2">
-                    <div className="text-muted-foreground flex justify-between text-xs">
+                  <div className="mt-3 space-y-1.5">
+                    <div className="text-muted-foreground flex justify-between text-[11px]">
                       <span>{t('create_market_projected_volume')}</span>
                       <span>{t('create_market_your_payout')}</span>
                     </div>
-                    <div className="flex h-2 w-full overflow-hidden rounded-full bg-black/5 dark:bg-white/10">
+                    <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-black/5 dark:bg-white/10">
                       <div className="h-full w-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-yellow-600 to-yellow-400"></div>
                     </div>
                     <div className="flex items-center justify-between font-mono">
-                      <span className="text-muted-foreground text-xs">{t('create_market_projected_amount')}</span>
-                      <span className="text-base font-bold text-yellow-600 md:text-lg dark:text-yellow-400">
+                      <span className="text-muted-foreground text-[11px]">{t('create_market_projected_amount')}</span>
+                      <span className="text-sm font-bold text-yellow-600 md:text-base dark:text-yellow-400">
                         {t('create_market_payout_amount')}
                       </span>
                     </div>
                   </div>
 
                   {/* Event Ownership Rights */}
-                  <div className="mt-4 flex items-start gap-3 rounded-lg border border-yellow-500/20 bg-yellow-500/10 p-3">
-                    <div className="mt-0.5 shrink-0 rounded-full bg-yellow-500 p-1.5 text-white shadow-sm">
-                      <Crown className="h-3 w-3" />
+                  <div className="mt-3 flex items-start gap-2 rounded-lg border border-yellow-500/20 bg-yellow-500/10 p-2.5">
+                    <div className="mt-0.5 shrink-0 rounded-full bg-yellow-500 p-1 text-white shadow-sm">
+                      <Crown className="h-2.5 w-2.5" />
                     </div>
-                    <div className="text-xs">
+                    <div className="text-[11px]">
                       <p className="mb-0.5 font-bold text-yellow-700 dark:text-yellow-400">
                         {t('create_market_event_owner_rights')}
                       </p>
@@ -601,8 +606,8 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
               </div>
 
               {/* Input Section */}
-              <div className="space-y-2 md:space-y-3">
-                <label className="text-muted-foreground mb-2 ml-1 text-xs font-bold tracking-wider uppercase ">
+              <div className="space-y-1.5 md:space-y-2">
+                <label className="text-muted-foreground mb-1.5 ml-1 text-[11px] font-bold tracking-wider uppercase ">
                   {t('create_market_tweet_url_label')}
                 </label>
                 <div className="group relative">
@@ -612,11 +617,11 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                     placeholder={t('create_market_tweet_url_placeholder')}
-                    className="placeholder-muted-foreground relative !h-auto w-full rounded-xl !px-4 !py-3 text-sm shadow-inner transition-all focus:!border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/20 focus:outline-none md:!py-4 md:!text-base"
+                    className="placeholder-muted-foreground relative !h-auto w-full rounded-xl !px-3 !py-2.5 text-sm shadow-inner transition-all focus:!border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/20 focus:outline-none md:!py-3"
                   />
                 </div>
                 {error && (
-                  <div className="animate-in slide-in-from-top-1 flex items-center gap-2 px-2 text-xs font-medium text-red-500">
+                  <div className="animate-in slide-in-from-top-1 flex items-center gap-1.5 px-2 text-[11px] font-medium text-red-500">
                     <AlertCircle className="h-3 w-3" />
                     <span>{error}</span>
                   </div>
@@ -626,18 +631,18 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
               {/* 登录状态检查 */}
               {!hasTwitterLogin ? (
                 <div className="flex w-full">
-                  <XAuth className="!h-auto w-full rounded-xl bg-blue-600 py-4 text-base text-white shadow-lg transition-all hover:bg-blue-500" />
+                  <XAuth className="!h-auto w-full rounded-xl bg-blue-600 py-3 text-sm text-white shadow-lg transition-all hover:bg-blue-500" />
                 </div>
               ) : (
-                <div className="pt-2">
+                <div className="pt-1">
                   <button
                     onClick={handleAnalyze}
                     disabled={!url}
-                    className="group relative w-full overflow-hidden rounded-xl px-6 py-3.5 shadow-xl transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 md:py-4"
+                    className="group relative w-full overflow-hidden rounded-xl px-5 py-2.5 shadow-xl transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 md:py-3"
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 opacity-90 transition-opacity group-hover:opacity-100"></div>
-                    <div className="relative flex items-center justify-center gap-2 text-xs font-black tracking-wide text-white uppercase md:text-sm">
-                      <ScanLine className="h-4 w-4" />
+                    <div className="relative flex items-center justify-center gap-2 text-[11px] font-black tracking-wide text-white uppercase md:text-xs">
+                      <ScanLine className="h-3.5 w-3.5" />
                       <span>{t('create_market_analyze_launch')}</span>
                     </div>
                   </button>
@@ -648,20 +653,20 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
 
           {/* STEP 2: ANALYZING */}
           {step === 'ANALYZING' && (
-            <div className="animate-in fade-in zoom-in-95 space-y-6 py-8 text-center duration-300 md:space-y-8 md:py-12">
-              <div className="relative mx-auto h-24 w-24 md:h-28 md:w-28">
+            <div className="animate-in fade-in zoom-in-95 space-y-4 py-6 text-center duration-300 md:space-y-5 md:py-8">
+              <div className="relative mx-auto h-20 w-20 md:h-24 md:w-24">
                 <div className="border-surfaceHighlight absolute inset-0 rounded-full border-2"></div>
                 <div className="absolute inset-0 animate-spin rounded-full border-t-2 border-blue-500"></div>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="flex h-16 w-16 animate-pulse items-center justify-center rounded-full bg-blue-500/10 md:h-20 md:w-20">
-                    <ScanLine className="h-6 w-6 text-blue-500 md:h-8 md:w-8" />
+                  <div className="flex h-14 w-14 animate-pulse items-center justify-center rounded-full bg-blue-500/10 md:h-16 md:w-16">
+                    <ScanLine className="h-5 w-5 text-blue-500 md:h-6 md:w-6" />
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <h3 className="text-lg font-bold md:text-xl">{t('create_market_ai_scanning')}</h3>
-                <p className="text-muted-foreground text-xs md:text-sm">
+              <div className="space-y-1.5">
+                <h3 className="text-base font-bold md:text-lg">{t('create_market_ai_scanning')}</h3>
+                <p className="text-muted-foreground text-[11px] md:text-xs">
                   {t('create_market_checking_viability')}
                 </p>
               </div>
@@ -670,27 +675,27 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
 
           {/* STEP 3: PAYMENT */}
           {step === 'PAYMENT' && setupBetData && (
-            <div className="animate-in fade-in slide-in-from-right-4 space-y-5 duration-300 md:space-y-6">
+            <div className="animate-in fade-in slide-in-from-right-4 space-y-3 duration-300 md:space-y-4">
               {/* Result Card */}
-              <div className="flex items-start gap-4 rounded-xl border border-green-500/30 bg-green-500/5 p-4">
-                <div className="shrink-0 rounded-full bg-green-500/20 p-2 text-green-500">
-                  <ShieldCheck className="h-5 w-5 md:h-6 md:w-6" />
+              <div className="flex items-start gap-3 rounded-xl border border-green-500/30 bg-green-500/5 p-3">
+                <div className="shrink-0 rounded-full bg-green-500/20 p-1.5 text-green-500">
+                  <ShieldCheck className="h-4 w-4 md:h-5 md:w-5" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold md:text-base">{t('create_market_asset_eligible')}</h4>
-                  <p className="text-muted-foreground mt-1 text-xs leading-relaxed">
+                  <h4 className="text-xs font-bold md:text-sm">{t('create_market_asset_eligible')}</h4>
+                  <p className="text-muted-foreground mt-0.5 text-[11px] leading-relaxed md:text-xs">
                     {t('create_market_high_volume_detected', { id: setupBetData.bet_topic_id })}
                   </p>
                 </div>
               </div>
 
               {/* Fee Section */}
-              <div className="dark:bg-muted/20 bg-accent rounded-2xl p-5 md:p-6 space-y-4">
+              <div className="dark:bg-muted/20 bg-accent rounded-xl p-3 md:p-4 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground text-xs font-medium md:text-sm">
+                  <span className="text-muted-foreground text-[11px] font-medium md:text-xs">
                     {t('create_market_minting_fee')}
                   </span>
-                  <span className="font-mono text-base font-bold md:text-lg">{t('create_market_minting_fee_amount')}</span>
+                  <span className="font-mono text-sm font-bold md:text-base">{t('create_market_minting_fee_amount')}</span>
                 </div>
                 {/* <div className="bg-border mb-4 h-px w-full"></div> */}
                 {/* <div className="flex items-center justify-between">
@@ -705,7 +710,7 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
               {!hasWalletConnected ? (
                 <div className="flex w-full">
                   <UIWallet
-                    className="!h-auto w-full flex-1 !rounded-xl !py-4"
+                    className="!h-auto w-full flex-1 !rounded-xl !py-3"
                     chainId={expectedChainId || undefined}
                   />
                 </div>
@@ -722,7 +727,7 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
                     }
                   }}
                   disabled={isSwitchingChain}
-                  className="w-full rounded-xl bg-yellow-600 py-4 text-base font-bold text-white shadow-lg transition-all hover:bg-yellow-500 disabled:cursor-wait disabled:opacity-70"
+                  className="w-full rounded-xl bg-yellow-600 py-3 text-sm font-bold text-white shadow-lg transition-all hover:bg-yellow-500 disabled:cursor-wait disabled:opacity-70"
                 >
                   {isSwitchingChain
                     ? t('switching') || 'Switching...'
@@ -733,11 +738,11 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
                 <button
                   onClick={handleApprove}
                   disabled={isApprovePending || isApproveConfirming}
-                  className="w-full rounded-xl bg-green-600 py-4 text-base font-bold text-white shadow-lg transition-all hover:bg-green-500 disabled:cursor-wait disabled:opacity-70"
+                  className="w-full rounded-xl bg-green-600 py-3 text-sm font-bold text-white shadow-lg transition-all hover:bg-green-500 disabled:cursor-wait disabled:opacity-70"
                 >
                   {isApprovePending || isApproveConfirming ? (
                     <>
-                      <Loader2 className="mr-2 inline h-4 w-4 animate-spin" />
+                      <Loader2 className="mr-2 inline h-3.5 w-3.5 animate-spin" />
                       {t('approving') || 'Approving...'}
                     </>
                   ) : (
@@ -748,25 +753,25 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
                 <button
                   onClick={handlePayment}
                   disabled={isProcessing}
-                  className="group relative w-full overflow-hidden rounded-xl px-6 py-3.5 shadow-xl transition-all active:scale-95 disabled:cursor-wait disabled:opacity-70 md:py-4"
+                  className="group relative w-full overflow-hidden rounded-xl px-5 py-2.5 shadow-xl transition-all active:scale-95 disabled:cursor-wait disabled:opacity-70 md:py-3"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 opacity-90 transition-opacity group-hover:opacity-100"></div>
-                  <div className="relative flex items-center justify-center gap-2 text-xs font-black tracking-wide text-white uppercase md:text-sm">
+                  <div className="relative flex items-center justify-center gap-2 text-[11px] font-black tracking-wide text-white uppercase md:text-xs">
                     {isProcessing ? (
                       <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
                         <span>{t('create_market_processing')}</span>
                       </>
                     ) : (
                       <>
-                        <Wallet className="h-4 w-4" />
+                        <Wallet className="h-3.5 w-3.5" />
                         <span>{t('create_market_pay_mint')}</span>
                       </>
                     )}
                   </div>
                 </button>
               )}
-              <p className="text-muted-foreground text-center text-[10px]">
+              <p className="text-muted-foreground text-center text-[9px]">
                 {t('create_market_secure_transaction')}
               </p>
             </div>
@@ -774,20 +779,20 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
 
           {/* STEP 4: MINTING (Processing Payment) */}
           {step === 'MINTING' && (
-            <div className="space-y-6 py-8 text-center md:space-y-8 md:py-12">
-              <div className="relative mx-auto h-24 w-24 md:h-28 md:w-28">
+            <div className="space-y-4 py-6 text-center md:space-y-5 md:py-8">
+              <div className="relative mx-auto h-20 w-20 md:h-24 md:w-24">
                 <div className="border-surfaceHighlight absolute inset-0 rounded-full border-2"></div>
                 <div className="absolute inset-0 animate-spin rounded-full border-t-2 border-yellow-500"></div>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-yellow-500/10 md:h-20 md:w-20">
-                    <Wallet className="h-6 w-6 animate-pulse text-yellow-500 md:h-8 md:w-8" />
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-yellow-500/10 md:h-16 md:w-16">
+                    <Wallet className="h-5 w-5 animate-pulse text-yellow-500 md:h-6 md:w-6" />
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <h3 className="text-lg font-bold md:text-xl">{t('create_market_minting_asset')}</h3>
-                <p className="text-muted-foreground text-xs md:text-sm">
+              <div className="space-y-1.5">
+                <h3 className="text-base font-bold md:text-lg">{t('create_market_minting_asset')}</h3>
+                <p className="text-muted-foreground text-[11px] md:text-xs">
                   {t('create_market_deploying_contract')}
                 </p>
               </div>
@@ -798,22 +803,22 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
           {step === 'SUCCESS' && (
             <div className="animate-in zoom-in-95 relative text-center duration-500">
               {/* Confetti / Glow Effect */}
-              <div className="pointer-events-none absolute inset-0 -top-20 bg-gradient-to-b from-yellow-500/10 to-transparent blur-3xl"></div>
+              <div className="pointer-events-none absolute inset-0 -top-16 bg-gradient-to-b from-yellow-500/10 to-transparent blur-3xl"></div>
 
               <div className="relative z-10">
-                <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-700 shadow-[0_0_30px_rgba(16,185,129,0.4)] md:mb-6 md:h-24 md:w-24">
-                  <Rocket className="h-8 w-8 text-white drop-shadow-md md:h-10 md:w-10" />
+                <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-700 shadow-[0_0_30px_rgba(16,185,129,0.4)] md:mb-4 md:h-20 md:w-20">
+                  <Rocket className="h-6 w-6 text-white drop-shadow-md md:h-8 md:w-8" />
                 </div>
 
-                <h3 className="mb-2 text-2xl font-black md:text-3xl">{t('create_market_market_deployed')}</h3>
-                <p className="text-muted-foreground mb-6 text-xs md:mb-8 md:text-sm">
+                <h3 className="mb-1.5 text-xl font-black md:text-2xl">{t('create_market_market_deployed')}</h3>
+                <p className="text-muted-foreground mb-4 text-[11px] md:mb-5 md:text-xs">
                   {t('create_market_owner_message')}
                 </p>
 
                 {/* Ownership Card */}
-                <div className="dark:bg-muted/20 bg-accent mb-6 rounded-xl p-3 shadow-inner md:mb-8 md:p-4">
-                  <div className="mb-4 flex items-center gap-3">
-                    <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border">
+                <div className="dark:bg-muted/20 bg-accent mb-4 rounded-xl p-2.5 shadow-inner md:mb-5 md:p-3">
+                  <div className="mb-3 flex items-center gap-2.5">
+                    <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full border">
                       {userAvatar ? (
                         <img
                           src={userAvatar}
@@ -827,22 +832,22 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
                       ) : (
                         <div className="h-full w-full rounded-full bg-gray-300"></div>
                       )}
-                      <div className="absolute -top-1 -right-1 rounded-full bg-yellow-500 p-0.5 text-white shadow-sm">
-                        <Crown className="h-2.5 w-2.5" />
+                      <div className="absolute -top-0.5 -right-0.5 rounded-full bg-yellow-500 p-0.5 text-white shadow-sm">
+                        <Crown className="h-2 w-2" />
                       </div>
                     </div>
                     <div className="text-left">
-                      <p className="text-muted-foreground text-[10px] font-bold uppercase">{t('create_market_role')}</p>
-                      <p className="text-sm font-bold">{t('create_market_market_owner')}</p>
+                      <p className="text-muted-foreground text-[9px] font-bold uppercase">{t('create_market_role')}</p>
+                      <p className="text-xs font-bold">{t('create_market_market_owner')}</p>
                       {userName && (
-                        <p className="text-muted-foreground text-[10px] mt-0.5">@{twitterFullProfile?.screen_name || userName}</p>
+                        <p className="text-muted-foreground text-[9px] mt-0.5">@{twitterFullProfile?.screen_name || userName}</p>
                       )}
                     </div>
                     <div className="ml-auto text-right">
-                      <p className="text-muted-foreground text-[10px] font-bold uppercase">
+                      <p className="text-muted-foreground text-[9px] font-bold uppercase">
                         {t('create_market_revenue_share')}
                       </p>
-                      <p className="text-lg font-black text-yellow-600 md:text-xl dark:text-yellow-500">
+                      <p className="text-base font-black text-yellow-600 md:text-lg dark:text-yellow-500">
                         5.0%
                       </p>
                     </div>
@@ -850,16 +855,16 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
                   {/* <div className="h-1 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
                     <div className="h-full w-1/12 bg-green-500"></div>
                   </div> */}
-                  <div className="text-muted-foreground mt-2 flex justify-between font-mono text-[10px]">
+                  <div className="text-muted-foreground mt-1.5 flex justify-between font-mono text-[9px]">
                     <span>{t('create_market_status_live')}</span>
                     <span>{t('create_market_vol_zero')}</span>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2.5">
                   <button
                     onClick={reset}
-                    className="dark:bg-muted/20 bg-accent dark:hover:bg-muted/30 hover:bg-muted/30 rounded-xl py-3 text-xs font-bold transition-colors md:py-3.5 md:text-sm"
+                    className="dark:bg-muted/20 bg-accent dark:hover:bg-muted/30 hover:bg-muted/30 rounded-xl py-2.5 text-[11px] font-bold transition-colors md:py-3 md:text-xs"
                   >
                     {t('create_market_view_market')}
                   </button>
@@ -867,9 +872,9 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
                     <Link
                       href={`${PagesRoute.OPINIONS}/${setupBetData.bet_topic_id}`}
                       onClick={reset}
-                      className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 text-xs font-bold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-500 md:py-3.5 md:text-sm"
+                      className="flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 py-2.5 text-[11px] font-bold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-500 md:py-3 md:text-xs"
                     >
-                      <TrendingUp className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                      <TrendingUp className="h-3 w-3 md:h-3.5 md:w-3.5" />
                       {t('create_market_shill_to_earn')}
                     </Link>
                   )}

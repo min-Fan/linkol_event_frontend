@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { Copy, Download, Twitter, CheckCircle2, Zap, Loader2, Rocket } from 'lucide-react';
 import { useBetDetail } from '@hooks/useBetDetail';
@@ -9,6 +9,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@shadcn/compon
 import { getCurrentDomain, getCurrentUrl, copy, formatPrecision } from '@libs/utils';
 import { toast } from 'sonner';
 import { domToPng } from 'modern-screenshot';
+import { useAccount, useReadContract } from 'wagmi';
+import { erc20Abi } from 'viem';
+import { ethers } from 'ethers';
+import Bet_abi from '@constants/abi/Bet_abi.json';
+import { getChainConfig, getChainTypeFromChainId } from '@constants/config';
+import { formatBigNumber } from '@libs/utils/format-bignumber';
 
 interface OpinionShareModalProps {
   isOpen: boolean;
@@ -27,11 +33,65 @@ export default function OpinionShareModal({
 }: OpinionShareModalProps) {
   const params = useParams();
   const opinionId = params?.opinion as string;
-  const { betDetail, topic, attitude, tokenAddress } = useBetDetail(opinionId);
+  const { betDetail, topic, attitude, tokenAddress, chainId } = useBetDetail(opinionId);
   const t = useTranslations('common');
   const [isCopying, setIsCopying] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const shareCardRef = useRef<HTMLDivElement>(null);
+  const { address, chainId: currentChainId } = useAccount();
+
+  // 确定使用的链
+  const betChainId = !chainId || chainId === 0 ? 84532 : Number(chainId);
+  const chainType = getChainTypeFromChainId(betChainId);
+  const chainConfig = getChainConfig(chainType);
+  const expectedChainId = chainConfig ? parseInt(chainConfig.chainId) : null;
+  const isWrongChain = currentChainId !== expectedChainId;
+
+  // 读取用户下注信息（用于单独打开时显示下注总数）
+  const { data: betInfo } = useReadContract({
+    address: chainConfig?.AgentBetAddress as `0x${string}`,
+    abi: Bet_abi,
+    functionName: 'getBetInfo',
+    args: opinionId && address ? [BigInt(opinionId), address as `0x${string}`] : undefined,
+    query: {
+      enabled: !!opinionId && !!address && !!chainConfig?.AgentBetAddress && !isWrongChain && mode === 'DEFAULT',
+    },
+  });
+
+  // 读取代币精度
+  const { data: tokenDecimals } = useReadContract({
+    address: tokenAddress as `0x${string}`,
+    abi: erc20Abi,
+    functionName: 'decimals',
+    query: {
+      enabled: !!tokenAddress && !isWrongChain && tokenAddress !== ethers.ZeroAddress && mode === 'DEFAULT',
+    },
+  });
+
+  // 计算实际显示的下注金额
+  // 如果是 POST_TRADE 模式，使用传入的 amountInvested
+  // 如果是 DEFAULT 模式（单独打开），使用 betInfo 中的下注总数
+  const displayAmountInvested = useMemo(() => {
+    if (mode === 'POST_TRADE') {
+      return amountInvested;
+    }
+    
+    // DEFAULT 模式：从 betInfo 中获取下注总数
+    if (betInfo && (betInfo as any).amount) {
+      const tokenDecimalsValue = tokenAddress === ethers.ZeroAddress 
+        ? 18 
+        : tokenDecimals 
+          ? Number(tokenDecimals) 
+          : 18;
+      const betAmount = formatBigNumber(
+        BigInt((betInfo as any).amount.toString()),
+        tokenDecimalsValue
+      );
+      return parseFloat(betAmount);
+    }
+    
+    return amountInvested;
+  }, [mode, amountInvested, betInfo, tokenAddress, tokenDecimals]);
 
   if (!betDetail || !topic) return null;
 
@@ -102,21 +162,21 @@ export default function OpinionShareModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="border-border bg-card w-full max-w-[90%] rounded-2xl border p-0 shadow-2xl sm:max-w-md sm:rounded-3xl">
-        <DialogHeader className="p-4 pb-0 sm:p-6">
+      <DialogContent className="border-border bg-card w-full max-w-[90%] rounded-xl border p-0 shadow-2xl sm:max-w-md sm:rounded-2xl gap-0">
+        <DialogHeader className="p-3 pb-0 sm:p-4 sm:pb-0">
           {mode === 'POST_TRADE' ? (
-            <div className="text-center mb-4 animate-in slide-in-from-top-2">
-              <div className="mx-auto mb-4 flex h-14 w-14 md:h-16 md:w-16 items-center justify-center rounded-full bg-green-500/10 ring-1 ring-green-500/50">
-                <Rocket className="h-7 w-7 md:h-8 md:w-8 text-green-500 drop-shadow-sm" />
+            <div className="text-center mb-3 animate-in slide-in-from-top-2">
+              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-500/10 ring-1 ring-green-500/50 md:h-14 md:w-14">
+                <Rocket className="h-6 w-6 text-green-500 drop-shadow-sm md:h-7 md:w-7" />
               </div>
-              <DialogTitle className="text-foreground text-xl md:text-2xl font-black">
+              <DialogTitle className="text-foreground text-lg md:text-xl font-black">
                 {t('position_confirmed') || 'Position Confirmed!'}
               </DialogTitle>
-              <p className="text-muted-foreground text-xs md:text-sm mt-2 max-w-[95%] mx-auto leading-relaxed">
+              <p className="text-muted-foreground text-[11px] md:text-xs mt-1.5 max-w-[95%] mx-auto leading-relaxed">
                 {t('you_invested') || 'You invested'}{' '}
-                {amountInvested && (
+                {displayAmountInvested && displayAmountInvested > 0 && (
                   <strong className="text-foreground">
-                    {formatPrecision(amountInvested.toString())}
+                    {formatPrecision(displayAmountInvested.toString())}
                   </strong>
                 )}{' '}
                 {t('in') || 'in'}{' '}
@@ -128,99 +188,99 @@ export default function OpinionShareModal({
               </p>
             </div>
           ) : (
-            <DialogTitle className="text-foreground text-center text-lg font-bold sm:text-xl">
+            <DialogTitle className="text-foreground text-center text-base font-bold sm:text-lg">
               {t('rally_support')}
             </DialogTitle>
           )}
         </DialogHeader>
 
-        <div className="p-4 pt-3 sm:p-6 sm:pt-4">
+        <div className="p-3 pt-2 sm:p-4 sm:pt-3">
           {/* Share Card Preview */}
           <div
             ref={shareCardRef}
-            className={`relative overflow-hidden rounded-xl border-2 ${borderColor} bg-gradient-to-br ${gradient} p-4 shadow-2xl sm:rounded-2xl sm:p-6`}
+            className={`relative overflow-hidden rounded-lg border-2 ${borderColor} bg-gradient-to-br ${gradient} p-3 shadow-2xl sm:rounded-xl sm:p-4`}
           >
             {/* Background Texture */}
             <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
 
             {/* Card Content */}
             <div className="relative z-10 flex flex-col items-center text-center">
-              <div className="mb-3 flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-3 py-1.5 backdrop-blur-md sm:mb-4 sm:gap-3 sm:px-4 sm:py-2">
+              <div className="mb-2 flex items-center gap-1.5 rounded-full border border-white/10 bg-black/30 px-2.5 py-1 backdrop-blur-md sm:mb-2.5 sm:gap-2 sm:px-3 sm:py-1.5">
                 <div className="relative">
                   <img
                     src={topic.icon || ''}
                     alt="Avatar"
-                    className="h-7 w-7 rounded-full sm:h-8 sm:w-8"
+                    className="h-6 w-6 rounded-full sm:h-7 sm:w-7"
                   />
                   {false && (
-                    <CheckCircle2 className="text-primary absolute -right-1 -bottom-1 h-3 w-3 rounded-full bg-black" />
+                    <CheckCircle2 className="text-primary absolute -right-0.5 -bottom-0.5 h-2.5 w-2.5 rounded-full bg-black" />
                   )}
                 </div>
-                <span className="text-xs font-semibold text-white sm:text-sm">{topic.name}</span>
+                <span className="text-[11px] font-semibold text-white sm:text-xs">{topic.name}</span>
               </div>
 
-              <h4 className="mb-4 text-base leading-tight font-bold text-white drop-shadow-md sm:mb-6 sm:text-lg">
+              <h4 className="mb-3 text-sm leading-tight font-bold text-white drop-shadow-md sm:mb-3.5 sm:text-base line-clamp-3">
                 "{topic.content}"
               </h4>
 
-              <div className="w-full rounded-lg border border-white/10 bg-black/40 p-3 backdrop-blur-md sm:rounded-xl sm:p-4">
-                <p className="mb-1 text-[10px] tracking-widest text-gray-300 uppercase sm:text-xs">
+              <div className="w-full rounded-lg border border-white/10 bg-black/40 p-2.5 backdrop-blur-md sm:rounded-xl sm:p-3">
+                <p className="mb-0.5 text-[9px] tracking-widest text-gray-300 uppercase sm:text-[10px]">
                   {t('i_support')}
                 </p>
                 <div
-                  className={`text-3xl font-black ${isYes ? 'text-green-400' : 'text-red-400'} drop-shadow-sm sm:text-4xl`}
+                  className={`text-2xl font-black ${isYes ? 'text-green-400' : 'text-red-400'} drop-shadow-sm sm:text-3xl`}
                 >
                   {side}
                 </div>
 
                 {/* Visual Amount Badge */}
-                {amountInvested && amountInvested > 0 && (
-                  <div className="mt-3 mb-2 flex flex-col items-center">
-                    <div className="h-px w-16 md:w-20 bg-white/20 mb-2"></div>
-                    <div className="flex items-baseline gap-1.5">
-                      <span className="text-lg md:text-xl font-black text-white tracking-tight">
-                        {formatPrecision(amountInvested.toString())}
+                {displayAmountInvested && displayAmountInvested > 0 && (
+                  <div className="mt-2 mb-1.5 flex flex-col items-center">
+                    <div className="h-px w-14 md:w-16 bg-white/20 mb-1.5"></div>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-base md:text-lg font-black text-white tracking-tight">
+                        {formatPrecision(displayAmountInvested.toString())}
                       </span>
-                      <span className="text-[10px] text-gray-300 uppercase font-bold tracking-wider">
+                      <span className="text-[9px] text-gray-300 uppercase font-bold tracking-wider">
                         {t('invested') || 'Invested'}
                       </span>
                     </div>
                   </div>
                 )}
 
-                <div className="mt-1.5 flex items-center justify-center gap-1.5 text-[10px] font-medium text-white/80 sm:mt-2 sm:gap-2 sm:text-xs">
-                  <Zap className="h-2.5 w-2.5 fill-yellow-400 text-yellow-400 sm:h-3 sm:w-3" />
+                <div className="mt-1 flex items-center justify-center gap-1 text-[9px] font-medium text-white/80 sm:mt-1.5 sm:gap-1.5 sm:text-[10px]">
+                  <Zap className="h-2 w-2 fill-yellow-400 text-yellow-400 sm:h-2.5 sm:w-2.5" />
                   <span>{t('boosting_brand_voice')}</span>
                 </div>
               </div>
             </div>
 
             {/* Linkol Watermark */}
-            <div className="absolute right-2 bottom-0.5 text-[9px] font-bold text-white/40 italic sm:right-4 sm:bottom-1 sm:text-[10px]">
+            <div className="absolute right-1.5 bottom-0.5 text-[8px] font-bold text-white/40 italic sm:right-3 sm:bottom-1 sm:text-[9px]">
               {currentDomain}
             </div>
           </div>
 
           {/* Actions */}
-          <div className="mt-4 grid grid-cols-1 gap-3 sm:mt-6 sm:grid-cols-2">
+          <div className="mt-3 grid grid-cols-1 gap-2 sm:mt-4 sm:grid-cols-2">
             <a
               href={twitterUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 rounded-xl bg-[#1DA1F2] py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-500/20 transition-all hover:bg-[#1a8cd8] sm:py-3"
+              className="flex items-center justify-center gap-1.5 rounded-xl bg-[#1DA1F2] py-2 text-xs font-bold text-white shadow-lg shadow-blue-500/20 transition-all hover:bg-[#1a8cd8] sm:py-2.5 sm:text-sm"
             >
-              <Twitter className="h-4 w-4 fill-white" />
+              <Twitter className="h-3.5 w-3.5 fill-white sm:h-4 sm:w-4" />
               {mode === 'POST_TRADE' ? t('shill_on_x') || 'Shill on X' : t('share_to_x')}
             </a>
             <button
               onClick={handleDownloadImage}
               disabled={isDownloading}
-              className="border-border bg-muted text-foreground hover:bg-muted/80 hidden items-center justify-center gap-2 rounded-xl border py-2.5 text-sm font-bold transition-all disabled:opacity-50 sm:flex sm:py-3"
+              className="border-border bg-muted text-foreground hover:bg-muted/80 hidden items-center justify-center gap-1.5 rounded-xl border py-2 text-xs font-bold transition-all disabled:opacity-50 sm:flex sm:py-2.5 sm:text-sm"
             >
               {isDownloading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-3.5 w-3.5 animate-spin sm:h-4 sm:w-4" />
               ) : (
-                <Download className="h-4 w-4" />
+                <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               )}
               {t('save_image')}
             </button>
@@ -229,9 +289,9 @@ export default function OpinionShareModal({
           <button
             onClick={handleCopyLink}
             disabled={isCopying}
-            className="text-muted-foreground hover:text-foreground mt-3 flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium transition-colors disabled:opacity-50 sm:py-3"
+            className="text-muted-foreground hover:text-foreground mt-2 flex w-full items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-medium transition-colors disabled:opacity-50 sm:py-2.5 sm:text-sm"
           >
-            <Copy className="h-4 w-4" />
+            <Copy className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             {t('copy_link')}
           </button>
         </div>
