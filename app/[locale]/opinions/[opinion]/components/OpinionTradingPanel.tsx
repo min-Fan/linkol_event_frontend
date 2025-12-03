@@ -842,8 +842,10 @@ export default function OpinionTradingPanel({
       return;
     }
 
+    console.log('amount', amount);
+
     if (!amount || parseFloat(amount) <= 0) {
-      toast.error(t('donate_amount_invalid') || 'Invalid amount');
+      toast.error(t('bet_amount_invalid') || 'Invalid amount');
       return;
     }
 
@@ -867,6 +869,7 @@ export default function OpinionTradingPanel({
       toast.error(error.message || t('donate_approve_failed') || 'Approve failed');
     }
   }, [
+    amount,
     tokenAddress,
     chainConfig?.AgentBetAddress,
     tokenDecimalsValue,
@@ -992,7 +995,7 @@ export default function OpinionTradingPanel({
     }
 
     if (!amount || parseFloat(amount) <= 0) {
-      toast.error(t('donate_amount_invalid') || 'Invalid amount');
+      toast.error(t('bet_amount_invalid') || 'Invalid amount');
       return;
     }
 

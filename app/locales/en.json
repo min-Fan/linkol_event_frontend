@@ -1542,6 +1542,7 @@
     "create_market_setup_data_unavailable": "Setup data or contract address not available",
     "create_market_end_timestamp_not_found": "End timestamp not found",
     "create_market_payment_transaction_failed": "Payment transaction failed",
-    "create_market_you": "You"
+    "create_market_you": "You",
+    "bet_amount_invalid": "Please enter a valid bet amount"
   }
 }
