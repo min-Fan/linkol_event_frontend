@@ -843,7 +843,7 @@ export default function OpinionTradingPanel({
     }
 
     if (!amount || parseFloat(amount) <= 0) {
-      toast.error(t('donate_amount_invalid') || 'Invalid amount');
+      toast.error(t('bet_amount_invalid') || 'Invalid amount');
       return;
     }
 
@@ -992,7 +992,7 @@ export default function OpinionTradingPanel({
     }
 
     if (!amount || parseFloat(amount) <= 0) {
-      toast.error(t('donate_amount_invalid') || 'Invalid amount');
+      toast.error(t('bet_amount_invalid') || 'Invalid amount');
       return;
     }
 

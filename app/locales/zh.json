@@ -1544,6 +1544,7 @@
     "create_market_setup_data_unavailable": "设置数据或合约地址不可用",
     "create_market_end_timestamp_not_found": "未找到结束时间戳",
     "create_market_payment_transaction_failed": "支付交易失败",
-    "create_market_you": "您"
+    "create_market_you": "您",
+    "bet_amount_invalid": "请输入有效的下注金额"
   }
 }
