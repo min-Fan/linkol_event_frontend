@@ -75,6 +75,7 @@ export interface IActive {
   cover_img: string;
   title: string;
   description: string;
+  en_description: string;
   requirement: string;
   start: string;
   end: string;

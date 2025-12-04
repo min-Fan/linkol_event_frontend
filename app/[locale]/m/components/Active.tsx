@@ -50,7 +50,9 @@ export default function Active(props: { data: IActive }) {
               )}
             </dd>
           </dl>
-          <p className="text-md text-muted-foreground/60 line-clamp-3">{data?.description}</p>
+          <p className="text-md text-muted-foreground/60 line-clamp-3">
+            {locale === 'en' ? data?.en_description : data?.description}
+          </p>
         </div>
         <div className="space-y-4">
           <div className="flex items-center justify-between gap-x-2">
