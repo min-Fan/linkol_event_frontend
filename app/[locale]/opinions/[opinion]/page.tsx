@@ -250,8 +250,8 @@ export default function OpinionsPage() {
           <ArrowLeft className="h-4 w-4" /> {t('back_to_markets')}
         </Link>
         <div className="flex items-center gap-2">
-          {/* 水龙头按钮 - 仅在开发环境显示 */}
-          {process.env.NEXT_PUBLIC_NODE_ENV === 'development' && chainConfig?.FaucetAddress && (
+          {/* 水龙头按钮 */}
+          {chainConfig?.FaucetAddress && (
             <div className="flex items-center gap-2">
               {!isLogin ? (
                 <div className="relative">
@@ -287,18 +287,16 @@ export default function OpinionsPage() {
               )}
             </div>
           )}
-          {process.env.NEXT_PUBLIC_NODE_ENV === 'development' && (
-            <button
-              onClick={() => {
-                window.open('https://www.alchemy.com/faucets/base-sepolia', '_blank');
-              }}
-              className="text-muted-foreground hover:text-primary flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800"
-              title={t('faucet_claim') || 'Claim test tokens'}
-            >
-              <Droplet className="h-4 w-4" />
-              {t('get_gas_fee') || 'Get gas fee'}
-            </button>
-          )}
+          <button
+            onClick={() => {
+              window.open('https://www.alchemy.com/faucets/base-sepolia', '_blank');
+            }}
+            className="text-muted-foreground hover:text-primary flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+            title={t('faucet_claim') || 'Claim test tokens'}
+          >
+            <Droplet className="h-4 w-4" />
+            {t('get_gas_fee') || 'Get gas fee'}
+          </button>
         </div>
       </div>
 
