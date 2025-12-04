@@ -37,7 +37,7 @@ export default function HomeScreenBanner() {
       </div>
       <div className="to-background absolute -bottom-1 h-10 w-full bg-gradient-to-b from-transparent backdrop-blur-sm"></div>
       <div className="relative z-10 flex flex-col items-center justify-center gap-4 pt-28 pb-16">
-        <h1 className="font-kyiv text-5xl leading-none font-bold text-white sm:text-[60px]">
+        <h1 className="font-kyiv text-5xl leading-none font-bold text-white sm:text-[60px] text-center">
           {t('post_to_earn')}
         </h1>
         <p className="max-w-[90%] text-center text-lg text-white sm:max-w-[420px] sm:text-2xl">

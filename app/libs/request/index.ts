@@ -83,6 +83,18 @@ export const ENDPOINT_URL = {
   SOLANA_CLAIM_REWARD: '/kol/api/v6/claim_reward/usd1/pay/',
   UPDATE_ACTIVITY: '/kol/api/v3/actives/',
   GET_PRICE: '/kol/api/v4/price/',
+  GET_BET_LIST: '/kol/api/v10/bet_list/',
+  GET_BET_DETAIL: '/kol/api/v10/bet_detail/',
+  GET_BET_CHART: '/kol/api/v10/bet_chart/',
+  GET_BET_PROSPECTIVE: '/kol/api/v10/bet_prospective/',
+  GET_BET_TOP_VOICE: '/kol/api/v10/bet_top_voice/',
+  GET_BET_COMMENTS: '/kol/api/v10/bet_comments/',
+  GET_BET_ACTIVITY: '/kol/api/v10/bet_activity/',
+  GET_BET_AI_COMMENT: '/kol/api/v10/ai_comment/',
+  DO_BET_SUCCESS: '/kol/api/v10/dobet/success/',
+  CLAIM_SUCCESS: '/kol/api/v10/claim/success/',
+  SETUP_BET: '/kol/api/v10/setup_bet/',
+  SETUP_BET_SUCCESS: '/kol/api/v10/setupbet/success/',
 };
 
 // 获取OTP码
@@ -3001,4 +3013,307 @@ export const getDonateHeatmap = (params: IGetDonateHeatmapParams) => {
   return kolRequest.get<IGetDonateHeatmapResponseData>(`/kol/api/v9/donate/summary/`, {
     ...params,
   });
+};
+
+// 获取 bet 列表
+export interface IGetBetListResponseData {
+  total: number;
+  current_page: number;
+  page_range: number[];
+  list: IBetListItem[];
+}
+
+export interface IBetListItem {
+  id?: string | number;
+  topic: {
+    icon: string;
+    name: string;
+    screen_name: string;
+    content: string;
+  };
+  attitude: {
+    bet_id?: string | number;
+    icon: string;
+    name: string;
+    screen_name: string;
+    content: string;
+  };
+  yes_brand_value: number;
+  no_brand_value: number;
+  commission: number;
+  favorite_count: number;
+  reply_count: number;
+  views: number;
+  comment_count: number;
+}
+
+export const getBetList = () => {
+  return kolRequest.get<IGetBetListResponseData>(ENDPOINT_URL.GET_BET_LIST);
+};
+
+// 获取 bet 详情
+export interface IGetBetDetailParams {
+  bet_id: string | number;
+}
+
+export interface IGetBetDetailResponseData {
+  topic: {
+    icon: string;
+    name: string;
+    screen_name: string;
+    content: string;
+  };
+  attitude: {
+    icon: string;
+    name: string;
+    screen_name: string;
+    content: string;
+    tweet_url?: string;
+    token_address?: string;
+    chain_id: number;
+    end_at: string;
+  };
+  yes_brand_value: number;
+  no_brand_value: number;
+  commission: number;
+}
+
+export const getBetDetail = (params: IGetBetDetailParams) => {
+  return kolRequest.get<IGetBetDetailResponseData>(ENDPOINT_URL.GET_BET_DETAIL, { ...params });
+};
+
+// 获取 bet 图表数据
+export interface IGetBetChartParams {
+  bet_id: string | number;
+}
+
+export interface IBetChartIconItem {
+  icon: string;
+  kol_user_name: string;
+}
+
+export interface IBetChartDataItem {
+  date: string;
+  yes: [number, { icons: IBetChartIconItem[] }];
+  no: [number, { icons: IBetChartIconItem[] }];
+}
+
+export const getBetChart = (params: IGetBetChartParams) => {
+  return kolRequest.get<IBetChartDataItem[]>(ENDPOINT_URL.GET_BET_CHART, { ...params });
+};
+
+// 获取 bet prospective 数据
+export interface IGetBetProspectiveParams {
+  bet_id: string | number;
+}
+
+export interface IBetProspectiveItem {
+  issue_screen_name: string;
+  yes: {
+    number: number;
+    icons: string[];
+    percentage: number;
+    total_brand_value: number;
+  };
+  no: {
+    number: number;
+    icons: string[];
+    percentage: number;
+    total_brand_value: number;
+  };
+}
+
+export interface IGetBetProspectiveResponseData {
+  total: number;
+  current_page: number;
+  page_size: number;
+  total_pages: number;
+  list: IBetProspectiveItem[];
+}
+
+export const getBetProspective = (params: IGetBetProspectiveParams) => {
+  return kolRequest.get<IGetBetProspectiveResponseData>(ENDPOINT_URL.GET_BET_PROSPECTIVE, {
+    ...params,
+  });
+};
+
+// 获取 bet top voice 数据
+export interface IGetBetTopVoiceParams {
+  bet_id: string | number;
+}
+
+export interface IBetTopVoiceUser {
+  icon: string;
+  name: string;
+  amount: number;
+  brand_value: number;
+}
+
+export interface IBetTopVoiceListItem {
+  yes?: IBetTopVoiceUser[];
+  no?: IBetTopVoiceUser[];
+}
+
+export interface IGetBetTopVoiceResponseData {
+  yes_total: number;
+  no_total: number;
+  current_page: number;
+  page_size: number;
+  yes_total_pages: number;
+  no_total_pages: number;
+  list: IBetTopVoiceListItem[];
+}
+
+export const getBetTopVoice = (params: IGetBetTopVoiceParams) => {
+  return kolRequest.get<IGetBetTopVoiceResponseData>(ENDPOINT_URL.GET_BET_TOP_VOICE, {
+    ...params,
+  });
+};
+
+// 获取 bet 评论数据
+export interface IGetBetCommentsParams {
+  bet_id: string | number;
+  page?: number;
+  size?: number;
+}
+
+export interface IBetCommentItem {
+  icon: string;
+  name: string;
+  amount: number;
+  is_changed: boolean;
+  content: string;
+  favorite_count: number;
+  views: number;
+  reply_count: number;
+  link: string;
+  screen_name: string;
+  created_at?: string;
+  tweet_update_time: string;
+  attitude: 0 | 1 | 2;
+}
+
+export interface IGetBetCommentsResponseData {
+  total: number;
+  current_page: number;
+  page_size: number;
+  total_pages: number;
+  list: IBetCommentItem[];
+}
+
+export const getBetComments = (params: IGetBetCommentsParams) => {
+  return kolRequest.get<IGetBetCommentsResponseData>(ENDPOINT_URL.GET_BET_COMMENTS, {
+    ...params,
+  });
+};
+
+// 获取 bet 活动数据
+export interface IGetBetActivityParams {
+  bet_id: string | number;
+  page?: number;
+  size?: number;
+}
+
+export interface IBetActivityItem {
+  icon: string;
+  name: string;
+  total_brand_value: number;
+  amount: number;
+  attitude: 'Yes' | 'No';
+  tx_hash?: string;
+  tx_hash_link?: string;
+  created_at?: string;
+}
+
+export interface IGetBetActivityResponseData {
+  total: number;
+  current_page: number;
+  page_size: number;
+  total_pages: number;
+  list: IBetActivityItem[];
+}
+
+export const getBetActivity = (params: IGetBetActivityParams) => {
+  return kolRequest.get<IGetBetActivityResponseData>(ENDPOINT_URL.GET_BET_ACTIVITY, {
+    ...params,
+  });
+};
+
+// 获取 bet AI 评论数据
+export interface IGetBetAiCommentParams {
+  bet_id: string | number;
+}
+
+export interface IGetBetAiCommentResponseData {
+  ai_comment: string;
+  total_comments: number;
+}
+
+export const getBetAiComment = (params: IGetBetAiCommentParams) => {
+  return kolRequest.get<IGetBetAiCommentResponseData>(ENDPOINT_URL.GET_BET_AI_COMMENT, {
+    ...params,
+  });
+};
+
+// 下注成功回调接口
+export interface IDoBetSuccessParams {
+  bet_id: string | number;
+  amount: string;
+  choice: number; // 0 for YES, 1 for NO
+  token_address: string;
+  tx_hash: string;
+  chainId: number;
+}
+
+export const doBetSuccess = (params: IDoBetSuccessParams) => {
+  return kolRequest.post(ENDPOINT_URL.DO_BET_SUCCESS, params);
+};
+
+// Claim 成功回调接口
+export interface IClaimSuccessParams {
+  bet_id: string | number;
+  receiver: string;
+  amount: string;
+  choice: number; // 0 for YES, 1 for NO
+  token_address: string;
+  tx_hash: string;
+  chainId: number;
+}
+
+export const claimSuccess = (params: IClaimSuccessParams) => {
+  return kolRequest.post(ENDPOINT_URL.CLAIM_SUCCESS, params);
+};
+
+// 设置下注市场接口
+export interface ISetupBetParams {
+  tweet_url: string;
+}
+
+export interface ISetupBetResponseData {
+  bet_topic_id: number;
+  bet_topic_name: string;
+  betTokenAddress: string;
+  chain_id: number;
+}
+
+export const setupBet = (params: ISetupBetParams) => {
+  return kolRequest.post<ISetupBetResponseData>(ENDPOINT_URL.SETUP_BET, params);
+};
+
+// 设置下注成功回调接口
+export interface ISetupBetSuccessParams {
+  tx_hash: string;
+  id: number;
+  endTimestamp: number;
+  betTokenAddress: string;
+}
+
+export interface ISetupBetSuccessResponseData {
+  bet_topic_id: number;
+  bet_topic_name: string;
+  betTokenAddress: string;
+}
+
+export const setupBetSuccess = (params: ISetupBetSuccessParams) => {
+  return kolRequest.post<ISetupBetSuccessResponseData>(ENDPOINT_URL.SETUP_BET_SUCCESS, params);
 };

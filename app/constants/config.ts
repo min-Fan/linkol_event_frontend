@@ -1,5 +1,5 @@
 // 链类型定义
-export type ChainType = 'base' | 'solana' | 'ton' | 'bsc';
+export type ChainType = 'base' | 'base-sepolia' | 'solana' | 'ton' | 'bsc';
 
 // Token类型定义
 export type TokenType = 'usdc' | 'usdt' | 'usd1' | 'bnb' | '币安人生' | string;
@@ -20,6 +20,8 @@ export interface ChainConfig {
   name: string;
   KOLServiceAddress?: string;
   ActivityServiceAddress?: string;
+  AgentBetAddress?: string;
+  FaucetAddress?: string;
   iconUrl?: string;
   blockExplorerUrl: string;
   tokens: Record<TokenType, TokenConfig>;
@@ -36,8 +38,45 @@ const DEVELOPMENT_CONFIG: Record<ChainType, ChainConfig> = {
     name: 'Base',
     KOLServiceAddress: '0xD562135D926763d4132a3E7d55a536850E03bcA9',
     ActivityServiceAddress: '0xf3E45cF29c86b92cc7CC8Ef68773162B53CB5C78',
+    AgentBetAddress: '',
+    FaucetAddress: '',
     defaultToken: 'usdc',
     blockExplorerUrl: 'https://basescan.org',
+    iconUrl:
+      'https://cdn.brandfetch.io/id6XsSOVVS/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1757929784005',
+    tokens: {
+      usdc: {
+        symbol: 'USDC',
+        decimals: 6,
+        iconType: 'usdc',
+        contractAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+        imageUrl: 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png',
+      },
+      usdt: {
+        symbol: 'USDT',
+        decimals: 6,
+        iconType: 'usdt',
+        contractAddress: '0x50c5725949A6F0c72E6C4a641F24749F6b268E73',
+        imageUrl: 'https://cryptologos.cc/logos/tether-usdt-logo.png',
+      },
+      ping: {
+        symbol: 'PING',
+        decimals: 18,
+        iconType: 'ping',
+        contractAddress: '0xd85c31854c2B0Fb40aaA9E2Fc4Da23C21f829d46',
+        imageUrl: '/assets/image/token/ping-logo.jpg',
+      },
+    },
+  },
+  'base-sepolia': {
+    chainId: '84532', // Base Sepolia 测试网
+    name: 'Base Sepolia',
+    KOLServiceAddress: '0xD562135D926763d4132a3E7d55a536850E03bcA9',
+    ActivityServiceAddress: '0xf3E45cF29c86b92cc7CC8Ef68773162B53CB5C78',
+    AgentBetAddress: '0xb5BdD04247C066A5125F991aC776AeF3408C1BCd',
+    FaucetAddress: '0x6019e9085564109b5594aA30479d6dD52FC8cb46',
+    defaultToken: 'usdc',
+    blockExplorerUrl: 'https://sepolia.basescan.org',
     iconUrl:
       'https://cdn.brandfetch.io/id6XsSOVVS/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1757929784005',
     tokens: {
@@ -69,6 +108,7 @@ const DEVELOPMENT_CONFIG: Record<ChainType, ChainConfig> = {
     name: 'BNB Smart Chain',
     KOLServiceAddress: '',
     ActivityServiceAddress: '0xf3E45cF29c86b92cc7CC8Ef68773162B53CB5C78',
+    AgentBetAddress: '',
     defaultToken: 'bnb',
     blockExplorerUrl: 'https://bscscan.com',
     iconUrl: 'https://cryptologos.cc/logos/bnb-bnb-logo.svg?v=040',
@@ -90,6 +130,7 @@ const DEVELOPMENT_CONFIG: Record<ChainType, ChainConfig> = {
   solana: {
     chainId: 'solana',
     name: 'Solana',
+    AgentBetAddress: '',
     defaultToken: 'usd1',
     blockExplorerUrl: 'https://solscan.io',
     iconUrl:
@@ -106,6 +147,7 @@ const DEVELOPMENT_CONFIG: Record<ChainType, ChainConfig> = {
   ton: {
     chainId: 'Ton',
     name: 'Ton',
+    AgentBetAddress: '',
     defaultToken: 'usdt',
     blockExplorerUrl: 'https://tonviewer.com',
     iconUrl: 'https://cryptologos.cc/logos/toncoin-ton-logo.png?v=040',
@@ -128,8 +170,45 @@ const PRODUCTION_CONFIG: Record<ChainType, ChainConfig> = {
     name: 'Base',
     KOLServiceAddress: '0xD562135D926763d4132a3E7d55a536850E03bcA9',
     ActivityServiceAddress: '0xf3E45cF29c86b92cc7CC8Ef68773162B53CB5C78',
+    FaucetAddress: '',
+    AgentBetAddress: '',
     defaultToken: 'usdc',
     blockExplorerUrl: 'https://basescan.org',
+    iconUrl:
+      'https://cdn.brandfetch.io/id6XsSOVVS/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1757929784005',
+    tokens: {
+      usdc: {
+        symbol: 'USDC',
+        decimals: 6,
+        iconType: 'usdc',
+        contractAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+        imageUrl: 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png',
+      },
+      usdt: {
+        symbol: 'USDT',
+        decimals: 6,
+        iconType: 'usdt',
+        contractAddress: '0x50c5725949A6F0c72E6C4a641F24749F6b268E73',
+        imageUrl: 'https://cryptologos.cc/logos/tether-usdt-logo.png',
+      },
+      ping: {
+        symbol: 'PING',
+        decimals: 18,
+        iconType: 'ping',
+        contractAddress: '0xd85c31854c2B0Fb40aaA9E2Fc4Da23C21f829d46',
+        imageUrl: '/assets/image/token/ping-logo.jpg',
+      },
+    },
+  },
+  'base-sepolia': {
+    chainId: '84532', // Base Sepolia 测试网
+    name: 'Base Sepolia',
+    KOLServiceAddress: '0xD562135D926763d4132a3E7d55a536850E03bcA9',
+    ActivityServiceAddress: '0xf3E45cF29c86b92cc7CC8Ef68773162B53CB5C78',
+    AgentBetAddress: '0xb5BdD04247C066A5125F991aC776AeF3408C1BCd',
+    FaucetAddress: '0x6019e9085564109b5594aA30479d6dD52FC8cb46',
+    defaultToken: 'usdc',
+    blockExplorerUrl: 'https://sepolia.basescan.org',
     iconUrl:
       'https://cdn.brandfetch.io/id6XsSOVVS/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1757929784005',
     tokens: {
@@ -161,6 +240,7 @@ const PRODUCTION_CONFIG: Record<ChainType, ChainConfig> = {
     name: 'BNB Smart Chain',
     KOLServiceAddress: '', // 测试网地址
     ActivityServiceAddress: '0xf3E45cF29c86b92cc7CC8Ef68773162B53CB5C78', // 测试网地址
+    AgentBetAddress: '',
     defaultToken: 'bnb',
     blockExplorerUrl: 'https://bscscan.com',
     iconUrl: 'https://cryptologos.cc/logos/bnb-bnb-logo.svg?v=040',
@@ -182,6 +262,7 @@ const PRODUCTION_CONFIG: Record<ChainType, ChainConfig> = {
   solana: {
     chainId: 'solana',
     name: 'Solana',
+    AgentBetAddress: '',
     defaultToken: 'usd1',
     blockExplorerUrl: 'https://solscan.io',
     iconUrl:
@@ -199,6 +280,7 @@ const PRODUCTION_CONFIG: Record<ChainType, ChainConfig> = {
   ton: {
     chainId: 'Ton',
     name: 'Ton',
+    AgentBetAddress: '',
     defaultToken: 'usdt',
     blockExplorerUrl: 'https://tonviewer.com',
     iconUrl: 'https://cryptologos.cc/logos/toncoin-ton-logo.png?v=040',
@@ -219,9 +301,23 @@ export const CHAIN_CONFIG: Record<ChainType, ChainConfig> = isDevelopment
   ? DEVELOPMENT_CONFIG
   : PRODUCTION_CONFIG;
 
+// 根据 chainId 获取链类型
+export const getChainTypeFromChainId = (chainId: number | string): ChainType => {
+  const id = typeof chainId === 'string' ? parseInt(chainId) : chainId;
+  if (id === 8453) return 'base'; // Base 主网
+  if (id === 84532) return 'base-sepolia'; // Base Sepolia 测试网
+  if (id === 56 || id === 97) return 'bsc'; // BSC 主网或测试网
+  return 'base-sepolia'; // 默认返回 base Sepolia
+};
+
 // 根据链类型获取配置
-export const getChainConfig = (chainType: ChainType) => {
-  return CHAIN_CONFIG[chainType.toLowerCase() as ChainType];
+export const getChainConfig = (chainType: ChainType | string) => {
+  const normalizedType = chainType.toLowerCase();
+  // 如果传入的是 chainId，先转换为 chainType
+  if (!isNaN(Number(normalizedType))) {
+    return CHAIN_CONFIG[getChainTypeFromChainId(Number(normalizedType))];
+  }
+  return CHAIN_CONFIG[normalizedType as ChainType] || CHAIN_CONFIG.base;
 };
 
 // 根据链类型和token类型获取token配置
@@ -317,6 +413,7 @@ export const getExplorerUrl = (txHash: string, chainType: string): string => {
 const UNISWAP_CHAIN_MAP: Record<ChainType, string> = {
   bsc: 'bnb',
   base: 'base',
+  'base-sepolia': 'base-sepolia',
   solana: 'solana',
   ton: 'ton',
 };

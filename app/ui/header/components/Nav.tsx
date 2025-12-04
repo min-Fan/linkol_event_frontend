@@ -21,6 +21,7 @@ import { useAppDispatch, useAppSelector } from '@store/hooks';
 import { updateNavCache } from '@store/reducers/userSlice';
 import PagesRoute from '@constants/routes';
 import { track } from '@vercel/analytics';
+import NavBg from '@assets/image/nav-bg.png';
 
 interface NavProps {
   className?: string;
@@ -203,9 +204,8 @@ export default function Nav(props: NavProps) {
         key={key}
         data-nav-item={forMeasurement ? 'true' : undefined}
         className={clsx(
-          'relative rounded-lg px-3 py-2 whitespace-nowrap',
-          pathname === PagesRoute.HOME && !scrolled && 'text-white',
-          pathname === PagesRoute.HOME && scrolled && '!text-black dark:!text-white',
+          'relative rounded-lg px-6 py-2 whitespace-nowrap',
+          isActive ? 'text-white text-shadow-[0_2px_4px_rgba(255,255,255,0.6)]' : 'text-white/90',
           isActive && !isComingSoon && 'bg-primary/5 text-primary',
           isComingSoon && 'cursor-not-allowed opacity-60'
         )}
@@ -239,11 +239,19 @@ export default function Nav(props: NavProps) {
 
       <div
         ref={containerRef}
-        className={clsx('text-md flex items-center gap-3 font-medium', className)}
+        className={clsx('text-md flex items-center justify-center gap-3 font-medium', className)}
       >
-        <div className="flex items-center gap-2">
+        <div
+          className="flex h-12 items-center gap-2 rounded-full"
+          style={{
+            backgroundImage: `url(${NavBg.src})`,
+            backgroundSize: 'auto 100%',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+          }}
+        >
           <NavigationMenu viewport={false}>
-            <NavigationMenuList className="gap-2">
+            <NavigationMenuList className="gap-0">
               {/* 显示可见的导航项 */}
               {visibleItems.map((item) => renderNavigationItem(item, `visible-${item.href}`))}
             </NavigationMenuList>

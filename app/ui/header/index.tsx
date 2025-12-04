@@ -57,6 +57,12 @@ export const navigationItems: NavigationItem[] = [
     shouldShow: () => true,
   },
   {
+    href: PagesRoute.OPINIONS,
+    labelKey: 'nav_predict',
+    isActive: (pathname) => pathname.includes(PagesRoute.OPINIONS),
+    shouldShow: () => true,
+  },
+  {
     href: PagesRoute.DASHBOARD,
     labelKey: 'nav_dashboard',
     isActive: (pathname) => pathname.includes(PagesRoute.DASHBOARD),
@@ -80,9 +86,8 @@ export default function Header(props: { hasLogin?: boolean }) {
 
   return (
     <header
-      className={`fixed top-0 z-50 box-border w-full transition-colors duration-300 ${
-        scrolled ? 'bg-background/80 shadow-sm backdrop-blur-sm' : 'bg-transparent'
-      }`}
+      // ${scrolled ? 'bg-background/80 shadow-sm backdrop-blur-sm' : 'bg-transparent'}
+      className={`fixed top-0 z-50 box-border w-full bg-black shadow-sm backdrop-blur-sm transition-colors duration-300`}
     >
       <section className="mx-auto box-border flex h-14 items-center justify-between gap-x-8 px-4 sm:h-16 sm:px-10">
         <div className="flex items-center gap-x-0 sm:gap-x-4">
@@ -90,24 +95,13 @@ export default function Header(props: { hasLogin?: boolean }) {
             <CompSidebar navigationItems={navigationItems} />
           </div> */}
           <Link className="flex items-center gap-x-2" href={PagesRoute.HOME}>
-            {/* <Logo className="size-4" />
-            <Linkol className="h-4 w-14" /> */}
-            {pathname === PagesRoute.HOME && !scrolled ? (
-              <LinkolDark className="!h-10" />
-            ) : (
-              <>
-                <LinkolDark className="!hidden !h-10 dark:!block" />
-                <LinkolLight className="!block !h-10 dark:!hidden" />
-              </>
-            )}
+            <LinkolDark className="!h-10" />
           </Link>
         </div>
         <div className="hidden w-full flex-1 sm:block">
           <CompNav navigationItems={navigationItems} />
         </div>
         <div className="flex w-auto items-center gap-2">
-          <UILanguage />
-          <UITheme />
           {hasLogin && (
             <>
               <div className="hidden sm:block">
@@ -118,6 +112,8 @@ export default function Header(props: { hasLogin?: boolean }) {
               </div>
             </>
           )}
+          <UILanguage />
+          <UITheme />
         </div>
       </section>
     </header>

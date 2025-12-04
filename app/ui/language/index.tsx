@@ -62,11 +62,7 @@ export default function UILanguage() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
-          className={`size-6 md:size-8 ${pathname === PagesRoute.HOME && !scrolled ? 'text-white' : 'text-muted-foreground'}`}
-          variant="ghost"
-          size="icon"
-        >
+        <Button className={`size-6 text-white md:size-8`} variant="ghost" size="icon">
           <Languages className="size-4" />
           <span className="sr-only">Toggle language</span>
         </Button>

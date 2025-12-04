@@ -1,0 +1,117 @@
+'use client';
+import { useBanner } from '@hooks/marketEvents';
+import PagesRoute from '@constants/routes';
+import { Link } from '@libs/i18n/navigation';
+import React, { useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { Button } from '@shadcn/components/ui/button';
+import { ArrowRight } from 'lucide-react';
+import PixelBlast from '@shadcn/components/pixelBlast/PixelBlast';
+import { track } from '@vercel/analytics';
+import { useQuery } from '@tanstack/react-query';
+import { getBetList } from '@libs/request';
+import { CreateMarketModal } from '../[opinion]/components/CreateMarketModal';
+
+export default function OpinionsHomeScreenBanner() {
+  const { data, isLoading } = useBanner();
+  const t = useTranslations('common');
+  const [isCreateMarketModalOpen, setIsCreateMarketModalOpen] = useState(false);
+
+  // 获取 bet 列表数据（和 HotOpinions 组件一样）
+  const { data: betListResponse, isLoading: isBetListLoading } = useQuery({
+    queryKey: ['betList'],
+    queryFn: async () => {
+      const response = await getBetList();
+      return response;
+    },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 2,
+  });
+
+  // 获取第一个 bet 的 id（优先使用 attitude.bet_id）
+  const firstBet = betListResponse?.data?.list?.[0];
+  const firstBetId = firstBet?.attitude?.bet_id?.toString() || firstBet?.id?.toString();
+  const isLoadingData = isBetListLoading || isLoading;
+
+  const handleButtonClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsCreateMarketModalOpen(true);
+    track('Create Market Button Clicked');
+  };
+  return (
+    <div className="relative w-full pt-14 pb-52 sm:pt-16">
+      <div className="absolute inset-0 z-0 h-full w-full">
+        <PixelBlast
+          className="h-full w-full bg-black"
+          variant="triangle"
+          pixelSize={5}
+          color="#007AFF"
+          patternScale={4}
+          patternDensity={1.3}
+          pixelSizeJitter={0.4}
+          enableRipples
+          rippleSpeed={0.4}
+          rippleThickness={0.12}
+          rippleIntensityScale={1.5}
+          liquidStrength={0.12}
+          liquidRadius={1.2}
+          liquidWobbleSpeed={5}
+          speed={0.6}
+          edgeFade={0.1}
+          transparent
+        />
+      </div>
+      <div className="to-background absolute -bottom-1 h-10 w-full bg-gradient-to-b from-transparent backdrop-blur-sm"></div>
+      <div className="relative z-10 flex flex-col items-center justify-center gap-4 pt-28 pb-16">
+        <h1 className="font-kyiv text-5xl leading-none font-bold text-white sm:text-[60px] text-center">
+          {t('agress_vs_disagree')}
+        </h1>
+        <p className="max-w-[90%] text-center text-lg text-white sm:max-w-[420px] sm:text-2xl">
+          {t('bet_on_sentiment')}
+        </p>
+        <div className="mt-6 rounded-full shadow-[0_1px_40px_0_rgba(242,242,242,0.80)]">
+        {/* {firstBetId ? (
+            <Link
+              href={`${PagesRoute.OPINIONS}/${firstBetId}`}
+              title={t('join_predict')}
+              onClick={() => {
+                track('Predict the Future Button ==> Opinions Page');
+              }}
+            >
+              <Button
+                disabled={isLoadingData}
+                className="text-primary !h-11 gap-x-1 !rounded-full bg-white !px-6 !text-base font-medium disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <span>{t('join_predict')}</span>
+                <ArrowRight className="size-5" />
+              </Button>
+            </Link>
+          ) : (
+            <Button
+              disabled={true}
+              className="text-primary !h-11 gap-x-1 !rounded-full bg-white !px-6 !text-base font-medium disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <span>{t('join_predict')}</span>
+              <ArrowRight className="size-5" />
+            </Button>
+          )} */}
+          <Button
+            onClick={handleButtonClick}
+            disabled={isLoadingData}
+            className="text-primary !h-11 gap-x-1 !rounded-full bg-white !px-6 !text-base font-medium disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <span>{t('join_predict')}</span>
+            <ArrowRight className="size-5" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Create Market Modal */}
+      <CreateMarketModal
+        isOpen={isCreateMarketModalOpen}
+        onClose={() => setIsCreateMarketModalOpen(false)}
+      />
+    </div>
+  );
+}

@@ -9,7 +9,7 @@ export default function MarketEventsLayout({ children }: { children: React.React
       <Header />
       <div
         className={cn(
-          'mx-auto box-border w-full max-w-[1100px] flex-1 p-0 px-2 pt-14 sm:px-0 sm:pt-16'
+          'mx-auto box-border w-full max-w-[1100px] flex-1 p-0 px-2 pt-14 sm:px-0 sm:pt-24'
         )}
       >
         {children}
