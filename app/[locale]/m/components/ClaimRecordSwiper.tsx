@@ -196,18 +196,20 @@ const ClaimRecordSwiper = memo(
               />
               <span className="text-muted-foreground hidden sm:block">{record.token_type}</span>
               <span className="text-muted-foreground text-xs">txs:</span>
-              <span className="">
-                <Link
-                  href={getExplorerUrl(record.receive_tx_hash, record.chain_type)}
-                  target="_blank"
-                  className="text-primary text-xs hover:underline"
-                  onClick={() => {
-                    track('Claim Record txs', { tx_hash: record.receive_tx_hash });
-                  }}
-                >
-                  {record.receive_tx_hash.slice(0, 4)}...{record.receive_tx_hash.slice(-4)}
-                </Link>
-              </span>
+              {record.receive_tx_hash && (
+                <span className="">
+                  <Link
+                    href={getExplorerUrl(record.receive_tx_hash, record.chain_type)}
+                    target="_blank"
+                    className="text-primary text-xs hover:underline"
+                    onClick={() => {
+                      track('Claim Record txs', { tx_hash: record.receive_tx_hash });
+                    }}
+                  >
+                    {record.receive_tx_hash.slice(0, 4)}...{record.receive_tx_hash.slice(-4)}
+                  </Link>
+                </span>
+              )}
             </div>
           </div>
         </div>
