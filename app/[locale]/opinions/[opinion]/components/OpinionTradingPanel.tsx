@@ -50,6 +50,7 @@ import { doBetSuccess, claimSuccess } from '@libs/request';
 import { Link, useRouter } from '@libs/i18n/navigation';
 import PagesRoute from '@constants/routes';
 import OpinionShareModal from './OpinionShareModal';
+import { cn } from '@shadcn/lib/utils';
 
 interface OpinionTradingPanelProps {
   onShare?: (side: PredictionSide) => void;
@@ -1669,7 +1670,7 @@ export default function OpinionTradingPanel({
             <Info className="h-3 w-3" />
             <span>
               {t('you_hold') || 'You hold'}{' '}
-              <strong>{userBetChoice === 0 ? t('yes') : t('no')}</strong>.{' '}
+              <strong className={cn(userBetChoice === 0 ? 'text-green-500' : 'text-red-500')}>{userBetChoice === 0 ? t('yes') : t('no')}</strong>.{' '}
               {t('must_sell_before_betting_opposite') ||
                 'You must sell your position before betting on the opposite side.'}
             </span>
