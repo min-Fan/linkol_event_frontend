@@ -64,14 +64,17 @@ export default function OpinionsHomeScreenBanner() {
       </div>
       <div className="to-background absolute -bottom-1 h-10 w-full bg-gradient-to-b from-transparent backdrop-blur-sm"></div>
       <div className="relative z-10 flex flex-col items-center justify-center gap-4 pt-28 pb-16">
-        <h1 className="font-kyiv text-5xl leading-none font-bold text-white sm:text-[60px] text-center">
+        <h1 className="font-kyiv text-center text-5xl leading-none font-bold text-white sm:text-[60px]">
           {t('agress_vs_disagree')}
         </h1>
-        <p className="max-w-[90%] text-center text-lg text-white sm:max-w-[420px] sm:text-2xl">
+        <p className="max-w-[90%] text-center text-lg text-white sm:text-2xl">
           {t('bet_on_sentiment')}
         </p>
+        <p className="max-w-[90%] text-center text-base text-white/80 sm:text-lg">
+          {t('stand_with_or_against_the_loudest_voices_on_x')}
+        </p>
         <div className="mt-6 rounded-full shadow-[0_1px_40px_0_rgba(242,242,242,0.80)]">
-        {/* {firstBetId ? (
+          {/* {firstBetId ? (
             <Link
               href={`${PagesRoute.OPINIONS}/${firstBetId}`}
               title={t('join_predict')}

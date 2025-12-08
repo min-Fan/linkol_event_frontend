@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { Copy, Download, Twitter, CheckCircle2, Zap, Loader2, Rocket } from 'lucide-react';
 import { useBetDetail } from '@hooks/useBetDetail';
@@ -15,6 +15,7 @@ import { ethers } from 'ethers';
 import Bet_abi from '@constants/abi/Bet_abi.json';
 import { getChainConfig, getChainTypeFromChainId } from '@constants/config';
 import { formatBigNumber } from '@libs/utils/format-bignumber';
+import { cn } from '@shadcn/lib/utils';
 
 interface OpinionShareModalProps {
   isOpen: boolean;
@@ -48,25 +49,40 @@ export default function OpinionShareModal({
   const isWrongChain = currentChainId !== expectedChainId;
 
   // 读取用户下注信息（用于单独打开时显示下注总数）
-  const { data: betInfo } = useReadContract({
+  // 两种模式都启用，确保能获取最新数据
+  const { data: betInfo, refetch: refetchBetInfo } = useReadContract({
     address: chainConfig?.AgentBetAddress as `0x${string}`,
     abi: Bet_abi,
     functionName: 'getBetInfo',
     args: opinionId && address ? [BigInt(opinionId), address as `0x${string}`] : undefined,
     query: {
-      enabled: !!opinionId && !!address && !!chainConfig?.AgentBetAddress && !isWrongChain && mode === 'DEFAULT',
+      enabled: !!opinionId && !!address && !!chainConfig?.AgentBetAddress && !isWrongChain,
     },
   });
 
+  // 每次打开弹窗时，重新获取最新的 betInfo
+  useEffect(() => {
+    if (isOpen && opinionId && address && chainConfig?.AgentBetAddress && !isWrongChain) {
+      refetchBetInfo();
+    }
+  }, [isOpen, opinionId, address, chainConfig?.AgentBetAddress, isWrongChain, refetchBetInfo]);
+
   // 读取代币精度
-  const { data: tokenDecimals } = useReadContract({
+  const { data: tokenDecimals, refetch: refetchTokenDecimals } = useReadContract({
     address: tokenAddress as `0x${string}`,
     abi: erc20Abi,
     functionName: 'decimals',
     query: {
-      enabled: !!tokenAddress && !isWrongChain && tokenAddress !== ethers.ZeroAddress && mode === 'DEFAULT',
+      enabled: !!tokenAddress && !isWrongChain && tokenAddress !== ethers.ZeroAddress,
     },
   });
+
+  // 每次打开弹窗时，重新获取最新的 tokenDecimals
+  useEffect(() => {
+    if (isOpen && tokenAddress && !isWrongChain && tokenAddress !== ethers.ZeroAddress) {
+      refetchTokenDecimals();
+    }
+  }, [isOpen, tokenAddress, isWrongChain, refetchTokenDecimals]);
 
   // 计算实际显示的下注金额
   // 如果是 POST_TRADE 模式，使用传入的 amountInvested
@@ -164,7 +180,7 @@ export default function OpinionShareModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="border-border bg-card w-full max-w-[90%] rounded-xl border p-0 shadow-2xl sm:max-w-md sm:rounded-2xl gap-0">
         <DialogHeader className="p-3 pb-0 sm:p-4 sm:pb-0">
-          {mode === 'POST_TRADE' ? (
+        {mode !== 'POST_TRADE' ? (
             <div className="text-center mb-3 animate-in slide-in-from-top-2">
               <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-500/10 ring-1 ring-green-500/50 md:h-14 md:w-14">
                 <Rocket className="h-6 w-6 text-green-500 drop-shadow-sm md:h-7 md:w-7" />
@@ -175,15 +191,15 @@ export default function OpinionShareModal({
               <p className="text-muted-foreground text-[11px] md:text-xs mt-1.5 max-w-[95%] mx-auto leading-relaxed">
                 {t('you_invested') || 'You invested'}{' '}
                 {displayAmountInvested && displayAmountInvested > 0 && (
-                  <strong className="text-foreground">
+                  <strong className={cn(isYes ? 'text-green-500' : 'text-red-500')}>
                     {formatPrecision(displayAmountInvested.toString())}
                   </strong>
                 )}{' '}
                 {t('in') || 'in'}{' '}
-                <strong className={isYes ? 'text-green-500' : 'text-red-500'}>{side}</strong>.
+                <strong className={cn(isYes ? 'text-green-500' : 'text-red-500')}>{side}</strong>.
                 <br />
                 {t('share_now_to_boost') || 'Share now to boost'}{' '}
-                <strong className="text-foreground">{t('brand_voice') || 'Brand Voice'}</strong>{' '}
+                <strong className="text-muted-foreground">{t('brand_voice') || 'Brand Voice'}</strong>{' '}
                 {t('and_increase_winning_chance') || 'and increase your chance of winning.'}
               </p>
             </div>
