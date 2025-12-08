@@ -254,7 +254,7 @@ export default function HotOpinions() {
       {/* Header */}
       <div className="flex flex-col items-start gap-0 sm:flex-row sm:items-center sm:gap-4">
         <h2 className="text-xl font-bold">{t('hot_opinions')}</h2>
-        <p className="text-primary text-base">{t('share_your_views_to_earn_usdt')}</p>
+        <p className="text-primary text-base">{t('pick_a_side_put_your_money_where_your_mouth_is')}</p>
       </div>
 
       {/* Loading State - 骨架屏 */}
