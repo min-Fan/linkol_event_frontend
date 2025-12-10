@@ -61,4 +61,3 @@ export function useBetList() {
     currentPage: betListResponse?.data?.current_page || 1,
   };
 }
-

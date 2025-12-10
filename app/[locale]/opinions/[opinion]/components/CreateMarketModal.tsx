@@ -14,7 +14,13 @@ import {
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@shadcn/components/ui/dialog';
 import { Input } from '@shadcn/components/ui/input';
-import { useAccount, useSwitchChain, useWriteContract, useWaitForTransactionReceipt, useReadContract } from 'wagmi';
+import {
+  useAccount,
+  useSwitchChain,
+  useWriteContract,
+  useWaitForTransactionReceipt,
+  useReadContract,
+} from 'wagmi';
 import { erc20Abi } from 'viem';
 import { ethers } from 'ethers';
 import { parseToBigNumber } from '@libs/utils/format-bignumber';
@@ -24,11 +30,7 @@ import useUserInfo from '@hooks/useUserInfo';
 import { setupBet, setupBetSuccess, ISetupBetResponseData } from '@libs/request';
 import { useBetList } from '@hooks/useBetList';
 import Bet_abi from '@constants/abi/Bet_abi.json';
-import {
-  ChainType,
-  getChainConfig,
-  getChainTypeFromChainId,
-} from '@constants/config';
+import { ChainType, getChainConfig, getChainTypeFromChainId } from '@constants/config';
 import UIWallet from '@ui/wallet';
 import XAuth from '@ui/profile/components/XAuth';
 import { useTranslations } from 'next-intl';
@@ -55,27 +57,27 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
   const [url, setUrl] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [setupBetData, setSetupBetData] = useState<ISetupBetResponseData | null>(null);
-  
+
   // 使用 ref 跟踪当前会话的交易 hash，避免处理旧会话的交易
   const currentSessionTxHashRef = useRef<string | null>(null);
   // 使用 ref 保存当前会话的 endTimestamp，确保回调时使用相同的值
   const currentSessionEndTimestampRef = useRef<number | null>(null);
   // 使用 ref 跟踪是否正在等待授权完成
   const isWaitingForApprovalRef = useRef<boolean>(false);
-  
+
   // 获取 bet list hook 用于刷新列表
   const { invalidateBetList } = useBetList();
-  
+
   // 用户登录状态
   const { isLogin } = useUserInfo();
   const isTwitterLoggedIn = useAppSelector((state) => state.userReducer?.isLoggedIn);
   const twitterFullProfile = useAppSelector((state) => state.userReducer?.twitter_full_profile);
   const hasTwitterLogin = isTwitterLoggedIn && twitterFullProfile;
-  
+
   // 钱包连接状态
   const { address, chainId: currentChainId, isConnected } = useAccount();
   const hasWalletConnected = isConnected && !!address;
-  
+
   // 合约调用
   const {
     writeContract: writePayContract,
@@ -84,7 +86,7 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
     isError: isPayWriteError,
     data: payTxHash,
   } = useWriteContract();
-  
+
   const {
     isLoading: isPayConfirming,
     isSuccess: isPayConfirmed,
@@ -97,20 +99,20 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
       enabled: !!payTxHash,
     },
   });
-  
+
   const { switchChain, isPending: isSwitchingChain } = useSwitchChain();
-  
+
   // 获取链配置
   const chainId = setupBetData?.chain_id || 84532;
   const chainType = getChainTypeFromChainId(chainId);
   const chainConfig = getChainConfig(chainType);
   const expectedChainId = chainConfig ? parseInt(chainConfig.chainId) : null;
   const isWrongChain = currentChainId !== expectedChainId;
-  
+
   // 获取代币地址和精度
   const betTokenAddress = setupBetData?.betTokenAddress;
   const tokenDecimals = 18; // USDT 默认18位精度，如果需要可以从合约读取
-  
+
   // 读取代币授权额度
   const { data: tokenAllowance, refetch: refetchAllowance } = useReadContract({
     address: betTokenAddress as `0x${string}`,
@@ -130,7 +132,7 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
         step === 'PAYMENT',
     },
   });
-  
+
   // 授权合约调用
   const {
     writeContract: writeApproveContract,
@@ -139,7 +141,7 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
     isError: isApproveWriteError,
     data: approveTxHash,
   } = useWriteContract();
-  
+
   // 授权交易确认
   const {
     isLoading: isApproveConfirming,
@@ -152,12 +154,13 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
       enabled: !!approveTxHash,
     },
   });
-  
+
   // 检查是否需要授权（至少需要1）
-  const needsApproval = betTokenAddress && betTokenAddress !== ethers.ZeroAddress && tokenAllowance !== undefined
-    ? BigInt(tokenAllowance.toString()) < BigInt(parseToBigNumber('1', tokenDecimals).toString())
-    : false;
-  
+  const needsApproval =
+    betTokenAddress && betTokenAddress !== ethers.ZeroAddress && tokenAllowance !== undefined
+      ? BigInt(tokenAllowance.toString()) < BigInt(parseToBigNumber('1', tokenDecimals).toString())
+      : false;
+
   // 弹窗打开时，如果处于 INPUT 步骤，清除旧的 setupBetData（新会话）
   useEffect(() => {
     if (isOpen && step === 'INPUT' && setupBetData) {
@@ -165,7 +168,7 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
       setSetupBetData(null);
     }
   }, [isOpen, step]);
-  
+
   // 弹窗关闭时，清除当前会话的交易 hash 和 endTimestamp 引用
   useEffect(() => {
     if (!isOpen) {
@@ -174,7 +177,7 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
       isWaitingForApprovalRef.current = false;
     }
   }, [isOpen]);
-  
+
   // 检查登录状态 - 打开弹窗时验证
   useEffect(() => {
     if (isOpen && step === 'INPUT') {
@@ -183,30 +186,30 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
       }
     }
   }, [isOpen, step, hasTwitterLogin]);
-  
+
   // Step 1: 分析并调用 setupBet 接口
   const handleAnalyze = useCallback(async () => {
     if (!url) return;
-    
+
     // 验证 URL 格式
     if (!validateTwitterUrl(url)) {
       setError(t('create_market_invalid_url'));
       return;
     }
-    
+
     // 检查 Twitter 登录
     if (!hasTwitterLogin) {
       setError(t('create_market_please_login_twitter'));
       return;
     }
-    
+
     setError(null);
     setStep('ANALYZING');
-    
+
     try {
       // 调用 setupBet 接口
       const response = await setupBet({ tweet_url: url.trim() });
-      
+
       if (response?.data) {
         setSetupBetData(response.data);
         setStep('PAYMENT');
@@ -220,7 +223,7 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
       setError(errorMessage);
     }
   }, [url, hasTwitterLogin]);
-  
+
   // 授权代币
   const handleApprove = useCallback(async () => {
     if (!betTokenAddress || !chainConfig?.AgentBetAddress) {
@@ -248,19 +251,19 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
       toast.error(error.message || t('donate_approve_failed') || 'Approve failed');
     }
   }, [betTokenAddress, chainConfig?.AgentBetAddress, tokenDecimals, writeApproveContract, t]);
-  
+
   // Step 2: 支付并调用合约
   const handlePayment = useCallback(async () => {
     if (!hasTwitterLogin) {
       toast.error(t('please_login_first') || 'Please login first');
       return;
     }
-    
+
     if (!hasWalletConnected) {
       toast.error(t('please_connect_wallet') || 'Please connect wallet');
       return;
     }
-    
+
     if (isWrongChain && expectedChainId) {
       try {
         await switchChain({ chainId: expectedChainId });
@@ -271,12 +274,12 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
         return;
       }
     }
-    
+
     if (!setupBetData || !chainConfig?.AgentBetAddress) {
       toast.error(t('create_market_setup_data_unavailable'));
       return;
     }
-    
+
     // 检查授权（原生代币不需要授权）
     if (betTokenAddress && betTokenAddress !== ethers.ZeroAddress) {
       // 等待授权额度加载
@@ -284,11 +287,11 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
         await refetchAllowance();
         return;
       }
-      
+
       // 检查授权是否足够（至少需要1）
       const allowanceBN = BigInt(tokenAllowance.toString());
       const requiredBN = BigInt(parseToBigNumber('1', tokenDecimals).toString());
-      
+
       if (allowanceBN < requiredBN) {
         // 授权不足，先进行授权
         isWaitingForApprovalRef.current = true;
@@ -296,12 +299,12 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
         return;
       }
     }
-    
+
     // 清除等待授权标志
     isWaitingForApprovalRef.current = false;
-    
+
     setStep('MINTING');
-    
+
     try {
       // 计算时间戳
       const startTimestamp = Math.floor(Date.now() / 1000);
@@ -320,10 +323,10 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
         endTimestamp,
         setupBetData.betTokenAddress as `0x${string}`,
       ]);
-      
+
       // 保存 endTimestamp 到 ref，用于回调时使用
       currentSessionEndTimestampRef.current = endTimestamp;
-      
+
       // 调用 payForRegister 合约
       writePayContract({
         address: chainConfig.AgentBetAddress as `0x${string}`,
@@ -358,14 +361,14 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
     switchChain,
     t,
   ]);
-  
+
   // 当 payTxHash 更新时，记录到当前会话的 ref 中
   useEffect(() => {
     if (payTxHash && isOpen && (step === 'MINTING' || step === 'PAYMENT')) {
       currentSessionTxHashRef.current = payTxHash;
     }
   }, [payTxHash, isOpen, step]);
-  
+
   // 监听支付交易确认
   useEffect(() => {
     // 只有在弹窗打开且处于 MINTING 或 PAYMENT 步骤时才处理交易结果
@@ -401,19 +404,14 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
           setStep('PAYMENT');
         }
       };
-      
+
       callSetupBetSuccess();
     }
   }, [isOpen, step, isPayConfirmed, payTxHash, setupBetData, t]);
-  
+
   // 监听授权成功，授权完成后更新按钮状态
   useEffect(() => {
-    if (
-      isApproveConfirmed &&
-      approveTxHash &&
-      isOpen &&
-      step === 'PAYMENT'
-    ) {
+    if (isApproveConfirmed && approveTxHash && isOpen && step === 'PAYMENT') {
       toast.success(t('donate_approve_success') || 'Approve successful');
       // 刷新授权额度，这会自动更新 needsApproval 状态，从而更新按钮显示
       // 使用 await 确保授权额度已更新后再继续
@@ -431,7 +429,7 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
       });
     }
   }, [isApproveConfirmed, approveTxHash, isOpen, step, refetchAllowance, handlePayment, t]);
-  
+
   // 监听授权错误
   useEffect(() => {
     if (isApproveWriteError && approveError) {
@@ -440,15 +438,16 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
       toast.error(errorMessage);
     }
   }, [isApproveWriteError, approveError, t]);
-  
+
   useEffect(() => {
     if (isApproveReceiptError && approveReceiptError) {
       console.error('Approve receipt error:', approveReceiptError);
-      const errorMessage = approveReceiptError.message || t('donate_approve_failed') || 'Approve transaction failed';
+      const errorMessage =
+        approveReceiptError.message || t('donate_approve_failed') || 'Approve transaction failed';
       toast.error(errorMessage);
     }
   }, [isApproveReceiptError, approveReceiptError, t]);
-  
+
   // 监听支付错误
   useEffect(() => {
     // 只有在弹窗打开且处于 MINTING 或 PAYMENT 步骤时才处理错误
@@ -466,7 +465,7 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
       toast.error(errorMessage);
     }
   }, [isOpen, step, isPayWriteError, payError, payTxHash, t]);
-  
+
   useEffect(() => {
     // 只有在弹窗打开且处于 MINTING 或 PAYMENT 步骤时才处理错误
     // 并且交易 hash 必须匹配当前会话（如果有的话）
@@ -483,7 +482,7 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
       toast.error(errorMessage);
     }
   }, [isOpen, step, isPayReceiptError, payReceiptError, payTxHash, t]);
-  
+
   const reset = useCallback(() => {
     setStep('INPUT');
     setUrl('');
@@ -492,29 +491,29 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
     // 注意：payTxHash 来自 wagmi hook，无法直接重置
     // 但通过添加 isOpen 和 step 检查，可以避免处理旧的交易结果
   }, []);
-  
+
   const handleOpenChange = (open: boolean) => {
     if (!open) {
       reset();
       onClose();
     }
   };
-  
+
   // 只有在当前会话的交易才显示加载状态
-  const isProcessing = 
-    (isPayPending || isPayConfirming || isApprovePending || isApproveConfirming) && 
-    (!payTxHash || payTxHash === currentSessionTxHashRef.current) &&
-    isOpen &&
-    (step === 'MINTING' || step === 'PAYMENT')
-    || isSwitchingChain;
-  
+  const isProcessing =
+    ((isPayPending || isPayConfirming || isApprovePending || isApproveConfirming) &&
+      (!payTxHash || payTxHash === currentSessionTxHashRef.current) &&
+      isOpen &&
+      (step === 'MINTING' || step === 'PAYMENT')) ||
+    isSwitchingChain;
+
   // 获取用户头像和名字
   const userAvatar = twitterFullProfile?.profile_image_url || '';
   const userName = twitterFullProfile?.name || '';
-  
+
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-[90%] w-full gap-0 overflow-hidden rounded-3xl p-0 shadow-2xl sm:max-w-lg">
+      <DialogContent className="w-full max-w-[90%] gap-0 overflow-hidden rounded-3xl p-0 shadow-2xl sm:max-w-lg">
         {/* Background Effects */}
         <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-yellow-500/10 to-transparent dark:from-yellow-500/10"></div>
         <div className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-yellow-500/20 blur-[80px]"></div>
@@ -581,7 +580,9 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
                       <div className="h-full w-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-yellow-600 to-yellow-400"></div>
                     </div>
                     <div className="flex items-center justify-between font-mono">
-                      <span className="text-muted-foreground text-[11px]">{t('create_market_projected_amount')}</span>
+                      <span className="text-muted-foreground text-[11px]">
+                        {t('create_market_projected_amount')}
+                      </span>
                       <span className="text-sm font-bold text-yellow-600 md:text-base dark:text-yellow-400">
                         {t('create_market_payout_amount')}
                       </span>
@@ -607,7 +608,7 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
 
               {/* Input Section */}
               <div className="space-y-1.5 md:space-y-2">
-                <label className="text-muted-foreground mb-1.5 ml-1 text-[11px] font-bold tracking-wider uppercase ">
+                <label className="text-muted-foreground mb-1.5 ml-1 text-[11px] font-bold tracking-wider uppercase">
                   {t('create_market_tweet_url_label')}
                 </label>
                 <div className="group relative">
@@ -682,7 +683,9 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
                   <ShieldCheck className="h-4 w-4 md:h-5 md:w-5" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold md:text-sm">{t('create_market_asset_eligible')}</h4>
+                  <h4 className="text-xs font-bold md:text-sm">
+                    {t('create_market_asset_eligible')}
+                  </h4>
                   <p className="text-muted-foreground mt-0.5 text-[11px] leading-relaxed md:text-xs">
                     {t('create_market_high_volume_detected', { id: setupBetData.bet_topic_id })}
                   </p>
@@ -690,12 +693,14 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
               </div>
 
               {/* Fee Section */}
-              <div className="dark:bg-muted/20 bg-accent rounded-xl p-3 md:p-4 space-y-3">
+              <div className="dark:bg-muted/20 bg-accent space-y-3 rounded-xl p-3 md:p-4">
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground text-[11px] font-medium md:text-xs">
                     {t('create_market_minting_fee')}
                   </span>
-                  <span className="font-mono text-sm font-bold md:text-base">{t('create_market_minting_fee_amount')}</span>
+                  <span className="font-mono text-sm font-bold md:text-base">
+                    {t('create_market_minting_fee_amount')}
+                  </span>
                 </div>
                 {/* <div className="bg-border mb-4 h-px w-full"></div> */}
                 {/* <div className="flex items-center justify-between">
@@ -791,7 +796,9 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
               </div>
 
               <div className="space-y-1.5">
-                <h3 className="text-base font-bold md:text-lg">{t('create_market_minting_asset')}</h3>
+                <h3 className="text-base font-bold md:text-lg">
+                  {t('create_market_minting_asset')}
+                </h3>
                 <p className="text-muted-foreground text-[11px] md:text-xs">
                   {t('create_market_deploying_contract')}
                 </p>
@@ -810,7 +817,9 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
                   <Rocket className="h-6 w-6 text-white drop-shadow-md md:h-8 md:w-8" />
                 </div>
 
-                <h3 className="mb-1.5 text-xl font-black md:text-2xl">{t('create_market_market_deployed')}</h3>
+                <h3 className="mb-1.5 text-xl font-black md:text-2xl">
+                  {t('create_market_market_deployed')}
+                </h3>
                 <p className="text-muted-foreground mb-4 text-[11px] md:mb-5 md:text-xs">
                   {t('create_market_owner_message')}
                 </p>
@@ -837,10 +846,14 @@ export const CreateMarketModal: React.FC<CreateMarketModalProps> = ({ isOpen, on
                       </div>
                     </div>
                     <div className="text-left">
-                      <p className="text-muted-foreground text-[9px] font-bold uppercase">{t('create_market_role')}</p>
+                      <p className="text-muted-foreground text-[9px] font-bold uppercase">
+                        {t('create_market_role')}
+                      </p>
                       <p className="text-xs font-bold">{t('create_market_market_owner')}</p>
                       {userName && (
-                        <p className="text-muted-foreground text-[9px] mt-0.5">@{twitterFullProfile?.screen_name || userName}</p>
+                        <p className="text-muted-foreground mt-0.5 text-[9px]">
+                          @{twitterFullProfile?.screen_name || userName}
+                        </p>
                       )}
                     </div>
                     <div className="ml-auto text-right">

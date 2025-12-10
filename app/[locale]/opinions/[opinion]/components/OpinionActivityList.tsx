@@ -110,13 +110,15 @@ export default function OpinionActivityList() {
                   }}
                 />
               ) : (
-                <div className="border-border h-10 w-10 rounded-full border overflow-hidden flex items-center justify-center">
+                <div className="border-border flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border">
                   <AddressAvatar address={activity.user.address || activity.user.name} />
                 </div>
               )}
               <div className="flex flex-col">
                 <div className="flex items-center gap-2 text-sm">
-                  <span className="text-foreground font-semibold">{formatAddress(activity.user.name || '')}</span>
+                  <span className="text-foreground font-semibold">
+                    {formatAddress(activity.user.name || '')}
+                  </span>
                   <span className="text-muted-foreground">{t('bought')}</span>
                   <span className="text-foreground font-bold">
                     {activity.shares.toLocaleString()}
@@ -140,7 +142,10 @@ export default function OpinionActivityList() {
               <span className="text-muted-foreground text-xs font-medium">
                 {formatTimeAgoShort(activity.timestamp)}
               </span>
-              <ExternalLink className="text-muted-foreground hover:text-primary h-4 w-4 cursor-pointer opacity-0 transition-opacity group-hover:opacity-100" onClick={() => window.open(activity.link_url, '_blank')}/>
+              <ExternalLink
+                className="text-muted-foreground hover:text-primary h-4 w-4 cursor-pointer opacity-0 transition-opacity group-hover:opacity-100"
+                onClick={() => window.open(activity.link_url, '_blank')}
+              />
             </div>
           </div>
         );
