@@ -737,10 +737,10 @@ export default function OpinionTradingPanel({
       if (processedBetTxHashRef.current === betTxHash) {
         return;
       }
-      
+
       // 标记这个交易已经处理过
       processedBetTxHashRef.current = betTxHash;
-      
+
       toast.success(t('bet_success') || 'Bet placed successfully');
       const betAmount = parseFloat(amount || '0');
       setAmount('');
@@ -762,7 +762,18 @@ export default function OpinionTradingPanel({
         invalidateBetDetail();
       }, 1000);
     }
-  }, [isBetConfirmed, betTxHash, amount, selectedSide, callDoBetSuccessCallback, invalidateBetDetail, refetchBetInfo, refetchEventInfo, refetchClaimableAmount, t]);
+  }, [
+    isBetConfirmed,
+    betTxHash,
+    amount,
+    selectedSide,
+    callDoBetSuccessCallback,
+    invalidateBetDetail,
+    refetchBetInfo,
+    refetchEventInfo,
+    refetchClaimableAmount,
+    t,
+  ]);
 
   // 监听 claim 交易状态
   useEffect(() => {
@@ -1027,9 +1038,8 @@ export default function OpinionTradingPanel({
 
     // 检查是否是第一次下注（只在第一次下注时显示分享弹窗）
     // betInfo 中 amount 为 0 或不存在时，表示还没下注过
-    const isFirstBet = !betInfo || 
-      !(betInfo as any).amount || 
-      BigInt((betInfo as any).amount.toString()) === 0n;
+    const isFirstBet =
+      !betInfo || !(betInfo as any).amount || BigInt((betInfo as any).amount.toString()) === 0n;
     shouldShowShareModalRef.current = isFirstBet;
 
     try {
@@ -1670,7 +1680,10 @@ export default function OpinionTradingPanel({
             <Info className="h-3 w-3" />
             <span>
               {t('you_hold') || 'You hold'}{' '}
-              <strong className={cn(userBetChoice === 0 ? 'text-green-500' : 'text-red-500')}>{userBetChoice === 0 ? t('yes') : t('no')}</strong>.{' '}
+              <strong className={cn(userBetChoice === 0 ? 'text-green-500' : 'text-red-500')}>
+                {userBetChoice === 0 ? t('yes') : t('no')}
+              </strong>
+              .{' '}
               {t('must_sell_before_betting_opposite') ||
                 'You must sell your position before betting on the opposite side.'}
             </span>

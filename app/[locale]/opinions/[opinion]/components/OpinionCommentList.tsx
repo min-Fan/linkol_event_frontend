@@ -115,7 +115,8 @@ export default function OpinionCommentList() {
       if (activeFilter === 'ALL') return true;
       if (activeFilter === 'YES') return comment.attitude === 0;
       if (activeFilter === 'NO') return comment.attitude === 1;
-      if (activeFilter === 'OTHERS') return comment.attitude === 2 || comment.attitude === undefined;
+      if (activeFilter === 'OTHERS')
+        return comment.attitude === 2 || comment.attitude === undefined;
       return true;
     });
   }, [comments, activeFilter]);
@@ -204,9 +205,9 @@ export default function OpinionCommentList() {
         </button>
         <button
           onClick={() => handleFilterChange('OTHERS')}
-          className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-            activeFilter === 'OTHERS' 
-              ? 'bg-blue-500/20 text-blue-500 ring-1 ring-blue-500' 
+          className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
+            activeFilter === 'OTHERS'
+              ? 'bg-blue-500/20 text-blue-500 ring-1 ring-blue-500'
               : 'bg-muted/20 text-muted-foreground hover:text-blue-500'
           }`}
         >

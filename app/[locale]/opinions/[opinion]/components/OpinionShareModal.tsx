@@ -91,21 +91,18 @@ export default function OpinionShareModal({
     if (mode === 'POST_TRADE') {
       return amountInvested;
     }
-    
+
     // DEFAULT 模式：从 betInfo 中获取下注总数
     if (betInfo && (betInfo as any).amount) {
-      const tokenDecimalsValue = tokenAddress === ethers.ZeroAddress 
-        ? 18 
-        : tokenDecimals 
-          ? Number(tokenDecimals) 
-          : 18;
+      const tokenDecimalsValue =
+        tokenAddress === ethers.ZeroAddress ? 18 : tokenDecimals ? Number(tokenDecimals) : 18;
       const betAmount = formatBigNumber(
         BigInt((betInfo as any).amount.toString()),
         tokenDecimalsValue
       );
       return parseFloat(betAmount);
     }
-    
+
     return amountInvested;
   }, [mode, amountInvested, betInfo, tokenAddress, tokenDecimals]);
 
@@ -178,17 +175,17 @@ export default function OpinionShareModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="border-border bg-card w-full max-w-[90%] rounded-xl border p-0 shadow-2xl sm:max-w-md sm:rounded-2xl gap-0">
+      <DialogContent className="border-border bg-card w-full max-w-[90%] gap-0 rounded-xl border p-0 shadow-2xl sm:max-w-md sm:rounded-2xl">
         <DialogHeader className="p-3 pb-0 sm:p-4 sm:pb-0">
-        {mode !== 'POST_TRADE' ? (
-            <div className="text-center mb-3 animate-in slide-in-from-top-2">
+          {mode !== 'POST_TRADE' ? (
+            <div className="animate-in slide-in-from-top-2 mb-3 text-center">
               <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-500/10 ring-1 ring-green-500/50 md:h-14 md:w-14">
                 <Rocket className="h-6 w-6 text-green-500 drop-shadow-sm md:h-7 md:w-7" />
               </div>
-              <DialogTitle className="text-foreground text-lg md:text-xl font-black">
+              <DialogTitle className="text-foreground text-lg font-black md:text-xl">
                 {t('position_confirmed') || 'Position Confirmed!'}
               </DialogTitle>
-              <p className="text-muted-foreground text-[11px] md:text-xs mt-1.5 max-w-[95%] mx-auto leading-relaxed">
+              <p className="text-muted-foreground mx-auto mt-1.5 max-w-[95%] text-[11px] leading-relaxed md:text-xs">
                 {t('you_invested') || 'You invested'}{' '}
                 {displayAmountInvested && displayAmountInvested > 0 && (
                   <strong className={cn(isYes ? 'text-green-500' : 'text-red-500')}>
@@ -199,7 +196,9 @@ export default function OpinionShareModal({
                 <strong className={cn(isYes ? 'text-green-500' : 'text-red-500')}>{side}</strong>.
                 <br />
                 {t('share_now_to_boost') || 'Share now to boost'}{' '}
-                <strong className="text-muted-foreground">{t('brand_voice') || 'Brand Voice'}</strong>{' '}
+                <strong className="text-muted-foreground">
+                  {t('brand_voice') || 'Brand Voice'}
+                </strong>{' '}
                 {t('and_increase_winning_chance') || 'and increase your chance of winning.'}
               </p>
             </div>
@@ -232,10 +231,12 @@ export default function OpinionShareModal({
                     <CheckCircle2 className="text-primary absolute -right-0.5 -bottom-0.5 h-2.5 w-2.5 rounded-full bg-black" />
                   )}
                 </div>
-                <span className="text-[11px] font-semibold text-white sm:text-xs">{topic.name}</span>
+                <span className="text-[11px] font-semibold text-white sm:text-xs">
+                  {topic.name}
+                </span>
               </div>
 
-              <h4 className="mb-3 text-sm leading-tight font-bold text-white drop-shadow-md sm:mb-3.5 sm:text-base line-clamp-3">
+              <h4 className="mb-3 line-clamp-3 text-sm leading-tight font-bold text-white drop-shadow-md sm:mb-3.5 sm:text-base">
                 "{topic.content}"
               </h4>
 
@@ -252,12 +253,12 @@ export default function OpinionShareModal({
                 {/* Visual Amount Badge */}
                 {displayAmountInvested && displayAmountInvested > 0 && (
                   <div className="mt-2 mb-1.5 flex flex-col items-center">
-                    <div className="h-px w-14 md:w-16 bg-white/20 mb-1.5"></div>
+                    <div className="mb-1.5 h-px w-14 bg-white/20 md:w-16"></div>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-base md:text-lg font-black text-white tracking-tight">
+                      <span className="text-base font-black tracking-tight text-white md:text-lg">
                         {formatPrecision(displayAmountInvested.toString())}
                       </span>
-                      <span className="text-[9px] text-gray-300 uppercase font-bold tracking-wider">
+                      <span className="text-[9px] font-bold tracking-wider text-gray-300 uppercase">
                         {t('invested') || 'Invested'}
                       </span>
                     </div>
