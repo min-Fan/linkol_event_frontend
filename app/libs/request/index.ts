@@ -5,37 +5,16 @@ import kolRequest from './kol-request';
 export const ENDPOINT_URL = {
   OTP_CODE: '/kol/api/v1/email/code',
   LOGIN: '/kol/api/v1/login',
-  REGISTER: '/kol/api/v1/wallet/register',
-  RESET_PASSWORD: '/kol/api/v1/user/resetpwd',
   BIND_WALLET: '/kol/api/v1/wallet/bind/',
-  GET_INFO_BY_TOKEN: '/kol/api/v1/get_info_by_token/',
   NONCE: '/kol/api/v1/wallet/nonce/',
   BIND_EMAIL: '/kol/api/v1/bind/email/',
   UNBIND_EMAIL: '/kol/api/v1/unbind/email/',
   TAGS: '/kol/api/v1/tags/',
   GET_KOL: '/kol/api/v1/kols/by/tags/',
   PLATFORM_WALLET: '/kol/api/v1/platform/wallet/receive/address',
-  CREATE_ORDER: '/kol/api/v1/agent/order',
-  CREATE_ORDER_V2: '/kol/api/v2/agent/order',
-  PAY_ORDER: '/kol/api/v1/agent/pay',
-  PAY_ORDER_V2: '/kol/api/v2/agent/pay',
   CREATE_PROJECT: '/kol/api/v1/projects/',
   UPLOAD_DOC: '/kol/api/v1/doc_upload/',
   UPLOAD_IMAGE: '/kol/api/v2/upload/image/',
-  GET_TWEET_TYPE_AND_ADD_ON_SERVICE: '/kol/api/v2/tweet_service_types',
-  ASSOCIATE_PROJECT: '/kol/api/v1/business/order/project/bind',
-  ORDER_LIST: '/kol/api/v1/business/order/list',
-  ORDER_DETAIL: '/kol/api/v1/business/order/detail',
-  ORDER_GAIN: '/kol/api/v1/order/gain/',
-  WITHDRAW_ORDER_AMOUNT: '/kol/api/v1/business/order/withdraw',
-  GET_KOL_INFO: '/kol/api/v1/kols/',
-  PROJECT_LIST: '/kol/api/v1/projects/',
-  PROJECT_DETAIL: '/kol/api/v1/projects/',
-  PROJECT_UPDATE: '/kol/api/v1/projects/',
-  ADVERTISER_MESSAGES: '/kol/api/v1/advertiser/msglist',
-  RATE_KOL: '/kol/api/v1/order/item/evaluate/',
-  GET_TEST_TOKEN: '/kol/api/v1/platform/wallet/receive/token',
-  KOL_LIST_LINE_CHART: '/kol/api/v1/kol/line',
   TWITTER_AUTH_URL: '/kol/api/v1/kol/x/authorization',
   TWITTER_AUTH_CALLBACK: '/kol/api/v1/x/get_access_token/',
   TWITTER_AUTH_USER_INFO: '/kol/api/v1/x/profile/',
@@ -44,42 +23,14 @@ export const ENDPOINT_URL = {
   TWITTER_AUTH_V2_CALLBACK: '/kol/api/v1/x/2/get_access_token/',
   TWITTER_AUTH_V2_USER_INFO: '/kol/api/v1/x/2/profile/',
   TWITTER_AUTH_V2_COMPLETE_CALLBACK: '/kol/api/v1/x/2/kol/login/',
-  PLATFORM_TOTAL_RECHARGE_AND_TOTAL_DEAL: '/kol/api/v1/order/statistics',
-  KOL_HOME_ORDER_LIST: '/kol/api/v2/kol/order/newlist',
-  KOL_USER_INFO: '/kol/api/v1/user/x/info/',
-  KOL_MESSAGES: '/kol/api/v1/platform/msg',
-  KOL_ORDER_NO_AUTH_LIST: '/kol/api/v1/kol/order/noauth/newlist',
-  KOL_TAKE_ORDER: '/kol/api/v2/kol/order/take',
-  KOL_TAKE_ORDER_LIST: '/kol/api/v1/order/acceptances',
-  KOL_ORDER_DETAIL: '/kol/api/v2/kol/order/detail',
-  KOL_GET_TWEETS: '/kol/api/v2/submit/tweets/',
-  KOL_VERIFY_TWEETS: '/kol/api/v1/verify/tweets/',
-  KOL_GET_TWEET_CONTENT: '/kol/api/v2/tweets/content/gen',
-  KOL_SNED_POST: '/kol/api/v2/x/2/tweets/post',
-  KOL_GET_TWEET_BY_ORDER: '/kol/api/v2/order/tweet/',
   KOL_GET_VERIFY_TWEET: '/kol/api/v1/get/verify/tweet/',
   KOL_VERIFY_TWEET: '/kol/api/v1/verify/login/',
   KOL_GET_PROBLEM_CATEGORY: '/kol/api/v1/feedback/class/',
   KOL_SUBMIT_FEEDBACK: '/kol/api/v1/feedback/',
-  KOL_INCOME: '/kol/api/v1/kol/income',
-  KOL_WITHDRAW_SIGNATURE: '/kol/api/v1/withdraw/sign/',
   KOL_VERIFY_IS_NEED_LOGIN: '/kol/api/v1/auth/2/check/',
-  LADINGPAGE_GET_KOL_LIST: '/kol/api/v1/good/kols/',
-  LADINGPAGE_GET_LAST_CONTENT: '/kol/api/v1/latest/orders/',
-  LADINGPAGE_GET_STATISTICS: '/kol/api/v1/landingpage/statistics/',
   KOL_CHAT: '/kol/api/v1/ai/chat/',
-  KOL_GET_ORDER_UNCONSUMED_AMOUNT_SIGNATURE: '/kol/api/v1/project/withdraw/sign/',
-  ORDER_CONTENT_GEN: '/kol/api/v2/tweets/no_order/content/gen',
   GET_TWEET_INFO_BY_URL: '/kol/api/v2/project/tweet_user_info',
-  GET_KOL_DETAIL_BY_USERNAME: '/kol/api/v2/kol/detail',
-  BRANDING_GET_PROJECT_INFO: '/kol/api/v2/banding/project/info',
-  BRANDING_PAYMENT_PROCESSED: '/kol/api/v2/contract/paymentProcessed',
-  BRANDING_REDEEMED: '/kol/api/v2/contract/redeemed',
-  CREATE_ACTIVITY: '/kol/api/v3/actives/',
-  GET_ACTIVITY_TYPE: '/kol/api/v3/active/types/',
   GET_REWARD_RULE: '/kol/api/v3/reward/rules/',
-  CREATE_ACTIVITY_CALLBACK: '/kol/api/v3/active/create/pay/',
-  CREATE_ACTIVITY_CALLBACK_REWARD: '/kol/api/v6/claim_reward/success/',
   SOLANA_CLAIM_REWARD: '/kol/api/v6/claim_reward/usd1/pay/',
   UPDATE_ACTIVITY: '/kol/api/v3/actives/',
   GET_PRICE: '/kol/api/v4/price/',
@@ -135,45 +86,6 @@ export const login = (params: ILoginParams) => {
   return request.post<ILoginResponseData>(ENDPOINT_URL.LOGIN, { ...params });
 };
 
-interface IRegisterParams {
-  nonce: string;
-  wallet: string;
-  signature: string;
-  email: string;
-  password: string;
-  code: string;
-}
-
-interface IRegisterResponseData {
-  id: number;
-  username: string;
-  email: string;
-  identity: string;
-  token: string;
-}
-
-// 注册
-export const register = (params: IRegisterParams) => {
-  return request.post<IRegisterResponseData>(ENDPOINT_URL.REGISTER, { ...params });
-};
-
-interface IResetPasswordParams {
-  email: string;
-  password: string;
-  code: string;
-}
-
-interface IResetPasswordResponseData {
-  id: number;
-  username: string;
-  email: string | null;
-  token: string;
-}
-
-// 重置密码
-export const resetPassword = (params: IResetPasswordParams) => {
-  return request.post<IResetPasswordResponseData>(ENDPOINT_URL.RESET_PASSWORD, { ...params });
-};
 
 // 绑定钱包地址
 interface IBindWalletParams {
@@ -194,19 +106,6 @@ export const bindWallet = (params: IBindWalletParams) => {
   return request.post<IBindWalletResponseData>(ENDPOINT_URL.BIND_WALLET, { ...params });
 };
 
-// 获取用户信息
-export interface IGetInfoByTokenResponseData {
-  id: number;
-  username: string;
-  email: string;
-  identity: string;
-  wallet_address: string;
-  token: string;
-}
-
-export const getInfoByToken = () => {
-  return request.get<IGetInfoByTokenResponseData>(ENDPOINT_URL.GET_INFO_BY_TOKEN);
-};
 
 // 绑定钱包地址的时候 获取nonce
 interface IGetNonceParams {
@@ -262,19 +161,6 @@ export const getPlatformWallet = () => {
   return request.get(ENDPOINT_URL.PLATFORM_WALLET);
 };
 
-// 获取推文类型和增值服务
-export const getTweetTypeAndAddOnService = () => {
-  return request.get(ENDPOINT_URL.GET_TWEET_TYPE_AND_ADD_ON_SERVICE);
-};
-
-// 购买agent下单接口
-export const createOrder = (params: any) => {
-  return request.post(ENDPOINT_URL.CREATE_ORDER, { ...params });
-};
-// 购买agent下单接口 v2
-export const createOrderV2 = (params: any) => {
-  return request.post(ENDPOINT_URL.CREATE_ORDER_V2, { ...params });
-};
 
 // 上传图片(一次只能传一个图片) 最大5兆
 interface IUploadImageRequest {
@@ -293,15 +179,6 @@ export const uploadImage = (params: IUploadImageRequest) => {
   );
 };
 
-// 购买agent支付接口
-export const payOrder = (params: any) => {
-  return request.post(ENDPOINT_URL.PAY_ORDER, { ...params });
-};
-
-// 购买agent支付接口 v2
-export const payOrderV2 = (params: any) => {
-  return request.post(ENDPOINT_URL.PAY_ORDER_V2, { ...params });
-};
 
 interface ICreateProjectRequest {
   desc?: string;
@@ -335,231 +212,6 @@ export const uploadDoc = (params: IUploadDocRequest) => {
   );
 };
 
-// 订单关联project_id接口
-export interface IAssociateProjectParams {
-  /**
-   * 订单ID
-   */
-  order_id: number;
-  /**
-   * kol审核状态
-   */
-  project_id: number;
-}
-
-export const associateProject = (params: IAssociateProjectParams) => {
-  return request.post(ENDPOINT_URL.ASSOCIATE_PROJECT, { ...params });
-};
-
-// 订单列表接口
-export interface IOrderListParams {
-  /**
-   * 每页数量
-   */
-  limit?: number;
-  /**
-   * 页码
-   */
-  page?: number;
-}
-
-export interface IOrderListItem {
-  consumption_amount: number;
-  created_at: string;
-  id: number;
-  kol_agree_count: number;
-  kol_count: number;
-  order_amount: number;
-  payment_amount: number;
-  project_name: string;
-  /**
-   * 推广开始时间
-   */
-  promotional_start_at: string;
-  /**
-   * 推广结束时间
-   */
-  promotional_end_at: string;
-}
-
-export interface IOrderListResponseData {
-  order_list: IOrderListItem[];
-  total: number;
-  page_range: number[];
-  current_page: number;
-}
-
-export const getOrderList = (params: IOrderListParams) => {
-  return request.get<IOrderListResponseData>(ENDPOINT_URL.ORDER_LIST, { ...params });
-};
-
-// 订单详情接口
-export enum KOL_AUDIT_STATUS {
-  ALL = '',
-  PENDING = 'pending',
-  DOING = 'doing',
-  FINISHED = 'finished',
-  REJECT = 'reject',
-}
-
-export interface IOrderDetailParams {
-  /**
-   * kol审核状态 可选:pending,doing,finished,reject,不传查全部
-   */
-  kol_audit_status?: KOL_AUDIT_STATUS;
-  /**
-   * 订单id
-   */
-  order_id: number;
-}
-
-export const getOrderDetail = (params: IOrderDetailParams) => {
-  return request.get(ENDPOINT_URL.ORDER_DETAIL, { ...params });
-};
-
-// 订单的order的gain
-export interface IOrderGainParams {
-  order_id?: string;
-  page?: number;
-  size?: number;
-}
-
-export const getOrderGain = (params: IOrderGainParams) => {
-  return request.get(ENDPOINT_URL.ORDER_GAIN, { ...params });
-};
-
-// 提取订单未消费金额接口
-export interface IWithdrawOrderAmountParams {
-  /**
-   * 订单ID
-   */
-  order_id: number;
-  /**
-   * 商户钱包地址
-   */
-  wallet_address: string;
-}
-export const withdrawOrderAmount = (params: IWithdrawOrderAmountParams) => {
-  return request.post(ENDPOINT_URL.WITHDRAW_ORDER_AMOUNT, { ...params });
-};
-
-// 获取某个KOL介绍和信息
-export interface IGetKOLInfoParams {
-  language?: string;
-}
-
-export const getKOLInfo = (id: string, params: IGetKOLInfoParams) => {
-  return request.get(ENDPOINT_URL.GET_KOL_INFO + id, { ...params });
-};
-
-// project列表
-export interface IProjectListData {
-  /**
-   * 创建时间
-   */
-  created_at: string;
-  /**
-   * 描述
-   */
-  desc: string;
-  /**
-   * 文档URL
-   */
-  document_urls: string[] | null;
-  /**
-   * 图片
-   */
-  icon: string;
-  id: number;
-  /**
-   * 名字
-   */
-  name: string;
-  user: number;
-  /**
-   * 网址
-   */
-  website: string;
-}
-export const getProjectList = (params: any) => {
-  return request.get(ENDPOINT_URL.PROJECT_LIST, { ...params });
-};
-
-// 获取project 详情
-export const getProjectDetail = (id: number) => {
-  return request.get(ENDPOINT_URL.PROJECT_DETAIL + id);
-};
-
-// 修改项目
-export interface IUpdateProjectParams {
-  desc: string;
-  document_urls: string[];
-  /**
-   * 图片URL
-   */
-  icon: string;
-  name: string;
-  /**
-   * 网址
-   */
-  website: string;
-  tweet_url: string;
-}
-
-export const updateProject = (id: number, params: IUpdateProjectParams) => {
-  return request.put(ENDPOINT_URL.PROJECT_UPDATE + id + '/', { ...params });
-};
-
-// 删除项目
-export const deleteProject = (id: number) => {
-  return request.delete(ENDPOINT_URL.PROJECT_UPDATE + id + '/');
-};
-
-// 获取广告商消息
-export interface IAdvertiserMessagesParams {
-  page?: number;
-  limit?: number;
-}
-export const getAdvertiserMessages = (params: IAdvertiserMessagesParams) => {
-  return request.get(ENDPOINT_URL.ADVERTISER_MESSAGES, { ...params });
-};
-
-// 给订单对应的KOL评价
-export interface IRateKOLParams {
-  /**
-   * 订单详情id
-   */
-  order_item_id: string;
-  /**
-   * 分数
-   */
-  score: string;
-}
-export const rateKOL = (params: IRateKOLParams) => {
-  return request.post(ENDPOINT_URL.RATE_KOL, { ...params });
-};
-
-// 领取测试币UDT接口
-export interface IGetUdtTokenParams {
-  /**
-   * 钱包地址
-   */
-  wallet_address: string;
-}
-export const getUdtToken = (params: IGetUdtTokenParams) => {
-  return request.post(ENDPOINT_URL.GET_TEST_TOKEN, { ...params });
-};
-
-// kol列表的折线图和价格排名
-export interface IGetKOLListLineChartParams {
-  /**
-   * 钱包地址
-   */
-  kol_id: string;
-}
-export const getKOLListLineChart = (params: IGetKOLListLineChartParams) => {
-  return request.get(ENDPOINT_URL.KOL_LIST_LINE_CHART, { ...params });
-};
 
 // 步骤1.推特授权 URL
 export interface IGetTwitterAuthUrlParams {
@@ -637,10 +289,6 @@ export const getTwitterAuthCompleteCallback = (params: IGetTwitterAuthCompleteCa
   return kolRequest.post(ENDPOINT_URL.TWITTER_AUTH_COMPLETE_CALLBACK, { ...params });
 };
 
-// 平台总充值和总成交的统计数据
-export const getPlatformTotalRechargeAndTotalDeal = () => {
-  return request.get(ENDPOINT_URL.PLATFORM_TOTAL_RECHARGE_AND_TOTAL_DEAL);
-};
 
 // 获取KOL首页订单列表
 export interface IGetKOLHomeOrderListParams {
@@ -665,140 +313,7 @@ export interface IGetKOLHomeOrderListParams {
    */
   size: number;
 }
-export const getKOLHomeOrderList = (params: IGetKOLHomeOrderListParams) => {
-  return kolRequest.get(ENDPOINT_URL.KOL_HOME_ORDER_LIST, { ...params });
-};
 
-// 根据token获取kol用户信息
-export const getKOLUserInfo = () => {
-  return kolRequest.get(ENDPOINT_URL.KOL_USER_INFO);
-};
-
-// kol查询平台消息
-export interface IGetKolMessagesListParams {
-  /**
-   * 消息类型 kol_completed,project_paid
-   */
-  msg_type?: string;
-  /**
-   * 每页数量
-   */
-  limit?: number;
-}
-export const getKolMessagesList = (params: IGetKolMessagesListParams) => {
-  return kolRequest.get(ENDPOINT_URL.KOL_MESSAGES, { ...params });
-};
-
-// 获取未授权的订单列表
-export const getKolOrderNoAuthList = (params: IGetKOLHomeOrderListParams) => {
-  return kolRequest.get(ENDPOINT_URL.KOL_ORDER_NO_AUTH_LIST, { ...params });
-};
-
-// kol接单抢单接口
-export interface IKolTakeOrderParams {
-  /**
-   * 操作说明，抢单:vie, 接单take
-   */
-  action_type: 'vie' | 'take';
-  /**
-   * 订单选项id
-   */
-  order_item_id: number;
-}
-
-export const kolTakeOrder = (params: IKolTakeOrderParams) => {
-  return kolRequest.post(ENDPOINT_URL.KOL_TAKE_ORDER, { ...params });
-};
-
-// 获取kol接单抢单列表
-export interface IGetKolTakeOrderListParams {
-  order_id: string;
-}
-export interface IGetKolTakeOrderListResponse {
-  /**
-   * 该订单下的所有有关KOL
-   */
-  kols: ITakeOrderListKol[];
-  /**
-   * 剩余钱数
-   */
-  remain_balance: number;
-  /**
-   * 总钱数
-   */
-  total: number;
-}
-
-export interface ITakeOrderListKol {
-  /**
-   * kol id
-   */
-  id: string;
-  /**
-   * @前面的名字
-   */
-  name: string;
-  /**
-   * 价格
-   */
-  price: number;
-  /**
-   * KOL头像
-   */
-  profile_image_url: string;
-  /**
-   * @后面的名字
-   */
-  screen_name: string;
-  /**
-   * 状态
-   */
-  status: string;
-}
-export const getKolTakeOrderList = (params: IGetKolTakeOrderListParams) => {
-  return kolRequest.get(ENDPOINT_URL.KOL_TAKE_ORDER_LIST, { ...params });
-};
-
-//获取订单详情
-export const getKOLOrderDetail = (params: { order_item_id: any }) => {
-  return kolRequest.get(ENDPOINT_URL.KOL_ORDER_DETAIL, { ...params });
-};
-
-// 通过推文ID获取推文
-export const getPostDetail = (params: any) => {
-  return kolRequest.post(ENDPOINT_URL.KOL_GET_TWEETS, { ...params });
-};
-
-// 推文相关性检查
-export const checkPostRelevance = (params: any) => {
-  return kolRequest.post(ENDPOINT_URL.KOL_VERIFY_TWEETS, { ...params });
-};
-
-// 生成推文内容
-export const generatePostContent = (params: any) => {
-  return kolRequest.post(ENDPOINT_URL.KOL_GET_TWEET_CONTENT, {
-    ...params,
-  });
-};
-
-//发送推文
-export const sendPost = (params: any) => {
-  return kolRequest.post(ENDPOINT_URL.KOL_SNED_POST, { ...params });
-};
-
-//上传推文链接
-export async function uploadSelfPostLink(params: any) {
-  return kolRequest.post('/kol/api/v1/submit/tweets/', { ...params });
-}
-
-export const getTweetByOrderId = (params: any) => {
-  return kolRequest.get(ENDPOINT_URL.KOL_GET_TWEET_BY_ORDER, { ...params });
-};
-
-//kol 提现
-export async function getWithdraw(params: any) {
-  return kolRequest.post('/kol/api/v1/kol/withdraw', { ...params });
-}
 
 // V2步骤1.推特授权 URL
 export interface IGetTwitterAuthUrlParams {
@@ -960,97 +475,31 @@ export const submitFeedback = (params: ISubmitFeedbackParams) => {
   return kolRequest.post(ENDPOINT_URL.KOL_SUBMIT_FEEDBACK, { ...params });
 };
 
-// 统计kol收入接口
-export const getKolIncome = () => {
-  return kolRequest.get(ENDPOINT_URL.KOL_INCOME);
-};
 
 // KOL订单发推后的提现签名
-export interface IGetKolWithdrawSignatureParams {
-  /**
-   * KOL钱包地址
-   */
-  address?: string;
-  /**
-   * 订单ID
-   */
-  order_item_id?: string;
-}
-export const getKolWithdrawSignature = (params: IGetKolWithdrawSignatureParams) => {
-  return kolRequest.get(ENDPOINT_URL.KOL_WITHDRAW_SIGNATURE, { ...params });
-};
 
 // 验证是不是需要重新登录
 export const verifyIsNeedLogin = () => {
   return kolRequest.get(ENDPOINT_URL.KOL_VERIFY_IS_NEED_LOGIN);
 };
-//ladingpage 获取kols
-export const LoadingPageGetKolList = () => {
-  return kolRequest.get(ENDPOINT_URL.LADINGPAGE_GET_KOL_LIST);
-};
 
-//loadingpage 获取最新推文
-export const LoadingPageLastContent = () => {
-  return kolRequest.get(ENDPOINT_URL.LADINGPAGE_GET_LAST_CONTENT);
-};
 
-//loadinpage 统计
-export const LoadingPageStatistics = () => {
-  return kolRequest.get(ENDPOINT_URL.LADINGPAGE_GET_STATISTICS);
-};
 // 意图识别
 export const chat = (params: any, signal?: AbortSignal) => {
   return request.post(ENDPOINT_URL.KOL_CHAT, { ...params }, { signal });
 };
 
-// 提取订单未消费金额-签名
-export interface IGetOrderUnconsumedAmountSignatureParams {
-  /**
-   * 订单ID
-   */
-  order_id: number;
-}
-export const getOrderUnconsumedAmountSignature = (
-  params: IGetOrderUnconsumedAmountSignatureParams
-) => {
-  return request.get(ENDPOINT_URL.KOL_GET_ORDER_UNCONSUMED_AMOUNT_SIGNATURE, { ...params });
-};
-
-/***
- * 订单生成推文预览
- */
-export const getOrderContentGen = (params: { project_id: string; service_type_code: string }) => {
-  return request.post(ENDPOINT_URL.ORDER_CONTENT_GEN, { ...params });
-};
 
 // 从推特链接获取特推信息
 export const getTweetInfoByUrl = (params: { tweet_link: string }) => {
   return request.get(ENDPOINT_URL.GET_TWEET_INFO_BY_URL, { ...params });
 };
 
-export const getKolInfoByUserName = (params: { username: string }) => {
-  return request.get(ENDPOINT_URL.GET_KOL_DETAIL_BY_USERNAME, { ...params });
-};
-
-export const brandingGetProjectInfo = (params: { screen_name: string }) => {
-  return request.get(ENDPOINT_URL.BRANDING_GET_PROJECT_INFO, { ...params });
-};
 
 export const brandingMarketEvents = (params: { page: number; page_size: number; type: string }) => {
   return request.get('/kol/api/v2/banding/market/events', { ...params });
 };
 
-export const brandingKOLCampaigns = (params: { page: number; page_size: number }) => {
-  return request.get('/kol/api/v2/banding/linkol/campaigns', { ...params });
-};
-
-export const brandinSentimentGood = (params: { page: number; page_size: number; type: number }) => {
-  return request.get('/kol/api/v2/banding/sentiment/good', { ...params });
-};
-
-export const brandinSentimentBad = (params: { page: number; page_size: number; type: number }) => {
-  return request.get('/kol/api/v2/banding/sentiment/bad', { ...params });
-};
 
 export const brandinGetProjectInfo = (params: { screen_name: any }) => {
   return request.get('/kol/api/v2/banding/project/info', { ...params });
@@ -1059,13 +508,6 @@ export const brandinGetProjectMetics = (params: { screen_name: any; type: 0 | 1 
   return request.get('/kol/api/v2/banding/project/metrics', { ...params });
 };
 
-export const brandinRanking = (params: {
-  page: number;
-  page_size: number;
-  type: 0 | 1 | 2 | 3 | 4;
-}) => {
-  return request.get('/kol/api/v2/banding/value/ranking', { ...params });
-};
 
 export const brandinGetCommunityActivity = (params: {
   page: number;
@@ -1076,32 +518,7 @@ export const brandinGetCommunityActivity = (params: {
   return request.get('/kol/api/v2/banding/community/activity', { ...params });
 };
 
-// PaymentProcessed的结果确认
-export interface IBrandinPaymentProcessedParams {
-  kol: string;
-  token: string;
-  amount: string;
-  orderId: string;
-}
-export const brandinPaymentProcessed = (params: IBrandinPaymentProcessedParams) => {
-  return kolRequest.post(ENDPOINT_URL.BRANDING_PAYMENT_PROCESSED, { ...params });
-};
 
-// redeemed结果确认
-export interface IBrandinRedeemedParams {
-  project: string;
-  token: string;
-  amount: string;
-  orderId: string;
-}
-export const brandinRedeemed = (params: IBrandinRedeemedParams) => {
-  return request.post(ENDPOINT_URL.BRANDING_REDEEMED, { ...params });
-};
-
-// 活动类型
-export const getActivityType = () => {
-  return request.get(ENDPOINT_URL.GET_ACTIVITY_TYPE);
-};
 
 // 获取奖励规则
 export const getRewardRule = () => {
@@ -1155,50 +572,7 @@ export interface ICreateActivityRequest {
    */
   title: string;
 }
-export const createActivity = (params: ICreateActivityRequest) => {
-  return request.post(ENDPOINT_URL.CREATE_ACTIVITY, { ...params });
-};
 
-// 创建活动支付完以后的回调
-export interface ICreateActivityCallbackRequest {
-  /**
-   * 活动ID
-   */
-  active_id: string;
-  /**
-   * 交易哈希
-   */
-  tx_hash: string;
-}
-export const createActivityCallback = (params: ICreateActivityCallbackRequest) => {
-  return request.post(ENDPOINT_URL.CREATE_ACTIVITY_CALLBACK, { ...params });
-};
-
-// 活动支付给参与人奖励后的支付回调接口
-export interface ICreateActivityCallbackRewardRequest {
-  /**
-   * 活动ID
-   */
-  pay_params: PayParam[];
-  /**
-   * 交易哈希
-   */
-  tx_hash: string;
-}
-
-export interface PayParam {
-  /**
-   * 活动参与记录的ID
-   */
-  active_join_id: number;
-  /**
-   * 金额
-   */
-  amount: string;
-}
-export const createActivityCallbackReward = (params: ICreateActivityCallbackRewardRequest) => {
-  return request.post(ENDPOINT_URL.CREATE_ACTIVITY_CALLBACK_REWARD, { ...params });
-};
 
 //活动列表
 export const marketEventsGetActives = (params: {
@@ -1648,10 +1022,6 @@ export interface ActiveRewardRule {
   zh_name: string;
 }
 
-// 仪表盘里的活动列表
-export const getDashboardActivityList = (params: { page: number; size: number }) => {
-  return request.get<ICampaignListResponseData>(`/kol/api/v3/actives/`, { ...params });
-};
 
 // 更新活动信息
 export interface IUpdateActivityRequest {
@@ -1705,10 +1075,6 @@ export const updateActivity = (id: number, params: IUpdateActivityRequest) => {
   return request.put(`${ENDPOINT_URL.UPDATE_ACTIVITY}${id}/`, { ...params });
 };
 
-// 仪表盘里获取活动详情
-export const getCampaignDetails = (id: string) => {
-  return request.get(`/kol/api/v3/active/${id}/creator/`);
-};
 
 // 参与名单-活动创建人的详情页里面的
 export interface IGetCampaignJoinListParams {
@@ -2386,20 +1752,6 @@ export const getSolanaClaimReward = (params: IGetSolanaClaimRewardParams) => {
   return kolRequest.post(ENDPOINT_URL.SOLANA_CLAIM_REWARD, params);
 };
 
-// tg热门KOL
-export interface IGetTgHotKolParams {
-  /**
-   * 页码
-   */
-  page: string;
-  /**
-   * 每页条数
-   */
-  size: string;
-}
-export const getTgHotKol = (params: IGetTgHotKolParams) => {
-  return kolRequest.get(`/kol/api/v3/kol-search-history/`, { ...params });
-};
 
 /**
  * 获取价格
@@ -2721,29 +2073,6 @@ export const getAgentInviteeList = () => {
   return kolRequest.get<IGetAgentInviteeListItem[]>('/kol/api/v8/user/invites/');
 };
 
-// 积分排行榜top15
-export interface IGetAgentRankingListItem {
-  id?: number;
-  /**
-   * 邀请人数
-   */
-  invitee_count?: number;
-  /**
-   * 积分
-   */
-  point?: number;
-  /**
-   * 头像
-   */
-  profile_image_url?: string;
-  /**
-   * 推特名
-   */
-  screen_name?: string;
-}
-export const getAgentRankingList = () => {
-  return kolRequest.get<IGetAgentRankingListItem[]>('/kol/api/v8/points/top/');
-};
 
 // 修改活动是不是要自动参与
 export interface IUpdateActivityAutoParticipateParams {
